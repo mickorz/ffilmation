@@ -1,0 +1,40 @@
+FFilmation: AS3 isometric engine. Version history:
+-------------------------------------------------
+
+1.1:
+
+NEW
+
+Added coordinate-translation methods to fScene, so you can easity map Satge corrdinates into game coordinates, or viceversa
+Added camera occlusion
+Added Scene controllers
+Added enable/disable methods to the scene
+Added Element controllers
+Added Perlin Material
+Added Door Material
+Added Generator interface + SCATTER Generator
+Implemented fScene.removeOmniLight
+
+FIXES
+
+Fixed fObject.hide() causing a zSort exception
+Fixed createCharacter()
+Fixed false shadows from floors to higher walls
+Fixed a big performance botteneck that affected character movement
+
+TODO
+. Finish fObject shadowing models
+. AI helpers: isElementVisibleFrom(), findPathTo(), findAmbushPathTo()
+
+1.0: Initial Release
+
+KNOW BUGS
+. At creation time, If objects are placed beyond bounds some errors are not properly catched. Unless you're capturing everything
+or are testing from inside the flash authoring tool, the engine stops working and you don't know what happened.
+
+TODO
+. Finish fObject shadowing models
+. AI helpers: isElementVisibleFrom(), findPathTo(), findAmbushPathTo()
+. Camera occlusion: assign a transparency percent to elements that are in front of the camera, you you can see what you're doing
+. More material types
+. Add more object libraries to the default release
