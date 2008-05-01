@@ -1,0 +1,53 @@
+// GLOBAL LIGHT
+
+package org.ffilmation.engine.core {
+
+		// Imports
+		import flash.geom.*
+		import flash.events.*	
+
+		/**
+		* <p>The fGlobalLight class contains information about the global light of a scene. The global light is the minimum
+		* amount of lighting any element will get.</p>
+		*
+		* <p>Scenes without global lighting will show elements as 100% black if they are not affected by a direct light.</p>
+		*
+		* <p>The fGlobaLight doesn't cast shadows. The sun in NOT a fGlobalLight, it is a spot light of infinity radius</p>
+		*
+		* <p>YOU CAN'T CREATE INSTANCES OF THIS OBJECT.<br>
+		* Use the scene's environmentLight property to change the global light of a scene</p>
+    *		
+		* @see org.ffilmation.engine.core.fScene#environmentLight
+		*/
+		public class fGlobalLight extends fLight {
+		
+			// Constructor
+			/** @private */
+			function fGlobalLight(defObj:XML,scene:fScene):void {
+
+			   super(defObj,scene)
+
+			}
+			
+			// Methods
+			/** @private */
+			public override function setIntensity(percent:Number):void {
+				
+			   this.intensity = percent
+ 			   var pc:Number = percent/100
+
+				 this.color = new ColorTransform( 
+			                     fLight.NOLIGHT.ra+(this.lightColor.redMultiplier-fLight.NOLIGHT.ra)*pc,
+			                     fLight.NOLIGHT.ga+(this.lightColor.greenMultiplier-fLight.NOLIGHT.ga)*pc,
+			                     fLight.NOLIGHT.ba+(this.lightColor.blueMultiplier-fLight.NOLIGHT.ba)*pc,
+			                     1,
+			                     fLight.NOLIGHT.rb+(this.lightColor.redOffset-fLight.NOLIGHT.rb)*pc,
+			                     fLight.NOLIGHT.gb+(this.lightColor.greenOffset-fLight.NOLIGHT.gb)*pc,
+			                     fLight.NOLIGHT.bb+(this.lightColor.blueOffset-fLight.NOLIGHT.bb)*pc,
+			                     0)
+
+				 dispatchEvent(new Event(fLight.INTENSITYCHANGE))			           
+			}
+			
+		}
+}
