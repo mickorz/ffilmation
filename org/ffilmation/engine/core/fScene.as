@@ -383,7 +383,7 @@ package org.ffilmation.engine.core {
 			*
 			* @param idchar: The unique id that will identify the character
 			*
-			* @param def: Definition id. Must match a definition in some of the definition XMLS included in the scene
+			* @param def: Definition id. Must match a definition in some of the definition XMLs included in the scene
 			*
 			* @param x: Initial x coordinate for the character
 			*
@@ -409,6 +409,81 @@ package org.ffilmation.engine.core {
 			*/
 			public function removeCharacter(char:fCharacter):void {
 			}
+
+			/**
+			* This method translates scene 3D coordinates to 2D coordinates relative to the Sprite containing the scene
+			* 
+			* @param x x-axis coordinate
+			* @param y y-axis coordinate
+			* @param z z-axis coordinate
+			*
+			* @return A Point in this scene's container Sprite
+			*/
+			public function translate3DCoordsTo2DCoords(x:Number,y:Number,z:Number):Point {
+				 return this.translateCoords(x,y,z)
+			}
+
+			/**
+			* This method translates scene 3D coordinates to 2D coordinates relative to the Stage
+			* 
+			* @param x x-axis coordinate
+			* @param y y-axis coordinate
+			* @param z z-axis coordinate
+			*
+			* @return A Coordinate in the Stage
+			*/
+			public function translate3DCoordsToStageCoords(x:Number,y:Number,z:Number):Point {
+				
+				 //Get offset of camera
+         var rect:Rectangle = this.container.scrollRect
+         
+         // Get point
+				 var r:Point = this.translateCoords(x,y,z)
+				 
+				 // Translate
+				 r.x-=rect.x
+				 r.y-=rect.y
+				 
+				 return r
+			}
+
+			/**
+			* This method translates Stage coordinates to scene coordinates. Useful to map mouse events into game events
+			*
+		  * @example You can call it like
+		  *
+		  * <listing version="3.0">
+      *  function mouseClick(evt:MouseEvent) {
+      *    var coords:Point = this.scene.translateStageCoordsTo3DCoords(evt.stageX, evt.stageY)
+      *    this.hero.character.teleportTo(coords.x,coords.y, this.hero.character.z)
+      *   }
+			* </listing>
+			*
+			* @param x x-axis coordinate
+			* @param y y-axis coordinate
+			* 
+			* @return A Point in the scene's coordinate system. Please note that a Z value is not returned as It can't be calculated from a 2D input.
+			* The returned x and y correspond to z=0 in the game's coordinate system.
+			*/
+			public function translateStageCoordsTo3DCoords(x:Number,y:Number):Point {
+         
+         //get offset of camera
+         var rect:Rectangle = this.container.scrollRect
+         var xx:Number = x+rect.x
+         var yy:Number = y+rect.y
+         
+         //rotate the coordinates
+         var yCart:Number = (xx/Math.cos(0.46365)+(yy)/Math.sin(0.46365))/2
+         var xCart:Number = (-1*(yy)/Math.sin(0.46365)+xx/Math.cos(0.46365))/2         
+         
+         //scale the coordinates
+         xCart = xCart/fEngine.DEFORMATION
+         yCart = yCart/fEngine.DEFORMATION
+         
+         return new Point(xCart,yCart)
+      }         
+
+
 
 
 			// LOAD: Scene xml load event
