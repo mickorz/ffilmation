@@ -375,6 +375,7 @@ package org.ffilmation.engine.core {
 		      
 		      nEl = this.characters.length
 		      for(i2=0;i2<nEl;i2++) this.characters[i2].lightOut(light)
+		      this.all[idlight] = null
 				
 			}
 
@@ -634,6 +635,7 @@ package org.ffilmation.engine.core {
 				 
 				 // Create elements
 				 this.elements = new Sprite()
+				 this.elements.mouseEnabled = false
 				 this.container.addChild(this.elements)
 			
 			   // Setup environment
@@ -1461,11 +1463,17 @@ package org.ffilmation.engine.core {
 					for(var i:Number=0;i<oldOccluding.length;i++) {
 						oldOccluding[i].container.blendMode = BlendMode.NORMAL
 						oldOccluding[i].container.alpha = 1
+						
+						// Restore Mouse Events
+						oldOccluding[i].enableMouseEvents()
 					}
 					for(i=0;i<newOccluding.length;i++) {
 						if(newOccluding[i] is fPlane) newOccluding[i].container.blendMode = camera.planeOcclusionMode
 						else newOccluding[i].container.blendMode = camera.objectOcclusionMode
 						newOccluding[i].container.alpha = newAlpha
+						
+						// This will allow you to click elements behind the occluded element
+						newOccluding[i].disableMouseEvents()
 					}
 					
 					this.currentOccluding = newOccluding
@@ -1959,7 +1967,7 @@ package org.ffilmation.engine.core {
 			private function addCharacter(definitionObject:XML):void {
 			
 				 // Create
-				 var spr:Sprite = new Sprite()
+				 var spr:MovieClip = new MovieClip()
 		   	 this.elements.addChild(spr)			   
 			   var nCharacter = new fCharacter(spr,definitionObject,this,null)
 			   

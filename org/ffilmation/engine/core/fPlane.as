@@ -1,5 +1,3 @@
-// Basic renderable element class
-
 package org.ffilmation.engine.core {
 	
 		// Imports
@@ -37,6 +35,10 @@ package org.ffilmation.engine.core {
 			private var displacer:DisplacementMapFilter
 			private var spriteToDraw:Sprite
 			private var baseContainer:DisplayObjectContainer
+			
+			private var behind:DisplayObjectContainer  // Elements behind the wall will added here
+			private var infront:DisplayObjectContainer // Elements in front of the wall will added here
+			
 			private var tMatrix:Matrix
 			private var tMatrixB:Matrix
 			private var origWidth:Number
@@ -61,11 +63,12 @@ package org.ffilmation.engine.core {
 			/** 
 			* Array of holes in this plane. 
 			* You can't create holes dynamically, they must be in the plane's definition, but you can open and close them as you wish
+			*
+		  * @see org.ffilmation.engine.core.fHole
 			*/
 			public var holes:Array									// Array of holes in this plane
-			/** @private */
-			public var patch:Number;
 			
+	
 			/** 
 			* Material applied to this plane
 			*/
@@ -79,7 +82,7 @@ package org.ffilmation.engine.core {
 
 			// Constructor
 			/** @private */
-			function fPlane(defObj:XML,scene:fScene,width:Number,height:Number,spriteToDraw:Sprite,spriteToShowHide:Sprite):void {
+			function fPlane(defObj:XML,scene:fScene,width:Number,height:Number,spriteToDraw:Sprite,spriteToShowHide:MovieClip):void {
 				
 				 // Prepare material
 				 this.scene = scene
@@ -89,20 +92,24 @@ package org.ffilmation.engine.core {
 				 super(defObj,scene,diffuse,spriteToShowHide)
 				 
  			   this.diffuse = this.material.getDiffuse()
+ 			   
+ 			   var d:Sprite = this.diffuse as Sprite
+ 			   d.mouseEnabled = false
+ 			   d.mouseChildren = false
 
 				 // Properties
 			   this.origWidth = diffuse.width
 			   this.origHeight = diffuse.height
 			   this.spriteToDraw = spriteToDraw
 
-			   // Holes
-			   this.holes = this.material.getHoles()
-			   this.patch = 0
-			   
 				 // This is the Sprite where all light layers are generated. This Sprite is not deformed
 				 // This Sprite is attached to the deformed sprite that is visible onscreen
 				 this.baseContainer = new Sprite()
+				 this.behind = new Sprite()
+				 this.infront = new Sprite()
+			   this.baseContainer.addChild(this.behind)
 			   this.baseContainer.addChild(diffuse)
+			   this.baseContainer.addChild(this.infront)
 			   this.spriteToDraw.addChild(this.baseContainer)
 
 			   // LIGHT
@@ -114,21 +121,92 @@ package org.ffilmation.engine.core {
 			   this.lightC = new Sprite()
 				 this.black = new Shape()
 			   this.environmentC = new Shape()
+ 			   this.lightC.mouseEnabled = false
+ 			   this.lightC.mouseChildren = false
 
 			   this.baseContainer.addChild(this.lightC)
 			   this.lightC.addChild(this.black)
 			   this.lightC.addChild(this.environmentC)
 			   this.lightC.blendMode = BlendMode.MULTIPLY
-			   
-			   // Bump map
+ 			   this.lightC.mouseEnabled = false
+ 			   this.lightC.mouseChildren = false
+				 this.baseContainer.mouseEnabled = false
+
+
+			   // Holes
+			   this.holes = this.material.getHoles()
+			   for(var i:Number=0;i<this.holes.length;i++) {
+   					 this.holes[i].addEventListener(fHole.OPEN,this.openHole)
+				 		 this.holes[i].addEventListener(fHole.CLOSE,this.closeHole)
+				 		 this.holes[i].open = false
+			   }
 
 			   // Cache as Bitmap with Timer cache
-			   // The cache is disabled while the Plane is modified and a timer is set to re-enable it
+			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
 			   // if the plane doesn't change in a while
- 			   this.container.cacheAsBitmap = true
+			   if(this.holes.length==0) this.container.cacheAsBitmap = true
 				 this.cacheTimer = new Timer(100,1)
          this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener)
 
+			}
+
+			/**
+			* This method listens holes beign opened
+			*/
+			private function openHole(event:Event):void {
+				
+				try {
+					var hole:fHole = event.target as fHole
+					if(hole.block) {
+						this.behind.removeChild(hole.block)
+						this.redrawLights()
+					}
+				} catch(e:Error) {
+					
+				}
+
+			}
+
+			/**
+			* This method listens holes beign opened
+			*/
+			private function closeHole(event:Event):void {
+				
+				try {
+					var hole:fHole = event.target as fHole
+					if(hole.block) {
+						this.behind.addChild(hole.block)
+						this.redrawLights()
+					}
+				} catch(e:Error) {
+					
+				}
+
+			}
+
+			/**
+			* Redraws all lights when a hole has been opened/closed
+			*/
+			private function redrawLights():void {
+				  
+					this.setGlobalLight(this.scene.environmentLight)
+					for(var i:Number=0;i<this.scene.lights.length;i++) {
+						var l:fLight = this.scene.lights[i]
+						if(l) l.render()
+					}
+			}
+
+			// Mouse management
+			/** @private */
+			public override function disableMouseEvents():void {
+				this.container.mouseEnabled = false
+				this.spriteToDraw.mouseEnabled = false
+			}
+
+			/** @private */
+			public override function enableMouseEvents():void {
+				this.container.mouseEnabled = true
+				this.spriteToDraw.mouseEnabled = true
 			}
 
 			/** @private */
@@ -184,6 +262,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public override function setGlobalLight(light:fGlobalLight):void {
 				
+				 this.black.graphics.clear()
 				 this.black.graphics.beginFill(0x000000,1)
 		 	   this.black.graphics.moveTo(0,0)
 			 	 this.black.graphics.lineTo(0,this.origHeight)
@@ -194,19 +273,21 @@ package org.ffilmation.engine.core {
 				 // For each hole, draw hole in black
 				 for(var h:Number=0;h<this.holes.length;h++) {
 					
-					 	var hole:fPlaneBounds = this.holes[h]
-			 	  	this.black.graphics.moveTo(hole.xrel,this.patch+hole.yrel)
-			 	  	this.black.graphics.lineTo(hole.xrel+hole.width,this.patch+hole.yrel)
-			 	  	this.black.graphics.lineTo(hole.xrel+hole.width,this.patch+hole.yrel-hole.height)
-			 	  	this.black.graphics.lineTo(hole.xrel,this.patch+hole.yrel-hole.height)
-			 	  	this.black.graphics.lineTo(hole.xrel,this.patch+hole.yrel)
-			 	  	
+					 	if(this.holes[h].open) {
+						 	var hole:fPlaneBounds = this.holes[h].bounds
+				 	  	this.black.graphics.moveTo(hole.xrel,hole.yrel)
+				 	  	this.black.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
+				 	  	this.black.graphics.lineTo(hole.xrel+hole.width,hole.yrel+hole.height)
+			 		  	this.black.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
+			 	  		this.black.graphics.lineTo(hole.xrel,hole.yrel)
+			 	  	}
 				 }
 
 				 this.black.graphics.endFill()
 	       this.setDimensions(this.black)
 	       
 				 // Draw environment light
+				 this.environmentC.graphics.clear()
 				 this.environmentC.graphics.beginFill(light.hexcolor,1)
 		 	   this.environmentC.graphics.moveTo(0,0)
 			 	 this.environmentC.graphics.lineTo(0,this.origHeight)
@@ -217,12 +298,14 @@ package org.ffilmation.engine.core {
 				 // For each hole, draw environment
 				 for(h=0;h<this.holes.length;h++) {
 					
-					 	hole = this.holes[h]
-			 	  	this.environmentC.graphics.moveTo(hole.xrel,this.patch+hole.yrel)
-			 	  	this.environmentC.graphics.lineTo(hole.xrel+hole.width,this.patch+hole.yrel)
-			 	  	this.environmentC.graphics.lineTo(hole.xrel+hole.width,this.patch+hole.yrel-hole.height)
-			 	  	this.environmentC.graphics.lineTo(hole.xrel,this.patch+hole.yrel-hole.height)
-			 	  	this.environmentC.graphics.lineTo(hole.xrel,this.patch+hole.yrel)
+					 	if(this.holes[h].open) {
+						 	hole = this.holes[h].bounds
+				 	  	this.environmentC.graphics.moveTo(hole.xrel,hole.yrel)
+				 	  	this.environmentC.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
+			 	  		this.environmentC.graphics.lineTo(hole.xrel+hole.width,hole.yrel+hole.height)
+			 	  		this.environmentC.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
+			 	  		this.environmentC.graphics.lineTo(hole.xrel,hole.yrel)
+			 	  	}
 			 	  	
 				 }
 
@@ -446,7 +529,8 @@ package org.ffilmation.engine.core {
 			   // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	 this.cacheTimer.stop()
        	 this.container.cacheAsBitmap = false
-       	 if(this.holes.length==0) this.lightBumps[light.id].cacheAsBitmap = false
+       	 //if(this.holes.length==0)
+       	 this.lightBumps[light.id].cacheAsBitmap = false
 	   	   	//this.lightBumps[light.id].blendMode = BlendMode.LAYER
 
 			   // Init shadows
@@ -456,14 +540,17 @@ package org.ffilmation.engine.core {
 				 // For each hole, draw mask
 				 for(var h:Number=0;h<this.holes.length;h++) {
 					
-					 	var hole:fPlaneBounds = this.holes[h]
-					 	msk.graphics.beginFill(0x000000,1)
-			 	  	msk.graphics.moveTo(hole.xrel,hole.yrel)
-			 	  	msk.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
-			 	  	msk.graphics.lineTo(hole.xrel+hole.width,hole.yrel-hole.height)
-			 	  	msk.graphics.lineTo(hole.xrel,hole.yrel-hole.height)
-			 	  	msk.graphics.lineTo(hole.xrel,hole.yrel)
-			 	  	msk.graphics.endFill()
+					 	if(this.holes[h].open) {
+						 	var hole:fPlaneBounds = this.holes[h].bounds
+						 	msk.graphics.beginFill(0x000000,1)
+				 	  	msk.graphics.moveTo(hole.xrel,hole.yrel)
+				 	  	msk.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
+			 		  	msk.graphics.lineTo(hole.xrel+hole.width,hole.yrel-hole.height)
+			 	  		msk.graphics.lineTo(hole.xrel,hole.yrel-hole.height)
+			 	  		msk.graphics.lineTo(hole.xrel,hole.yrel)
+			 	  		msk.graphics.endFill()
+			 	  	}
+			 	  	
 				 }
 
 			   // More
@@ -497,7 +584,8 @@ package org.ffilmation.engine.core {
 			    // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	  this.cacheTimer.stop()
        	 	this.container.cacheAsBitmap = false
-       	  if(this.holes.length==0) this.lightBumps[light.id].cacheAsBitmap = false
+       	  //if(this.holes.length==0) 
+       	  this.lightBumps[light.id].cacheAsBitmap = false
 	   	   	//this.lightBumps[light.id].blendMode = BlendMode.LAYER
 
 			    // Select mask
@@ -524,6 +612,7 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 			public function cacheTimerListener(event:TimerEvent):void {
+				 if(this.holes.length!=0) return
          this.container.cacheAsBitmap = true
 		   	 for(var i in this.lightBumps) {
 		   	 		this.lightBumps[i].cacheAsBitmap = true

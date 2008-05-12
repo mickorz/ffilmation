@@ -56,15 +56,27 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public var _depth:Number
 
-			/** @private */
-			public var container:Sprite
+			/** 
+			* <p>The container is the base MovieClip that contains everything. If you want to add Mouse Events to your elements, use this
+			* property. Camera occlusion will be applied: this means that if this element was occluded to show the camera position,
+			* its events are disabled as well so you can click on items behind this element.</p>
+			*
+			* <p>The container is defined as MovieClip because MovieClips are "dynamic" and properties can be created into them.
+			* The container for each element will have two properties:</p>
+			* <p>
+			* <b>fElementId</b>: The ID for this element<br>
+			* <b>fElement</b>: A pointer to the fElement this MovieClip represents<br>
+			* </p>
+			* <p>These properties will be useful when programming MouseEvents. Using them, you will be able to access the class from an Event
+			* listener attached to the MovieClip
+			*/
+			public var container:MovieClip
 
 			/** @private */
 			public var containerToPaint:DisplayObject
 
-			// Private properties
+			/** @private */
 			protected var containerParent:DisplayObjectContainer
-			
 
 			/** @private */
 			public var _visible = true
@@ -104,17 +116,19 @@ package org.ffilmation.engine.core {
 
 			// Constructor
 			/** @private */
-			function fRenderableElement(defObj:XML,scene:fScene,libraryMovieClip:DisplayObject,spriteToShowHide:Sprite):void {
+			function fRenderableElement(defObj:XML,scene:fScene,libraryMovieClip:DisplayObject,spriteToShowHide:MovieClip):void {
 				
 				 // Previous
 				 super(defObj,scene)
 				 
-				 // Main container, global light
+				 // Main container
 				 this.containerToPaint = libraryMovieClip
 				 if(libraryMovieClip is MovieClip) this.flashClip = (libraryMovieClip as MovieClip)
 				 this.container = spriteToShowHide
 				 this.containerParent = this.container.parent
-
+				 this.container.fElementId = this.id
+				 this.container.fElement = this
+					
 				 // Lights enabled ?
 				 var temp:XMLList = defObj.@receiveLights
 			   if(temp.length()==1) this.receiveLights = (temp.toString()=="true")
@@ -185,6 +199,16 @@ package org.ffilmation.engine.core {
 					if(this.flashClip) this.flashClip[what](param)
 			}
 
+			// Mouse management
+			/** @private */
+			public function disableMouseEvents():void {
+				this.container.mouseEnabled = false
+			}
+
+			/** @private */
+			public function enableMouseEvents():void {
+				this.container.mouseEnabled = true
+			}
 
 			// Depth management
 			/** @private */

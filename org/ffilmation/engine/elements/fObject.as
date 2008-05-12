@@ -71,6 +71,15 @@ package org.ffilmation.engine.elements {
 			*/
 			public var definitionID:String
 			
+			/**
+			* This property provides a bit of rendering optimization.
+			* Non-Animated objects can be rendered faster if their cacheAsBitmap property is set to true.
+			* For animated objects this would slowdown performance as the cache would be redrawn continuously.
+			* Don't confuse "animated" ( a looping movieClip ) with "moveable".
+			* fObjects default to non-animated and fCharacters default to animated. You can use the <b>animated</b> attribute in your XMLs to change this
+			 */
+			public var animated:Boolean
+			
 			/** @private */
 	    public var shadowObj:Class
 			/** @private */
@@ -78,7 +87,7 @@ package org.ffilmation.engine.elements {
 			
 			// Constructor
 			/** @private */
-			function fObject(container:Sprite,defObj:XML,scene:fScene,level:fLevel):void {
+			function fObject(container:MovieClip,defObj:XML,scene:fScene,level:fLevel):void {
 				
 				 // Make sure this object has a definition in the scene. If it doesn't, throw an error
 				 try {
@@ -123,6 +132,9 @@ package org.ffilmation.engine.elements {
 						// Previous
 						super(defObj,scene,this.baseObj,container)
 						
+	  				// Is it animated ?
+	  			  if(defObj.@animated.length()!=1) this.animated = (defObj.@animated.toString()=="true")
+	  				
 	  				// Definition Lights enabled ?
 	  				var temp:XMLList = this.definitionXML.@receiveLights
 	  			  if(defObj.@receiveLights.length()!=1 && temp.length()==1) this.receiveLights = (temp.toString()=="true")
@@ -177,6 +189,9 @@ package org.ffilmation.engine.elements {
 			 	 // Initial orientation
 			 	 if(defObj.@orientation.length()>0) this.orientation = new Number(defObj.@orientation[0])
 			 	 else this.orientation = 0
+			 	 
+			 	 // Cache as bitmap non-animated objects
+			 	 this.container.cacheAsBitmap = this.animated!=true
 			 	 
 			 	 // Show and hide listeners, to redraw shadows
 			 	 this.addEventListener(fRenderableElement.SHOW,this.showListener)

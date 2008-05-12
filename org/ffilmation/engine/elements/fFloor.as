@@ -58,12 +58,13 @@ package org.ffilmation.engine.elements {
 			   
 			// Constructor
 			/** @private */
-			function fFloor(container:Sprite,defObj:XML,scene:fScene,z:int):void {
+			function fFloor(container:MovieClip,defObj:XML,scene:fScene,z:int):void {
 			
 				 // Generate sprites
 				 var mask:Sprite = new Sprite()
 				 var destination:Sprite = new Sprite()
 				 container.addChild(mask)
+				 mask.mouseEnabled = false
 				 mask.addChild(destination)
 
 			   // Deform floor to match perspective
@@ -166,10 +167,12 @@ package org.ffilmation.engine.elements {
 				// Loop through holes and see if point is inside one
 				for(var h:int=0;h<this.holes.length;h++) {
 				
-					 	var hole:fPlaneBounds = this.holes[h]
-					 	if(hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
-						 		return null
-					 	}
+					 	if(this.holes[h].open) {
+						 	var hole:fPlaneBounds = this.holes[h].bounds
+						 	if(hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
+							 		return null
+						 	}
+			 	  	}
 			 	  	
 				}				
 				
@@ -179,11 +182,13 @@ package org.ffilmation.engine.elements {
 				// Check previous positions to detect if we were inside a hole or not
 				for(h=0;h<this.holes.length;h++) {
 				
-					 	hole = this.holes[h]
-					 	if(hole.x<=(x-dx) && (hole.x+hole.width)>=(x-dx) && hole.y<=(y-dy) && (hole.y+hole.height)>=(y-dy)) {
-						 		lastCharacterCollision = hole
-					 	}
-			 	  	
+					 	if(this.holes[h].open) {
+						 	hole = this.holes[h].bounds
+						 	if(hole.x<=(x-dx) && (hole.x+hole.width)>=(x-dx) && hole.y<=(y-dy) && (hole.y+hole.height)>=(y-dy)) {
+							 		lastCharacterCollision = hole
+						 	}
+			 			}
+			 			  	
 				}				
 
 				// Return fCollision
@@ -218,11 +223,12 @@ package org.ffilmation.engine.elements {
 				// Loop through holes and see if point is inside one
 				for(var h:int=0;h<this.holes.length;h++) {
 				
-					 	var hole:fPlaneBounds = this.holes[h]
-					 	if(hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
-						 		return null
-					 	}
-			 	  	
+					 	if(this.holes[h].open) {
+						 	var hole:fPlaneBounds = this.holes[h].bounds
+						 	if(hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
+							 		return null
+						 	}
+			 			}  	
 				}				
 
 				// Return fCollision point
@@ -271,7 +277,7 @@ package org.ffilmation.engine.elements {
 			      	  if(other is fFloor) {
 			      	  	len = other.holes.length
 			      	  	for(var h:int=0;h<len;h++) {
-			      	  		if(this.testFloorShadow(other.holes[h],x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
+			      	  		if(this.testFloorShadow(other.holes[h].bounds,x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
 			      	    }
 			      	  }
 			      	
@@ -569,7 +575,7 @@ package org.ffilmation.engine.elements {
 			   		fFloor.floorProjectionCache.points = this.calculateFloorProjection(light.x,light.y,light.z,other.bounds)
 			   		fFloor.floorProjectionCache.holes = []
 					  for(h=0;h<other.holes.length;h++) {
-					 		fFloor.floorProjectionCache.holes[h] = this.calculateFloorProjection(light.x,light.y,light.z,other.holes[h])
+					 		fFloor.floorProjectionCache.holes[h] = this.calculateFloorProjection(light.x,light.y,light.z,other.holes[h].bounds)
 					  }
 			
 			   }
@@ -589,15 +595,18 @@ package org.ffilmation.engine.elements {
 				 len = other.holes.length
 				 
 				 for(var h:int=0;h<len;h++) {
-					 	points = fFloor.floorProjectionCache.holes[h]
-				    pUp = Math.max(points.pUp,lightStatus.lUp)
-			      pDown = Math.min(points.pDown,lightStatus.lDown)
-			      pLeft = Math.max(points.pLeft,lightStatus.lLeft)
-			      pRight = Math.min(points.pRight,lightStatus.lRight)
-			      msk.graphics.moveTo(pLeft-this.x,pUp-this.y)
-				    msk.graphics.lineTo(pLeft-this.x,pDown-this.y)
-				    msk.graphics.lineTo(pRight-this.x,pDown-this.y)
-				    msk.graphics.lineTo(pRight-this.x,pUp-this.y)
+				 	
+				 		if(other.holes[h].open) {
+					 		points = fFloor.floorProjectionCache.holes[h]
+				    	pUp = Math.max(points.pUp,lightStatus.lUp)
+			      	pDown = Math.min(points.pDown,lightStatus.lDown)
+			      	pLeft = Math.max(points.pLeft,lightStatus.lLeft)
+			      	pRight = Math.min(points.pRight,lightStatus.lRight)
+			      	msk.graphics.moveTo(pLeft-this.x,pUp-this.y)
+				    	msk.graphics.lineTo(pLeft-this.x,pDown-this.y)
+				    	msk.graphics.lineTo(pRight-this.x,pDown-this.y)
+				    	msk.graphics.lineTo(pRight-this.x,pUp-this.y)
+				    }
 				 }
 			
 			   msk.graphics.endFill()
@@ -640,7 +649,7 @@ package org.ffilmation.engine.elements {
 			   		cache.holes = []
 			   		len = wall.holes.length
 					  for(h=0;h<len;h++) {
-					 		cache.holes[h] = this.calculateWallProjectionHole(light.x,light.y,light.z,wall.holes[h])
+					 		cache.holes[h] = this.calculateWallProjectionHole(light.x,light.y,light.z,wall.holes[h].bounds)
 					  }
 			
 				 }
@@ -661,12 +670,9 @@ package org.ffilmation.engine.elements {
  				 		msk.graphics.beginFill(0x000000,100)
 
 				 		if((wall.vertical && wall.x<light.x) || (!wall.vertical && wall.y<light.y)) {
-//				 			  trace("++"+this.id)
 				 			  msk.graphics.moveTo(points[0].x-this.x,points[0].y-this.y)
-//			 			  		trace(points[0])
 				 			  for(var i:Number=1;i<points.length;i++) {
 				 			  	msk.graphics.lineTo(points[i].x-this.x,points[i].y-this.y)
-//			 			  		trace(points[i])
 			 			    }
 				 			  msk.graphics.lineTo(points[0].x-this.x,points[0].y-this.y)
 				 		} else {
@@ -682,19 +688,18 @@ package org.ffilmation.engine.elements {
 				 		len = cache.holes.length
 				 		for(var h:int=0;h<len;h++) {
 			   		
-							 	// Clip
-							  points = polygonUtils.clipPolygon(cache.holes[h],vp)	 
-							  //points = cache.holes[h]
-			   		    
-//				 			  trace("--")
-				 			  if(points.length>0) {
-				 			  	msk.graphics.moveTo(points[0].x-this.x,points[0].y-this.y)
-//				 			  		trace(points[0])
-				 			  	for(i=1;i<points.length;i++) {
-				 			  		msk.graphics.lineTo(points[i].x-this.x,points[i].y-this.y)
-//				 			  		trace(points[i])
-				 			  	}
-				 			  	msk.graphics.lineTo(points[0].x-this.x,points[0].y-this.y)
+							 	if(wall.holes[h].open) {
+							 		
+							 		// Clip
+							  	points = polygonUtils.clipPolygon(cache.holes[h],vp)	 
+				 			  	if(points.length>0) {
+					 			  	msk.graphics.moveTo(points[0].x-this.x,points[0].y-this.y)
+				 			  		for(i=1;i<points.length;i++) {
+					 			  		msk.graphics.lineTo(points[i].x-this.x,points[i].y-this.y)
+				 			  		}
+				 			  		msk.graphics.lineTo(points[0].x-this.x,points[0].y-this.y)
+				 					}
+				 					
 				 				}
 				 				
 				 		}

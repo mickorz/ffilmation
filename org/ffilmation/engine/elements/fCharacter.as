@@ -91,8 +91,11 @@ package org.ffilmation.engine.elements {
 			
 			// Constructor
 			/** @private */
-			function fCharacter(container:Sprite,defObj:XML,scene:fScene,level:fLevel):void {
+			function fCharacter(container:MovieClip,defObj:XML,scene:fScene,level:fLevel):void {
 				
+				 // Characters are animated always
+				 this.animated = true
+				 
 				 // Previous
 				 super(container,defObj,scene,level)
 				 

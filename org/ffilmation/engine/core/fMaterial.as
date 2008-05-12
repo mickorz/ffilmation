@@ -42,6 +42,13 @@ package org.ffilmation.engine.core {
 			private var width:Number										// Size
 			private var height:Number
 			
+			// Public properties
+			/**
+			* The ID for this material. You can use it, for example, to know the type of Wall you collided against
+			* in a collision event.
+			*/
+			public var id:String
+			
 			// Constructor
 			/** @private */
 			function fMaterial(id:String,width:Number,height:Number,element:fRenderableElement):void {
@@ -49,6 +56,7 @@ package org.ffilmation.engine.core {
 				 // Make sure this material has a definition in the scene. If it doesn't, throw an error
 				 try {
 
+				 		this.id = id
 				 		this.element = element
 				 		this.definitionXML = element.scene.materialDefinitions[id].copy()
 				 		this.width = width
@@ -109,7 +117,11 @@ package org.ffilmation.engine.core {
 							nobj.height = mcontainer.height
 							nobj.x1 = nobj.x0+nobj.width  
 							nobj.y1 = nobj.y0+nobj.height  
-							ret[ret.length] = nobj
+							
+							var block:MovieClip = this.cls.getHoleBlock(c)
+							block.x = nobj.xrel
+							block.y = nobj.yrel
+							ret[ret.length] = new fHole(c,nobj,block)
 						}
         }
 
@@ -120,11 +132,9 @@ package org.ffilmation.engine.core {
 
 						for(c=0;c<t.length;c++) {
 						  mcontainer = t[c]
-						  mcontainer.offset(0,-this.height)
 			        nobj = new fPlaneBounds()
-							nobj.z = el.z-mcontainer.y
-							nobj.top = el.z-mcontainer.y+mcontainer.height
-
+							nobj.z = el.z+this.height-(mcontainer.y+mcontainer.height)
+							nobj.top = el.z+this.height-mcontainer.y
 							nobj.xrel = mcontainer.x
 							nobj.yrel = mcontainer.y
 							nobj.width = mcontainer.width
@@ -146,7 +156,10 @@ package org.ffilmation.engine.core {
 								nobj.y1 = el.y
 						  }
 						  
-							ret[ret.length] = nobj
+							block = this.cls.getHoleBlock(c)
+							block.x = nobj.xrel
+							block.y = nobj.yrel-this.height
+							ret[ret.length] = new fHole(c,nobj,block)
 						}
 				
 			  }

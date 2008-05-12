@@ -103,7 +103,8 @@ package org.ffilmation.engine.helpers {
 			   // Setup floor (pieces )
 			   var floorObj:Array = data.floors
 			   for(var i:Number=0;i<floorObj.length;i++) {
-			   	    var spr:Sprite = new Sprite()
+			   	    var spr:MovieClip = new MovieClip()
+			   	    spr.mouseEnabled = false
 			   	    this.container.addChild(spr)
 							this.addFloor(floorObj[i],spr)
 			   			if(this.i>this.floors[i].i) this.i = this.floors[i].i
@@ -124,7 +125,7 @@ package org.ffilmation.engine.helpers {
 			   // Add walls
 			   var wallObj:Array = data.walls
 			   for(i=0;i<wallObj.length;i++) {
-			   	  spr = new Sprite()
+			   	  spr = new MovieClip()
 			   	  this.container.addChild(spr)
 			   		this.addWall(wallObj[i],spr)
 			   }
@@ -164,7 +165,7 @@ package org.ffilmation.engine.helpers {
 			   // Add objects and characters
 			   var objObj:Array = data.objects
 			   for(i=0;i<objObj.length;i++) {
-			   		spr = new Sprite()
+			   		spr = new MovieClip()
 		   	    this.container.addChild(spr)
 			   		if(objObj[i].@dynamic=="true") this.addCharacter(objObj[i],spr)
 			   		else this.addObject(objObj[i],spr)
@@ -172,7 +173,7 @@ package org.ffilmation.engine.helpers {
 			
 			   objObj = data.characters
 			   for(i=0;i<objObj.length;i++) {
-			   		spr = new Sprite()
+			   		spr = new MovieClip()
 		   	    this.container.addChild(spr)
 			   		this.addCharacter(objObj[i],spr)
 			   }
@@ -414,7 +415,7 @@ package org.ffilmation.engine.helpers {
 			}
 			
 			// Create floor
-			private function addFloor(definitionObject:XML,container:Sprite):void {
+			private function addFloor(definitionObject:XML,container:MovieClip):void {
 			
 			   var nFloor:fFloor = new fFloor(container,definitionObject,this.scene,this.z)
 
@@ -424,7 +425,7 @@ package org.ffilmation.engine.helpers {
 			}
 			
 			// Adds a wall object to this level
-			private function addWall(definitionObject:XML,container:Sprite):void {
+			private function addWall(definitionObject:XML,container:MovieClip):void {
 			   
 	       var nWall:fWall = new fWall(container,definitionObject,this.scene)
 
@@ -439,7 +440,7 @@ package org.ffilmation.engine.helpers {
 			}   
 			
 			// Adds an object to this level
-			private function addObject(definitionObject:XML,container:Sprite):void {
+			private function addObject(definitionObject:XML,container:MovieClip):void {
 			
 			   var nObject = new fObject(container,definitionObject,this.scene,this)
 			   
@@ -452,7 +453,7 @@ package org.ffilmation.engine.helpers {
 			}
     	
 			// Adds a character to this level
-			private function addCharacter(definitionObject:XML,container:Sprite):void {
+			private function addCharacter(definitionObject:XML,container:MovieClip):void {
 			
 			   var nCharacter = new fCharacter(container,definitionObject,this.scene,this)
 			   

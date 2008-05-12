@@ -70,7 +70,7 @@ package org.ffilmation.engine.elements {
 
 			// Constructor
 			/** @private */
-			function fWall(container:Sprite,defObj:XML,scene:fScene):void {
+			function fWall(container:MovieClip,defObj:XML,scene:fScene):void {
 				
 				 // Vertical ?
 			   this.vertical = (defObj.@direction=="vertical")   					 // Orientation
@@ -80,6 +80,7 @@ package org.ffilmation.engine.elements {
 				 var mask:Sprite = new Sprite()
 				 var destination:Sprite = new Sprite()
 				 container.addChild(mask)
+				 mask.mouseEnabled = false
 				 mask.addChild(destination)
 
 			   // Deform wall to match perspective
@@ -93,9 +94,6 @@ package org.ffilmation.engine.elements {
 
 				 // Previous
 				 super(defObj,scene,this.pixelSize,this.pixelHeight,destination,container)
-
-				 // Too long to explain
-				 this.patch = this.height
 
 			   // Specific coordinates
 			   this.i = Math.round(this.x/scene.gridSize)                  // Grid coordinates
@@ -224,20 +222,22 @@ package org.ffilmation.engine.elements {
 				if(this.vertical) {
 					for(var h:int=0;h<this.holes.length;h++) {
 					
-						 	var hole:fPlaneBounds = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-						 		return null
-						 	}
-			 		  	
+						 	if(this.holes[h].open) {
+							 	var hole:fPlaneBounds = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
+							 		return null
+							 	}
+			 				}	  	
 					}				
 			  } else {
 					for(h=0;h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-						 		return null
-						 	}
-			 		  	
+						 	if(this.holes[h].open) {
+							 	hole = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
+							 		return null
+							 	}
+			 				}	  	
 					}				
 			  }
 				
@@ -247,20 +247,22 @@ package org.ffilmation.engine.elements {
 				if(this.vertical) {
 					for(h=0;h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.y0<=(y-dy) && hole.y1>=(y-dy)) {
-						 		lastCharacterCollision = hole
-						 	}
-			 		  	
+						 	if(this.holes[h].open) {
+							 	hole = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.y0<=(y-dy) && hole.y1>=(y-dy)) {
+							 		lastCharacterCollision = hole
+							 	}
+			 				}	  	
 					}				
 			  } else {
 					for(h=0;h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.x0<=(x-dx) && hole.x1>=(x-dx)) {
-						 		lastCharacterCollision = hole
-						 	}
-			 		  	
+						 	if(this.holes[h].open) {
+							 	hole = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.x0<=(x-dx) && hole.x1>=(x-dx)) {
+							 		lastCharacterCollision = hole
+							 	}
+			 				}	  	
 					}				
 			  }
 
@@ -300,10 +302,12 @@ package org.ffilmation.engine.elements {
 					any = false
 					for(var h:int=0;!any && h<this.holes.length;h++) {
 					
-						 	var hole:fPlaneBounds = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-						 		any = true
-						 	} 
+						 	if(this.holes[h].open) {
+						 		var hole:fPlaneBounds = this.holes[h].bounds
+						 		if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
+							 		any = true
+						 		} 
+						 	}
 			 		  	
 					}
 					
@@ -318,10 +322,12 @@ package org.ffilmation.engine.elements {
 					any = false
 					for(h=0;!any && h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-						 		any = true
-						 	} 
+						 	if(this.holes[h].open) {
+							 	hole = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
+							 		any = true
+							 	} 
+							}
 			 		  	
 					}
 					
@@ -345,9 +351,11 @@ package org.ffilmation.engine.elements {
 					any = false
 					for(h=0;!any && h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-						 		any = true
+						 	if(this.holes[h].open) {
+						 		hole = this.holes[h].bounds
+						 		if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
+						 			any = true
+						 		}
 						 	}
 			 		  	
 					}
@@ -363,11 +371,12 @@ package org.ffilmation.engine.elements {
 					any = false
 					for(h=0;!any && h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-						 		any = true
-						 	}
-			 		  	
+						 	if(this.holes[h].open) {
+								hole = this.holes[h].bounds
+						 		if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
+						 			any = true
+						 		}
+			 		  	}	
 					}
 					
 					// There was a fCollision 
@@ -406,10 +415,12 @@ package org.ffilmation.engine.elements {
 					any = false
 					for(var h:int=0;!any && h<this.holes.length;h++) {
 					
-						 	var hole:fPlaneBounds = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-						 		any = true
-						 	} 
+						 	if(this.holes[h].open) {
+							 	var hole:fPlaneBounds = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
+							 		any = true
+							 	} 
+							}
 			 		  	
 					}
 					
@@ -438,10 +449,12 @@ package org.ffilmation.engine.elements {
 					any = false
 					for(h=0;!any && h<this.holes.length;h++) {
 					
-						 	hole = this.holes[h]
-						 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-						 		any = true
-						 	}
+						 	if(this.holes[h].open) {
+							 	hole = this.holes[h].bounds
+							 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
+							 		any = true
+							 	}
+							}
 			 		  	
 					}
 					
@@ -518,7 +531,7 @@ package org.ffilmation.engine.elements {
 			      	  if(other is fFloor) {
 			      	  	len = other.holes.length
 			      	  	for(var h:int=0;h<len;h++) {
-			      	  		if(this.testFloorShadowHorizontal(other.holes[h],x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
+			      	  		if(this.testFloorShadowHorizontal(other.holes[h].bounds,x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
 			      	  	}
 			      	  }
 			
@@ -573,7 +586,7 @@ package org.ffilmation.engine.elements {
 			      	  if(other is fFloor) {
 			      	  	len = other.holes.length
 			      	  	for(var h:int=0;h<len;h++) {
-			      	  		if(this.testFloorShadowVertical(other.holes[h],x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
+			      	  		if(this.testFloorShadowVertical(other.holes[h].bounds,x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
 			      	  	}
 			      	  }
 			
@@ -829,13 +842,15 @@ package org.ffilmation.engine.elements {
 				 len = other.holes.length
 				 for(var h:int=0;h<len;h++) {
 					 	
-					 	if(this.vertical) points = this.calculateFloorProjectionVertical(light.x,light.y,light.z,other.holes[h])
-					  else points = this.calculateFloorProjectionHorizontal(light.x,light.y,light.z,other.holes[h])
+					 	if(other.holes[h].open) {
+					 		if(this.vertical) points = this.calculateFloorProjectionVertical(light.x,light.y,light.z,other.holes[h].bounds)
+					  	else points = this.calculateFloorProjectionHorizontal(light.x,light.y,light.z,other.holes[h].bounds)
 					 	
-				 	  if(points.length>0) {
-				 	  	msk.graphics.moveTo(points[0].x,points[0].y)
-				 	  	len2 = points.length
-				 	  	for(i=1;i<len2;i++) msk.graphics.lineTo(points[i].x,points[i].y)
+				 	  	if(points.length>0) {
+					 	  	msk.graphics.moveTo(points[0].x,points[0].y)
+				 	  		len2 = points.length
+				 	  		for(i=1;i<len2;i++) msk.graphics.lineTo(points[i].x,points[i].y)
+				 			}
 				 		}
 				 }
 			
@@ -968,8 +983,9 @@ package org.ffilmation.engine.elements {
 				 		len = wall.holes.length
 				 		for(var h:int=0;h<len;h++) {
 			   		
-							 	if(this.vertical) points = this.calculateWallProjectionVertical(light.x,light.y,light.z,wall.holes[h])
-							  else points = this.calculateWallProjectionHorizontal(light.x,light.y,light.z,wall.holes[h])
+							if(wall.holes[h].open) { 	
+							 	if(this.vertical) points = this.calculateWallProjectionVertical(light.x,light.y,light.z,wall.holes[h].bounds)
+							  else points = this.calculateWallProjectionHorizontal(light.x,light.y,light.z,wall.holes[h].bounds)
 							 	
 				 				points = polygonUtils.clipPolygon(points,vp)	 
 			   		
@@ -978,7 +994,8 @@ package org.ffilmation.engine.elements {
 				 			  	len2 = points.length
 				 			  	for(i=1;i<len2;i++) msk.graphics.lineTo(points[i].x,points[i].y)
 				 				}
-				 				
+				 			}
+
 				 		}
 			
 				 } catch (e:Error) {

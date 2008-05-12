@@ -140,8 +140,29 @@ package org.ffilmation.engine.materials {
 			*
 			*/
 			public function getHoles(width:Number,height:Number):Array {
-				return [ new Rectangle(this.realPosition-this.dwidth/2,height,this.dwidth,this.dheight)]
+				return [ new Rectangle(this.realPosition-this.dwidth/2,height-this.dheight,this.dwidth,this.dheight)]
 			}
+
+			/**
+			* Retrieves the graphic element that is to be used to block a given hole when it is closed
+			*
+			* @param index The hole index, as returned by the getHoles() method
+			* @return A Movieclip that will used to close the hole. If null is returned, the hole won't be "closeable".
+			*/
+			public function getHoleBlock(index:Number):MovieClip {
+				
+				if(index!=0) return null
+				
+				var ret:MovieClip = new MovieClip
+				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.door])
+				var door:BitmapData = new BitmapData(this.dwidth,this.dheight,true,0x000000)
+				door.draw(tile.getDiffuse(this.dwidth,this.dheight))
+				ret.addChild(new Bitmap(door,"auto",true))
+
+				return ret				
+				
+			}
+
 
 		}
 

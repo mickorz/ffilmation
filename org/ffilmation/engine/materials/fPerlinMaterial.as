@@ -137,6 +137,17 @@ package org.ffilmation.engine.materials {
 				return []
 			}
 
+			/**
+			* Retrieves the graphic element that is to be used to block a given hole when it is closed
+			*
+			* @param index The hole index, as returned by the getHoles() method
+			* @return A MovieClip that will used to close the hole. If null is returned, the hole won't be "closeable".
+			*/
+			public function getHoleBlock(index:Number):MovieClip {
+				return null
+			}
+
+
 		}
 
 }

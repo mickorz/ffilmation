@@ -1,11 +1,16 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+
+Added the "animated" property to fObjects, which allows some optimization.
+Added the fHole class, which gives control over holes in fPlanes. Now holes can be opened and closed.
+Sprite hierarchy is properly setup so you can add Mouse Events to fElements and the appropiate element receives the event.
+
 1.1:
 
 NEW
 
-Added coordinate-translation methods to fScene, so you can easity map Satge corrdinates into game coordinates, or viceversa
+Added coordinate-translation methods to fScene, so you can easily map Satge corrdinates into game coordinates, or viceversa
 Added camera occlusion
 Added Scene controllers
 Added enable/disable methods to the scene
