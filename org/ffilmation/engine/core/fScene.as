@@ -375,7 +375,7 @@ package org.ffilmation.engine.core {
 		      
 		      nEl = this.characters.length
 		      for(i2=0;i2<nEl;i2++) this.characters[i2].lightOut(light)
-		      this.all[idlight] = null
+		      this.all[light.id] = null
 				
 			}
 
@@ -1405,7 +1405,7 @@ package org.ffilmation.engine.core {
 			   		this.controller = new r()		
 			   		this.controller.enable()   	 
 		   	 	} catch(e:Error) {
-						throw new Error("Filmation Engine Exception: Scene contains an invalid controller definition: "+cls)		   	 		
+						throw new Error("Filmation Engine Exception: Scene contains an invalid controller definition: "+cls+" "+e)		   	 		
 		   	 	}
 		   	 }
 		   	 

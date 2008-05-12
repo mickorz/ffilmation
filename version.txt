@@ -10,7 +10,7 @@ Sprite hierarchy is properly setup so you can add Mouse Events to fElements and 
 
 NEW
 
-Added coordinate-translation methods to fScene, so you can easily map Satge corrdinates into game coordinates, or viceversa
+Added coordinate-translation methods to fScene, so you can easily map Stage coordinates into game coordinates, or viceversa
 Added camera occlusion
 Added Scene controllers
 Added enable/disable methods to the scene

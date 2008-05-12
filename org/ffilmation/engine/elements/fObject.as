@@ -122,6 +122,7 @@ package org.ffilmation.engine.elements {
 						// Attach base clip
 						this.baseObj = new MovieClip()
 				 		container.addChild(this.baseObj)
+				 		this.baseObj.mouseEnabled = false
 		
 					  // Shadows
 				    this.allShadows = new Array
@@ -262,6 +263,7 @@ package org.ffilmation.engine.elements {
 					var clase:Class = this.sprites[newSprite].sprite as Class
 					this.currentSprite = new clase() as MovieClip
 					this.baseObj.addChild(this.currentSprite)
+					this.currentSprite.mouseEnabled = false
 					this.currentSprite.gotoAndPlay(lastFrame)
 					this.flashClip = this.currentSprite
 					
