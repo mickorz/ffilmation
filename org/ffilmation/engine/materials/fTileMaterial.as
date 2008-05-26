@@ -5,6 +5,8 @@ package org.ffilmation.engine.materials {
 		import flash.geom.*
 		import flash.utils.getDefinitionByName
 		import org.ffilmation.engine.interfaces.*
+		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.elements.*
 		
 		/**
 		* This class creates a material by "Tiling" an image in the imported libraries
@@ -17,10 +19,13 @@ package org.ffilmation.engine.materials {
 			
 			// Private vars
 			private var definitionXML:XML								// Definition data
+			private var element:fRenderableElement			// The element where this material is applied.
 			
 			// Constructor
-			public function fTileMaterial(definitionXML:XML):void {
+			public function fTileMaterial(definitionXML:XML,element:fRenderableElement):void {
 				this.definitionXML = definitionXML
+				this.element = element
+				
 			}
 			
 			/** 
@@ -28,7 +33,7 @@ package org.ffilmation.engine.materials {
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
 			* @param width: Requested width
-			* @param height: Requested width
+			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
@@ -41,7 +46,15 @@ package org.ffilmation.engine.materials {
 				var clase:Class = getDefinitionByName(this.definitionXML.diffuse) as Class
 				var image:BitmapData = new clase(0,0) as BitmapData
 				
-				temp.graphics.beginBitmapFill(image,null,true,true)
+				var matrix:Matrix = new Matrix()
+				if(this.element is fFloor) matrix.translate(-this.element.x,-this.element.y)
+				if(this.element is fWall) {
+					var tempw:fWall = this.element as fWall
+					if(tempw.vertical) matrix.translate(-this.element.y,-this.element.z)
+					else matrix.translate(-this.element.x,-this.element.z)
+				}
+
+				temp.graphics.beginBitmapFill(image,matrix,true,true)
 				temp.graphics.drawRect(0,0,width,height)
 				temp.graphics.endFill()
 

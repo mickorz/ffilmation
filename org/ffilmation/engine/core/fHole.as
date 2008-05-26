@@ -73,11 +73,11 @@ package org.ffilmation.engine.core {
 			* @see org.ffilmation.engine.interfaces.fEngineMaterial#getHoleBlock()
 			*/
 			public function set open(v:Boolean):void {
-				if(v==true && this.block!=null) {
+				if(v==true) {
 					this._open = true
 					this.dispatchEvent(new Event(fHole.OPEN))
 				}
-				if(v==false) {
+				if(v==false && this.block!=null) {
 					this._open = false
 					this.dispatchEvent(new Event(fHole.CLOSE))
 				}

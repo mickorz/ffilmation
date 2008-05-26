@@ -678,7 +678,7 @@ package org.ffilmation.engine.elements {
 			public override function showLight(light:fLight):void {
 					
 				 // Already there ?	
-			   if(!this.lights[light.id]) this.lights[light.id] = new fLightWeight(this,light)
+			   if(!this.lights[light.uniqueId]) this.lights[light.uniqueId] = new fLightWeight(this,light)
 				
 			}
 			
@@ -686,7 +686,7 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function hideLight(light:fLight):void {
 			
-				 delete this.lights[light.id]
+				 delete this.lights[light.uniqueId]
 				 this.paintLights()
 			
 			}
@@ -696,7 +696,7 @@ package org.ffilmation.engine.elements {
 			public override function renderStart(light:fLight):void {
 			
 				 // Already there ?	
-			   if(!this.lights[light.id]) this.lights[light.id] = new fLightWeight(this,light)
+			   if(!this.lights[light.uniqueId]) this.lights[light.uniqueId] = new fLightWeight(this,light)
 
 			}
 			
@@ -704,7 +704,7 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function renderLight(light:fLight):void {
 			
-		     this.lights[light.id].updateWeight()
+		     this.lights[light.uniqueId].updateWeight()
 			
 			}
 			

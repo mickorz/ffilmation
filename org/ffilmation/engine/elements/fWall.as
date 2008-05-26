@@ -509,34 +509,33 @@ package org.ffilmation.engine.elements {
 			     var pDown:Number = y+(other.y+other.depth-y)*dz
 				   var pLeft:Number = x+(other.x-x)*dz
 				   var pRight:Number = x+(other.x+other.width-x)*dz
-			
-			   	if((this.y<pUp) || (this.y>pDown) || (this.x0>pRight) || (this.x1<pLeft)) {
-			
-			  	    // Outside range
-				      return fCoverage.NOT_SHADOWED
-			
-			   	} else {
-			
-							if(mathUtils.segmentsIntersect(x,z,pLeft,this.z,this.x0,this.top,this.x1,this.top) ||
-							   mathUtils.segmentsIntersect(x,z,pRight,this.z,this.x0,this.top,this.x1,this.top) ||
-							   mathUtils.segmentsIntersect(x,z,pRight,this.z,this.x0,this.top,this.x0,this.z) ||
-							   mathUtils.segmentsIntersect(x,z,pLeft,this.z,this.x1,this.z,this.x1,this.top) ||
-							   mathUtils.segmentsIntersect(y,z,pUp,this.z,this.y,this.top+2,this.y,this.z) ||
-							   mathUtils.segmentsIntersect(y,z,pDown,this.z,this.y,this.top+2,this.y,this.z)) {
-							   	return fCoverage.SHADOWED
-							}
-							else {
-			
-			      	  // Test holes
-			      	  if(other is fFloor) {
-			      	  	len = other.holes.length
-			      	  	for(var h:int=0;h<len;h++) {
-			      	  		if(this.testFloorShadowHorizontal(other.holes[h].bounds,x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
-			      	  	}
-			      	  }
-			
-								return fCoverage.COVERED
-							}
+				   
+			   	 if((this.y<pUp && other.y>=this.y) || (this.y>pDown && (other.y+other.depth)<=this.y) || (this.x0>pRight && (other.x+other.width)<=this.x0) || (this.x1<pLeft && other.x>=this.x1)) {
+			     
+			  	     // Outside range
+				       return fCoverage.NOT_SHADOWED
+			     
+			   	 } else {
+			     
+					 		if(mathUtils.segmentsIntersect(x,z,pLeft,this.z,this.x0,this.top,this.x1,this.top) ||
+					 		   mathUtils.segmentsIntersect(x,z,pRight,this.z,this.x0,this.top,this.x1,this.top) ||
+					 		   mathUtils.segmentsIntersect(x,z,pRight,this.z,this.x0,this.top,this.x0,this.z) ||
+					 		   mathUtils.segmentsIntersect(x,z,pLeft,this.z,this.x1,this.z,this.x1,this.top) ||
+					 		   mathUtils.segmentsIntersect(y,z,pUp,this.z,this.y,this.top+2,this.y,this.z) ||
+					 		   mathUtils.segmentsIntersect(y,z,pDown,this.z,this.y,this.top+2,this.y,this.z)) {
+					 		   	return fCoverage.SHADOWED
+					 		}
+					 		else {
+			     
+			       	  // Test holes
+			       	  if(other is fFloor) {
+			       	  	len = other.holes.length
+			       	  	for(var h:int=0;h<len;h++) {
+			       	  		if(this.testFloorShadowHorizontal(other.holes[h].bounds,x,y,z)!=fCoverage.NOT_SHADOWED) return fCoverage.SHADOWED
+			       	  	}
+			       	  }
+					 			return fCoverage.COVERED
+					 		}
 				   }
 			
 				 }
@@ -565,7 +564,7 @@ package org.ffilmation.engine.elements {
 			     var pRight:Number = x+(other.x+other.width-x)*dz
 			
 			
-			      if((this.y0>pDown) || (this.y1<pUp) || (this.x>pRight)|| (this.x<pLeft)) {
+			      if((this.y0>pDown && (other.y+other.depth)<=this.y0) || (this.y1<pUp && other.y>=this.y1) || (this.x>pRight && (other.x+other.width)<=this.x) || (this.x<pLeft && other.x>=this.x)) {
 			
 			         // Outside range
 			         return fCoverage.NOT_SHADOWED
@@ -758,8 +757,8 @@ package org.ffilmation.engine.elements {
 			
 			private function renderLightVertical(light:fLight):void {
 			
-			   var status:fLightStatus = this.lightStatuses[light.id]
-			   var lClip:Sprite = this.lightClips[light.id]
+			   var status:fLightStatus = this.lightStatuses[light.uniqueId]
+			   var lClip:Sprite = this.lightClips[light.uniqueId]
 			     
 			   if(light.size!=Infinity) {
 			      
@@ -777,8 +776,8 @@ package org.ffilmation.engine.elements {
 			
 			private function renderLightHorizontal(light:fLight):void {
 			
-			   var status:fLightStatus = this.lightStatuses[light.id]
-			   var lClip:Sprite = this.lightClips[light.id]
+			   var status:fLightStatus = this.lightStatuses[light.uniqueId]
+			   var lClip:Sprite = this.lightClips[light.uniqueId]
 			
 			   if(light.size!=Infinity) {
 			
@@ -809,10 +808,10 @@ package org.ffilmation.engine.elements {
 			   
 			   // Select mask
 			   try {
-			   	var msk:Sprite = this.lightShadows[light.id]
+			   	var msk:Sprite = this.lightShadows[light.uniqueId]
 
-			 	 	var cache = fWall.objectRenderCache[this.id+"_"+light.id]
-			 	 	var clip:Sprite = cache[other.id]
+			 	 	var cache = fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]
+			 	 	var clip:Sprite = cache[other.uniqueId]
 			 	 	msk.removeChild(clip)
 			 	 } catch (e:Error) { }
 
@@ -823,12 +822,11 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public function renderFloorShadow(light:fLight,other:fFloor,msk:Sprite):void {
 			
-			   var lightStatus:fLightStatus = this.lightStatuses[light.id] 
+			   var lightStatus:fLightStatus = this.lightStatuses[light.uniqueId] 
 			   var x:Number = light.x, y:Number = light.y, z:Number = light.z
 			   var len:int,len2:int
 			
 			   msk.graphics.beginFill(0x000000,100)   
-			
 				 if(this.vertical) var points:Object = this.calculateFloorProjectionVertical(light.x,light.y,light.z,other.bounds)
 				 else points = this.calculateFloorProjectionHorizontal(light.x,light.y,light.z,other.bounds)
 				 
@@ -955,7 +953,7 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public function renderWallShadow(light:fLight,wall:fWall,msk:Sprite):void {
 			
-			   var lightStatus:fLightStatus = this.lightStatuses[light.id] 
+			   var lightStatus:fLightStatus = this.lightStatuses[light.uniqueId] 
 			   var x:Number = light.x, y:Number = light.y, z:Number = light.z
 			   var len:int,len2:int
 			
@@ -1160,17 +1158,17 @@ package org.ffilmation.engine.elements {
 				 if(intersect==null) return
 				 
 				 // Cache or new Movieclip ?
-				 if(!fWall.objectRenderCache[this.id+"_"+light.id]) {
-				 		fWall.objectRenderCache[this.id+"_"+light.id] = new Object()
+				 if(!fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]) {
+				 		fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId] = new Object()
 				 }
-				 var cache = fWall.objectRenderCache[this.id+"_"+light.id]
-				 if(!cache[other.id]) {
-				 		cache[other.id] = other.getShadow(this)
-				 		cache[other.id].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
+				 var cache = fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]
+				 if(!cache[other.uniqueId]) {
+				 		cache[other.uniqueId] = other.getShadow(this)
+				 		cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
 				 }
 				 
 				 // Draw
-				 var clip:Sprite = cache[other.id]
+				 var clip:Sprite = cache[other.uniqueId]
 				 msk.addChild(clip)
 				 
 				 if(this.vertical) clip.x = intersect.y-this.y0
@@ -1186,11 +1184,11 @@ package org.ffilmation.engine.elements {
 			public override function lightOut(light:fLight):void {
 			
 			   // Hide container
-			   if(this.lightStatuses[light.id]) this.hideLight(light)
+			   if(this.lightStatuses[light.uniqueId]) this.hideLight(light)
 			   
 			   // Hide shadows
-				 if(fWall.objectRenderCache[this.id+"_"+light.id]) {
-				 		var cache = fWall.objectRenderCache[this.id+"_"+light.id]
+				 if(fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]) {
+				 		var cache = fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]
 				 		for(var i in cache) {
 				 			try {
 				 				cache[i].parent.removeChild(cache[i])

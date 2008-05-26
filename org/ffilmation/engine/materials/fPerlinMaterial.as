@@ -32,7 +32,7 @@ package org.ffilmation.engine.materials {
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
 			* @param width: Requested width
-			* @param height: Requested width
+			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
@@ -43,7 +43,7 @@ package org.ffilmation.engine.materials {
 				var temp:Sprite = new Sprite
 
 				// Draw base
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base])
+				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
 				temp.addChild(tile.getDiffuse(width,height))
 				
 				
@@ -51,7 +51,7 @@ package org.ffilmation.engine.materials {
 				var layers:XMLList = this.definitionXML.child("layer")
 				for(var i:Number=0;i<layers.length();i++) {
 					
-				  tile = new fTileMaterial(this.element.scene.materialDefinitions[layers[i].material])
+				  tile = new fTileMaterial(this.element.scene.materialDefinitions[layers[i].material],this.element)
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
 					var diffuse:DisplayObject = tile.getDiffuse(width,height)
 					layer.draw(diffuse)
@@ -91,14 +91,14 @@ package org.ffilmation.engine.materials {
 				var temp:Sprite = new Sprite
 
 				// Draw base
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base])
+				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
 				temp.addChild(tile.getBump(width,height))
 				
 				// Draw layers, if any
 				var layers:XMLList = this.definitionXML.child("layer")
 				for(var i:Number=0;i<layers.length();i++) {
 					
-				  tile = new fTileMaterial(this.element.scene.materialDefinitions[layers[i].material])
+				  tile = new fTileMaterial(this.element.scene.materialDefinitions[layers[i].material],this.element)
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
 					var diffuse:DisplayObject = tile.getBump(width,height)
 					layer.draw(diffuse)

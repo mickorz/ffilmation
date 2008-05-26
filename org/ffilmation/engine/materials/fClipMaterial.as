@@ -5,6 +5,7 @@ package org.ffilmation.engine.materials {
 		import flash.geom.*
 		import flash.utils.getDefinitionByName
 		import org.ffilmation.engine.interfaces.*
+		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.helpers.fHoleClip
 		
 		/**
@@ -23,13 +24,17 @@ package org.ffilmation.engine.materials {
 			
 			// Private vars
 			private var definitionXML:XML								// Definition data
+			private var element:fRenderableElement			// The element where this material is applied.
+			
 			private var base:DisplayObject							// Base clip for this material
 			private var origw:Number
 			private var origh:Number
 			
 			// Constructor
-			public function fClipMaterial(definitionXML:XML):void {
+			public function fClipMaterial(definitionXML:XML,element:fRenderableElement):void {
 				 this.definitionXML = definitionXML
+				 this.element = element
+				 
 	       var clase:Class = getDefinitionByName(this.definitionXML.diffuse) as Class
 	       
 				 this.base = new clase()
@@ -42,7 +47,7 @@ package org.ffilmation.engine.materials {
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
 			* @param width: Requested width
-			* @param height: Requested width
+			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*

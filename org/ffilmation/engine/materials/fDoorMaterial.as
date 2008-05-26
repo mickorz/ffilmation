@@ -44,7 +44,7 @@ package org.ffilmation.engine.materials {
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
 			* @param width: Requested width
-			* @param height: Requested width
+			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
@@ -57,7 +57,7 @@ package org.ffilmation.engine.materials {
 				this.realPosition = (this.dwidth/2)+(width-this.dwidth)*(0.5+(this.position/200))
 
 				// Draw base
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base])
+				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
 				var base:BitmapData = new BitmapData(width,height,true,0x000000)
 				base.draw(tile.getDiffuse(width,height))
 				
@@ -76,7 +76,7 @@ package org.ffilmation.engine.materials {
 				// Draw frame, if any
 				var framesize:Number = new Number(this.definitionXML.framesize)
 				if(framesize>0 && this.definitionXML.frame) {
-					tile = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.frame])
+					tile = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.frame],this.element)
 					var base2:BitmapData = new BitmapData(width,height,true,0x000000)
 					base2.draw(tile.getDiffuse(width,height))
 					
@@ -154,7 +154,7 @@ package org.ffilmation.engine.materials {
 				if(index!=0) return null
 				
 				var ret:MovieClip = new MovieClip
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.door])
+				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.door],this.element)
 				var door:BitmapData = new BitmapData(this.dwidth,this.dheight,true,0x000000)
 				door.draw(tile.getDiffuse(this.dwidth,this.dheight))
 				ret.addChild(new Bitmap(door,"auto",true))

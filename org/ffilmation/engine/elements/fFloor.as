@@ -242,9 +242,13 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function testShadow(other:fRenderableElement,x:Number,y:Number,z:Number):Number {
 
-				 if(other is fFloor) return this.testFloorShadow(other as fFloor,x,y,z)
-			   if(other is fWall) return this.testWallShadow(other as fWall,x,y,z)
-			   if(other is fObject) return this.testObjectShadow(other as fObject,x,y,z)
+				 try {
+				 	if(other is fFloor) return this.testFloorShadow(other as fFloor,x,y,z)
+			   	if(other is fWall) return this.testWallShadow(other as fWall,x,y,z)
+			   	if(other is fObject) return this.testObjectShadow(other as fObject,x,y,z)
+			   } catch(e:Error) {
+			   	return fCoverage.SHADOWED
+			   }
 					
 				 // Else
 				 return fCoverage.NOT_SHADOWED	
@@ -457,7 +461,7 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function processRenderStart(light:fLight):void {
 
-			   var lightStatus:fLightStatus = this.lightStatuses[light.id]
+			   var lightStatus:fLightStatus = this.lightStatuses[light.uniqueId]
 			   
 			   // fLight limits
 			   if(light.size==Infinity) {
@@ -482,8 +486,8 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function renderLight(light:fLight):void {
 			
-			   var status:fLightStatus = this.lightStatuses[light.id]
-			   var lClip:Sprite = this.lightClips[light.id]
+			   var status:fLightStatus = this.lightStatuses[light.uniqueId]
+			   var lClip:Sprite = this.lightClips[light.uniqueId]
 				
 			   if(status.lightZ != light.z) {
 			      status.lightZ = light.z
@@ -513,17 +517,17 @@ package org.ffilmation.engine.elements {
 				 if(proj==null) return
 
 				 // Cache or new Movieclip ?
-				 if(!fFloor.objectProjectionCache[this.id+"_"+light.id]) {
-				 		fFloor.objectProjectionCache[this.id+"_"+light.id] = new Array()
+				 if(!fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]) {
+				 		fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId] = new Array()
 				 }
-				 var cache = fFloor.objectProjectionCache[this.id+"_"+light.id]
-				 if(!cache[other.id]) {
-				 		cache[other.id] = other.getShadow(this)
-				 		cache[other.id].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
+				 var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
+				 if(!cache[other.uniqueId]) {
+				 		cache[other.uniqueId] = other.getShadow(this)
+				 		cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
 				 }
 				 
 				 // Draw
-				 var clip:Sprite = cache[other.id]
+				 var clip:Sprite = cache[other.uniqueId]
 				 msk.addChild(clip.parent)
 				 
 				 // Rotate and deform
@@ -540,10 +544,10 @@ package org.ffilmation.engine.elements {
 			   
 			   // Select mask
 			   try {
-			   	var msk:Sprite = this.lightShadows[light.id]
+			   	var msk:Sprite = this.lightShadows[light.uniqueId]
 			   
-			 	 	var cache = fFloor.objectProjectionCache[this.id+"_"+light.id]
-			 	 	var clip:Sprite = cache[other.id]
+			 	 	var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
+			 	 	var clip:Sprite = cache[other.uniqueId]
 			 	 	msk.removeChild(clip.parent)
 			 	 } catch(e:Error) {
 			 	 	
@@ -555,7 +559,7 @@ package org.ffilmation.engine.elements {
 			// Calculates and projects shadows of another floor upon this floor
 			private function renderFloorShadow(light:fLight,other:fFloor,msk:Sprite):void {
 			   
-			   var lightStatus:fLightStatus = this.lightStatuses[light.id]
+			   var lightStatus:fLightStatus = this.lightStatuses[light.uniqueId]
 			   var len:int
 			
 			   // Draw mask
@@ -630,11 +634,11 @@ package org.ffilmation.engine.elements {
 			// Calculates and draws the shadow of a given wall from a given light
 			private function renderWallShadow(light:fLight,wall:fWall,msk:Sprite):void {
 			   
-			   var lightStatus:fLightStatus = this.lightStatuses[light.id]
+			   var lightStatus:fLightStatus = this.lightStatuses[light.uniqueId]
 				 var len:int
 			   
-				 var cache:fWallProjectionCache = fFloor.wallProjectionCache[wall.id]
-				 if(!cache) cache = fFloor.wallProjectionCache[wall.id] = new fWallProjectionCache()
+				 var cache:fWallProjectionCache = fFloor.wallProjectionCache[this.uniqueId+"_"+wall.uniqueId]
+				 if(!cache) cache = fFloor.wallProjectionCache[this.uniqueId+"_"+wall.uniqueId] = new fWallProjectionCache()
 				 	
 			   // Update cache ?
 			   if(cache.x!=light.x || cache.y!=light.y || cache.z!=light.z) {
@@ -749,7 +753,7 @@ package org.ffilmation.engine.elements {
 			
 			
 			   } else {
-			   
+			   	
 						if(wall.y==y) y++
 			
 						if(wall.top<z) {
@@ -884,11 +888,11 @@ package org.ffilmation.engine.elements {
 			public override function lightOut(light:fLight):void {
 			
 			   // Hide container
-			   if(this.lightStatuses[light.id]) this.hideLight(light)
+			   if(this.lightStatuses[light.uniqueId]) this.hideLight(light)
 			   
 			   // Hide shadows
-				 if(fFloor.objectProjectionCache[this.id+"_"+light.id]) {
-				 		var cache = fFloor.objectProjectionCache[this.id+"_"+light.id]
+				 if(fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]) {
+				 		var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
 				 		for(var i in cache) {
 				 			try {
 				 				cache[i].parent.parent.removeChild(cache[i].parent)

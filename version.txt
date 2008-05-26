@@ -2,9 +2,17 @@ FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
 
+Added the "window" material.
 Added the "animated" property to fObjects, which allows some optimization.
-Added the fHole class, which gives control over holes in fPlanes. Now holes can be opened and closed.
+Added the fHole class, which gives control over holes in fPlanes. Now holes can be opened and closed. 
+Added a Building Generator
+Moved generators to new package "helpful" outside the engine, as they really does not belong there. Thnx to Jason Booth for the wisdom.
 Sprite hierarchy is properly setup so you can add Mouse Events to fElements and the appropiate element receives the event.
+Materials now tile seamlessly along adjacent surfaces.
+Fixed: The engine now assigns an internal unique ID to each element, and uses that id in internal hashtables instead of relying on the IDs you assign. This was causing lots of trouble.
+Fixed: "BOX Tag" from generators were ignored
+Fixed: Exception caused by shadow projection trying to calculate intersection between paralel lines.
+Fixed: Several shadow projection bugs
 
 1.1:
 

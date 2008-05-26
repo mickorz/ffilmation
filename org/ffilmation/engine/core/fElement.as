@@ -28,6 +28,12 @@ package org.ffilmation.engine.core {
 			*/
 			public var id:String
 			
+			/**
+			* Unique ID. Thi is automatically assigned and used internally in HasTabled and such
+			* @private
+			*/
+			public var uniqueId:String
+
 			/** 
 			* X coordinate fot this element
 			*/
@@ -102,8 +108,9 @@ package org.ffilmation.engine.core {
 			   // Id
 			   var temp:XMLList= defObj.@id
 			   
+			   this.uniqueId = "fElement_"+(fElement.count++)
 			   if(temp.length()==1) this.id = temp.toString()
-			   else this.id = "fElement_"+(fElement.count++)
+			   else this.id = this.uniqueId
 
 			   // Reference to container scene
 			   this.scene = scene

@@ -63,13 +63,14 @@ package org.ffilmation.engine.core {
 				 		this.height = height
 				 		this.type = this.definitionXML.@type
 				 		this.cls = null
-				 		if(this.type == "tile") this.cls = new fTileMaterial(this.definitionXML)
+				 		if(this.type == "tile") this.cls = new fTileMaterial(this.definitionXML,element)
 				 		else if(this.type == "perlin") this.cls = new fPerlinMaterial(this.definitionXML,element)
 				 		else if(this.type == "door") this.cls = new fDoorMaterial(this.definitionXML,element)
-				 		else if(this.type == "clip") this.cls = new fClipMaterial(this.definitionXML)
+				 		else if(this.type == "clip") this.cls = new fClipMaterial(this.definitionXML,element)
+				 		else if(this.type == "window") this.cls = new fWindowMaterial(this.definitionXML,element)
 				 		else if(this.type == "procedural") {
 				 			var r:Class = getDefinitionByName(this.definitionXML.classname[0]) as Class
-				 			this.cls = new r(this.definitionXML)
+				 			this.cls = new r(this.definitionXML,element)
 				 		}
 				 
 				 } catch (e:Error) {
@@ -119,8 +120,10 @@ package org.ffilmation.engine.core {
 							nobj.y1 = nobj.y0+nobj.height  
 							
 							var block:MovieClip = this.cls.getHoleBlock(c)
-							block.x = nobj.xrel
-							block.y = nobj.yrel
+							if(block) {
+								block.x = nobj.xrel
+								block.y = nobj.yrel
+							}
 							ret[ret.length] = new fHole(c,nobj,block)
 						}
         }
@@ -157,8 +160,10 @@ package org.ffilmation.engine.core {
 						  }
 						  
 							block = this.cls.getHoleBlock(c)
-							block.x = nobj.xrel
-							block.y = nobj.yrel-this.height
+							if(block) {
+								block.x = nobj.xrel
+								block.y = nobj.yrel-this.height
+							}
 							ret[ret.length] = new fHole(c,nobj,block)
 						}
 				

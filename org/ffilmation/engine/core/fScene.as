@@ -17,7 +17,6 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
-		import org.ffilmation.engine.generators.*
 		
 		/**
 		* <p>The fScene class provides control over a scene in your application. The API for this object is used to add and remove 
@@ -218,8 +217,6 @@ package org.ffilmation.engine.core {
 			   this.everything = new Array          
 			   this.all = new Array 
 			   
-			   // Force generator classes to be included in the compiled SWF. I know there must be a nicer way to achieve this...
-			   var sc:fScatterGenerator
 			   
 			   // AI
 			   this.AI = new fAiContainer(this)
@@ -646,17 +643,6 @@ package org.ffilmation.engine.core {
 			   // Setup environment light, if any
 			   this.environmentLight = new fGlobalLight(this.xmlObj.head.child("light")[0],this)
 			   
-				 // Search for BOX tags and decompile into walls and floors
-				 var tempObj:XMLList = this.xmlObj.body.child("box")
-			   for(var i:Number=0;i<tempObj.length();i++) {
-			   	 var box:XML = tempObj[i]
-			   	 if(box.@src1.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side1")+'" src="'+(box.@src1)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="horizontal"/>')
-			   	 if(box.@src2.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side2")+'" src="'+(box.@src2)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(parseInt(box.@x)+parseInt(box.@sizex))+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
-			   	 if(box.@src3.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side3")+'" src="'+(box.@src3)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(parseInt(box.@y)+parseInt(box.@sizey))+'" z="'+(box.@z)+'" direction="horizontal"/>')
-			   	 if(box.@src4.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side4")+'" src="'+(box.@src4)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
-			   	 if(box.@src5.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side5")+'" src="'+(box.@src5)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z)+parseInt(box.@sizez))+'"/>')
-			   	 if(box.@src6.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side6")+'" src="'+(box.@src6)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z))+'"/>')
-				 }
 				 
 				 // Search for GENERATOR Tags and process
 				 this.generators = this.xmlObj.body.child("generator")
@@ -716,6 +702,18 @@ package org.ffilmation.engine.core {
 			// Start processing elements
 			private function processGeometry():void {
 				 
+				 // Search for BOX tags and decompile into walls and floors
+				 var tempObj:XMLList = this.xmlObj.body.child("box")
+			   for(var i:Number=0;i<tempObj.length();i++) {
+			   	 var box:XML = tempObj[i]
+			   	 if(box.@src1.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side1")+'" src="'+(box.@src1)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="horizontal"/>')
+			   	 if(box.@src2.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side2")+'" src="'+(box.@src2)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(parseInt(box.@x)+parseInt(box.@sizex))+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
+			   	 if(box.@src3.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side3")+'" src="'+(box.@src3)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(parseInt(box.@y)+parseInt(box.@sizey))+'" z="'+(box.@z)+'" direction="horizontal"/>')
+			   	 if(box.@src4.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side4")+'" src="'+(box.@src4)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
+			   	 if(box.@src5.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side5")+'" src="'+(box.@src5)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z)+parseInt(box.@sizez))+'"/>')
+			   	 if(box.@src6.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side6")+'" src="'+(box.@src6)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z))+'"/>')
+				 }
+
 		 		 // Next step
 		  	 this.stat = "Processing geometry and materials."
 			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,66,this.stat))
@@ -1100,7 +1098,7 @@ package org.ffilmation.engine.core {
 			   					try {
 			   						this.grid[i][n][k].walls.objects.push(ob)
 			   					} catch(e:Error) {
-			   						trace("Warning: "+ob.id+" extends out of bounds.")
+			   						//trace("Warning: "+ob.id+" extends out of bounds.")
 			   					}
 			   			  }
 			   			}
@@ -1227,6 +1225,7 @@ package org.ffilmation.engine.core {
 			   		obi = ((wa.vertical)?(wa.x):(wa.x0))/this.gridSize
 			   		obj = ((wa.vertical)?(wa.y0):(wa.y))/this.gridSize
 			   		height = wa.height/this.levelSize
+			   		
 
 			   		do {
 			   		
@@ -1240,11 +1239,11 @@ package org.ffilmation.engine.core {
 			   				  	row = obi+i
 			   				  	col = obj-1
 			   				  }
-			   				  z = obz
+			   				  z = 0
 									
 									// Test lower cells
 									try {
-										cell = this.grid[row][col][z]
+										cell = this.grid[row][col][Math.max(z,obz)]
 										candidate = this.translateCoords(cell.x,cell.y,cell.z)
 										candidate = this.container.localToGlobal(candidate)
 										if(wa.container.hitTestPoint(candidate.x,candidate.y,true))	some = true

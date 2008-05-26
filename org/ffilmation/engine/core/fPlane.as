@@ -30,6 +30,7 @@ package org.ffilmation.engine.core {
 			private var environmentC:Shape				    // Global
 			private var black:Shape				  				  // No light
 			private var diffuse:DisplayObject					// Diffuse map
+			private var holesC:Sprite				    			// Holes
 			private var bumpMap:BumpMap								// Bump maps
 			private var bumpMapData:BitmapData
 			private var displacer:DisplacementMapFilter
@@ -119,6 +120,7 @@ package org.ffilmation.engine.core {
 			   this.lightShadows = new Object   		
 			   this.lightBumps = new Object   		
 			   this.lightC = new Sprite()
+			   this.holesC = new Sprite()
 				 this.black = new Shape()
 			   this.environmentC = new Shape()
  			   this.lightC.mouseEnabled = false
@@ -131,7 +133,9 @@ package org.ffilmation.engine.core {
  			   this.lightC.mouseEnabled = false
  			   this.lightC.mouseChildren = false
 				 this.baseContainer.mouseEnabled = false
-
+			   this.baseContainer.addChild(this.holesC)
+			   this.holesC.blendMode = BlendMode.ERASE
+				 this.holesC.mouseEnabled = false
 
 			   // Holes
 			   this.holes = this.material.getHoles()
@@ -140,18 +144,20 @@ package org.ffilmation.engine.core {
 				 		 this.holes[i].addEventListener(fHole.CLOSE,this.closeHole)
 				 		 this.holes[i].open = false
 			   }
+				 this.redrawHoles()
 
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
 			   // if the plane doesn't change in a while
-			   if(this.holes.length==0) this.container.cacheAsBitmap = true
+			   //if(this.holes.length==0)
+			   this.container.cacheAsBitmap = true
 				 this.cacheTimer = new Timer(100,1)
          this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener)
 
 			}
 
 			/**
-			* This method listens holes beign opened
+			* This method listens to holes beign opened
 			*/
 			private function openHole(event:Event):void {
 				
@@ -168,7 +174,7 @@ package org.ffilmation.engine.core {
 			}
 
 			/**
-			* This method listens holes beign opened
+			* This method listens to holes beign closed
 			*/
 			private function closeHole(event:Event):void {
 				
@@ -189,7 +195,7 @@ package org.ffilmation.engine.core {
 			*/
 			private function redrawLights():void {
 				  
-					this.setGlobalLight(this.scene.environmentLight)
+					this.redrawHoles()
 					for(var i:Number=0;i<this.scene.lights.length;i++) {
 						var l:fLight = this.scene.lights[i]
 						if(l) l.render()
@@ -270,7 +276,7 @@ package org.ffilmation.engine.core {
 			 	 this.black.graphics.lineTo(this.origWidth,0)
 			 	 this.black.graphics.lineTo(0,0)
 
-				 // For each hole, draw hole in black
+/*				 // For each hole, draw hole in black
 				 for(var h:Number=0;h<this.holes.length;h++) {
 					
 					 	if(this.holes[h].open) {
@@ -281,7 +287,7 @@ package org.ffilmation.engine.core {
 			 		  	this.black.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
 			 	  		this.black.graphics.lineTo(hole.xrel,hole.yrel)
 			 	  	}
-				 }
+				 }*/
 
 				 this.black.graphics.endFill()
 	       this.setDimensions(this.black)
@@ -295,7 +301,7 @@ package org.ffilmation.engine.core {
 			 	 this.environmentC.graphics.lineTo(this.origWidth,0)
 			 	 this.environmentC.graphics.lineTo(0,0)
 
-				 // For each hole, draw environment
+/*				 // For each hole, draw environment
 				 for(h=0;h<this.holes.length;h++) {
 					
 					 	if(this.holes[h].open) {
@@ -307,7 +313,7 @@ package org.ffilmation.engine.core {
 			 	  		this.environmentC.graphics.lineTo(hole.xrel,hole.yrel)
 			 	  	}
 			 	  	
-				 }
+				 } */
 
 				 this.environmentC.graphics.endFill()
 	       this.setDimensions(this.environmentC)
@@ -315,7 +321,37 @@ package org.ffilmation.engine.core {
 		 		 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange)
 				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange)
 			}
-			
+
+
+			private function redrawHoles():void {
+				
+				 // Erases holes from light layers
+				 this.holesC.graphics.clear()
+				 this.holesC.graphics.beginFill(0x000000,1)
+		 	   this.holesC.graphics.moveTo(0,0)
+			 	 this.holesC.graphics.lineTo(0,this.origHeight)
+			 	 this.holesC.graphics.lineTo(this.origWidth,this.origHeight)
+			 	 this.holesC.graphics.lineTo(this.origWidth,0)
+			 	 this.holesC.graphics.lineTo(0,0)
+ 	  		 this.holesC.graphics.endFill()
+			 	 this.setDimensions(this.holesC)
+
+				 this.holesC.graphics.clear()
+ 				 for(h=0;h<this.holes.length;h++) {
+
+					 	if(this.holes[h].open) {
+						 	hole = this.holes[h].bounds
+							this.holesC.graphics.beginFill(0x000000,1)
+				 	  	this.holesC.graphics.moveTo(hole.xrel,hole.yrel)
+				 	  	this.holesC.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
+			 	  		this.holesC.graphics.lineTo(hole.xrel+hole.width,hole.yrel+hole.height)
+			 	  		this.holesC.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
+			 	  		this.holesC.graphics.lineTo(hole.xrel,hole.yrel)
+			 	  		this.holesC.graphics.endFill()
+			 	  	}
+	       }
+				
+			}			
 
 
 			/** @private */
@@ -335,26 +371,28 @@ package org.ffilmation.engine.core {
 			
 			   // Create container
 			   var light_c:Sprite = new Sprite()
-			   this.lightClips[light.id] = light_c
+			   this.lightClips[light.uniqueId] = light_c
 
 				 // Create layer
 				 var lay:Sprite = new Sprite()
 				 light_c.addChild(lay)
 				 lay.cacheAsBitmap = true
-				 this.lightBumps[light.id] = lay
+				 //lay.blendMode = BlendMode.LAYER
+				 
+				 this.lightBumps[light.uniqueId] = lay
 				 light_c.blendMode = BlendMode.ADD
 				 
 				 // Create mask
 				 var msk:Shape = new Shape()
 				 lay.addChild(msk)
 			   this.createLightClip(light,msk)
-			   this.lightMasks[light.id] = msk
+			   this.lightMasks[light.uniqueId] = msk
 			   msk.blendMode = BlendMode.NORMAL
 				 
 				 // Create shadow container
 			   var shd:Sprite = new Sprite()
 			   lay.addChild(shd)
-			   this.lightShadows[light.id] = shd
+			   this.lightShadows[light.uniqueId] = shd
 			   shd.blendMode = BlendMode.ERASE
 
 			
@@ -385,7 +423,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public override function showLight(light:fLight):void {
 			
-			   var lClip:Sprite = this.lightClips[light.id]
+			   var lClip:Sprite = this.lightClips[light.uniqueId]
 			   this.lightC.addChild(lClip)
 				
 			}
@@ -394,7 +432,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public override function hideLight(light:fLight):void {
 			
-			   var lClip:Sprite = this.lightClips[light.id]
+			   var lClip:Sprite = this.lightClips[light.uniqueId]
 			   this.lightC.removeChild(lClip)
 			
 			}
@@ -406,7 +444,7 @@ package org.ffilmation.engine.core {
 			   if(light.size!=Infinity) {
 			
 			      // Redraw inner masks
-			      var lClip:Shape = this.lightMasks[light.id]
+			      var lClip:Shape = this.lightMasks[light.uniqueId]
 			      var perc:Number = Math.cos(Math.asin((distance)/light.size))*deform
 			      
 			      // Correct displacement map
@@ -431,7 +469,7 @@ package org.ffilmation.engine.core {
 
 				if(light.size!=Infinity) {
 
-					var lClip:Shape = this.lightMasks[light.id]
+					var lClip:Shape = this.lightMasks[light.uniqueId]
 					lClip.x = lx
 					lClip.y = ly
 				
@@ -489,7 +527,7 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 			public function applyfLightIntensityChange(light:fLight):void {
-   				var lClip:Shape = this.lightMasks[light.id]
+   				var lClip:Shape = this.lightMasks[light.uniqueId]
 					this.createLightClip(light,lClip)
 			}
 
@@ -498,7 +536,7 @@ package org.ffilmation.engine.core {
 			public override function lightIn(light:fLight):void {
 			
 			   // Show container
-				 if(this.lightStatuses[light.id]) this.showLight(light)
+				 if(this.lightStatuses[light.uniqueId]) this.showLight(light)
 			   
 			}
 			
@@ -507,7 +545,7 @@ package org.ffilmation.engine.core {
 			public override function lightOut(light:fLight):void {
 			
 			   // Hide container
-			   if(this.lightStatuses[light.id]) this.hideLight(light)
+			   if(this.lightStatuses[light.uniqueId]) this.hideLight(light)
 			   
 			}
 
@@ -516,8 +554,8 @@ package org.ffilmation.engine.core {
 			public override function renderStart(light:fLight):void {
 			
 			   // Create light ?
-			   if(!this.lightStatuses[light.id]) this.lightStatuses[light.id] = new fLightStatus(this,light)
-			   var lightStatus:fLightStatus = this.lightStatuses[light.id]
+			   if(!this.lightStatuses[light.uniqueId]) this.lightStatuses[light.uniqueId] = new fLightStatus(this,light)
+			   var lightStatus:fLightStatus = this.lightStatuses[light.uniqueId]
 				
 			   if(!lightStatus.created) {
 			      lightStatus.created = true
@@ -529,12 +567,11 @@ package org.ffilmation.engine.core {
 			   // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	 this.cacheTimer.stop()
        	 this.container.cacheAsBitmap = false
-       	 //if(this.holes.length==0)
-       	 this.lightBumps[light.id].cacheAsBitmap = false
-	   	   	//this.lightBumps[light.id].blendMode = BlendMode.LAYER
+       	 if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
+       	 this.lightBumps[light.uniqueId].cacheAsBitmap = false
 
 			   // Init shadows
- 			   var msk:Sprite = this.lightShadows[light.id]
+ 			   var msk:Sprite = this.lightShadows[light.uniqueId]
 			   msk.graphics.clear()
 			  
 				 // For each hole, draw mask
@@ -568,7 +605,7 @@ package org.ffilmation.engine.core {
 			public override function renderShadow(light:fLight,other:fRenderableElement):void {
 			   
 			   // Select mask
-			   var msk:Sprite = this.lightShadows[light.id]
+			   var msk:Sprite = this.lightShadows[light.uniqueId]
 			
 				 // Render
 				 this.renderShadowInt(light,other,msk)
@@ -584,12 +621,11 @@ package org.ffilmation.engine.core {
 			    // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	  this.cacheTimer.stop()
        	 	this.container.cacheAsBitmap = false
-       	  //if(this.holes.length==0) 
-       	  this.lightBumps[light.id].cacheAsBitmap = false
-	   	   	//this.lightBumps[light.id].blendMode = BlendMode.LAYER
+       	  if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
+       	  this.lightBumps[light.uniqueId].cacheAsBitmap = false
 
 			    // Select mask
-			   	var msk:Sprite = this.lightShadows[light.id]
+			   	var msk:Sprite = this.lightShadows[light.uniqueId]
 				 			
 				 	// Render
 				  this.renderShadowInt(light,other,msk)
@@ -612,13 +648,9 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 			public function cacheTimerListener(event:TimerEvent):void {
-				 if(this.holes.length!=0) return
+         if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.NORMAL
          this.container.cacheAsBitmap = true
-		   	 for(var i in this.lightBumps) {
-		   	 		this.lightBumps[i].cacheAsBitmap = true
-		   	 		//this.lightBumps[i].blendMode = BlendMode.NORMAL
-		   	 }
-         
+		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
 			}
 
 			/** @private */

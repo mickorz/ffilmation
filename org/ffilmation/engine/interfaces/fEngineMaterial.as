@@ -2,11 +2,19 @@ package org.ffilmation.engine.interfaces {
 
 		// Imports
 		import flash.display.*
+		import org.ffilmation.engine.core.*
 
 		/**
 		* This interface defines methods that any class that is to be used as a material in the engine must implement
 		*/
 		public interface fEngineMaterial {
+
+			/**
+			* Constructor
+			* @param definitionXML The material definition data that created this class
+			* @param element The element( wall or floor ) where this material will be applied
+			*/
+			public function fEngineMaterial(definitionXML:XML,element:fRenderableElement);
 
 			/** 
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
