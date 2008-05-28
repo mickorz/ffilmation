@@ -337,10 +337,10 @@ package org.ffilmation.engine.core {
 			 	 this.setDimensions(this.holesC)
 
 				 this.holesC.graphics.clear()
- 				 for(h=0;h<this.holes.length;h++) {
+ 				 for(var h:Number=0;h<this.holes.length;h++) {
 
 					 	if(this.holes[h].open) {
-						 	hole = this.holes[h].bounds
+						 	var hole:fPlaneBounds = this.holes[h].bounds
 							this.holesC.graphics.beginFill(0x000000,1)
 				 	  	this.holesC.graphics.moveTo(hole.xrel,hole.yrel)
 				 	  	this.holesC.graphics.lineTo(hole.xrel+hole.width,hole.yrel)

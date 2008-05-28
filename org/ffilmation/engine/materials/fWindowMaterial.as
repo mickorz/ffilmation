@@ -190,7 +190,7 @@ package org.ffilmation.engine.materials {
 			*/
 			public function getHoles(width:Number,height:Number):Array {
 				var holes:Array = new Array
-				for(j=0;j<this.windows.length;j++) {
+				for(var j:Number=0;j<this.windows.length;j++) {
 					
 					var window:Rectangle = this.windows[j]
 				
