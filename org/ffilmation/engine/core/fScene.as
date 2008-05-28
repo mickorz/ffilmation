@@ -24,53 +24,50 @@ package org.ffilmation.engine.core {
 		*
 		* <p>Moreover, you can get information on topology, visibility from one point to another, search for paths and other useful
 		* methods that will help, for example, in programming AIs that move inside the scene.</p>
+		*
+		* <p>The data structures contained within this object are populated during initialization by the fSceneInitializer class</p>
+		*
+		* @see org.ffilmation.engine.core.fSceneInitializer
 		*/
 		public class fScene extends EventDispatcher {
 		
 			// This counter is used to generate unique scene Ids
-			/** @private */
 			private static var count:Number = 0
 
 		  // Private properties
-		  private var engine:fEngine
-		  private var _orig_container:Sprite  		  					// Backup reference
-		  private var elements:Sprite													// All elements in scene are added here
-		  private var top:int
-		  private var depthSortArr:Array									  	// Array of elements for depth sorting
-		  public var id:String																// Internal id
+		  /** @private */
+		  internal var engine:fEngine
+		 	/** @private */
+			internal var _orig_container:Sprite  		  					// Backup reference
+		  
+		  /** @private */
+			internal var elements:Sprite												// All elements in scene are added here
+		  /** @private */
+			internal var top:int
+		  /** @private */
+			internal var depthSortArr:Array									  	// Array of elements for depth sorting
 		
-		  private var levels:Array         	     							// List of all levels
-		  private var baseLevel:fLevel
-		
-			private var gridWidth:Number												// Grid size in pixels
-			private var gridHeight:Number
-			private var gridThickness:Number
+			/** @private */
+			internal var gridWidth:Number												// Grid size in pixels
+			/** @private */
+			internal var gridHeight:Number
+			/** @private */
+			internal var gridThickness:Number
 
 			private var currentCamera:fCamera										// The camera currently in use
 			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
 			
-			// Controller
 			private var _controller:fEngineSceneController = null
-			
-			
-			// Temp variables used during the load and init process
-			private var mediaSrcs:Array
-			private var xmlObj:XML
-			private var generators:XMLList
-			private var srcs:Array
-			private var queuePointer:Number
-			private var levelData:Array
-			private var maxfLevels:Number
-			private var limitHeight:Number
-			private var retriever:fEngineSceneRetriever
-			private var generator:fEngineGenerator
-			/** @private */
-			public var currentGenerator:Number
 
 		  // Public properties
 		  
 		  /** 
-		  * Were scene is drawn
+		  * Every Scene is automatically assigned and ID
+		  */
+		  public var id:String																
+
+		  /** 
+		  * Were this scene is drawn
 		  */
 		  public var container:Sprite		          						
 		  
@@ -165,7 +162,7 @@ package org.ffilmation.engine.core {
 			* An string describing the process of loading and processing and scene XML definition file.
 			* Events dispatched by the scene while loading containg this String as a description of what is happening
 			*/
-			private static const LOADINGDESCRIPTION:String = "Creating scene"
+			public static const LOADINGDESCRIPTION:String = "Creating scene"
 
 			/**
  			* The fScene.LOADPROGRESS constant defines the value of the 
@@ -204,11 +201,9 @@ package org.ffilmation.engine.core {
  			   this.viewWidth = width
  			   this.viewHeight = height
  			   this.container.scrollRect = new Rectangle(0,0,width,height)
- 			   this.retriever = retriever
 			
 			   // Internal arrays
 			   this.depthSortArr = new Array          
-			   this.levels = new Array          
 			   this.floors = new Array          
 			   this.walls = new Array           
 			   this.objects = new Array         
@@ -217,13 +212,12 @@ package org.ffilmation.engine.core {
 			   this.everything = new Array          
 			   this.all = new Array 
 			   
-			   
 			   // AI
 			   this.AI = new fAiContainer(this)
 			
 			   // Start xml retrieve process
-				 this.retriever.start().addEventListener(Event.COMPLETE, this.loadListener)
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.stat))
+			   var initializer:fSceneInitializer = new fSceneInitializer(this,retriever)
+			   initializer.start()
 
 			}
 			
@@ -284,7 +278,6 @@ package org.ffilmation.engine.core {
 			public function get controller():fEngineSceneController {
 				return this._controller
 			}
-
 
 
 			/** 
@@ -482,953 +475,9 @@ package org.ffilmation.engine.core {
       }         
 
 
-
-
-			// LOAD: Scene xml load event
-			private function loadListener(evt:Event):void {
-        this.xmlObj = this.retriever.getXML()
-        this.processXml_Init()
-			}
-
-		  // Process HEAD of scene's XML
-			private function processXml_Init():void {
-				
-			   // Step 1: Retrieve media files
-				 this.mediaSrcs = new Array
-			   var srcs:XMLList = this.xmlObj.head.child("media")
-
-			   for(var i:Number=0;i<srcs.length();i++) this.mediaSrcs.push(srcs[i].@src)
-			   
-				 // Step 2: Retrieve definition files and start loading them
-				 this.objectDefinitions = new Object()
-				 this.materialDefinitions = new Object()
-				 this.noiseDefinitions = new Object()
-				 this.srcs = new Array()
-			   
-			   srcs = this.xmlObj.head.child("definitions")
-			   for(i=0;i<srcs.length();i++) this.srcs.push(srcs[i].@src)
-			   
-			   this.queuePointer = -1
-			   this.stat = "Loading definition files"
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.stat))
-			   this.XMLloadComplete(new Event("Dummy"))
-
-		  }
-		  
-			// Process loaded definition xml
-			private function XMLloadComplete(evt:Event):void {
-			
-				 // Process loaded file
-				 if(this.queuePointer>=0) {
-				 	
-				 		var xmlObj2:XML = new XML(evt.target.data)
-				 		
-				 		// Retrieve nested definitions
-						for(var i:Number=0;i<xmlObj2.child("definitions").length();i++) if(this.srcs.indexOf(xmlObj2.child("definitions")[i].@src)<0) this.srcs.push(xmlObj2.child("definitions")[i].@src)
-				 		
-				 		// Retrieve media files
-						for(i=0;i<xmlObj2.child("media").length();i++) this.mediaSrcs.push(xmlObj2.child("media")[i].@src)				 	
-						
-						// Retrieve Object definitions
-						var defs:XMLList = xmlObj2.child("objectDefinition")
-						for(i=0;i<defs.length();i++) {
-							this.objectDefinitions[defs[i].@name] = defs[i].copy()
-						}
-						
-						// Retrieve Material definitions
-						defs = xmlObj2.child("materialDefinition")
-						for(i=0;i<defs.length();i++) {
-							this.materialDefinitions[defs[i].@name] = defs[i].copy()
-						}
-						
-						// Retrieve Noise definitions
-						defs = xmlObj2.child("noiseDefinition")
-						for(i=0;i<defs.length();i++) {
-							this.noiseDefinitions[defs[i].@name] = new fNoise(defs[i])
-						}
-
-				 }
-				 
-				 // Proceed to next file
-				 this.queuePointer++
-				 if(this.queuePointer<this.srcs.length) {
-				 	
-				 	  // Load
-				 		var url:URLRequest = new URLRequest(this.srcs[this.queuePointer])
-				 		var loadUrl:URLLoader = new URLLoader(url)
-				 		loadUrl.load(url)
-				 		loadUrl.addEventListener(Event.COMPLETE, this.XMLloadComplete)
-			   		this.stat = "Loading definition file: "+this.srcs[this.queuePointer]
-			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.stat))
-						
-				 } else {
-
-				 		// All loaded
-	          this.processXml_Part1()
-				 }
-
-			}
-		  
-			// Start loading media files
-			private function processXml_Part1():void {
-
-			   // Read media files
-			   this.queuePointer = -1
-			   this.stat = "Loading media files"
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.stat))
-
-				 // Listen to media load events
-				 this.engine.addEventListener(fEngine.MEDIALOADCOMPLETE,this.loadComplete)
-				 this.engine.addEventListener(fEngine.MEDIALOADPROGRESS,this.loadProgress)
-			   this.loadComplete(new Event("Dummy"))
-
-			}
-			
-			// Process loaded media file and load next one
-			private function loadComplete(event:Event):void {
-			
-				 this.queuePointer++
-				 if(this.queuePointer<this.mediaSrcs.length) {
-				 	
-				 	  // Load
-				 		var src:String = this.mediaSrcs[this.queuePointer]
-			  	  this.stat = "Loading media files ( current: "+src+"  ) "
-			      var current:Number = 100*(this.queuePointer)/this.srcs.length
-			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,current/2,fScene.LOADINGDESCRIPTION,current,this.stat))
-
-						this.engine.loadMedia(src)
-						
-				 } else {
-				 		// All loaded
-			  	  this.stat = "Load complete. Processing scene data."
-			   	  this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,33,this.stat))
-			   		var myTimer:Timer = new Timer(200, 1)
-            myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_DecompileT)
-            myTimer.start()
-				 }
-
-			}
-			
-	    // Update status of current media file
-			private function loadProgress(event:ProgressEvent):void {
-
-			   var percent:Number = (event.bytesLoaded/event.bytesTotal)
-			   this.stat = "Loading media files ( current: "+this.mediaSrcs[this.queuePointer]+"  ) "
-			   var current:Number = 100*(this.queuePointer+percent)/this.mediaSrcs.length
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,current/2,fScene.LOADINGDESCRIPTION,current,this.stat))
-			   
-			}
-			
-			private function processXml_DecompileT(event:TimerEvent):void {
-				 this.processXml_Decompile()
-		  }
-
-			// Decompile BOX and GENERATOR Tags
-			private function processXml_Decompile():void {
-				
-				 // Remove listeners. Otherwise we would react to other scene's load calls
-				 this.engine.removeEventListener(fEngine.MEDIALOADCOMPLETE,this.loadComplete)
-				 this.engine.removeEventListener(fEngine.MEDIALOADPROGRESS,this.loadProgress)
-				 
-				 // Create elements
-				 this.elements = new Sprite()
-				 this.elements.mouseEnabled = false
-				 this.container.addChild(this.elements)
-			
-			   // Setup environment
-			   if(this.xmlObj.@gridsize.length()>0) this.gridSize = new Number(this.xmlObj.@gridsize)
-			   if(this.xmlObj.@levelsize.length()>0) this.levelSize = new Number(this.xmlObj.@levelsize)
-			   if(this.xmlObj.@maxelementspercell.length()>0) this.maxElementsPerfCell = new Number(this.xmlObj.@maxelementspercell)
-			
-			   // Setup environment light, if any
-			   this.environmentLight = new fGlobalLight(this.xmlObj.head.child("light")[0],this)
-			   
-				 
-				 // Search for GENERATOR Tags and process
-				 this.generators = this.xmlObj.body.child("generator")
-				 this.currentGenerator = 0
-				 
-				 if(this.generators.length()>0) {
-				 		processGenerator()
-         } else {
-         		processGeometry()
-         }
-			}
-			
-			
-			// Process Generator start
-			private function processGenerator():void {
-				
-				try {
-	   			var cls:String = this.generators[this.currentGenerator].classname
-	   			var data:XMLList = this.generators[this.currentGenerator].data
-	   			var r:Class = getDefinitionByName(cls) as Class
-			   	this.generator = new r()
-
-			   	var ret:EventDispatcher = this.generator.generate(this.currentGenerator,this,data)
-			   	ret.addEventListener(ProgressEvent.PROGRESS, this.onGeneratorProgress)
-			   	ret.addEventListener(Event.COMPLETE, this.onGeneratorComplete)
-
-					this.stat = "Processing generator "+(this.currentGenerator+1)+" of "+this.generators.length()
-			   	this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,0,this.stat))
-
-	   		} catch (e:Error) {
-	   			throw new Error("Filmation Engine Exception: Scene contains an invalid generator definition: "+cls+" "+e)
-	   		}
-				 
-			}
-			
-			// Process Generator progress
-			private function onGeneratorProgress(evt:Event):void {
-
-					this.stat = "Processing generator "+(this.currentGenerator+1)+" of "+this.generators.length()
-			   	this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,this.generator.getPercent(),this.stat))
-				
-			}
-			
-			// Process Generator complete
-			private function onGeneratorComplete(evt:Event):void {
-				
-	   			// Insert XML
-   				this.xmlObj.body.appendChild(this.generator.getXML())
-					
-					// Next or finish
-					this.currentGenerator++
-					if(this.currentGenerator<this.generators.length()) processGenerator()
-					else processGeometry()
-
-			}
-
-			// Start processing elements
-			private function processGeometry():void {
-				 
-				 // Search for BOX tags and decompile into walls and floors
-				 var tempObj:XMLList = this.xmlObj.body.child("box")
-			   for(var i:Number=0;i<tempObj.length();i++) {
-			   	 var box:XML = tempObj[i]
-			   	 if(box.@src1.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side1")+'" src="'+(box.@src1)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="horizontal"/>')
-			   	 if(box.@src2.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side2")+'" src="'+(box.@src2)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(parseInt(box.@x)+parseInt(box.@sizex))+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
-			   	 if(box.@src3.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side3")+'" src="'+(box.@src3)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(parseInt(box.@y)+parseInt(box.@sizey))+'" z="'+(box.@z)+'" direction="horizontal"/>')
-			   	 if(box.@src4.length()>0) this.xmlObj.body.appendChild('<wall id="'+(box.@id+"_side4")+'" src="'+(box.@src4)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
-			   	 if(box.@src5.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side5")+'" src="'+(box.@src5)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z)+parseInt(box.@sizez))+'"/>')
-			   	 if(box.@src6.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side6")+'" src="'+(box.@src6)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z))+'"/>')
-				 }
-
-		 		 // Next step
-		  	 this.stat = "Processing geometry and materials."
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,66,this.stat))
-			   var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part2T)
-         myTimer.start()
-				 
-			}
-
-			private function processXml_Part2T(event:TimerEvent):void {
-				 this.processXml_Part2()
-		  }
-
-			// Process and setup base level
-			private function processXml_Part2():void {
-
-			   // Retrieve all floors and group them by their Z-coordinate
-			   this.levelData = new Array
-
-			   var tempObj:XMLList = tempObj = this.xmlObj.body.child("floor")
-			   for(var i:Number=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this floor
-			   		var tz:Number = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      if(tz>0) {
-			      	this.levelData[this.levelData.length] = new fTempLevelData(tz)
-			      	this.levelData[this.levelData.length-1].floors.push(tempObj[i])
-			      } else {
-			      	if(this.levelData.length==0) this.levelData[0] = new fTempLevelData(tz)
-		      		this.levelData[0].floors.push(tempObj[i])
-		      	}
-			      
-			   }
-			   
-			   // Sort
-				 this.levelData.sortOn("z", Array.NUMERIC)
-				 
-			   // Retrieve all walls and group with closest floor
-			   tempObj = this.xmlObj.body.child("wall")
-			   for(i=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this element
-			   		tz = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      for(var j:Number=0;j<this.levelData.length && this.levelData[j].z<=tz;j++);
-		      	this.levelData[j-1].walls.push(tempObj[i])
-			      
-			   }
-			   
-			   // Retrieve all objects and group with closest floor
-			   tempObj = this.xmlObj.body.child("object")
-			   for(i=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this element
-			   		tz = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      for(j=0;j<this.levelData.length && this.levelData[j].z<=tz;j++);
-		      	this.levelData[j-1].objects.push(tempObj[i])
-			      
-			   }
-
-			   // Retrieve all characters and group with closest floor
-			   tempObj = this.xmlObj.body.child("character")
-			   for(i=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this element
-			   		tz = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      for(j=0;j<this.levelData.length && this.levelData[j].z<=tz;j++);
-		      	this.levelData[j-1].characters.push(tempObj[i])
-			      
-			   }
-
-			   this.maxfLevels = this.levelData.length
-			
-			   // Base level
-			   this.stat = "Building levels"
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.stat))
-			   this.baseLevel = this.levels[0] = new fLevel(this.elements,this.levelData[0],this,0,0,0)
-			
-			   // Setup main control grid
-			   this.gridWidth = this.baseLevel.gridWidth
-			   this.gridHeight = this.baseLevel.gridHeight
-			   this.width = this.gridWidth*this.gridSize
-			   this.depth = this.gridHeight*this.gridSize
-			
-			   // Next step
-			   if(this.levelData.length>1) {
-			   		var myTimer:Timer = new Timer(200, this.levelData.length-1)
-         	  myTimer.addEventListener(TimerEvent.TIMER, this.buildfLevels)
-            myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part3T)
-            myTimer.start()
-         } else {
-         		this.processXml_Part3()
-         }
-			
-			}
-			
-			// Process other levels above base
-			private function buildfLevels(event:TimerEvent):void {
-			
-			   // Other levels ( height above base level )
-			   // For other levels grid is forced to be the same size as the base level
-			   // Size of base level is calculated from floor size
-	       this.stat = "Building levels"
-	       var current:Number = 100*((event.target.currentCount)/this.levelData.length)
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50+current/10,fScene.LOADINGDESCRIPTION,current,this.stat))
-
-			   this.levels[event.target.currentCount] = new fLevel(this.elements,this.levelData[event.target.currentCount],this,event.target.currentCount,this.gridWidth,this.gridHeight)
-			}
-			
-			private function processXml_Part3T(event:TimerEvent):void {
-				 this.processXml_Part3()
-		  }
-
-			// Start zSorting algorythm. I'm not even remotely try to explain how it works.
-			private function processXml_Part3():void {
-			
-			   // Sort levels from bottom to top
-			   this.levels.sortOn("z", Array.NUMERIC)
-			
-			   // Copy references from all levels to scene's arrays
-			   for(var i:Number=0;i<this.levels.length;i++) {
-			      for(var j:Number=0;j<this.levels[i].floors.length;j++) {
-			      	this.floors.push(this.levels[i].floors[j])
-			      	this.everything.push(this.levels[i].floors[j])
-			      }
-			      for(j=0;j<this.levels[i].walls.length;j++) {
-			      	this.walls.push(this.levels[i].walls[j])
-			      	this.everything.push(this.levels[i].walls[j])
-			      }
-			      for(j=0;j<this.levels[i].objects.length;j++) {
-			      	this.objects.push(this.levels[i].objects[j])
-			      	this.everything.push(this.levels[i].objects[j])
-			      }
-			      for(j=0;j<this.levels[i].characters.length;j++) {
-			      	this.levels[i].characters[j].counter = this.characters.length
-			      	this.characters.push(this.levels[i].characters[j])
-			      	this.everything.push(this.levels[i].characters[j])
-			      }
-			      for(var k:String in this.levels[i].all) this.all[k] = this.levels[i].all[k]
-			   }
-			
-			   // Place walls and floors
-			   for(j=0;j<this.floors.length;j++) this.floors[j].place()
-			   for(j=0;j<this.walls.length;j++) this.walls[j].place()
-			   for(j=0;j<this.objects.length;j++) this.objects[j].place()
-			   for(j=0;j<this.characters.length;j++) this.characters[j].place()
-			   
-			   // zSort walls and cells
-			   this.baseLevel.setZ(0)
-			   var maxz:Number = this.baseLevel.getMaxZIndex()
-			   this.baseLevel.zSort()
-			   maxz = this.baseLevel.getMaxZIndex()
-			   //trace("Max z "+maxz)
-			   //trace("Base Max z "+maxz)
-			   //trace(this.gridWidth*this.gridHeight)
-
-  	     this.stat = "Z sorting levels"
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60,fScene.LOADINGDESCRIPTION,100,this.stat))
-
-			   // Next step
-			   if(this.levels.length>1) {
-			   		var myTimer:Timer = new Timer(200, this.levels.length-1)
-         		myTimer.addEventListener(TimerEvent.TIMER, this.sortfLevels)
-         		myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part4T)
-         		myTimer.start()
-         } else {
-            this.processXml_Part4()
-         }
-			
-			}
-			
-			// Assign zIndexes to levels above base level containers
-			private function sortfLevels(event:TimerEvent):void {
-			
-			   var i_loop:Number = event.target.currentCount
-
-  	     // zSort
-  	     var ci:Number = this.levels[i_loop].i
-  	     var cij:Number = this.levels[i_loop].i+this.levels[i_loop].gWidth-1
-  	     var cj:Number = this.levels[i_loop].j+this.levels[i_loop].gDepth-1
-  	     var cji:Number = this.levels[i_loop].j
-  	     
-  	     var newZ:Number = 0
-  	     for(var j:Number=0;j<this.levels.length && this.levels[j].z<=this.levels[i_loop].z;j++) if(j!=i_loop && this.levels[j].grid[ci][cj].zIndex>newZ) newZ = this.levels[j].grid[ci][cj].zIndex
-  	     
-  	     this.levels[i_loop].setZ(newZ)
-  	     this.levels[i_loop].zSort()
-  	     
-  	     // Propagate max zIndex to levels below so objects in front still display in front 
-  	
-  	     var maxz:Number = this.levels[i_loop].getMaxZIndex()
-  	     //trace(this.levels[i_loop].id+" Max z "+maxz)
-  	     for(j=0;j<this.levels.length && this.levels[j].z<=this.levels[i_loop].z;j++) if(j!=i_loop) {
-  	        //trace("\n -- > Propago "+this.levels[i_loop].id+" a "+this.levels[j].id+"\n")
-  	        this.levels[j].propagateZ(ci,cij,cji,cj,maxz)
-  	     }
-  	
-	       var current:Number = 100*((i_loop+1)/this.levels.length)
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60+current/10,fScene.LOADINGDESCRIPTION,current,this.stat))
-			   
-			}
-			
-			// End zSorting algorythm
-			private function processXml_Part4T(event:TimerEvent):void {
-				
-	   		 this.stat = "Finishing Z Sort"
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70,fScene.LOADINGDESCRIPTION,100,this.stat))
-				 this.processXml_Part4()
-		  }
-
-			// Generate grid
-			private function processXml_Part4():void {
-				
-			
-			   // Calculate top
-			   for(var i:Number=0;i<this.levels.length;i++) if(this.levels[i].top>this.top) this.top = this.levels[i].top
-			   
-			   // Security margin
-			   this.top+=this.levelSize*10
-			
-			   // Generate grid
-			   this.gridThickness = Math.ceil(this.top/this.levelSize)
-			
-	   		 this.stat = "Generating grid"
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70,fScene.LOADINGDESCRIPTION,100,this.stat))
-
-			   // Create grid
-			   this.grid = new Array
-
-			   // Next step
-			   var myTimer:Timer = new Timer(20, this.gridWidth+1)
-         myTimer.addEventListener(TimerEvent.TIMER, this.gridBuildLoop)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.gridBuildComplete)
-         myTimer.start()
-			
-			}
-			
-			// Loop creation interval, to spare processor cycles
-			private function gridBuildLoop(event:TimerEvent):void {
-			
-			   var i_loop:Number = event.target.currentCount-1
-			   var i:Number = i_loop
-			   var levelCounter = 0
-
-	       this.grid[i] = new Array()
-	       for(var j:Number=0;j<=this.gridHeight;j++) this.grid[i][j] = new Array()
-	       
-	       for(var k:Number=0;k<=this.gridThickness;k++) {  
-			
-	         while(levelCounter<this.levels.length && this.levels[levelCounter].k<=k) levelCounter++
-			         
-			   	 for(j=0;j<=this.gridHeight;j++) {  
-
-			      	 // Calculate max zIndex
-			      	 var tz:Number = 0
-							 var lev:fLevel
-			      	 for(var n:Number=levelCounter-1;n>=0;n--) {
-									lev = this.levels[n]
-									if(i>=lev.i && i<=(lev.i+lev.gWidth) && j>=lev.j && j<=(lev.j+lev.gDepth) && lev.grid[i][j].zIndex>tz) tz=lev.grid[i][j].zIndex
-			      	 }
-
-			         // Setup cell parameters
-			         this.grid[i][j][k] = new fCell()
-
-			         // Initial Z-Index
-			         this.grid[i][j][k].zIndex = tz
-			         
-			         // Internal
-			         this.grid[i][j][k].i = i
-			         this.grid[i][j][k].j = j
-			         this.grid[i][j][k].k = k
-			         this.grid[i][j][k].x = (this.gridSize/2)+(this.gridSize*i)
-			         this.grid[i][j][k].y = (this.gridSize/2)+(this.gridSize*j)
-			         this.grid[i][j][k].z = (this.levelSize/2)+(this.levelSize*k)
-			     }
-		
-			   } 
-			   
-	       var current:Number = 100*((i_loop)/this.gridWidth)
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70+current*0.15,fScene.LOADINGDESCRIPTION,current,this.stat))
-
-			}   
-			   
-			// Complete grid creation and setup initial raytracing
-			private function gridBuildComplete(event:TimerEvent):void {
-
-	      // Free some memory
-	      for(var i:Number=1;i<this.levels.length;i++) {
-	      	delete this.levels[i].grid
-	      	delete this.levels[i]
-	      }
-	      
-	      // Correct floor depths
-			  for(i=0;i<this.floors.length;i++) {
-			    var f:fFloor = this.floors[i]
-			    	if(f.z!=0) {
-			   	  	var nz1:Number = this.grid[f.i+f.gWidth-1][f.j][f.k].zIndex
-			   	  	if((f.j+f.gDepth)<this.gridHeight) var nz2:Number = this.grid[f.i+f.gWidth-1][f.j+f.gDepth][f.k-1].zIndex
-			   	  	else nz2 = Infinity
-			   	  	if(f.i>0) var nz3:Number = this.grid[f.i-1][f.j][f.k-1].zIndex
-			   	  	else nz3 = Infinity
-	   	 				this.floors[i].setZ(Math.min(Math.min(nz1,nz2),nz3)-1)
-	   	 			}
-			  }
-	      
-	      // Set depth of objects and characters
-				for(var j=0;j<this.objects.length;j++) this.objects[j].updateDepth()
-				for(j=0;j<this.characters.length;j++) this.characters[j].updateDepth()
-
-		    // Finish zSort
-			  this.depthSort()
-	
-	      // Next step
-	      try {
-	      	if(this.xmlObj.@prerender=="true") this.limitHeight = this.gridThickness-1
-	      	else if(this.xmlObj.@prerender=="false") this.limitHeight = -1
-	      	else this.limitHeight = Math.ceil(parseInt(this.xmlObj.@prerender)/this.levelSize)
-	      } catch (e:Error) {
-	      	this.limitHeight = 0
-	      }
-	      
-	      this.limitHeight++
-	      if(this.limitHeight>0) {
-			   
-			    var myTimer:Timer = new Timer(20, this.limitHeight*this.gridWidth)
-          myTimer.addEventListener(TimerEvent.TIMER, this.rayTraceLoop)
-          myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.rayTraceComplete)
-          myTimer.start()
-      
-
-        } else this.processXml_Part5()
-			
-			}
-			
-			// RayTrace Loops
-			private function rayTraceLoop(event:TimerEvent):void {
-			
-			   var i_loop:Number = event.target.currentCount-1
-   
-				 var i:Number = i_loop%this.gridWidth
-				 var k:Number = Math.floor(i_loop/this.gridWidth) 
-				 for(var j:Number=0;j<=this.gridHeight;j++) {
-				 	this.calcVisibles(this.grid[i][j][k])
-				 }
-
- 	   		 this.stat = "Raytracing..."
-	       var current:Number = 100*(i_loop/(this.limitHeight*this.gridWidth))
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,85+current*0.13,fScene.LOADINGDESCRIPTION,current,this.stat))
-			   
-			}
-			
-			// RayTrace Ends
-			private function rayTraceComplete(event:TimerEvent):void {
-			   this.processXml_Part5()
-			}
-
-			// Add collision info
-			private function processXml_Part5():void {
-			
-			   this.stat = "Collision..."
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,98,fScene.LOADINGDESCRIPTION,100,this.stat))
-
-		  	 // Update grid with object collision information
-			   for(var j:Number=0;j<this.objects.length;j++) {
-			   		var ob:fObject = this.objects[j]
-			   		var rz:int = ob.z/this.levelSize
-			   		var obi:int = ob.x/this.gridSize
-			   		var obj:int = ob.y/this.gridSize
-			   		var height:int = ob.height/this.levelSize
-			   		var rad:int = Math.ceil(ob.radius/this.gridSize)
-			   		
-			   		for(var n:int=obj-rad;n<=obj+rad;n++) {
-			   			for(var i:int=obi-rad;i<(obi+rad);i++) {
-			   				for(var k:int=rz;k<=(rz+height);k++) {
-			   					try {
-			   						this.grid[i][n][k].walls.objects.push(ob)
-			   					} catch(e:Error) {
-			   						//trace("Warning: "+ob.id+" extends out of bounds.")
-			   					}
-			   			  }
-			   			}
-			   	  }
-
-			   }
-
-				 // Update grid with floor fCollision information
-			   for(j=0;j<this.floors.length;j++) {
-			   		var fl:fFloor = this.floors[j]
-			   		rz = fl.z/this.levelSize
-			   		for(i=fl.i;i<(fl.i+fl.gWidth);i++) {
-			   			for(k=fl.j;k<(fl.j+fl.gDepth);k++) {
-			   				this.grid[i][k][rz].walls.bottom = fl
-			   				if(rz>0) this.grid[i][k][rz-1].walls.top = fl
-			   		  }
-			   		}
-			   }
-			   
-				 // Update grid with wall fCollision information
-			   for(j=0;j<this.walls.length;j++) {
-			   		var wl:fWall = this.walls[j]
-			   		height = wl.height/this.levelSize
-			   		rz = wl.z/this.levelSize
-			   		if(wl.vertical) {
-			   			for(i=wl.j;i<(wl.j+wl.size);i++) {
-			   				for(k=rz;k<(rz+height);k++) {
-			   					
-			   					try {
-			   						this.grid[wl.i][i][k].walls.left = wl
-			   					} catch(e:Error) {
-			   				  }
-			   					if(wl.i>0) {
-			   						this.grid[wl.i-1][i][k].walls.right = wl
-			   					}
-			   				}
-			   			}
-			   		} else {
-			   			for(i=wl.i;i<(wl.i+wl.size);i++) {
-			   				for(k=rz;k<(rz+height);k++) {
-			   					try {
-			   						this.grid[i][wl.j][k].walls.up = wl
-			   					} catch(e:Error) {
-			   				  }
-
-			   					if(wl.j>0) {
-			   						this.grid[i][wl.j-1][k].walls.down = wl
-			   					}
-			   				}
-			   			}
-			   		}
-				 }
-
-		     // Next step
-			   var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part6)
-         myTimer.start()
-			
-			}
-			
-			// Add occlusion info
-			private function processXml_Part6(event:TimerEvent):void {
-
-			   this.stat = "Occlusion..."
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,99,fScene.LOADINGDESCRIPTION,100,this.stat))
-
-		  	 // HitTestPoint with shape flag enabled only works if the DisplayObject is attached to the Stage
-		  	 this.engine.container.addChild(this.container)
-		  	 this.container.visible = false
-		  	 
-		  	 // Update grid with object occlusion information
-			   for(var n:Number=0;n<this.objects.length;n++) {
-			   		var ob:fObject = this.objects[n]
-			   		var obz:int = ob.z/this.levelSize
-			   		var obi:int = ob.x/this.gridSize
-			   		var obj:int = ob.y/this.gridSize
-			   		var height:int = ob.height/this.levelSize
-			   		var rad:int = Math.ceil(ob.radius/this.gridSize)
-			   		var bounds:Rectangle = ob.container.getRect(this.container) 
-			   		
-			   		var cnt:Number = 0
-			   		do {
-			   		
-			   			var some:Boolean = false
-			   			for(var i:int=-rad;i<=rad;i++) {
-			   				
-			   				  var row:Number = obi+i
-			   				  var col:Number = obj+i
-			   				  var z:Number = obz
-									var inside:Boolean = true
-									
-									do {
-
-										try {
-											var cell:fCell = this.grid[row][col][z]
-										} catch(e:Error) {
-											cell = null
-										}
-
-										if(cell) {
-											var candidate:Point = this.translateCoords(cell.x,cell.y,cell.z)
-											if(bounds.contains(candidate.x,candidate.y)) {
-			   								cell.elementsInFront.push(ob)
-			   								some = true
-											} else inside = false
-										}
-										z++
-										
-									} while(cell && inside)			   			  
-			   				  
-			   			}
-			   			cnt++
-			   			if(cnt%2==0) obi++
-			   			else obj--
-			   		
-			   		} while(some)
-
-			   }
-
-				 // Wall occlusion
-			   for(n=0;n<this.walls.length;n++) {
-			   		var wa:fWall = this.walls[n]
-			   		obz = wa.z/this.levelSize
-			   		obi = ((wa.vertical)?(wa.x):(wa.x0))/this.gridSize
-			   		obj = ((wa.vertical)?(wa.y0):(wa.y))/this.gridSize
-			   		height = wa.height/this.levelSize
-			   		
-
-			   		do {
-			   		
-			   			some = false
-			   			for(i=0;i<=wa.size;i++) {
-			   				
-			   				  if(wa.vertical) {
-			   				  	row = obi
-			   				  	col = obj+i-1
-			   				  } else {
-			   				  	row = obi+i
-			   				  	col = obj-1
-			   				  }
-			   				  z = 0
-									
-									// Test lower cells
-									try {
-										cell = this.grid[row][col][Math.max(z,obz)]
-										candidate = this.translateCoords(cell.x,cell.y,cell.z)
-										candidate = this.container.localToGlobal(candidate)
-										if(wa.container.hitTestPoint(candidate.x,candidate.y,true))	some = true
-									} catch(e:Error) {}
-
-									do {
-
-										try {
-											cell = this.grid[row][col][z]
-		   								cell.elementsInFront.push(wa)
-										} catch(e:Error) {}
-										z++
-										
-									} while(z<(obz+height))			   			  
-			   				  
-			   			}
-		   				obj--
-		   				obi++
-			   		
-			   		} while(some)
-
-			   }
-
-
-				 // Floor
-			   for(n=0;n<this.floors.length;n++) {
-			   		var flo:fFloor = this.floors[n]
-			   		obz = flo.z/this.levelSize
-			   		obi = flo.i
-			   		obj = flo.j+flo.gDepth-1
-			   		var width:Number = flo.gWidth
-			   		var depth:Number = flo.gDepth
-
-			   		do {
-			   		
-			   			some = false
-			   			for(i=0;i<width;i++) {
-			   				
-		   				  	row = obi+i
-		   				  	col = obj
-			   				  z = obz-1
-
-									do {
-
-										try {
-											cell = this.grid[row][col][z]
-											candidate = this.translateCoords(cell.x,cell.y,cell.z)
-											candidate = this.container.localToGlobal(candidate)
-											if(((row<(flo.i+flo.gWidth)) && col>=flo.j) || flo.container.hitTestPoint(candidate.x,candidate.y,true))	{
-												some = true
-		   									cell.elementsInFront.push(flo)
-		   								}
-										} catch(e:Error) {}
-										z--
-										
-									} while(z>=0)			   			  
-			   				  
-			   			}
-			   			for(i=0;i<depth;i++) {
-			   				
-		   				  	row = obi
-		   				  	col = obj-i
-			   				  z = obz-1
-
-									do {
-
-										try {
-											cell = this.grid[row][col][z]
-											candidate = this.translateCoords(cell.x,cell.y,cell.z)
-											candidate = this.container.localToGlobal(candidate)
-											if(((row<(flo.i+flo.gWidth)) && col>=flo.j) || flo.container.hitTestPoint(candidate.x,candidate.y,true))	{
-												some = true
-		   									cell.elementsInFront.push(flo)
-		   								}
-										} catch(e:Error) {}
-										z--
-										
-									} while(z>=0)			   			  
-			   				  
-			   			}
-
-		   				obj--
-		   				obi++
-			   		
-			   		} while(some)
-
-			   }
-
-
-		  	 // HitTestPoint with shape flag enabled only works if the DisplayObject is attached to the Stage
-		  	 this.engine.container.removeChild(this.container)
-		  	 this.container.visible = true
-
-		     // Next step
-			   var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part7)
-         myTimer.start()
-
-		  }
-
-			// Setup initial lights, render everything
-			private function processXml_Part7(event:TimerEvent):void {
-			
-				 // Render
-			   this.stat = "Rendering..."
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,100,fScene.LOADINGDESCRIPTION,100,this.stat))
-
-				 // Retrieve events
-				 var tempObj:XMLList = this.xmlObj.body.child("event")
-			    for(var i:Number=0;i<tempObj.length();i++) {
-			   	  var evt:XML = tempObj[i]
-			   	  
-						var rz:int = Math.floor((new Number(evt.@z[0]))/this.levelSize)
-			   		var obi:int = Math.floor((new Number(evt.@x[0]))/this.gridSize)
-			   		var obj:int = Math.floor((new Number(evt.@y[0]))/this.gridSize)
-			   		
-			   		var height:int = Math.floor((new Number(evt.@height[0]))/this.levelSize)
-			   		var width:int = Math.floor((new Number(evt.@width[0]))/(2*this.gridSize))
-			   		var depth:int = Math.floor((new Number(evt.@depth[0]))/(2*this.gridSize))
-
-			   		
-			   		for(var n:Number=obj-depth;n<=(obj+depth);n++) {
-			   			for(var l:Number=obi-width;l<=(obi+width);l++) {
-			   				for(var k:Number=rz;k<=(rz+height);k++) {
-			   					try {
-			   						this.grid[l][n][k].events.push(new fCellEventInfo(evt))   	  
-			   					} catch(e:Error){}
-			   	  		}
-			   	  	}
-			   	  }
-			   }
-
-		     // Prepare global light
-			   for(var j:Number=0;j<this.floors.length;j++) this.floors[j].setGlobalLight(this.environmentLight)
-			   for(j=0;j<this.walls.length;j++) this.walls[j].setGlobalLight(this.environmentLight)
-			   for(j=0;j<this.objects.length;j++) this.objects[j].setGlobalLight(this.environmentLight)
-			   for(j=0;j<this.characters.length;j++) this.characters[j].setGlobalLight(this.environmentLight)
-			
-			   // Add dynamic lights
-			   var objfLight:XMLList = this.xmlObj.body.child("light")
-			   for(i=0;i<objfLight.length();i++) {
-			   	  this.addLight(objfLight[i])
-			   }
-
-			   // Prepare characters
-			   for(j=0;j<this.characters.length;j++) {
-			   	  this.characters[j].cell = this.translateToCell(this.characters[j].x,this.characters[j].y,this.characters[j].z)
-				 		this.characters[j].addEventListener(fElement.NEWCELL,this.processNewCell)			   
-				 		this.characters[j].addEventListener(fElement.MOVE,this.renderElement)			   
-				 }
-
-		   	 
-		   	 // Create controller for this scene, if any was specified in the XML
-		   	 if(this.xmlObj.@controller.length()==1) {
-				 	try {
-	   				var cls:String = this.xmlObj.@controller
-	   				var r:Class = getDefinitionByName(cls) as Class
-			   		this.controller = new r()		
-			   		this.controller.enable()   	 
-		   	 	} catch(e:Error) {
-						throw new Error("Filmation Engine Exception: Scene contains an invalid controller definition: "+cls+" "+e)		   	 		
-		   	 	}
-		   	 }
-		   	 
-		   	 // Initial render pass
-		   	 this.render()
-		   	 
-		   	 var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Complete)
-         myTimer.start()
-			}
-			
-			// Complete process, mark scene as ready
-			private function processXml_Complete(event:TimerEvent):void {
-
-				 // Update status
-			   this.stat = "Ready"
-			   this.ready = true
-
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADCOMPLETE,false,false,100,fScene.LOADINGDESCRIPTION,100,this.stat))
-
-			}
-
-			// Render scene
-			/** @private */
+			/**
+			* Use this method to completely rerender the scene. However, under normal circunstances there shouldn't be a need to call this manually
+			*/
 			public function render():void {
 
 			   // Render global light
@@ -1439,6 +488,11 @@ package org.ffilmation.engine.core {
 
 			}
 
+			
+			// PRIVATE AND INTERNAL METHODS FOLLOW
+			
+			
+			
 			// Listens cameras moving
 			/** @private */
 			public function cameraMoveListener(evt:fMoveEvent):void {
@@ -1524,7 +578,7 @@ package org.ffilmation.engine.core {
 			
 		  // Internal depth sorting method
 			/** @private */
-			private function depthSort():void {
+			internal function depthSort():void {
 				
 				var ar:Array = this.depthSortArr
 				ar.sortOn("_depth", Array.NUMERIC);
@@ -1943,7 +997,8 @@ package org.ffilmation.engine.core {
 
 			}
 
-			private function addLight(definitionObject:XML):void {
+			/** @private */
+			internal function addLight(definitionObject:XML):void {
 			
 			   // Create
 			   var nfLight:fOmniLight = new fOmniLight(definitionObject,this)
@@ -1963,7 +1018,8 @@ package org.ffilmation.engine.core {
 			     
 			}
 
-			private function addCharacter(definitionObject:XML):void {
+			/** @private */
+			internal function addCharacter(definitionObject:XML):void {
 			
 				 // Create
 				 var spr:MovieClip = new MovieClip()
