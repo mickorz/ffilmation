@@ -26,9 +26,18 @@ package org.ffilmation.engine.core {
 		* <p>Originally, all this code was inside fScene, but it made the file so big and unpractical that I decided to move
 		* these methods to another class. So, conceptually speaking, this belongs to fScene.</p>
 		* <p>Users of the engine don't need to look into this class.</p>
+		*
+		* @private
 		*/
 		public class fSceneInitializer {		
 
+			/** 
+			* Depending on the scene topology, zSorting may run into infinite recursion.
+			* To avoid timeout exceptions, this constant defines a max depth
+			*/
+			public static const maxLoop:Number = 500
+			
+			// Parameters
 			private var scene:fScene
 			private var retriever:fEngineSceneRetriever
 			
@@ -38,16 +47,16 @@ package org.ffilmation.engine.core {
 			private var generators:XMLList
 			private var srcs:Array
 			private var queuePointer:Number
-			private var levelData:Array
-		  private var levels:Array
 			private var limitHeight:Number
 			private var generator:fEngineGenerator
-			/** @private */
+			private var verticals:Array           
+			private var horizontals:Array
+			private var exploredRow:int
+			private var lastHorizontal:int
+			private var processedWalls:Number
 			public var currentGenerator:Number
 
-
 			// Constructor
-			/** @private */
 			public function fSceneInitializer(scene:fScene,retriever:fEngineSceneRetriever) {
 				 
 				 this.scene = scene
@@ -56,7 +65,6 @@ package org.ffilmation.engine.core {
 			}					
 
 			// Start initialization process
-			/** @private */
 			public function start(): void {
 				 this.retriever.start().addEventListener(Event.COMPLETE, this.loadListener)
 			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
@@ -304,224 +312,154 @@ package org.ffilmation.engine.core {
 				 this.processXml_Part2()
 		  }
 
-			// Process and setup base level
+			// Process and setup elements
 			private function processXml_Part2():void {
 
-			   // Retrieve all floors and group them by their Z-coordinate
-			   this.levelData = new Array
+				 this.scene.top = 0   
+			   this.verticals = new Array()
+			   this.horizontals = new Array()
 
-			   var tempObj:XMLList = tempObj = this.xmlObj.body.child("floor")
-			   for(var i:Number=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this floor
-			   		var tz:Number = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      if(tz>0) {
-			      	this.levelData[this.levelData.length] = new fTempLevelData(tz)
-			      	this.levelData[this.levelData.length-1].floors.push(tempObj[i])
-			      } else {
-			      	if(this.levelData.length==0) this.levelData[0] = new fTempLevelData(tz)
-		      		this.levelData[0].floors.push(tempObj[i])
-		      	}
-			      
-			   }
-			   
-			   // Sort
-				 this.levelData.sortOn("z", Array.NUMERIC)
-				 
-			   // Retrieve all walls and group with closest floor
+			   // Add floors
+ 			   this.scene.gridWidth = 0
+			   this.scene.gridDepth = 0
+
+				 var tempObj:XMLList = tempObj = this.xmlObj.body.child("floor")
+			   for(var i:Number=0;i<tempObj.length();i++) { 
+			   	  var spr:MovieClip = new MovieClip()
+			   	  spr.mouseEnabled = false
+			   	  this.scene.elements.addChild(spr)
+			   	   
+						var nFloor:fFloor = new fFloor(spr,tempObj[i],this.scene)
+						nFloor.setZ(i)
+         		this.scene.floors.push(nFloor)
+         		this.scene.everything.push(nFloor)
+			   		this.scene.all[nFloor.id] = nFloor
+			   		   	    
+			   		if(this.scene.gridWidth<(nFloor.i+nFloor.gWidth)) this.scene.gridWidth = nFloor.i+nFloor.gWidth
+			   		if(this.scene.gridDepth<(nFloor.j+nFloor.gDepth)) this.scene.gridDepth = nFloor.j+nFloor.gDepth
+			   		
+			   		if(nFloor.z>this.scene.top) this.scene.top = nFloor.z
+				 }
+			
+			   // Add walls
 			   tempObj = this.xmlObj.body.child("wall")
-			   for(i=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this element
-			   		tz = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      for(var j:Number=0;j<this.levelData.length && this.levelData[j].z<=tz;j++);
-		      	this.levelData[j-1].walls.push(tempObj[i])
-			      
+			   for(i=0;i<tempObj.length();i++) { 
+			   	  spr = new MovieClip()
+			   	  this.scene.elements.addChild(spr)
+			   		
+	       		var nWall:fWall = new fWall(spr,tempObj[i],this.scene)
+			   		if(nWall.vertical) this.verticals[this.verticals.length] = nWall
+			   		else this.horizontals[this.horizontals.length] = nWall
+			   		this.scene.walls.push(nWall)
+			   		this.scene.everything.push(nWall)
+			   		this.scene.all[nWall.id] = nWall
+			   		if(nWall.top>this.scene.top) this.scene.top = nWall.top
+			   		
 			   }
 			   
-			   // Retrieve all objects and group with closest floor
+			   // Add objects and characters
 			   tempObj = this.xmlObj.body.child("object")
 			   for(i=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this element
-			   		tz = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      for(j=0;j<this.levelData.length && this.levelData[j].z<=tz;j++);
-		      	this.levelData[j-1].objects.push(tempObj[i])
-			      
+			   		spr = new MovieClip()
+		   	    this.scene.elements.addChild(spr)
+			   		if(tempObj[i].@dynamic=="true") {
+						  var nCharacter:fCharacter = new fCharacter(spr,tempObj[i],this.scene)
+			   			this.scene.characters.push(nCharacter)
+			   			this.scene.everything.push(nCharacter)
+			   			this.scene.all[nCharacter.id] = nCharacter
+			   		}
+			   		else {
+			   			var nObject:fObject = new fObject(spr,tempObj[i],this.scene)
+			   			this.scene.objects.push(nObject)
+			   			this.scene.everything.push(nObject)
+			   			this.scene.all[nObject.id] = nObject
+			   			if(nObject.top>this.scene.top) this.scene.top = nObject.top
+			   		}
 			   }
 
-			   // Retrieve all characters and group with closest floor
 			   tempObj = this.xmlObj.body.child("character")
 			   for(i=0;i<tempObj.length();i++) {
-			   	
-			   		// Z for this element
-			   		tz = 0
-			      if(tempObj[i].@z.length()>0) tz = parseInt(tempObj[i].@z)
-			      
-			      for(j=0;j<this.levelData.length && this.levelData[j].z<=tz;j++);
-		      	this.levelData[j-1].characters.push(tempObj[i])
-			      
+			   		spr = new MovieClip()
+		   	    this.scene.elements.addChild(spr)
+						nCharacter = new fCharacter(spr,tempObj[i],this.scene)
+			   		this.scene.characters.push(nCharacter)
+			   		this.scene.everything.push(nCharacter)
+			   		this.scene.all[nCharacter.id] = nCharacter
 			   }
-
-			   // Base level
-			   this.scene.stat = "Building levels"
- 			   this.levels = new Array          
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
-			   this.levels[0] = new fLevel(this.scene.elements,this.levelData[0],this.scene,0,0,0)
 			
 			   // Setup main control grid
-			   this.scene.gridWidth = this.levels[0].gridWidth
-			   this.scene.gridHeight = this.levels[0].gridHeight
 			   this.scene.width = this.scene.gridWidth*this.scene.gridSize
-			   this.scene.depth = this.scene.gridHeight*this.scene.gridSize
+			   this.scene.depth = this.scene.gridDepth*this.scene.gridSize
 			
 			   // Next step
-			   if(this.levelData.length>1) {
-			   		var myTimer:Timer = new Timer(200, this.levelData.length-1)
-         	  myTimer.addEventListener(TimerEvent.TIMER, this.buildfLevels)
-            myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part3T)
-            myTimer.start()
-         } else {
-         		this.processXml_Part3()
-         }
+     		 this.processXml_Part3()
 			
 			}
 			
-			// Process other levels above base
-			private function buildfLevels(event:TimerEvent):void {
-			
-			   // Other levels ( height above base level )
-			   // For other levels grid is forced to be the same size as the base level
-			   // Size of base level is calculated from floor size
-	       this.scene.stat = "Building levels"
-	       var current:Number = 100*((event.target.currentCount)/this.levelData.length)
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50+current/10,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
-
-			   this.levels[event.target.currentCount] = new fLevel(this.scene.elements,this.levelData[event.target.currentCount],this.scene,event.target.currentCount,this.scene.gridWidth,this.scene.gridHeight)
-			}
-			
-			private function processXml_Part3T(event:TimerEvent):void {
-				 this.processXml_Part3()
-		  }
-
 			// Start zSorting algorythm. I'm not even remotely try to explain how it works.
 			private function processXml_Part3():void {
 			
-			   // Sort levels from bottom to top
-			   this.levels.sortOn("z", Array.NUMERIC)
+			   // Z Sort
+			   this.scene.stat = "Initial sort"
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+			   
+			   for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].counter = j
 			
-			   // Copy references from all levels to scene's arrays
-			   for(var i:Number=0;i<this.levels.length;i++) {
-			      for(var j:Number=0;j<this.levels[i].floors.length;j++) {
-			      	this.scene.floors.push(this.levels[i].floors[j])
-			      	this.scene.everything.push(this.levels[i].floors[j])
+			   // Sort horizontal walls ( bubble algorythm )
+			   var changes:Boolean
+         var one:fWall
+         var two:fWall
+
+			   do {
+			      changes = false
+			      for(i=0;i<(this.horizontals.length-1);i++) {
+			         one = this.horizontals[i]
+			         two = this.horizontals[i+1]
+			         if(one.j>two.j || (one.j==two.j && one.i>two.i)) {
+			            this.horizontals[i] = two
+			            this.horizontals[i+1] = one
+			            changes = true
+			         }
 			      }
-			      for(j=0;j<this.levels[i].walls.length;j++) {
-			      	this.scene.walls.push(this.levels[i].walls[j])
-			      	this.scene.everything.push(this.levels[i].walls[j])
+			   } while(changes==true)
+			   
+			   // Sort vertical walls ( bubble algorythm )
+			   do {
+			      changes = false
+			      for(i=0;i<(this.verticals.length-1);i++) {
+			         one = this.verticals[i]
+			         two = this.verticals[i+1]
+			         if(one.i<two.i || (one.i==two.i && one.j>two.j)) {
+			            this.verticals[i] = two
+			            this.verticals[i+1] = one
+			            changes = true
+			         }
 			      }
-			      for(j=0;j<this.levels[i].objects.length;j++) {
-			      	this.scene.objects.push(this.levels[i].objects[j])
-			      	this.scene.everything.push(this.levels[i].objects[j])
-			      }
-			      for(j=0;j<this.levels[i].characters.length;j++) {
-			      	this.levels[i].characters[j].counter = this.scene.characters.length
-			      	this.scene.characters.push(this.levels[i].characters[j])
-			      	this.scene.everything.push(this.levels[i].characters[j])
-			      }
-			      for(var k:String in this.levels[i].all) this.scene.all[k] = this.levels[i].all[k]
-			   }
-			
+			   } while(changes==true)
+
 			   // Place walls and floors
 			   for(j=0;j<this.scene.floors.length;j++) this.scene.floors[j].place()
 			   for(j=0;j<this.scene.walls.length;j++) this.scene.walls[j].place()
 			   for(j=0;j<this.scene.objects.length;j++) this.scene.objects[j].place()
 			   for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].place()
 			   
-			   // zSort walls and cells
-			   this.levels[0].setZ(0)
-			   var maxz:Number = this.levels[0].getMaxZIndex()
-			   this.levels[0].zSort()
-			   maxz = this.levels[0].getMaxZIndex()
-			   //trace("Max z "+maxz)
-			   //trace("Base Max z "+maxz)
-			   //trace(this.scene.gridWidth*this.scene.gridHeight)
-
-  	     this.scene.stat = "Z sorting levels"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 
 			   // Next step
-			   if(this.levels.length>1) {
-			   		var myTimer:Timer = new Timer(200, this.levels.length-1)
-         		myTimer.addEventListener(TimerEvent.TIMER, this.sortfLevels)
-         		myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part4T)
-         		myTimer.start()
-         } else {
-            this.processXml_Part4()
-         }
+         this.processXml_Part4()
 			
 			}
 			
-			// Assign zIndexes to levels above base level containers
-			private function sortfLevels(event:TimerEvent):void {
-			
-			   var i_loop:Number = event.target.currentCount
-
-  	     // zSort
-  	     var ci:Number = this.levels[i_loop].i
-  	     var cij:Number = this.levels[i_loop].i+this.levels[i_loop].gWidth-1
-  	     var cj:Number = this.levels[i_loop].j+this.levels[i_loop].gDepth-1
-  	     var cji:Number = this.levels[i_loop].j
-  	     
-  	     var newZ:Number = 0
-  	     for(var j:Number=0;j<this.levels.length && this.levels[j].z<=this.levels[i_loop].z;j++) if(j!=i_loop && this.levels[j].grid[ci][cj].zIndex>newZ) newZ = this.levels[j].grid[ci][cj].zIndex
-  	     
-  	     this.levels[i_loop].setZ(newZ)
-  	     this.levels[i_loop].zSort()
-  	     
-  	     // Propagate max zIndex to levels below so objects in front still display in front 
-  	
-  	     var maxz:Number = this.levels[i_loop].getMaxZIndex()
-  	     //trace(this.levels[i_loop].id+" Max z "+maxz)
-  	     for(j=0;j<this.levels.length && this.levels[j].z<=this.levels[i_loop].z;j++) if(j!=i_loop) {
-  	        //trace("\n -- > Propago "+this.levels[i_loop].id+" a "+this.levels[j].id+"\n")
-  	        this.levels[j].propagateZ(ci,cij,cji,cj,maxz)
-  	     }
-  	
-	       var current:Number = 100*((i_loop+1)/this.levels.length)
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60+current/10,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
-			   
-			}
-			
-			// End zSorting algorythm
-			private function processXml_Part4T(event:TimerEvent):void {
-				
-	   		 this.scene.stat = "Finishing Z Sort"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
-				 this.processXml_Part4()
-		  }
-
 			// Generate grid
 			private function processXml_Part4():void {
 				
-			
-			   // Calculate top
-			   for(var i:Number=0;i<this.levels.length;i++) if(this.levels[i].top>this.scene.top) this.scene.top = this.levels[i].top
-			   
 			   // Security margin
 			   this.scene.top+=this.scene.levelSize*10
 			
 			   // Generate grid
-			   this.scene.gridThickness = Math.ceil(this.scene.top/this.scene.levelSize)
+			   this.scene.gridHeight = Math.ceil(this.scene.top/this.scene.levelSize)
 			
 	   		 this.scene.stat = "Generating grid"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 
 			   // Create grid
 			   this.scene.grid = new Array
@@ -534,35 +472,27 @@ package org.ffilmation.engine.core {
 			
 			}
 			
+			// Part of zSorting algorythm
+			public function computeZIndex(i:int,j:int,k:int,ow:int,od:int,oh:int):int {
+			   return ((((this.scene.floors.length)+((ow-i+1)+(j*ow+2)))*oh)+k)*this.scene.maxElementsPerfCell
+			}
+
 			// Loop creation interval, to spare processor cycles
 			private function gridBuildLoop(event:TimerEvent):void {
 			
-			   var i_loop:Number = event.target.currentCount-1
-			   var i:Number = i_loop
-			   var levelCounter = 0
+			   var i:Number = event.target.currentCount-1
 
 	       this.scene.grid[i] = new Array()
-	       for(var j:Number=0;j<=this.scene.gridHeight;j++) this.scene.grid[i][j] = new Array()
-	       
-	       for(var k:Number=0;k<=this.scene.gridThickness;k++) {  
-			
-	         while(levelCounter<this.levels.length && this.levels[levelCounter].k<=k) levelCounter++
-			         
-			   	 for(j=0;j<=this.scene.gridHeight;j++) {  
-
-			      	 // Calculate max zIndex
-			      	 var tz:Number = 0
-							 var lev:fLevel
-			      	 for(var n:Number=levelCounter-1;n>=0;n--) {
-									lev = this.levels[n]
-									if(i>=lev.i && i<=(lev.i+lev.gWidth) && j>=lev.j && j<=(lev.j+lev.gDepth) && lev.grid[i][j].zIndex>tz) tz=lev.grid[i][j].zIndex
-			      	 }
+	       for(var j:Number=0;j<=this.scene.gridDepth;j++) {
+	       	
+	       		this.scene.grid[i][j] = new Array()
+	       		for(var k:Number=0;k<=this.scene.gridHeight;k++) {  
 
 			         // Setup cell parameters
 			         this.scene.grid[i][j][k] = new fCell()
 
 			         // Initial Z-Index
-			         this.scene.grid[i][j][k].zIndex = tz
+			         this.scene.grid[i][j][k].zIndex = this.computeZIndex(i,j,k,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight)
 			         
 			         // Internal
 			         this.scene.grid[i][j][k].i = i
@@ -575,30 +505,141 @@ package org.ffilmation.engine.core {
 		
 			   } 
 			   
-	       var current:Number = 100*((i_loop)/this.scene.gridWidth)
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70+current*0.15,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
+	       var current:Number = 100*((i)/this.scene.gridWidth)
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50+current*0.15,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
 
 			}   
 			   
-			// Complete grid creation and setup initial raytracing
+			// Complete grid creation and start zSort
 			private function gridBuildComplete(event:TimerEvent):void {
 
-	      // Free some memory
-	      for(var i:Number=1;i<this.levels.length;i++) {
-	      	delete this.levels[i].grid
-	      	delete this.levels[i]
-	      }
-	      
+ 	       this.scene.stat = "Z sorting"
+		     this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,65,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+
+			   // Sort walls and cells
+			   this.lastHorizontal = 0
+			   
+				 var myTimer:Timer = new Timer(20, this.scene.gridDepth)
+         myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop)
+         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
+         myTimer.start()
+			   
+			}
+			
+			// Sorts walls, assigns zIndexes to all cells
+			public function zSortLoop(event:TimerEvent):void {
+			
+		      // Avoids infinite loops
+		      this.processedWalls = 0
+
+		      // Explore this row
+		      this.exploredRow = event.target.currentCount-1
+		      while(this.lastHorizontal<this.horizontals.length && this.horizontals[this.lastHorizontal].j==this.exploredRow) {
+		         // Change zIndex of wall
+		         this.zSortHorizontal(this.lastHorizontal)
+		         lastHorizontal++
+		      }
+			
+		      for(var lastVertical:Number=0;lastVertical<this.verticals.length;lastVertical++) {
+		         if(this.verticals[lastVertical].j==this.exploredRow) {
+		            // Change zIndex of wall
+		            this.zSortVertical(lastVertical)
+		         }
+		      }
+			   
+	       var current:Number = 100*((this.exploredRow)/this.scene.gridDepth)
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,65+current*0.20,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
+
+			}
+			
+			
+			// Part of zSorting algorythm
+			private function zSortHorizontal(wid:int):void {
+					
+			    var wall:fWall = this.horizontals[wid]
+			    
+					this.processedWalls++
+					if(this.processedWalls>fSceneInitializer.maxLoop) {
+						trace("FFilmation Info: Infinite recursion was avoided in ZSort")
+						return	
+					}
+
+			    var newZ:Number = this.scene.grid[wall.i][wall.j][wall.k].zIndex
+			    wall.setZ(newZ)
+			    // Change ZIndex of cells below to be bigger
+			    for(var i:Number=0;i<wall.i+wall.size;i++)
+			       for(var j:Number=wall.j;j<=this.scene.gridDepth;j++)
+			       		for(var k:Number=0;k<this.scene.gridHeight;k++)
+			         		try {
+			         		 this.scene.grid[i][j][k].zIndex= Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j-wall.j,k,wall.i+wall.size,this.scene.gridDepth-wall.j,this.scene.gridHeight));
+			         		} catch(e:Error) {	}
+			
+			    // Must redo previous vertical walls ?
+			    for(j=0;j<this.verticals.length;j++) {
+			       var wall2:fWall = this.verticals[j]
+			       if(wall.j<this.exploredRow && wall2.i<(wall.i+wall.size) && (wall2.j+wall2.size)>wall.j && wall2.k>=wall.k) this.zSortVertical(j)
+			    }
+			
+			}
+			
+			// Part of zSorting algorythm
+			private function zSortVertical(wid:int):void {
+				
+			    var wall:fWall = this.verticals[wid]
+
+					this.processedWalls++
+					if(this.processedWalls>fSceneInitializer.maxLoop) {
+						trace("FFilmation Info: Infinite recursion was avoided in ZSort")
+						return	
+					}
+
+					var newZ:Number
+			    if(wall.i!=0) {
+			       newZ = this.scene.grid[wall.i-1][wall.j+wall.size-1][wall.k].zIndex 
+			       wall.setZ(newZ)                        
+			       // Change ZIndex of cells below to be bigger
+			       for(var j:Number=wall.j;j<=this.scene.gridDepth;j++) {
+			          for(var i:Number=wall.i-1;i>=0;i--) 
+			       			 for(var k:Number=0;k<this.scene.gridHeight;k++)
+      			       		try {
+			             			this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j-wall.j,k,wall.i,this.scene.gridDepth-wall.j,this.scene.gridHeight));
+			             		} catch(e:Error) { }
+			       }
+			    } else {
+			       newZ = this.scene.grid[wall.i][wall.j+wall.size-1][wall.k].zIndex 
+			       wall.setZ(newZ+1)
+			    }
+			
+			    // Must redo previous vertical walls ?
+			    for(j=0;j<this.verticals.length;j++) {
+			       var wall2:fWall = this.verticals[j]
+			       if((wall2.j<this.exploredRow) && wall2.i<wall.i && (wall2.j+wall2.size)>wall.j && wall2.k>=wall.k) this.zSortVertical(j)
+			    }
+			
+			    // Must redo previous horizontal walls ?
+			    for(j=0;j<this.horizontals.length;j++) {
+			       wall2 = this.horizontals[j]
+			       if(wall2.j<=this.exploredRow && wall2.j>wall.j && wall2.i<wall.i && wall2.k>=wall.k) this.zSortHorizontal(j)
+			    }
+			}
+
+
+			// Complete zSort. Setup initial raytracing
+			private function zSortComplete(event:TimerEvent):void {
+
 	      // Correct floor depths
 			  for(i=0;i<this.scene.floors.length;i++) {
 			    var f:fFloor = this.scene.floors[i]
 			    	if(f.z!=0) {
 			   	  	var nz1:Number = this.scene.grid[f.i+f.gWidth-1][f.j][f.k].zIndex
-			   	  	if((f.j+f.gDepth)<this.scene.gridHeight) var nz2:Number = this.scene.grid[f.i+f.gWidth-1][f.j+f.gDepth][f.k-1].zIndex
+			   	  	var nz1b:Number = this.scene.grid[f.i][f.j][f.k].zIndex
+			   	  	
+			   	  	if((f.j+f.gDepth)<this.scene.gridDepth) var nz2:Number = this.scene.grid[f.i+f.gWidth-1][f.j+f.gDepth][f.k-1].zIndex
 			   	  	else nz2 = Infinity
 			   	  	if(f.i>0) var nz3:Number = this.scene.grid[f.i-1][f.j][f.k-1].zIndex
 			   	  	else nz3 = Infinity
-	   	 				this.scene.floors[i].setZ(Math.min(Math.min(nz1,nz2),nz3)-1)
+			   	  	var candidate:Number = Math.min(Math.min(Math.min(nz1,nz1b),nz2),nz3)-1
+	   	 				this.scene.floors[i].setZ(candidate)
 	   	 			}
 			  }
 	      
@@ -611,7 +652,7 @@ package org.ffilmation.engine.core {
 	
 	      // Next step
 	      try {
-	      	if(this.xmlObj.@prerender=="true") this.limitHeight = this.scene.gridThickness-1
+	      	if(this.xmlObj.@prerender=="true") this.limitHeight = this.scene.gridHeight-1
 	      	else if(this.xmlObj.@prerender=="false") this.limitHeight = -1
 	      	else this.limitHeight = Math.ceil(parseInt(this.xmlObj.@prerender)/this.scene.levelSize)
 	      } catch (e:Error) {
@@ -630,7 +671,8 @@ package org.ffilmation.engine.core {
         } else this.processXml_Part5()
 			
 			}
-			
+
+
 			// RayTrace Loops
 			private function rayTraceLoop(event:TimerEvent):void {
 			
@@ -638,7 +680,7 @@ package org.ffilmation.engine.core {
    
 				 var i:Number = i_loop%this.scene.gridWidth
 				 var k:Number = Math.floor(i_loop/this.scene.gridWidth) 
-				 for(var j:Number=0;j<=this.scene.gridHeight;j++) {
+				 for(var j:Number=0;j<=this.scene.gridDepth;j++) {
 				 	this.scene.calcVisibles(this.scene.grid[i][j][k])
 				 }
 

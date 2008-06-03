@@ -91,13 +91,13 @@ package org.ffilmation.engine.elements {
 			
 			// Constructor
 			/** @private */
-			function fCharacter(container:MovieClip,defObj:XML,scene:fScene,level:fLevel):void {
+			function fCharacter(container:MovieClip,defObj:XML,scene:fScene):void {
 				
 				 // Characters are animated always
 				 this.animated = true
 				 
 				 // Previous
-				 super(container,defObj,scene,level)
+				 super(container,defObj,scene)
 				 
 				 // Lights
 				 this.vLights = new Array

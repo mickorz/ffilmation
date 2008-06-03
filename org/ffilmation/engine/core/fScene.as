@@ -25,9 +25,8 @@ package org.ffilmation.engine.core {
 		* <p>Moreover, you can get information on topology, visibility from one point to another, search for paths and other useful
 		* methods that will help, for example, in programming AIs that move inside the scene.</p>
 		*
-		* <p>The data structures contained within this object are populated during initialization by the fSceneInitializer class</p>
+		* <p>The data structures contained within this object are populated during initialization by the fSceneInitializer class (which you don't need to understand).</p>
 		*
-		* @see org.ffilmation.engine.core.fSceneInitializer
 		*/
 		public class fScene extends EventDispatcher {
 		
@@ -50,9 +49,9 @@ package org.ffilmation.engine.core {
 			/** @private */
 			internal var gridWidth:Number												// Grid size in pixels
 			/** @private */
-			internal var gridHeight:Number
+			internal var gridDepth:Number
 			/** @private */
-			internal var gridThickness:Number
+			internal var gridHeight:Number
 
 			private var currentCamera:fCamera										// The camera currently in use
 			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
@@ -600,9 +599,9 @@ package org.ffilmation.engine.core {
 
 				for(var i:int=0;i<this.gridWidth;i++) {  
 
-					for(var j:int=0;j<=this.gridHeight;j++) {  
+					for(var j:int=0;j<=this.gridDepth;j++) {  
 
-		      	 for(var k:int=0;k<=this.gridThickness;k++) {  
+		      	 for(var k:int=0;k<=this.gridHeight;k++) {  
 			
 			         this.grid[i][j][k].characterShadowCache = new Array
 			         delete this.grid[i][j][k].visibleObjs
@@ -918,7 +917,6 @@ package org.ffilmation.engine.core {
 				    // Shadow from statics
 				    for(var i3:Number=0;i3<withinRange;i3++) {
 				    	try {
-				    		//trace(el.id+" -> "+others[i3].obj.id)
 				    		el.renderShadow(light,others[i3].obj)
 				    	} catch(e:Error) {
 				    		
@@ -933,7 +931,6 @@ package org.ffilmation.engine.core {
          
          len = light.vCharacters.length
 			   for(idChar=0;idChar<len;idChar++) {
-			   	
 			   	  cache = light.vCharacters[idChar]
 			   	  if(cache.withinRange) {
 			   	  	character = cache.character

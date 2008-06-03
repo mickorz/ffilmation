@@ -58,7 +58,7 @@ package org.ffilmation.engine.elements {
 			   
 			// Constructor
 			/** @private */
-			function fFloor(container:MovieClip,defObj:XML,scene:fScene,z:int):void {
+			function fFloor(container:MovieClip,defObj:XML,scene:fScene):void {
 			
 				 // Generate sprites
 				 var mask:Sprite = new Sprite()
@@ -84,8 +84,8 @@ package org.ffilmation.engine.elements {
 			   this.j = Math.round(defObj.@y/scene.gridSize)
 			   this.x0 = this.x = this.i*scene.gridSize
 			   this.y0 = this.y = this.j*scene.gridSize
-			   this.top = this.z = z
-			   this.k = Math.round(this.z/scene.levelSize)
+			   this.k = Math.round(defObj.@z/scene.levelSize)
+			   this.top = this.z = this.k*scene.levelSize
 			   this.x1 = this.x0+this.width
 			   this.y1 = this.y0+this.depth
 			   
@@ -225,7 +225,7 @@ package org.ffilmation.engine.elements {
 				
 					 	if(this.holes[h].open) {
 						 	var hole:fPlaneBounds = this.holes[h].bounds
-						 	if(hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
+						 	if(hole.width>=(2*obj.radius) && hole.height>=obj.height && hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
 							 		return null
 						 	}
 			 			}  	

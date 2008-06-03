@@ -29,7 +29,14 @@ package org.ffilmation.engine.core {
 			public var id:String
 			
 			/**
-			* Unique ID. Thi is automatically assigned and used internally in HasTabled and such
+			* This is the XML node from the scene XML that generated this element. It is useful if you want to add
+			* custom attributes to specific instances of your elements, and access them later from your app. For example,
+			* you could add descriptions to objects, and then display those descriptions when the user rollOvers that object.
+			*/
+			public var xmlObj:XML
+			
+			/**
+			* Unique ID. This is automatically assigned and used internally in hasTables and such
 			* @private
 			*/
 			public var uniqueId:String
@@ -106,6 +113,7 @@ package org.ffilmation.engine.core {
 			function fElement(defObj:XML,scene:fScene):void {
 
 			   // Id
+			   this.xmlObj = defObj
 			   var temp:XMLList= defObj.@id
 			   
 			   this.uniqueId = "fElement_"+(fElement.count++)

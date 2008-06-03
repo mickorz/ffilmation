@@ -45,6 +45,8 @@ package org.ffilmation.engine.elements {
 			public var i:Number
 			/** @private */
 			public var j:Number
+			/** @private */
+			public var k:Number
 
 			/** @private */
 			public var size:Number
@@ -100,7 +102,8 @@ package org.ffilmation.engine.elements {
 			   this.j = Math.round(this.y/scene.gridSize)
 			   this.x0 = this.x1 = this.i*scene.gridSize
 			   this.y0 = this.y1 = this.j*scene.gridSize
-			   this.z = scene.levelSize*Math.round(this.z/scene.levelSize)
+			   this.k = Math.round(this.z/scene.levelSize)
+			   this.z = scene.levelSize*this.k
 			   this.top = this.z + this.height
 
 			   if(this.vertical) {                                         // Position
@@ -286,7 +289,7 @@ package org.ffilmation.engine.elements {
 			public override function testPrimaryCollision(other:fRenderableElement,dx:Number,dy:Number,dz:Number):fCollision {
 
 				var obj:fObject = other as fObject
-				var x:Number, y:Number, z:Number
+				var x:Number, y:Number, z:Number, z2:Number
 				var any:Boolean
 				var radius:Number = obj.radius
 
@@ -297,6 +300,7 @@ package org.ffilmation.engine.elements {
 					
 					y = obj.y
 					z = obj.z
+					z2 = obj.top
 
 					// Loop through holes and see if bottom point is inside one
 					any = false
@@ -304,30 +308,10 @@ package org.ffilmation.engine.elements {
 					
 						 	if(this.holes[h].open) {
 						 		var hole:fPlaneBounds = this.holes[h].bounds
-						 		if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-							 		any = true
+						 		if(hole.width>=(2*obj.radius) && hole.height>=obj.height) {
+						 			if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y && hole.z<=z2 && hole.top>=z2) any = true
 						 		} 
 						 	}
-			 		  	
-					}
-					
-					// There was a fCollision 
-					if(!any) {
-						if(dx>0) return new fCollision(this.x-radius-0.01,-1,-1)
-						else return new fCollision(this.x+radius+0.01,-1,-1)
-					}
-			  
-					// Loop through holes and see if top point is inside one
-					z = obj.top
-					any = false
-					for(h=0;!any && h<this.holes.length;h++) {
-					
-						 	if(this.holes[h].open) {
-							 	hole = this.holes[h].bounds
-							 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-							 		any = true
-							 	} 
-							}
 			 		  	
 					}
 					
@@ -346,6 +330,7 @@ package org.ffilmation.engine.elements {
 					
 					x = obj.x
 					z = obj.z
+					z2 = obj.top
 
 					// Loop through holes and see if bottom point is inside one
 					any = false
@@ -353,30 +338,11 @@ package org.ffilmation.engine.elements {
 					
 						 	if(this.holes[h].open) {
 						 		hole = this.holes[h].bounds
-						 		if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-						 			any = true
+						 		if(hole.width>=(2*obj.radius) && hole.height>=obj.height) {
+						 			 if(hole.z<=z && hole.top>=z && hole.z<=z2 && hole.top>=z2 && hole.x0<=x && hole.x1>=x) any = true
 						 		}
 						 	}
 			 		  	
-					}
-					
-					// There was a fCollision 
-					if(!any) {
-						if(dy>0) return new fCollision(-1,this.y-radius-0.01,-1)
-						else return new fCollision(-1,this.y+radius+0.01,-1)
-					}
-					
-					// Loop through holes and see if top point is inside one
-					z = obj.top
-					any = false
-					for(h=0;!any && h<this.holes.length;h++) {
-					
-						 	if(this.holes[h].open) {
-								hole = this.holes[h].bounds
-						 		if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-						 			any = true
-						 		}
-			 		  	}	
 					}
 					
 					// There was a fCollision 
@@ -417,7 +383,7 @@ package org.ffilmation.engine.elements {
 					
 						 	if(this.holes[h].open) {
 							 	var hole:fPlaneBounds = this.holes[h].bounds
-							 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
+							 	if(hole.width>=(2*obj.radius) && hole.height>=obj.height && hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
 							 		any = true
 							 	} 
 							}
@@ -451,7 +417,7 @@ package org.ffilmation.engine.elements {
 					
 						 	if(this.holes[h].open) {
 							 	hole = this.holes[h].bounds
-							 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
+							 	if(hole.width>=(2*obj.radius) && hole.height>=obj.height && hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
 							 		any = true
 							 	}
 							}

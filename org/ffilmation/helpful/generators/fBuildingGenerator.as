@@ -129,7 +129,7 @@ package org.ffilmation.helpful.generators {
 					var wall4:String = wallMaterial.@walldefinition
 					this.result.push('<box id="Building_'+this.id+'_Floor_'+j+'" x="'+originx+'" y="'+originy+'" z="'+(originz+j*floorHeight)+'" sizex="'+width+'" sizey="'+depth+'" sizez="'+floorHeight+'" src1="'+wall1+'" src2="'+wall2+'" src3="'+wall3+'" src4="'+wall4+'" src6="'+floorMaterial.@definition+'"/>')
 				}
-				this.result.push('<floor x="'+originx+'" y="'+originy+'" z="'+(originz+j*floorHeight)+'" width="'+width+'" height="'+depth+'" src="'+roofMaterial.@definition+'"/>')
+				this.result.push('<floor id="Building_'+this.id+'_Roof" x="'+originx+'" y="'+originy+'" z="'+(originz+j*floorHeight)+'" width="'+width+'" height="'+depth+'" src="'+roofMaterial.@definition+'"/>')
 
 				var myTimer:Timer = new Timer(20, 1)
         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.loopComplete)

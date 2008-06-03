@@ -87,7 +87,7 @@ package org.ffilmation.engine.elements {
 			
 			// Constructor
 			/** @private */
-			function fObject(container:MovieClip,defObj:XML,scene:fScene,level:fLevel):void {
+			function fObject(container:MovieClip,defObj:XML,scene:fScene):void {
 				
 				 // Make sure this object has a definition in the scene. If it doesn't, throw an error
 				 try {
