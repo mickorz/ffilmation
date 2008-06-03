@@ -403,7 +403,7 @@ package org.ffilmation.engine.core {
 			   this.scene.stat = "Initial sort"
 			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 			   
-			   for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].counter = j
+			   for(var j:Number=0;j<this.scene.characters.length;j++) this.scene.characters[j].counter = j
 			
 			   // Sort horizontal walls ( bubble algorythm )
 			   var changes:Boolean
@@ -412,7 +412,7 @@ package org.ffilmation.engine.core {
 
 			   do {
 			      changes = false
-			      for(i=0;i<(this.horizontals.length-1);i++) {
+			      for(var i:Number=0;i<(this.horizontals.length-1);i++) {
 			         one = this.horizontals[i]
 			         two = this.horizontals[i+1]
 			         if(one.j>two.j || (one.j==two.j && one.i>two.i)) {
@@ -628,7 +628,7 @@ package org.ffilmation.engine.core {
 			private function zSortComplete(event:TimerEvent):void {
 
 	      // Correct floor depths
-			  for(i=0;i<this.scene.floors.length;i++) {
+			  for(var i:Number=0;i<this.scene.floors.length;i++) {
 			    var f:fFloor = this.scene.floors[i]
 			    	if(f.z!=0) {
 			   	  	var nz1:Number = this.scene.grid[f.i+f.gWidth-1][f.j][f.k].zIndex

@@ -1021,7 +1021,7 @@ package org.ffilmation.engine.core {
 				 // Create
 				 var spr:MovieClip = new MovieClip()
 		   	 this.elements.addChild(spr)			   
-			   var nCharacter = new fCharacter(spr,definitionObject,this,null)
+			   var nCharacter:fCharacter = new fCharacter(spr,definitionObject,this)
 			   
 			   // Events
 				 nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell)			   
