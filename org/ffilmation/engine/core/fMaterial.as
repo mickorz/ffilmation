@@ -13,21 +13,10 @@ package org.ffilmation.engine.core {
 	  
 		/**
 		* <p>Every Plane (walls and floors) in the scene is assigned a Material. The fMaterial Class is used as an interface
-		* between the engine and the user-defined materials. The engine provides four material types:</p>
+		* between the engine and the user-defined materials. The engine provides several material types: Each will end up in
+		* a different class being instantiated. See fMaterialTypes to see how materials are defined</p>
 		*
-		*	<p> "tile" an image will be used and tiled to fill the surface</p>
-		*	<p> "perlin" A perlin noise material that stacks several "tile" materials to create a more realistic surface</p>
-		*	<p> "clip" a movieClip from your library will be used as material an scaled to fit each surface's dimensions</p>
-		*	<p> "procedural" you specify a class that will be used as material. This class needs to implement the fEngineMaterial interface</p>
-		*
-		* <p>Each will end up in a different class being instantiated. See sample XMLs to see how materials are defined</p>
-		*
-		* <p>This class is used internally only</p>
-		*
-		* @see org.ffilmation.engine.interfaces.fEngineMaterial
-		* @see org.ffilmation.engine.materials.fTileMaterial
-		* @see org.ffilmation.engine.materials.fPerlinMaterial
-		* @see org.ffilmation.engine.materials.fClipMaterial
+		* @see org.ffilmation.engine.core.fMaterialTypes
 		*
 		*/
 		public class fMaterial {
@@ -63,12 +52,13 @@ package org.ffilmation.engine.core {
 				 		this.height = height
 				 		this.type = this.definitionXML.@type
 				 		this.cls = null
-				 		if(this.type == "tile") this.cls = new fTileMaterial(this.definitionXML,element)
-				 		else if(this.type == "perlin") this.cls = new fPerlinMaterial(this.definitionXML,element)
-				 		else if(this.type == "door") this.cls = new fDoorMaterial(this.definitionXML,element)
-				 		else if(this.type == "clip") this.cls = new fClipMaterial(this.definitionXML,element)
-				 		else if(this.type == "window") this.cls = new fWindowMaterial(this.definitionXML,element)
-				 		else if(this.type == "procedural") {
+				 		if(this.type == fMaterialTypes.TILE) this.cls = new fTileMaterial(this.definitionXML,element)
+				 		else if(this.type == fMaterialTypes.PERLIN) this.cls = new fPerlinMaterial(this.definitionXML,element)
+				 		else if(this.type == fMaterialTypes.DOOR) this.cls = new fDoorMaterial(this.definitionXML,element)
+				 		else if(this.type == fMaterialTypes.CLIP) this.cls = new fClipMaterial(this.definitionXML,element)
+				 		else if(this.type == fMaterialTypes.WINDOW) this.cls = new fWindowMaterial(this.definitionXML,element)
+				 		else if(this.type == fMaterialTypes.FENCE) this.cls = new fFenceMaterial(this.definitionXML,element)
+				 		else if(this.type == fMaterialTypes.PROCEDURAL) {
 				 			var r:Class = getDefinitionByName(this.definitionXML.classname[0]) as Class
 				 			this.cls = new r(this.definitionXML,element)
 				 		}

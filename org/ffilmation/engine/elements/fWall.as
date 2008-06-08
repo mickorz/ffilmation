@@ -47,6 +47,8 @@ package org.ffilmation.engine.elements {
 			public var j:Number
 			/** @private */
 			public var k:Number
+			/** @private */
+			public var gHeight:Number
 
 			/** @private */
 			public var size:Number
@@ -92,7 +94,8 @@ package org.ffilmation.engine.elements {
 			   // Dimensions, parse size and snap to gride
 			   this.size = Math.round(defObj.@size/scene.gridSize)  			 // Size ( in cells )
 			   this.pixelSize = this.size*scene.gridSize+1
-			   this.height = this.pixelHeight = scene.levelSize*Math.round(defObj.@height/scene.levelSize)      
+			   this.gHeight = Math.round(defObj.@height/scene.levelSize)
+			   this.height = this.pixelHeight = scene.levelSize*this.gHeight
 
 				 // Previous
 				 super(defObj,scene,this.pixelSize,this.pixelHeight,destination,container)

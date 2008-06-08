@@ -90,6 +90,12 @@ package org.ffilmation.engine.core {
 			*/				
 			public var depth:Number
 		  
+			/**
+			* Scene height in pixels
+			*/				
+			public var height:Number
+
+
 		  /**
 		  * An array of all floors for fast loop access. For "id" access use the .all array
 		  */
@@ -147,7 +153,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 		  public var viewHeight:Number												// Viewport size
 			/** @private */
-		  public var maxElementsPerfCell:Number = 3					  // Maximum number of elements per cell ( used to reserve zIndexes )
+		  public var maxElementsPerfCell:Number = 2					  // Maximum number of elements per cell ( used to reserve zIndexes )
 			/** @private */
 			public var objectDefinitions:Object								  // The list of object definitions loaded for this scene
 			/** @private */

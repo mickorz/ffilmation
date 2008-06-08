@@ -276,19 +276,6 @@ package org.ffilmation.engine.core {
 			 	 this.black.graphics.lineTo(this.origWidth,0)
 			 	 this.black.graphics.lineTo(0,0)
 
-/*				 // For each hole, draw hole in black
-				 for(var h:Number=0;h<this.holes.length;h++) {
-					
-					 	if(this.holes[h].open) {
-						 	var hole:fPlaneBounds = this.holes[h].bounds
-				 	  	this.black.graphics.moveTo(hole.xrel,hole.yrel)
-				 	  	this.black.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
-				 	  	this.black.graphics.lineTo(hole.xrel+hole.width,hole.yrel+hole.height)
-			 		  	this.black.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
-			 	  		this.black.graphics.lineTo(hole.xrel,hole.yrel)
-			 	  	}
-				 }*/
-
 				 this.black.graphics.endFill()
 	       this.setDimensions(this.black)
 	       
@@ -300,20 +287,6 @@ package org.ffilmation.engine.core {
 			 	 this.environmentC.graphics.lineTo(this.origWidth,this.origHeight)
 			 	 this.environmentC.graphics.lineTo(this.origWidth,0)
 			 	 this.environmentC.graphics.lineTo(0,0)
-
-/*				 // For each hole, draw environment
-				 for(h=0;h<this.holes.length;h++) {
-					
-					 	if(this.holes[h].open) {
-						 	hole = this.holes[h].bounds
-				 	  	this.environmentC.graphics.moveTo(hole.xrel,hole.yrel)
-				 	  	this.environmentC.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
-			 	  		this.environmentC.graphics.lineTo(hole.xrel+hole.width,hole.yrel+hole.height)
-			 	  		this.environmentC.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
-			 	  		this.environmentC.graphics.lineTo(hole.xrel,hole.yrel)
-			 	  	}
-			 	  	
-				 } */
 
 				 this.environmentC.graphics.endFill()
 	       this.setDimensions(this.environmentC)
@@ -574,22 +547,6 @@ package org.ffilmation.engine.core {
  			   var msk:Sprite = this.lightShadows[light.uniqueId]
 			   msk.graphics.clear()
 			  
-				 // For each hole, draw mask
-				 for(var h:Number=0;h<this.holes.length;h++) {
-					
-					 	if(this.holes[h].open) {
-						 	var hole:fPlaneBounds = this.holes[h].bounds
-						 	msk.graphics.beginFill(0x000000,1)
-				 	  	msk.graphics.moveTo(hole.xrel,hole.yrel)
-				 	  	msk.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
-			 		  	msk.graphics.lineTo(hole.xrel+hole.width,hole.yrel-hole.height)
-			 	  		msk.graphics.lineTo(hole.xrel,hole.yrel-hole.height)
-			 	  		msk.graphics.lineTo(hole.xrel,hole.yrel)
-			 	  		msk.graphics.endFill()
-			 	  	}
-			 	  	
-				 }
-
 			   // More
 			   this.processRenderStart(light)
 			
@@ -648,7 +605,7 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 			public function cacheTimerListener(event:TimerEvent):void {
-         if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.NORMAL
+         this.baseContainer.blendMode = BlendMode.NORMAL
          this.container.cacheAsBitmap = true
 		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
 			}
