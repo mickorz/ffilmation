@@ -32,7 +32,7 @@ package org.ffilmation.engine.events {
  			 *
 			 * @param cancelable Determines whether the Event object can be canceled. Event listeners can access this information through the inherited cancelable property.
 			 *
-		   * @param victim The element of the scene we collide against
+		   * @param victim The element of the scene we collide against. If Null the event was triggered by an attemp to move a character autside the scene's limits
 		   *
 			 */
 			 function fCollideEvent(type:String,bubbles:Boolean,cancelable:Boolean,victim:fRenderableElement):void {

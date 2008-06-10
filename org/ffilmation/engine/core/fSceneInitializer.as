@@ -770,8 +770,6 @@ package org.ffilmation.engine.core {
 			}
 
 
-
-
 			// Complete zSort. Setup initial raytracing
 			private function zSortComplete(event:TimerEvent):void {
 
