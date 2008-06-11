@@ -394,18 +394,26 @@ package org.ffilmation.engine.core {
 			   // Setup main control grid
 			   this.scene.width = this.scene.gridWidth*this.scene.gridSize
 			   this.scene.depth = this.scene.gridDepth*this.scene.gridSize
+
+			   this.scene.stat = "Materials Done"
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 			
 			   // Next step
-     		 this.processXml_Part3()
-			
+ 				 var myTimer:Timer = new Timer(200, 1)
+         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part3T)
+         myTimer.start()			
 			}
+
+			private function processXml_Part3T(event:TimerEvent):void {
+			   // Z Sort
+			   this.scene.stat = "Initial sort"
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+				 this.processXml_Part3()
+		  }
 			
 			// Start zSorting algorythm. I'm not even remotely try to explain how it works.
 			private function processXml_Part3():void {
 			
-			   // Z Sort
-			   this.scene.stat = "Initial sort"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 			   
 			   for(var j:Number=0;j<this.scene.characters.length;j++) this.scene.characters[j].counter = j
 			
