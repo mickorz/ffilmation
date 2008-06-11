@@ -102,7 +102,6 @@ package org.ffilmation.engine.materials {
 				 			  var mcontainer:DisplayObject = b.getChildAt(c) 
 				 			  if(mcontainer is fHoleClip) {
 				 			  	temp[temp.length] = new Rectangle(px*mcontainer.x,py*(mcontainer.y-mcontainer.height),px*mcontainer.width,py*mcontainer.height)
-				 			  	trace(temp[temp.length-1])
 				 			  }
 				 		}
 				 		b.gotoAndStop(2)
