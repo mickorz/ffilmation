@@ -291,6 +291,12 @@ package org.ffilmation.engine.core {
 			// Start processing elements
 			private function processGeometry():void {
 				 
+				 this.scene.top = 0   
+ 			   this.scene.gridWidth = 0
+			   this.scene.gridDepth = 0
+			   this.verticals = new Array()
+			   this.horizontals = new Array()
+
 				 // Search for BOX tags and decompile into walls and floors
 				 var tempObj:XMLList = this.xmlObj.body.child("box")
 			   for(var i:Number=0;i<tempObj.length();i++) {
@@ -303,52 +309,10 @@ package org.ffilmation.engine.core {
 			   	 if(box.@src6.length()>0) this.xmlObj.body.appendChild('<floor id="'+(box.@id+"_side6")+'" src="'+(box.@src6)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z))+'"/>')
 				 }
 
-		 		 // Next step
-		  	 this.scene.stat = "Processing geometry and materials."
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,66,this.scene.stat))
-			   var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part2T)
-         myTimer.start()
-				 
-			}
-
-			private function processXml_Part2T(event:TimerEvent):void {
-				 this.processXml_Part2()
-		  }
-
-			// Process and setup elements
-			private function processXml_Part2():void {
-
-				 this.scene.top = 0   
-			   this.verticals = new Array()
-			   this.horizontals = new Array()
-
-			   // Add floors
- 			   this.scene.gridWidth = 0
-			   this.scene.gridDepth = 0
-
-				 var tempObj:XMLList = tempObj = this.xmlObj.body.child("floor")
-			   for(var i:Number=0;i<tempObj.length();i++) { 
-			   	  var spr:MovieClip = new MovieClip()
-			   	  spr.mouseEnabled = false
-			   	  this.scene.elements.addChild(spr)
-			   	   
-						var nFloor:fFloor = new fFloor(spr,tempObj[i],this.scene)
-						nFloor.setZ(i)
-         		this.scene.floors.push(nFloor)
-         		this.scene.everything.push(nFloor)
-			   		this.scene.all[nFloor.id] = nFloor
-			   		   	    
-			   		if(this.scene.gridWidth<(nFloor.i+nFloor.gWidth)) this.scene.gridWidth = nFloor.i+nFloor.gWidth
-			   		if(this.scene.gridDepth<(nFloor.j+nFloor.gDepth)) this.scene.gridDepth = nFloor.j+nFloor.gDepth
-			   		
-			   		if(nFloor.z>this.scene.top) this.scene.top = nFloor.z
-				 }
-			
 			   // Add walls
-			   tempObj = this.xmlObj.body.child("wall")
+ 				 tempObj = this.xmlObj.body.child("wall")
 			   for(i=0;i<tempObj.length();i++) { 
-			   	  spr = new MovieClip()
+			   	  var spr:MovieClip = new MovieClip()
 			   	  this.scene.elements.addChild(spr)
 			   		
 	       		var nWall:fWall = new fWall(spr,tempObj[i],this.scene)
@@ -358,8 +322,105 @@ package org.ffilmation.engine.core {
 			   		this.scene.everything.push(nWall)
 			   		this.scene.all[nWall.id] = nWall
 			   		if(nWall.top>this.scene.top) this.scene.top = nWall.top
-			   		
 			   }
+
+
+		 		 // Next step
+		  	 this.scene.stat = "Optimizing geometry."
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
+			   if(this.xmlObj.body.child("floor").length()>0) {
+			   		var myTimer:Timer = new Timer(20,this.xmlObj.body.child("floor").length())
+				 		myTimer.addEventListener(TimerEvent.TIMER, this.optimizeGeometryT)
+         } else {
+			   		myTimer = new Timer(200,1)
+         }
+      	 myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part2T)
+         myTimer.start()
+				 
+			}
+
+			// Floors are split so they don't cross walls. This results in faster calculations and renders 
+			private function optimizeGeometryT(event:TimerEvent):void {
+
+				 var loop:Number = event.target.currentCount-1
+				 var tempObj:XMLList = this.xmlObj.body.child("floor")
+				 var floorNode:XML = tempObj[loop]
+
+				 // Original geometry   
+				 var fx:Number = this.scene.gridSize*Math.round(floorNode.@x/this.scene.gridSize)
+			   var fy:Number = this.scene.gridSize*Math.round(floorNode.@y/this.scene.gridSize)
+			   var fw:Number = this.scene.gridSize*Math.round(floorNode.@width/this.scene.gridSize)
+			   var fd:Number = this.scene.gridSize*Math.round(floorNode.@height/this.scene.gridSize)
+			   
+			   // Final geometry
+			   var horizontalSplits:Array = new Array
+			   var verticalSplits:Array = new Array
+			   horizontalSplits.push(fx)
+			   horizontalSplits.push(fx+fw)
+			   verticalSplits.push(fy)
+			   verticalSplits.push(fy+fd)
+
+			   // Search for walls that cross this floor
+			   for(var i:Number=0;i<this.verticals.length;i++) {
+			   		var candidate:Number = this.verticals[i].x
+			   		if(this.verticals[i].y1<(fy+fd) && this.verticals[i].y0>fy && candidate>fx && candidate<(fx+fw) && horizontalSplits.indexOf(candidate)<0) horizontalSplits.push(candidate)
+			   }
+			   for(i=0;i<this.horizontals.length;i++) {
+			   		candidate = this.horizontals[i].y
+			   		if(this.horizontals[i].y1<(fx+fw) && this.horizontals[i].x0>fx && candidate>fy && candidate<(fy+fd) && verticalSplits.indexOf(candidate)<0) verticalSplits.push(candidate)
+			   }
+			   horizontalSplits.sort(Array.NUMERIC)
+			   verticalSplits.sort(Array.NUMERIC)
+			   
+			   // Generate resulting floors
+			   for(i=0;i<horizontalSplits.length-1;i++) {
+			   	
+			   		for(j=0;j<verticalSplits.length-1;j++) {
+			   			
+			   			  // New size and position
+			   			  var newFloorNode:XML = floorNode.copy()
+			   			  newFloorNode.@x = horizontalSplits[i]
+			   			  newFloorNode.@width = horizontalSplits[i+1]-horizontalSplits[i]
+			   			  newFloorNode.@y = verticalSplits[j]
+			   			  newFloorNode.@height = verticalSplits[j+1]-verticalSplits[j]
+			   			  newFloorNode.@id+="_Split_"+i+"_"+j
+			   	
+			   	  		var spr:MovieClip = new MovieClip()
+			   	  		spr.mouseEnabled = false
+			   	  		this.scene.elements.addChild(spr)
+			   	  		 
+								var nFloor:fFloor = new fFloor(spr,newFloorNode,this.scene)
+								nFloor.setZ(i*verticalSplits.length+j)
+         				this.scene.floors.push(nFloor)
+         				this.scene.everything.push(nFloor)
+			   				this.scene.all[nFloor.id] = nFloor
+			   				   	    
+			   				if(this.scene.gridWidth<(nFloor.i+nFloor.gWidth)) this.scene.gridWidth = nFloor.i+nFloor.gWidth
+			   				if(this.scene.gridDepth<(nFloor.j+nFloor.gDepth)) this.scene.gridDepth = nFloor.j+nFloor.gDepth
+			   				
+			   				if(nFloor.z>this.scene.top) this.scene.top = nFloor.z
+
+			   		}
+			   	
+			   }			   
+
+				var p:Number = loop/tempObj.length()
+				this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50+10*p,fScene.LOADINGDESCRIPTION,100*p,this.scene.stat))				 
+				
+				
+			}
+
+			private function processXml_Part2T(event:TimerEvent):void {
+
+		  	 this.scene.stat = "Processing and applying materials."
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60,fScene.LOADINGDESCRIPTION,50,this.scene.stat))
+
+				 this.processXml_Part2()
+		  }
+
+			// Process and setup objects
+			private function processXml_Part2():void {
+
 			   
 			   // Add objects and characters
 			   tempObj = this.xmlObj.body.child("object")
@@ -396,7 +457,7 @@ package org.ffilmation.engine.core {
 			   this.scene.depth = this.scene.gridDepth*this.scene.gridSize
 
 			   this.scene.stat = "Materials Done"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 			
 			   // Next step
  				 var myTimer:Timer = new Timer(200, 1)
@@ -407,7 +468,7 @@ package org.ffilmation.engine.core {
 			private function processXml_Part3T(event:TimerEvent):void {
 			   // Z Sort
 			   this.scene.stat = "Initial sort"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 				 this.processXml_Part3()
 		  }
 			
@@ -455,7 +516,7 @@ package org.ffilmation.engine.core {
 			      for(i=0;i<(this.scene.floors.length-1);i++) {
 			         var onef:fFloor = this.scene.floors[i]
 			         var twof:fFloor = this.scene.floors[i+1]
-			         if(onef.j>twof.j || (onef.j==twof.j && onef.k>twof.k)) {
+			         if(onef.k>twof.k || ( onef.k==twof.k && (onef.i+onef.gWidth)<(twof.i+twof.gWidth))) {
 			            this.scene.floors[i] = twof
 			            this.scene.floors[i+1] = onef
 			            changes = true
@@ -486,7 +547,7 @@ package org.ffilmation.engine.core {
 			   this.scene.height = this.scene.gridHeight*this.scene.levelSize
 			
 	   		 this.scene.stat = "Generating grid"
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 
 			   // Create grid
 			   this.scene.grid = new Array
@@ -501,7 +562,8 @@ package org.ffilmation.engine.core {
 			
 			// Part of zSorting algorythm
 			public function computeZIndex(i:Number,j:Number,k:Number,ow:Number,od:Number,oh:Number):Number {
-			   return ((((this.scene.floors.length)+((ow-i+1)+(j*ow+2)))*oh)+k)*this.scene.maxElementsPerfCell
+			   //return this.scene.floors.length+(ow-i+1)+(j)+k
+			   return this.scene.floors.length+(((((ow-i+1)+(j*ow+2)))*oh)+k)*this.scene.maxElementsPerfCell
 			}
 
 			// Loop creation interval, to spare processor cycles
@@ -533,7 +595,7 @@ package org.ffilmation.engine.core {
 			   } 
 			   
 	       var current:Number = 100*((i)/this.scene.gridWidth)
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50+current*0.15,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,60+current*0.10,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
 
 			}   
 			   
@@ -541,7 +603,36 @@ package org.ffilmation.engine.core {
 			private function gridBuildComplete(event:TimerEvent):void {
 
  	       this.scene.stat = "Z sorting"
-		     this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,65,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+		     this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+
+				 // zSorts floors
+				 var tempObj:XMLList = this.xmlObj.body.child("floor")
+				 for(var loop:Number=0;loop<tempObj.length();loop++) {
+				 		var floorNode:XML = tempObj[loop]
+         		
+				 		// Original geometry   
+				 		var fi:Number = Math.round(floorNode.@x/this.scene.gridSize)
+			   		var fj:Number = Math.round(floorNode.@y/this.scene.gridSize)
+			   		var fk:Number = Math.round(floorNode.@z/this.scene.levelSize)
+			   		var fw:Number = Math.round(floorNode.@width/this.scene.gridSize)
+			   		var fd:Number = Math.round(floorNode.@height/this.scene.gridSize)
+         		
+		     		if(!isNaN(fk) && fk!=0) {
+		     			
+		     			var newZ:Number = this.scene.grid[fi][fj+fd-1][fk+1].zIndex
+			   			// Change ZIndex of cells above to be bigger
+			   			for(var j:Number=fj;j<=this.scene.gridDepth;j++) {
+			   			   for(var i:Number=(fi+fw-1);i>=0;i--) 
+			   						 for(var k:Number=fk;k<this.scene.gridHeight;k++)
+      				      		try {
+			   			      			//this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j,k-floor.k,floor.i+floor.gWidth-1,this.scene.gridDepth-floor.j,this.scene.gridHeight-floor.k));
+			   			      			this.scene.grid[i][j][k].zIndex+=newZ
+			   			      		} catch(e:Error) { }
+			   			}
+			   		
+			   	  }
+
+				 }
 
 			   // Sort walls and cells
 			   this.lastHorizontal = 0
@@ -564,18 +655,9 @@ package org.ffilmation.engine.core {
 
 			    //trace(this.exploredRow)
 
-					this.recursiveFloors = []
 					this.recursiveHorizontals = []
 					this.recursiveVerticals = []
 					
-		      for(var lastFloor:Number=0;lastFloor<this.scene.floors.length;lastFloor++) {
-		         if(this.scene.floors[lastFloor].j==this.exploredRow && this.scene.floors[lastFloor].k!=0) {
-		            // Change zIndex of floor
-		            //trace("Start "+this.scene.floors[lastFloor].id)
-		            this.zSortFloor(lastFloor)
-		         }
-		      }
-
 		      while(this.lastHorizontal<this.horizontals.length && this.horizontals[this.lastHorizontal].j==this.exploredRow) {
 		         // Change zIndex of wall
 		         //   trace("Start "+this.horizontals[this.lastHorizontal].id)
@@ -592,34 +674,28 @@ package org.ffilmation.engine.core {
 		      }
 
 					// Sort again previous planes that may need to be resorted
-					this.exploredRow++
 					do {
-						 var tempF:Array = new Array
 						 var tempH:Array = new Array
 						 var tempV:Array = new Array
 						 
 						 //trace("Loop")
 
-						 for(var i:Number=0;i<this.recursiveFloors.length;i++) if(tempF.indexOf(this.recursiveFloors[i])<0)
-						  tempF.push(this.recursiveFloors[i])
 						 for(i=0;i<this.recursiveHorizontals.length;i++) if(tempH.indexOf(this.recursiveHorizontals[i])<0)
 						  tempH.push(this.recursiveHorizontals[i])
 						 for(i=0;i<this.recursiveVerticals.length;i++) if(tempV.indexOf(this.recursiveVerticals[i])<0)
 						  tempV.push(this.recursiveVerticals[i])
 						 
-						 this.recursiveFloors = []
 						 this.recursiveHorizontals = []
 						 this.recursiveVerticals = []
 											 
-						 for(i=0;i<tempF.length;i++) this.zSortFloor(tempF[i])
 						 for(i=0;i<tempH.length;i++) this.zSortHorizontal(tempH[i])
 						 for(i=0;i<tempV.length;i++) this.zSortVertical(tempV[i])
 						 
 						
-					} while(tempF.length!=0 || tempH.length!=0 || tempV.length!=0)
+					} while(tempH.length!=0 || tempV.length!=0)
 
 	        var current:Number = 100*((this.exploredRow)/this.scene.gridDepth)
-			    this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,65+current*0.20,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
+			    this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,70+current*0.15,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
 
 			}
 			
@@ -640,28 +716,22 @@ package org.ffilmation.engine.core {
 			    //trace("    "+wall.id+" "+newZ)
 			    
 			    // Change ZIndex of cells below to be bigger
+	        var base:Number = this.scene.grid[wall.i+wall.size-1][wall.j][0].zIndex 
 			    for(var i:Number=0;i<wall.i+wall.size;i++)
 			       for(var j:Number=wall.j;j<=this.scene.gridDepth;j++)
 			       		for(var k:Number=0;k<this.scene.gridHeight;k++)
 			         		try {
-			         		 this.scene.grid[i][j][k].zIndex= Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j-wall.j,k,wall.i+wall.size,this.scene.gridDepth-wall.j,this.scene.gridHeight));
+			         		 //this.scene.grid[i][j][k].zIndex= Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j-wall.j,k,wall.i+wall.size,this.scene.gridDepth-wall.j,this.scene.gridHeight));
+			         		 this.scene.grid[i][j][k].zIndex+= newZ-base
 			         		} catch(e:Error) {	}
 			
+			    
 			    // Must redo previous vertical walls ?
 			    for(j=0;j<this.verticals.length;j++) {
 			       var wall2:fWall = this.verticals[j]
-			       if(wall2.j<this.exploredRow && wall2.i<(wall.i+wall.size) && (wall2.j+wall2.size)>wall.j && (wall2.k+wall2.gHeight)>wall.k) {
+			       if(wall2.j<this.exploredRow && wall2.i<(wall.i+wall.size) && (wall2.j+wall2.size)>wall.j) {
 			       	//trace("            H Add V "+wall2.id)
 			       	 this.recursiveVerticals.push(j)
-			       }
-			    }
-			
-			    // Must redo previous floors ?
-			    for(j=0;j<this.scene.floors.length;j++) {
-			       var floor2:fFloor = this.scene.floors[j]
-			       if(floor2.j<=this.exploredRow &&  ( (floor2.j>=wall.j && floor2.i<(wall.i+wall.size) && floor2.k>0) || ( floor2.i<(wall.i+wall.size) && (floor2.j+floor2.gDepth)>wall.j && floor2.k>wall.k)) ) {
-				       	//trace("            H Add F "+floor2.id)
-			       	this.recursiveFloors.push(j)
 			       }
 			    }
 
@@ -683,11 +753,13 @@ package org.ffilmation.engine.core {
 			       newZ = this.scene.grid[wall.i-1][wall.j+wall.size-1][wall.k].zIndex 
 			       wall.setZ(newZ)                        
 			       // Change ZIndex of cells below to be bigger
+			       var base:Number = this.scene.grid[wall.i-1][wall.j][0].zIndex 
 			       for(var j:Number=wall.j;j<=this.scene.gridDepth;j++) {
 			          for(var i:Number=wall.i-1;i>=0;i--) 
 			       			 for(var k:Number=0;k<this.scene.gridHeight;k++)
       			       		try {
-			             			this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j-wall.j,k,wall.i,this.scene.gridDepth-wall.j,this.scene.gridHeight));
+			             			//this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j-wall.j,k,wall.i,this.scene.gridDepth-wall.j,this.scene.gridHeight));
+			             			this.scene.grid[i][j][k].zIndex+=newZ-base
 			             		} catch(e:Error) { }
 			       }
 			    } else {
@@ -699,21 +771,12 @@ package org.ffilmation.engine.core {
 			    // Must redo previous vertical walls ?
 			    for(j=0;j<this.verticals.length;j++) {
 			       var wall2:fWall = this.verticals[j]
-			       if((wall2.j<=this.exploredRow) && wall2.i<wall.i && (wall2.j+wall2.size)>wall.j && (wall2.k+wall2.gHeight)>wall.k) {
+			       if(wall2.j<this.exploredRow && wall2.i<wall.i && (wall2.j+wall2.size)>wall.j) {
 			       	//trace("            V Add V "+wall2.id)
 			       	this.recursiveVerticals.push(j)
 			       }
 			    }
 
-			    // Must redo previous floors ?
-			    for(j=0;j<this.scene.floors.length;j++) {
-			       var floor2:fFloor = this.scene.floors[j]
-			       if((floor2.j<=this.exploredRow) && ( ((floor2.i+floor2.gWidth)<=wall.i && floor2.k>0) || (floor2.i<wall.i && floor2.k>wall.k) ) && (floor2.j+floor2.gDepth)>wall.j ) {
-			       	//trace("            V Add F "+floor2.id)
-			       	this.recursiveFloors.push(j)
-			       }
-			    }
-			
 			    // Must redo previous horizontal walls ?
 			    for(j=0;j<this.horizontals.length;j++) {
 			       wall2 = this.horizontals[j]
@@ -724,69 +787,23 @@ package org.ffilmation.engine.core {
 			    }
 			}
 
-
-			// Part of zSorting algorythm
-			private function zSortFloor(fid:int):void {
-				
-			    var floor:fFloor = this.scene.floors[fid]
-
-					this.processedWalls++
-					if(this.processedWalls>fSceneInitializer.maxLoop) {
-						trace("FFilmation Info: Infinite recursion was avoided in ZSort")
-						return	
-					}
-
-					var newZ:Number
-		      newZ = this.scene.grid[floor.i][floor.j+floor.gDepth-1][floor.k].zIndex 
-			    floor.setZ(newZ)                        
-			    // Change ZIndex of cells above to be bigger
-			    //trace("    "+floor.id+" "+newZ)
-			    for(var j:Number=floor.j;j<=this.scene.gridDepth;j++) {
-			       for(var i:Number=(floor.i+floor.gWidth-1);i>=0;i--) 
-			    			 for(var k:Number=floor.k;k<this.scene.gridHeight;k++)
-      		      		try {
-			          			this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j,k-floor.k,floor.i+floor.gWidth-1,this.scene.gridDepth-floor.j,this.scene.gridHeight-floor.k));
-			          		} catch(e:Error) { }
-			    }
-			
-			    // Must redo previous vertical walls ?
-			    for(j=0;j<this.verticals.length;j++) {
-			       var wall2:fWall = this.verticals[j]
-			       if((wall2.j<this.exploredRow) &&  (wall2.j+wall2.size)>floor.j && ( (wall2.i<(floor.i+floor.gWidth) && wall2.k>=floor.k) || (wall2.i<floor.i && wall2.k>=0) )  ) {
-			       	//trace("            F Add V "+wall2.id)
-			       	this.recursiveVerticals.push(j)
-			       }
-			    }
-
-			    // Must redo previous floors ?
-			    for(j=0;j<this.scene.floors.length;j++) {
-			       var floor2:fFloor = this.scene.floors[j]
-			       if((floor2.j<this.exploredRow) && (floor2.j+floor2.gDepth)>floor.j && ( (floor2.i<(floor.i+floor.gWidth) && floor2.k>floor.k) || ( (floor2.i+floor2.gWidth)<=floor.i && floor2.k>0) ) ) {
- 				       	//trace("            F Add F "+floor2.id)
-			       		this.recursiveFloors.push(j)
-			       }
-			    }
-
-			    // Must redo previous horizontal walls ?
-			    for(j=0;j<this.horizontals.length;j++) {
-			       wall2 = this.horizontals[j]
-			       if(wall2.j<this.exploredRow && wall2.j>floor.j && ( (wall2.i<(floor.i+floor.gWidth) && wall2.k>=floor.k) || ((wall2.i+wall2.size)<=floor.i && wall2.k>=0) ) ) {
- 				       	//trace("            F Add H "+wall2.id)
-			       	  this.recursiveHorizontals.push(j)
-			       }
-			    }
-			}
-
-
 			// Complete zSort. Setup initial raytracing
 			private function zSortComplete(event:TimerEvent):void {
 
- 
+				// Correct floor depths
+ 				for(i=0;i<this.scene.floors.length;i++) {
+ 				  var f:fFloor = this.scene.floors[i]
+ 				  	if(f.z!=0) {
+ 				 	  	var nz1:Number = this.scene.grid[f.i+f.gWidth-1][f.j][f.k].zIndex-0.9+0.9*(i/this.scene.floors.length)
+ 		   				f.setZ(nz1)
+ 		   			}
+ 				}
+
 	      // Set depth of objects and characters
 				for(var j=0;j<this.scene.objects.length;j++) this.scene.objects[j].updateDepth()
 				for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].updateDepth()
 				
-				//for(j=0;j<this.scene.everything.length;j++) trace(this.scene.everything[j].id+" "+this.scene.everything[j]._depth)
+				for(j=0;j<this.scene.objects.length;j++) trace(this.scene.objects[j].id+" "+this.scene.objects[j]._depth)
 
 		    // Finish zSort
 			  this.scene.depthSort()

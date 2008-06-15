@@ -18,7 +18,7 @@ package org.ffilmation.engine.helpers {
 				* The zIndex of a cell indicates the display order. Elements in cells with higher zIndexes cover
 				* elements in cells with lower zIndexes
 				*/
-				public var zIndex:int
+				public var zIndex:Number
 				
 				/**
 				* The x coordinate of this cell in the grid. The measure is array position, not pixels.
