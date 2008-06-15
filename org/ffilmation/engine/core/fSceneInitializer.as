@@ -349,6 +349,7 @@ package org.ffilmation.engine.core {
 				 // Original geometry   
 				 var fx:Number = this.scene.gridSize*Math.round(floorNode.@x/this.scene.gridSize)
 			   var fy:Number = this.scene.gridSize*Math.round(floorNode.@y/this.scene.gridSize)
+			   var fz:Number = this.scene.gridSize*Math.round(floorNode.@z/this.scene.levelSize)
 			   var fw:Number = this.scene.gridSize*Math.round(floorNode.@width/this.scene.gridSize)
 			   var fd:Number = this.scene.gridSize*Math.round(floorNode.@height/this.scene.gridSize)
 			   
@@ -360,22 +361,29 @@ package org.ffilmation.engine.core {
 			   verticalSplits.push(fy)
 			   verticalSplits.push(fy+fd)
 
-			   // Search for walls that cross this floor
-			   for(var i:Number=0;i<this.verticals.length;i++) {
-			   		var candidate:Number = this.verticals[i].x
-			   		if(this.verticals[i].y1<(fy+fd) && this.verticals[i].y0>fy && candidate>fx && candidate<(fx+fw) && horizontalSplits.indexOf(candidate)<0) horizontalSplits.push(candidate)
-			   }
-			   for(i=0;i<this.horizontals.length;i++) {
-			   		candidate = this.horizontals[i].y
-			   		if(this.horizontals[i].y1<(fx+fw) && this.horizontals[i].x0>fx && candidate>fy && candidate<(fy+fd) && verticalSplits.indexOf(candidate)<0) verticalSplits.push(candidate)
+				 
+ 				 var materialType:XML = this.scene.materialDefinitions[floorNode.@src]
+ 				 var type:String = materialType.@type
+ 				 
+ 				 // This optimization is applied only to certain material types
+ 				 if(fz!=0 && (type == fMaterialTypes.TILE || type == fMaterialTypes.PERLIN)) {
+ 				 			// Search for walls that cross this floor
+			   			for(i=0;i<this.verticals.length;i++) {
+			   					var candidate:Number = this.verticals[i].x
+			   					if(this.verticals[i].y1<(fy+fd) && this.verticals[i].y0>fy && candidate>fx && candidate<(fx+fw) && horizontalSplits.indexOf(candidate)<0) horizontalSplits.push(candidate)
+			   			}
+			   			for(i=0;i<this.horizontals.length;i++) {
+			   					candidate = this.horizontals[i].y
+			   					if(this.horizontals[i].y1<(fx+fw) && this.horizontals[i].x0>fx && candidate>fy && candidate<(fy+fd) && verticalSplits.indexOf(candidate)<0) verticalSplits.push(candidate)
+			   			}
 			   }
 			   horizontalSplits.sort(Array.NUMERIC)
 			   verticalSplits.sort(Array.NUMERIC)
 			   
 			   // Generate resulting floors
-			   for(i=0;i<horizontalSplits.length-1;i++) {
+			   for(var i:Number=0;i<horizontalSplits.length-1;i++) {
 			   	
-			   		for(j=0;j<verticalSplits.length-1;j++) {
+			   		for(var j:Number=0;j<verticalSplits.length-1;j++) {
 			   			
 			   			  // New size and position
 			   			  var newFloorNode:XML = floorNode.copy()
@@ -423,9 +431,9 @@ package org.ffilmation.engine.core {
 
 			   
 			   // Add objects and characters
-			   tempObj = this.xmlObj.body.child("object")
-			   for(i=0;i<tempObj.length();i++) {
-			   		spr = new MovieClip()
+			   var tempObj:XMLList = this.xmlObj.body.child("object")
+			   for(var i:Number=0;i<tempObj.length();i++) {
+			   		var spr:MovieClip = new MovieClip()
 		   	    this.scene.elements.addChild(spr)
 			   		if(tempObj[i].@dynamic=="true") {
 						  var nCharacter:fCharacter = new fCharacter(spr,tempObj[i],this.scene)
@@ -630,6 +638,26 @@ package org.ffilmation.engine.core {
 			   			      		} catch(e:Error) { }
 			   			}
 			   		
+/*
+			   			for(j=fj;j<=this.scene.gridDepth;j++) {
+			   			   for(i=0;i<fi;i++) 
+			   						 for(k=0;k<fk;k++)
+      				      		try {
+			   			      			//this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j,k-floor.k,floor.i+floor.gWidth-1,this.scene.gridDepth-floor.j,this.scene.gridHeight-floor.k));
+			   			      			this.scene.grid[i][j][k].zIndex+=newZ
+			   			      		} catch(e:Error) { }
+			   			}
+
+			   			for(j=fj+fd;j<=this.scene.gridDepth;j++) {
+			   			   for(i=fi;i<=this.scene.gridWidth;i++) 
+			   						 for(k=0;k<fk;k++)
+      				      		try {
+			   			      			//this.scene.grid[i][j][k].zIndex=Math.max(this.scene.grid[i][j][k].zIndex,newZ+this.computeZIndex(i,j,k-floor.k,floor.i+floor.gWidth-1,this.scene.gridDepth-floor.j,this.scene.gridHeight-floor.k));
+			   			      			this.scene.grid[i][j][k].zIndex+=newZ
+			   			      		} catch(e:Error) { }
+			   			} */
+
+
 			   	  }
 
 				 }
@@ -680,7 +708,7 @@ package org.ffilmation.engine.core {
 						 
 						 //trace("Loop")
 
-						 for(i=0;i<this.recursiveHorizontals.length;i++) if(tempH.indexOf(this.recursiveHorizontals[i])<0)
+						 for(var i:Number=0;i<this.recursiveHorizontals.length;i++) if(tempH.indexOf(this.recursiveHorizontals[i])<0)
 						  tempH.push(this.recursiveHorizontals[i])
 						 for(i=0;i<this.recursiveVerticals.length;i++) if(tempV.indexOf(this.recursiveVerticals[i])<0)
 						  tempV.push(this.recursiveVerticals[i])
@@ -791,7 +819,7 @@ package org.ffilmation.engine.core {
 			private function zSortComplete(event:TimerEvent):void {
 
 				// Correct floor depths
- 				for(i=0;i<this.scene.floors.length;i++) {
+ 				for(var i:Number=0;i<this.scene.floors.length;i++) {
  				  var f:fFloor = this.scene.floors[i]
  				  	if(f.z!=0) {
  				 	  	var nz1:Number = this.scene.grid[f.i+f.gWidth-1][f.j][f.k].zIndex-0.9+0.9*(i/this.scene.floors.length)
@@ -803,7 +831,7 @@ package org.ffilmation.engine.core {
 				for(var j=0;j<this.scene.objects.length;j++) this.scene.objects[j].updateDepth()
 				for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].updateDepth()
 				
-				for(j=0;j<this.scene.objects.length;j++) trace(this.scene.objects[j].id+" "+this.scene.objects[j]._depth)
+				//for(j=0;j<this.scene.objects.length;j++) trace(this.scene.objects[j].id+" "+this.scene.objects[j]._depth)
 
 		    // Finish zSort
 			  this.scene.depthSort()

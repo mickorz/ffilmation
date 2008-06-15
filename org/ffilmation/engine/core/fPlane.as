@@ -133,9 +133,6 @@ package org.ffilmation.engine.core {
  			   this.lightC.mouseEnabled = false
  			   this.lightC.mouseChildren = false
 				 this.baseContainer.mouseEnabled = false
-			   this.baseContainer.addChild(this.holesC)
-			   this.holesC.blendMode = BlendMode.ERASE
-				 this.holesC.mouseEnabled = false
 
 			   // Holes
 			   this.holes = this.material.getHoles()
@@ -145,6 +142,12 @@ package org.ffilmation.engine.core {
 				 		 this.holes[i].open = false
 			   }
 				 this.redrawHoles()
+
+			   if(this.holes.length>0) {
+			   		this.baseContainer.addChild(this.holesC)
+			   		this.holesC.blendMode = BlendMode.ERASE
+				 		this.holesC.mouseEnabled = false
+				 }
 
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
