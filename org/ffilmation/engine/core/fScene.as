@@ -576,8 +576,14 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function depthChangeListener(evt:Event):void {
 				
-				// Call internal sort method
-				if(this.ready) this.depthSort()
+				//Element
+				if(!this.ready) return
+				
+				var el:fRenderableElement = evt.target as fRenderableElement
+				var oldD:Number = this.depthSortArr.indexOf(el)
+				this.depthSortArr.sortOn("_depth", Array.NUMERIC);
+				var newD:Number = this.depthSortArr.indexOf(el)
+				if(newD!=oldD) this.elements.setChildIndex(el.container, newD)
 				
 			}
 			
@@ -816,7 +822,6 @@ package org.ffilmation.engine.core {
 
 				   		    if(fEngine.characterShadows) {
                   
-							    	
 							    	// Add visibles from foot
 							    	if(!character.cell.visibleObjs || character.cell.visibleRange<range) {
 							    		this.calcVisibles(character.cell,range)
@@ -862,7 +867,6 @@ package org.ffilmation.engine.core {
 			   			
 			   		} else {
 			   		
-			   			//trace("Out range")
 			   			cache.withinRange = false
 			   			cache.clear()
 			   		  

@@ -363,7 +363,7 @@ package org.ffilmation.engine.core {
 				 lay.addChild(msk)
 			   this.createLightClip(light,msk)
 			   this.lightMasks[light.uniqueId] = msk
-			   msk.blendMode = BlendMode.NORMAL
+			   //msk.blendMode = BlendMode.NORMAL
 				 
 				 // Create shadow container
 			   var shd:Sprite = new Sprite()
@@ -581,6 +581,7 @@ package org.ffilmation.engine.core {
 			    // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	  this.cacheTimer.stop()
        	 	this.container.cacheAsBitmap = false
+
        	  if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
        	  this.lightBumps[light.uniqueId].cacheAsBitmap = false
 
@@ -608,6 +609,7 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 			public function cacheTimerListener(event:TimerEvent):void {
+         
          this.baseContainer.blendMode = BlendMode.NORMAL
          this.container.cacheAsBitmap = true
 		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
