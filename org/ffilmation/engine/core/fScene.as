@@ -56,6 +56,10 @@ package org.ffilmation.engine.core {
 			private var currentCamera:fCamera										// The camera currently in use
 			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
 			
+			internal var sortAreas:Array												// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
+																													// It is used to find the proper zIndex for a cell
+																													
+			
 			private var _controller:fEngineSceneController = null
 
 		  // Public properties
@@ -152,8 +156,6 @@ package org.ffilmation.engine.core {
 		  public var viewWidth:Number													// Viewport size
 			/** @private */
 		  public var viewHeight:Number												// Viewport size
-			/** @private */
-		  public var maxElementsPerfCell:Number = 2					  // Maximum number of elements per cell ( used to reserve zIndexes )
 			/** @private */
 			public var objectDefinitions:Object								  // The list of object definitions loaded for this scene
 			/** @private */
@@ -539,7 +541,6 @@ package org.ffilmation.engine.core {
 			}
 
 
-
 			// Adjusts visualization to camera position
 			/** @private */
 			internal function followCamera(camera:fCamera):void {				
@@ -552,6 +553,7 @@ package org.ffilmation.engine.core {
 					this.container.scrollRect = rect
 					
 			}
+
 
 			// Depth sorting
 			/** @private */
@@ -580,14 +582,17 @@ package org.ffilmation.engine.core {
 				if(!this.ready) return
 				
 				var el:fRenderableElement = evt.target as fRenderableElement
-				var oldD:Number = this.depthSortArr.indexOf(el)
+				var oldD:Number = el.depthOrder
 				this.depthSortArr.sortOn("_depth", Array.NUMERIC);
 				var newD:Number = this.depthSortArr.indexOf(el)
-				if(newD!=oldD) this.elements.setChildIndex(el.container, newD)
+				if(newD!=oldD) {
+					el.depthOrder = newD
+					this.elements.setChildIndex(el.container, newD)
+				}
 				
 			}
 			
-		  // Internal depth sorting method
+		  // Initial depth sorting
 			/** @private */
 			internal function depthSort():void {
 				
@@ -597,9 +602,8 @@ package org.ffilmation.engine.core {
     		var p:Sprite = this.elements
     		
     		while(i--) {
-        	if (p.getChildAt(i) != ar[i].container) {
-        		p.setChildIndex(ar[i].container, i)
-        	}
+        	p.setChildIndex(ar[i].container, i)
+        	ar[i].depthOrder = i
         }
 				
 			}
@@ -615,8 +619,12 @@ package org.ffilmation.engine.core {
 
 		      	 for(var k:int=0;k<=this.gridHeight;k++) {  
 			
-			         this.grid[i][j][k].characterShadowCache = new Array
-			         delete this.grid[i][j][k].visibleObjs
+			         try {
+			         		this.grid[i][j][k].characterShadowCache = new Array
+			         		delete this.grid[i][j][k].visibleObjs
+			         } catch (e:Error) {
+			         	
+			         }
 			   
 			       }
 		
@@ -1051,20 +1059,60 @@ package org.ffilmation.engine.core {
 			
 			}
 
-			// Return the cell containing the given coordinates
+			// Returns the cell containing the given coordinates
 			/** @private */
 			public function translateToCell(x:Number,y:Number,z:Number):fCell {
-				 
-				 var ret:fCell
-				 try {
-				 		ret = this.grid[int(Math.floor(x/this.gridSize))][int(Math.floor(y/this.gridSize))][int(Math.floor(z/this.levelSize))]
-				 } catch(e:Error) {
-				    ret = null
-				 }
-			   return ret
-
+				 return this.getCellAt(Math.floor(x/this.gridSize),Math.floor(y/this.gridSize),Math.floor(z/this.levelSize))
 			}
 			
+			// Returns the cell at specific grid coordinates. If cell does not exist, it is created.
+			/** @private */
+			public function getCellAt(i:Number,j:Number,k:Number) {
+				
+				if(i<0 || j<0 || k<0) return null
+				
+				// Create new if necessary
+				if(!this.grid[i]) this.grid[i] = new Array
+				if(!this.grid[i][j]) this.grid[i][j] = new Array
+				if(!this.grid[i][j][k]) {
+					
+					var cell:fCell = new fCell()
+
+			    // Z-Index
+			    cell.zIndex = this.computeZIndex(i,j,k)
+			    var l:Number = this.sortAreas.length
+			    var found:Boolean = false
+			    for(var n:Number=0;!found && n<l;n++) {
+			    	if(this.sortAreas[n].isPointInside(i,j,k)) {
+			    		found = true
+			    		cell.zIndex+=this.sortAreas[n].zValue
+			    	}
+			  	}
+			         
+			    // Internal
+			    cell.i = i
+			    cell.j = j
+			    cell.k = k
+			    cell.x = (this.gridSize/2)+(this.gridSize*i)
+			    cell.y = (this.gridSize/2)+(this.gridSize*j)
+			    cell.z = (this.levelSize/2)+(this.levelSize*k)
+					
+					this.grid[i][j][k] = cell
+				}
+				
+				// Return cell
+				return this.grid[i][j][k]
+				
+			}
+
+			// Returns a normalized zSort value for a cell in the grid. Bigger values display in front of lower values
+			public function computeZIndex(i:Number,j:Number,k:Number):Number {
+				 var ow = this.gridWidth
+				 var od = this.gridDepth
+				 var oh = this.gridHeight
+			   return ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
+			}
+
 			/** @private */
 			public function translateCoords(x:Number,y:Number,z:Number):Point {
 			
@@ -1078,7 +1126,6 @@ package org.ffilmation.engine.core {
 
 			}
 			
-		
 			// Get visible elements from given cell, sorted by distance
 			/** @private */
 			internal function calcVisibles(cell:fCell,range:Number=Infinity):void {

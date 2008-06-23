@@ -58,7 +58,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public var lightBumps:Object           	// Bump map layers
 			/** @private */
-			public var zIndex:Number								// zIndex
+			public var zIndex:Number = 0						// zIndex
 
 			
 			/** 
@@ -261,6 +261,11 @@ package org.ffilmation.engine.core {
 			  throw new Error("Filmation Engine Exception: You can't move a fPlane. ("+this.id+")"); 
 		  }
 
+			/** @private */
+			// Is this plane in front of other plane ?
+			public function inFrontOf(p:fPlane):Boolean {
+				return false
+			}
 
 			/** @private */
 			public function setZ(zIndex:Number):void {

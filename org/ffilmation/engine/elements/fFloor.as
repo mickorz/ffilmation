@@ -129,6 +129,38 @@ package org.ffilmation.engine.elements {
 			   this.container.y = coords.y+1
 			   
 			}
+
+			// Is this floor in front of other plane ? Note that a false return value doesn not imply the opposite: None of the planes
+			// may be in front of each other
+			/** @private */
+			public override function inFrontOf(p:fPlane):Boolean {
+				
+					if(p is fWall) {
+						  var wall:fWall = p as fWall
+						  if(wall.vertical) {
+								if( (this.i<wall.i && (this.j+this.gDepth)>wall.j && this.k>wall.k) 
+								    //|| ((this.j+this.gDepth)>wall.j && (this.i+this.gWidth)<=wall.i)
+								    //|| (this.i<=wall.i && (this.j+this.gDepth)>wall.j && this.k>=(wall.k+wall.gHeight)) 
+								    ) return true
+								return false
+			     		} else {
+								if( (this.i<(wall.i+wall.size) && (this.j+this.gDepth)>wall.j && this.k>wall.k)
+								    //|| (this.i<(wall.i+wall.size) && this.j>=wall.j)
+								    //|| (this.i<(wall.i+wall.size) && (this.j+this.gDepth)>wall.j && this.k>=(wall.k+wall.gHeight))
+								    ) return true
+								return false
+			     		}
+			    } else {
+			     		var floor:fFloor = p as fFloor		
+			     		if ( (this.i<(floor.i+floor.gWidth) && (this.j+this.gDepth)>floor.j && this.k>floor.k) 
+			     		      || ((this.j+this.gDepth)>floor.j && (this.i+this.gWidth)<=floor.i)
+			     		      || (this.i>=floor.i && this.i<(floor.i+floor.gWidth) && this.j>=(floor.j+floor.gDepth)) 
+			     		    ) return true
+			     		return false
+			    }
+					
+			}
+
 			
 			/** @private */
 			public override function distanceTo(x:Number,y:Number,z:Number):Number {

@@ -171,6 +171,60 @@ package org.ffilmation.engine.elements {
 			   this.container.y = coords.y
 			}
 			
+			// Is this wall in front of other plane ? Note that a false return value doesn not imply the opposite: None of the planes
+			// may be in front of each other
+			/** @private */
+			public override function inFrontOf(p:fPlane):Boolean {
+				
+			     if(!this.vertical) {
+			    	
+			    		// If I am horizontal
+			    		if(p is fWall) {
+			    			
+			    			var wall:fWall = p as fWall
+			    			if(wall.vertical) {
+			    				if(this.j>wall.j && this.i<wall.i && (this.k+this.gHeight)>wall.k) return true
+           		    return false
+			     			} else {
+			     				if(this.j>wall.j && this.i<(wall.i+wall.size)) return true
+			     				return false
+           		  }
+           		} else {
+           			var floor:fFloor = p as fFloor
+			     		  if( (this.i<(floor.i+floor.gWidth) && this.j>floor.j && (this.k+this.gHeight)>floor.k)
+			     		      //|| (this.j>=(floor.j+floor.gDepth) && this.i<(floor.i+floor.gWidth))
+			     		      //|| (this.j>floor.j && (this.i+this.size)<=floor.i)
+			     		     ) return true
+			     		  return false
+			     		}
+			     			
+			     } else {
+			     	
+			    		// If I am vertical
+			    		if(p is fWall) {
+			    		
+			    			wall = p as fWall
+			    			if(wall.vertical) {
+			    				if(this.i<wall.i && (this.j+this.size)>wall.j) return true
+			    				return false
+			    			} else {
+           		    if(this.i<(wall.i+wall.size) && (this.j+this.size)>wall.j && (this.k+this.gHeight)>wall.k) return true
+			    				return false
+			    			}
+			    		} else {
+			    			floor = p as fFloor
+			    			if( (this.i<(floor.i+floor.gWidth) && (this.j+this.size)>floor.j && (this.k+this.gHeight)>floor.k) 
+			    			    //|| (this.i<=floor.i && (this.j+this.size)>floor.j)
+			    			    //|| (this.i>floor.i && this.i<(floor.i+floor.gWidth) && this.j>=(floor.j+floor.gDepth))
+			    			     ) return true
+			    			return false
+			    		}
+			    }
+			    	 			
+					
+			}
+
+
 			/** @private */
 			public override function distanceTo(x:Number,y:Number,z:Number):Number {
 			

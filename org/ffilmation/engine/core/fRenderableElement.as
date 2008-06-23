@@ -52,9 +52,11 @@ package org.ffilmation.engine.core {
 			*/
 			public var flashClip:MovieClip
 
+			/** @private */
+			public var _depth:Number = 0
 
 			/** @private */
-			public var _depth:Number
+			public var depthOrder:Number
 
 			/** 
 			* <p>The container is the base MovieClip that contains everything. If you want to add Mouse Events to your elements, use this
