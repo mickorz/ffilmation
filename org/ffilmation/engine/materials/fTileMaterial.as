@@ -62,6 +62,7 @@ package org.ffilmation.engine.materials {
 				msk.draw(temp)
 				ret.addChild(new Bitmap(msk,"auto",true))
 				image.dispose()
+
 				return ret
 			}
 

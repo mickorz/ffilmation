@@ -13,15 +13,15 @@ package org.ffilmation.engine.helpers {
 	  */
 		public class fSortArea {
 
-			// Private
-			private var i:Number
-			private var j:Number
-			private var k:Number
-			private var width:Number
-			private var depth:Number
-			private var height:Number
+			// Geometry
+			public var i:Number
+			public var j:Number
+			public var k:Number
+			public var width:Number
+			public var depth:Number
+			public var height:Number
 			
-			// Public properties
+			// Value
 			public var zValue:Number
 
 			// Constructor

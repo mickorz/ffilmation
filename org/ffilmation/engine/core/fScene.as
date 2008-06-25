@@ -1070,6 +1070,7 @@ package org.ffilmation.engine.core {
 			public function getCellAt(i:Number,j:Number,k:Number) {
 				
 				if(i<0 || j<0 || k<0) return null
+				if(i>=this.gridWidth || j>=this.gridDepth || k>=this.gridHeight) return null
 				
 				// Create new if necessary
 				if(!this.grid[i]) this.grid[i] = new Array
@@ -1080,12 +1081,14 @@ package org.ffilmation.engine.core {
 
 			    // Z-Index
 			    cell.zIndex = this.computeZIndex(i,j,k)
-			    var l:Number = this.sortAreas.length
+			    var s:Array = this.sortAreas[i]
+			    var l:Number = s.length
+			    
 			    var found:Boolean = false
 			    for(var n:Number=0;!found && n<l;n++) {
-			    	if(this.sortAreas[n].isPointInside(i,j,k)) {
+			    	if(s[n].isPointInside(i,j,k)) {
 			    		found = true
-			    		cell.zIndex+=this.sortAreas[n].zValue
+			    		cell.zIndex+=s[n].zValue
 			    	}
 			  	}
 			         
@@ -1096,8 +1099,8 @@ package org.ffilmation.engine.core {
 			    cell.x = (this.gridSize/2)+(this.gridSize*i)
 			    cell.y = (this.gridSize/2)+(this.gridSize*j)
 			    cell.z = (this.levelSize/2)+(this.levelSize*k)
-					
 					this.grid[i][j][k] = cell
+
 				}
 				
 				// Return cell

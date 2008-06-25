@@ -31,12 +31,6 @@ package org.ffilmation.engine.core {
 		*/
 		public class fSceneInitializer {		
 
-			/** 
-			* Depending on the scene topology, zSorting may run into infinite recursion.
-			* To avoid timeout exceptions, this constant defines a max depth that will trigger an exception
-			*/
-			public static const maxLoop:Number = 0
-			
 			// Parameters
 			private var scene:fScene
 			private var retriever:fEngineSceneRetriever
@@ -350,6 +344,7 @@ package org.ffilmation.engine.core {
  				 var type:String = materialType.@type
  				 
  				 // This optimization is applied only to certain material types
+ 				 /* Disabled: doesn't work well
  				 if(fz!=0 && (type == fMaterialTypes.TILE || type == fMaterialTypes.PERLIN)) {
  				 			// Search for walls that cross this floor
 			   			for(i=0;i<this.verticals.length;i++) {
@@ -360,7 +355,7 @@ package org.ffilmation.engine.core {
 			   					candidate = this.horizontals[i].y
 			   					if(this.horizontals[i].y1<(fx+fw) && this.horizontals[i].x0>fx && candidate>fy && candidate<(fy+fd) && verticalSplits.indexOf(candidate)<0) verticalSplits.push(candidate)
 			   			}
-			   }
+			   }*/
 			   horizontalSplits.sort(Array.NUMERIC)
 			   verticalSplits.sort(Array.NUMERIC)
 			   
@@ -546,9 +541,13 @@ package org.ffilmation.engine.core {
 	      this.sortArray.sortOn("zIndex",Array.NUMERIC | Array.DESCENDING)
 
 				// z Sort loop
-				var myTimer:Timer = new Timer(20, this.sortArray.length)
-        myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop)
-        myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
+				if( this.sortArray.length>0) {
+					var myTimer:Timer = new Timer(20, this.sortArray.length)
+        	myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop)
+        } else {
+					myTimer = new Timer(20, 1)
+        }
+       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
         myTimer.start()
         	
       }
@@ -610,26 +609,36 @@ package org.ffilmation.engine.core {
 	      for(var i:Number=0;i<this.sortArray.length;i++) this.sortArray[i].setZ(i+1)
 
 	      // Generate sort areas for the scene
-	      this.scene.sortAreas = new Array
-	      this.scene.sortAreas.push(new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0))
+	      var sortAreas:Array = new Array
+	      sortAreas.push(new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0))
 	      for(i=0;i<this.verticals.length;i++) {
 	      	var w:fWall = this.verticals[i]
-	      	this.scene.sortAreas.push(new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
+	      	sortAreas.push(new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
 	      }
 	      for(i=0;i<this.horizontals.length;i++) {
 	      	w = this.horizontals[i]
-	      	this.scene.sortAreas.push(new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
+	      	sortAreas.push(new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
 	      }
 	      for(i=0;i<this.scene.floors.length;i++) {
 	      	var f:fFloor = this.scene.floors[i]
 	      	if(f.k!=0) {
-	      		this.scene.sortAreas.push(new fSortArea(f.i,f.j,f.k,f.gWidth,f.gDepth,this.scene.gridHeight-f.k,f.zIndex))
-	      		this.scene.sortAreas.push(new fSortArea(0,f.j,0,f.i,this.scene.gridDepth-f.j,this.scene.gridHeight,f.zIndex))
-	      		this.scene.sortAreas.push(new fSortArea(f.i,f.j+f.gDepth,0,f.gWidth,this.scene.gridDepth-f.j-f.gDepth,this.scene.gridHeight,f.zIndex))
+	      		sortAreas.push(new fSortArea(f.i,f.j,f.k,f.gWidth-1,f.gDepth-1,this.scene.gridHeight-f.k,f.zIndex))
+	      		sortAreas.push(new fSortArea(0,f.j,0,f.i-1,this.scene.gridDepth-f.j,this.scene.gridHeight,f.zIndex))
+	      		sortAreas.push(new fSortArea(f.i,f.j+f.gDepth,0,f.gWidth-1,this.scene.gridDepth-f.j-f.gDepth,this.scene.gridHeight,f.zIndex))
 	      	}
 	      }
-	      this.scene.sortAreas.sortOn("zValue",Array.DESCENDING | Array.NUMERIC)
-	      
+
+	      // Split sortAreas per row, for faster lookups
+	      sortAreas.sortOn("zValue",Array.DESCENDING | Array.NUMERIC)
+	      this.scene.sortAreas = new Array
+	      for(i=0;i<this.scene.gridWidth;i++) {
+	      	var temp:Array = new Array
+	      	for(j=0;j<sortAreas.length;j++) {
+	      		var s:fSortArea = sortAreas[j]
+	      		if(i>=s.i && i<=(s.i+s.width)) temp.push(s)
+	      	}
+	      	this.scene.sortAreas[i] = temp
+	      }
 
 	      // Set depth of objects and characters and finish zSort
 				for(var j=0;j<this.scene.objects.length;j++) this.scene.objects[j].updateDepth()
