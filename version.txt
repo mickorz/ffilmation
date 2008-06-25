@@ -2,7 +2,7 @@ FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
 The Grid is now generated on-demand, only used cells are generated. No longer we create a huge array that covers the whole scene. This has a huge impact
-in both initialization time and memory usage, and makes possible to have much bigger scenes. This is a gret improvent in my opinion.
+in both initialization time and memory usage, and makes possible to have much bigger scenes. This is a gret improvement in my opinion.
 Added the fMaterialTypes class, where you can find info on the available materials and how to use them
 Added the "fence" material
 New zSort algorythm. It is cleaner and faster, and I hope this one will work properly.

@@ -1109,6 +1109,7 @@ package org.ffilmation.engine.core {
 			}
 
 			// Returns a normalized zSort value for a cell in the grid. Bigger values display in front of lower values
+			/** @private */
 			public function computeZIndex(i:Number,j:Number,k:Number):Number {
 				 var ow = this.gridWidth
 				 var od = this.gridDepth
