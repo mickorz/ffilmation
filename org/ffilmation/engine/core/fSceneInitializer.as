@@ -674,9 +674,7 @@ package org.ffilmation.engine.core {
    
 				 var i:Number = i_loop%this.scene.gridWidth
 				 var k:Number = Math.floor(i_loop/this.scene.gridWidth) 
-				 for(var j:Number=0;j<=this.scene.gridDepth;j++) {
-				 	this.scene.calcVisibles(this.scene.getCellAt(i,j,k))
-				 }
+				 for(var j:Number=0;j<this.scene.gridDepth;j++) this.scene.calcVisibles(this.scene.getCellAt(i,j,k))
 
  	   		 this.scene.stat = "Raytracing..."
 	       var current:Number = 100*(i_loop/(this.limitHeight*this.scene.gridWidth))
