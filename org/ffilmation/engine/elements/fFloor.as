@@ -598,7 +598,8 @@ package org.ffilmation.engine.elements {
 			   try {
 
 					var msk:Sprite
-			   	if(other.simpleShadows) msk = this.simpleShadowsLayer
+					var o:fCharacter = other as fCharacter
+			   	if(o.simpleShadows) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 			   
 			 	 	var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]

@@ -837,7 +837,8 @@ package org.ffilmation.engine.elements {
 			   // Select mask
 			   try {
 					var msk:Sprite
-			   	if(other.simpleShadows) msk = this.simpleShadowsLayer
+					var o:fCharacter = other as fCharacter
+			   	if(o.simpleShadows) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 
 			 	 	var cache = fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]

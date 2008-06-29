@@ -56,6 +56,8 @@ package org.ffilmation.engine.core {
 			private var currentCamera:fCamera										// The camera currently in use
 			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
 			
+			
+			/** @private */
 			internal var sortAreas:Array												// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
 																													// It is used to find the proper zIndex for a cell
 																													
