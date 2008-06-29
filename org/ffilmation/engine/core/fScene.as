@@ -373,6 +373,9 @@ package org.ffilmation.engine.core {
 		      nEl = this.characters.length
 		      for(i2=0;i2<nEl;i2++) this.characters[i2].lightOut(light)
 		      this.all[light.id] = null
+		      
+		      // This light may be in some character cache
+		      light.removed = true
 				
 			}
 
@@ -498,7 +501,15 @@ package org.ffilmation.engine.core {
 			
 			// PRIVATE AND INTERNAL METHODS FOLLOW
 			
-			
+			// This method is called when the shadowQuality option changes
+			/** @private */
+		  public function resetShadows():void {
+		  	for(var i:Number=0;i<this.floors.length;i++) this.floors[i].resetShadows()
+		  	for(i=0;i<this.walls.length;i++) this.walls[i].resetShadows()
+		  	for(i=0;i<this.objects.length;i++) this.objects[i].resetShadows()
+		  	for(i=0;i<this.characters.length;i++) this.characters[i].resetShadows()
+		  	for(i=0;i<this.lights.length;i++) this.processNewCellOmniLight(lights[i])
+		  }
 			
 			// Listens cameras moving
 			/** @private */
@@ -513,7 +524,7 @@ package org.ffilmation.engine.core {
 			public function cameraNewCellListener(evt:Event):void {
 				
 					var camera:fCamera = evt.target as fCamera
-					if(camera.occlusion>=100) return
+					if(camera.occlusion>=100 && camera.cell) return
 					
 					// Change alphas
 					var newAlpha:Number = camera.occlusion/100
@@ -540,7 +551,6 @@ package org.ffilmation.engine.core {
 				
 			}
 
-
 			// Adjusts visualization to camera position
 			/** @private */
 			internal function followCamera(camera:fCamera):void {				
@@ -553,7 +563,6 @@ package org.ffilmation.engine.core {
 					this.container.scrollRect = rect
 					
 			}
-
 
 			// Depth sorting
 			/** @private */
@@ -703,7 +712,7 @@ package org.ffilmation.engine.core {
 			      for(var var2:Number=0;var2<shLength && shadowArray[var2].distance<light.size;var2++);
 			      tempElements[i2].withinRange = var2
 			   }
-			   
+
 				 // Characters			   
 			   var chLength:Number = this.characters.length
 			   var character:fCharacter
@@ -766,12 +775,12 @@ package org.ffilmation.engine.core {
 			   		}
 
 			   	  // Update cache
-			   	  character.vLights[light.counter] = light.vCharacters[character.counter] = character.cell.characterShadowCache[light.counter] = cache
+			   	  character.vLights[light.counter] = light.vCharacters[character.counter] = cache
+			   	  if(character.cell) character.cell.characterShadowCache[light.counter] = cache
 
 			   }
 
 			}
-
 
 			// Process New cell for Characters
 			private function processNewCellCharacter(character:fCharacter):void {
@@ -906,7 +915,6 @@ package org.ffilmation.engine.core {
 			   
 			}
 
-
 			// Light render method
 			/** @private */
 			public function renderElement(evt:Event):void {
@@ -935,9 +943,8 @@ package org.ffilmation.engine.core {
 				    // Shadow from statics
 				    for(var i3:Number=0;i3<withinRange;i3++) {
 				    	try {
-				    		el.renderShadow(light,others[i3].obj)
+				    		if(others[i3].obj._visible) el.renderShadow(light,others[i3].obj)
 				    	} catch(e:Error) {
-				    		
 				    	}
 				    }
 				    
@@ -959,7 +966,7 @@ package org.ffilmation.engine.core {
 			   		
 			   			for(i2=0;i2<elements.length;i2++) {
 					    	try {
-			   					elements[i2].renderShadow(light,character)
+			   					if(character._visible) elements[i2].renderShadow(light,character)
 			   				} catch(e:Error) {
 			   					
 			   		  	}
@@ -984,7 +991,7 @@ package org.ffilmation.engine.core {
 			   for(var i:Number=0;i<len;i++) {
 			   
 					 	cache =  character.vLights[i]
-					 	if(cache.withinRange) {
+					 	if(!cache.light.removed && cache.withinRange) {
 					 	
 					 		// Start
 					 		light = cache.light

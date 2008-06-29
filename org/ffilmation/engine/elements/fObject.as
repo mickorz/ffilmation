@@ -47,6 +47,9 @@ package org.ffilmation.engine.elements {
 			private var currentSprite:MovieClip
 			private var currentSpriteIndex:Number
 			
+			/** @private */
+			public var simpleShadows:Boolean = false
+			
 			// Protected properties
 			/**
 			* @private
@@ -125,7 +128,7 @@ package org.ffilmation.engine.elements {
 				 		this.baseObj.mouseEnabled = false
 		
 					  // Shadows
-				    this.allShadows = new Array
+				    this.resetShadows()
 
 						// Initialize rotation for this object
 						this._orientation = 0
@@ -271,17 +274,21 @@ package org.ffilmation.engine.elements {
 					this.collisionModel.orientation = this.sprites[newSprite].angle
 					
 					// Update shadow model
-					var l:int = this.allShadows.length
-				  var shadowClase:Class = this.sprites[newSprite].shadow as Class
-					for(var i:int=0;i<l;i++) {
-						
-					  var info:fObjectShadow = this.allShadows[i]
-						var n:MovieClip = new shadowClase() as MovieClip
-						info.shadow.removeChild(info.clip)
-						info.shadow.addChild(n)
-						info.clip = n
-						n.gotoAndPlay(lastFrame)
-						
+			    if(!this.simpleShadows) {
+
+							var l:int = this.allShadows.length
+				  		var shadowClase:Class = this.sprites[newSprite].shadow as Class
+							for(var i:int=0;i<l;i++) {
+								
+							  var info:fObjectShadow = this.allShadows[i]
+								var n:MovieClip = new shadowClase() as MovieClip
+								info.shadow.removeChild(info.clip)
+								info.shadow.addChild(n)
+								info.clip = n
+								n.gotoAndPlay(lastFrame)
+								
+							}
+					
 					}
 					
 				}
@@ -336,6 +343,10 @@ package org.ffilmation.engine.elements {
 			*/
 			public override function gotoAndPlay(where:*):void {
 					this.flashClip.gotoAndPlay(where)
+			    
+			    // No animated shadows in this mode
+			    if(this.simpleShadows) return
+
 					var l:int = this.allShadows.length
 					for(var i:int=0;i<l;i++) this.allShadows[i].clip.gotoAndPlay(where)
 			}
@@ -347,6 +358,10 @@ package org.ffilmation.engine.elements {
 			*/
 			public override function gotoAndStop(where:*):void {
 					this.flashClip.gotoAndStop(where)
+
+			    // No animated shadows in this mode
+			    if(this.simpleShadows) return
+
 					var l:int = this.allShadows.length
 					for(var i:int=0;i<l;i++) this.allShadows[i].clip.gotoAndStop(where)
 			}
@@ -361,6 +376,10 @@ package org.ffilmation.engine.elements {
 			public override function call(what:String,param:*=null):void {
 					
 					this.flashClip[what](param)
+
+			    // No animated shadows in this mode
+			    if(this.simpleShadows) return
+
 					var l:int = this.allShadows.length
 					for(var i:int=0;i<l;i++) this.allShadows[i].clip[what](param)
 			}
@@ -526,20 +545,40 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public function getShadow(request:fRenderableElement):Sprite {
 				
-
-				 var clase:Class = this.sprites[this.currentSpriteIndex].shadow as Class
-				 var clip:MovieClip = new clase() as MovieClip
-
 				 var shadow:Sprite = new Sprite()
 				 var par:Sprite = new Sprite()
-				 shadow.addChild(clip)
+				 var clip:MovieClip
 				 par.addChild(shadow)
-				 clip.gotoAndPlay(this.currentSprite.currentFrame)
 
+				 // Return either the proper shadow or a simple spot depending on quality settings
+				 if(!this.simpleShadows) {
+				 		
+				 		var clase:Class = this.sprites[this.currentSpriteIndex].shadow as Class
+				 		clip = new clase() as MovieClip
+				 		clip.gotoAndPlay(this.currentSprite.currentFrame)
+				 		
+				 } else {
+				 	  clip = new MovieClip()
+				 		movieClipUtils.circle(clip.graphics,0,0,1.5*this.radius,20,0x000000,100-this.glight.intensity)
+				 }
+		 		 
+		 		 shadow.addChild(clip)
 				 this.allShadows.push(new fObjectShadow(shadow,clip,request))
 				 
 				 return shadow
 
+			}
+
+			/** 
+			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
+			* @private
+			*/
+			public function resetShadows():void {
+				 this.simpleShadows = false
+				 if(fEngine.shadowQuality==fShadowQuality.BASIC || (this is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) this.simpleShadows = true
+				 
+				 if(this.allShadows) for(var i:Number=0;i<this.allShadows.length;i++) delete this.allShadows[i]
+				 this.allShadows = new Array
 			}
 		
 			/*

@@ -1018,7 +1018,6 @@ package org.ffilmation.engine.core {
 	   				var cls:String = this.xmlObj.@controller
 	   				var r:Class = getDefinitionByName(cls) as Class
 			   		this.scene.controller = new r()		
-			   		this.scene.controller.enable()   	 
 		   	 	} catch(e:Error) {
 						throw new Error("Filmation Engine Exception: Scene contains an invalid controller definition: "+cls+" "+e)		   	 		
 		   	 	}

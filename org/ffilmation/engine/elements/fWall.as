@@ -817,12 +817,17 @@ package org.ffilmation.engine.elements {
 			
 			}
 			
-			// Calculates and projects shadows upon this floor
+			// Calculates and projects shadows upon this wall
 			/** @private */
 			public override function renderShadowInt(light:fLight,other:fRenderableElement,msk:Sprite):void {
 			   if(other is fFloor) this.renderFloorShadow(light,other as fFloor,msk)
 			   if(other is fWall) this.renderWallShadow(light,other as fWall,msk)
-			   if(other is fObject) this.renderObjectShadow(light,other as fObject,msk)
+			   
+			   // Walls don't receive shadows from objects in basic shadow quality
+			   // or characters in basic and normal shadow quality
+			   var o:fObject = other as fObject
+			   if(!o.simpleShadows) this.renderObjectShadow(light,o,msk)
+			   
 			}
 
 
@@ -831,7 +836,9 @@ package org.ffilmation.engine.elements {
 			   
 			   // Select mask
 			   try {
-			   	var msk:Sprite = this.lightShadows[light.uniqueId]
+					var msk:Sprite
+			   	if(other.simpleShadows) msk = this.simpleShadowsLayer
+			   	else msk = this.lightShadows[light.uniqueId]
 
 			 	 	var cache = fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId]
@@ -1157,11 +1164,28 @@ package org.ffilmation.engine.elements {
 				 
 			}
 			
+
+			/** 
+			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
+			* @private
+			*/
+			public override function resetShadowsInt():void {
+				for(var i in fWall.objectRenderCache) {
+					var a:Object = fWall.objectRenderCache[i]
+					for(var j in a) {
+						 try {
+						 	var clip:Sprite = a[j]
+						 	clip.parent.removeChild(clip)
+						 	delete a[j]
+						 } catch(e:Error){}
+					}
+					delete fWall.objectRenderCache[i]
+				}
+			}
+
 			// Calculates and projects shadows of objects upon this wall
 			private function renderObjectShadow(light:fLight,other:fObject,msk:Sprite):void {
 				 
-				 //trace("Shadow from "+other.id+" to "+this.id+" and light "+light.id)
-
 				 // Calculate projection
 				 var proj:fObjectProjection
 				 if(light.z<other.z) proj = other.getProjection(this.top,light.x,light.y,light.z)

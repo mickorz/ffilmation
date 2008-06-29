@@ -58,6 +58,9 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public var color:ColorTransform
 			
+			/** @private */
+			public var removed:Boolean = false
+			
 			/**
  			* The fLight.RENDER constant defines the value of the 
  			* <code>type</code> property of the event object for a <code>lightrender</code> event.

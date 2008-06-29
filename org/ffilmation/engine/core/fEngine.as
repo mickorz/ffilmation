@@ -87,7 +87,7 @@ package org.ffilmation.engine.core {
  			 */
  		   public static const MEDIALOADCOMPLETE:String = "enginemedialoadcomplete"
 
-			 
+
 			 // Static properties that define graphic options
 			 
 			 /**
@@ -100,6 +100,12 @@ package org.ffilmation.engine.core {
 			 */
 			 private static var _characterShadows:Boolean = true
 			 
+			 /**
+			 * This property defines the quality at which object and character shadows are rendered
+			 */
+			 private static var _shadowQuality:int = fShadowQuality.BEST
+
+
 			 /**
 			 * This property enables/disables bumpmapping globally. Please note that for the bumpMapping to work in a given surface and light, the surface
 			 * will need a bumpMap definition and the light must be defined as bumpmapped. Beware that only fast computers will be able to handle this
@@ -303,6 +309,7 @@ package org.ffilmation.engine.core {
             	var s:fScene = e.scenes[j]
             	s.resetGrid()
 							// Render again
+							s.resetShadows()
             	s.render()
          		
          	  }
@@ -328,8 +335,38 @@ package org.ffilmation.engine.core {
             for(var j:Number=0;j<e.scenes.length;j++) {
             	
             	var s:fScene = e.scenes[j]
-            	//s.resetGrid()
 							// Render again
+							s.resetShadows()
+            	s.render()
+         		
+         	  }
+         }
+
+       }			 
+
+
+			 /**
+			 * This property defines the quality at which object and character shadows are rendered
+			 *
+			 * @see org.ffilmation.engine.core.fShadowQuality
+			 */
+			 public static function get shadowQuality():int {
+         return fEngine._shadowQuality
+       }
+
+       public static function set shadowQuality(shd:int):void {
+
+         fEngine._shadowQuality = shd
+
+         // Update scenes
+         for(var i:Number=0;i<fEngine.engines.length;i++) {
+         	
+         		var e:fEngine = fEngine.engines[i]
+            for(var j:Number=0;j<e.scenes.length;j++) {
+            	
+            	var s:fScene = e.scenes[j]
+							// Render again
+							s.resetShadows()
             	s.render()
          		
          	  }

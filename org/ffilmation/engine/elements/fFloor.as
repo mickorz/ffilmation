@@ -540,6 +540,24 @@ package org.ffilmation.engine.elements {
 			   if(other is fObject) this.renderObjectShadow(light,other as fObject,msk)
 			}
 			
+			/** 
+			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
+			* @private
+			*/
+			public override function resetShadowsInt():void {
+				for(var i in fFloor.objectProjectionCache) {
+					var a:Array = fFloor.objectProjectionCache[i]
+					for(var j in a) {
+						 try {
+						 	var clip:Sprite = a[j]
+						 	clip.parent.parent.removeChild(clip.parent)
+						 	delete a[j]
+						 } catch (e:Error) {}
+					}
+					delete fFloor.objectProjectionCache[i]
+				}
+			}
+
 			// Calculates and projects shadows of objects upon this floor
 			private function renderObjectShadow(light:fLight,other:fObject,msk:Sprite):void {
 			   
@@ -552,21 +570,23 @@ package org.ffilmation.engine.elements {
 				 if(!fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]) {
 				 		fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId] = new Array()
 				 }
-				 var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
+				 var cache:Array = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
 				 if(!cache[other.uniqueId]) {
 				 		cache[other.uniqueId] = other.getShadow(this)
-				 		cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
+				 		if(!other.simpleShadows) cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
 				 }
 				 
 				 // Draw
 				 var clip:Sprite = cache[other.uniqueId]
 				 msk.addChild(clip.parent)
-				 
+
 				 // Rotate and deform
-				 clip.parent.x = proj.origin.x-this.x
+		 		 clip.parent.x = proj.origin.x-this.x
 				 clip.parent.y = proj.origin.y-this.y
-				 clip.height = proj.size 		 
-				 clip.parent.rotation = 90-mathUtils.getAngle(light.x,light.y,other.x,other.y)
+				 if(!other.simpleShadows) {
+				 		clip.height = proj.size 		 
+				 		clip.parent.rotation = 90-mathUtils.getAngle(light.x,light.y,other.x,other.y)
+				 }
 				 
 			}
 			
@@ -576,17 +596,19 @@ package org.ffilmation.engine.elements {
 			   
 			   // Select mask
 			   try {
-			   	var msk:Sprite = this.lightShadows[light.uniqueId]
+
+					var msk:Sprite
+			   	if(other.simpleShadows) msk = this.simpleShadowsLayer
+			   	else msk = this.lightShadows[light.uniqueId]
 			   
 			 	 	var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId]
 			 	 	msk.removeChild(clip.parent)
 			 	 } catch(e:Error) {
-			 	 	
 			 	 }
+			 	 
 
 			}
-
 
 			// Calculates and projects shadows of another floor upon this floor
 			private function renderFloorShadow(light:fLight,other:fFloor,msk:Sprite):void {
@@ -908,12 +930,10 @@ package org.ffilmation.engine.elements {
 			
 			}
 			
-			
 			/** @private */
 			public override function setLightZ(light:fLight):void {
 				 this.setLightDistance(light,Math.abs(light.z-this.z))
 			}
-
 
 			// fLight leaves element
 			/** @private */
@@ -929,7 +949,6 @@ package org.ffilmation.engine.elements {
 				 			try {
 				 				cache[i].parent.parent.removeChild(cache[i].parent)
 				 			} catch(e:Error) {
-				 			
 				 			}
 				 		}			   
 				 }

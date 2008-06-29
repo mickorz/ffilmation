@@ -10,6 +10,7 @@ package org.ffilmation.engine.core {
 		import flash.geom.Point
 		import flash.geom.Matrix
 		import org.ffilmation.engine.helpers.*
+		import org.ffilmation.engine.elements.*
 	  
 		/**
 		* <p>fPlanes are the 2d surfaces that provide the main structure for any scene. Once created, planes can't be altered
@@ -49,6 +50,8 @@ package org.ffilmation.engine.core {
 			
 			// Internal
 			
+			/** @private */
+			public var simpleShadowsLayer:Sprite			// Simple shadows go here
 			/** @private */
 			public var lightClips:Object            // List of containers used to represent lights (interior)
 			/** @private */
@@ -109,7 +112,7 @@ package org.ffilmation.engine.core {
 				 this.behind = new Sprite()
 				 this.infront = new Sprite()
 			   this.baseContainer.addChild(this.behind)
-			   this.baseContainer.addChild(diffuse)
+			   this.baseContainer.addChild(this.diffuse)
 			   this.baseContainer.addChild(this.infront)
 			   this.spriteToDraw.addChild(this.baseContainer)
 
@@ -134,6 +137,12 @@ package org.ffilmation.engine.core {
  			   this.lightC.mouseChildren = false
 				 this.baseContainer.mouseEnabled = false
 
+				 // Object shadows with qualities other than fShadowQuality.BEST will be drawn here instead of into each lights's ERASE layer
+				 this.simpleShadowsLayer = new Sprite
+				 this.simpleShadowsLayer.mouseEnabled = false
+				 this.simpleShadowsLayer.mouseChildren = false
+				 this.baseContainer.addChild(this.simpleShadowsLayer)
+
 			   // Holes
 			   this.holes = this.material.getHoles()
 			   for(var i:Number=0;i<this.holes.length;i++) {
@@ -142,7 +151,7 @@ package org.ffilmation.engine.core {
 				 		 this.holes[i].open = false
 			   }
 				 this.redrawHoles()
-
+				 
 			   if(this.holes.length>0) {
 			   		this.baseContainer.addChild(this.holesC)
 			   		this.holesC.blendMode = BlendMode.ERASE
@@ -216,6 +225,18 @@ package org.ffilmation.engine.core {
 			public override function enableMouseEvents():void {
 				this.container.mouseEnabled = true
 				this.spriteToDraw.mouseEnabled = true
+			}
+
+
+			/** 
+			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
+			* @private
+			*/
+			public function resetShadows():void {
+				 this.simpleShadowsLayer.graphics.clear()
+				 this.resetShadowsInt()
+			}
+			public function resetShadowsInt():void {
 			}
 
 			/** @private */
@@ -340,6 +361,7 @@ package org.ffilmation.engine.core {
 				
 				 	 var light:Object = evt.target
 					 this.environmentC.alpha = light.intensity/100
+					 this.simpleShadowsLayer.alpha = 1-this.environmentC.alpha
 			}
 
 
@@ -570,8 +592,10 @@ package org.ffilmation.engine.core {
 			public override function renderShadow(light:fLight,other:fRenderableElement):void {
 			   
 			   // Select mask
-			   var msk:Sprite = this.lightShadows[light.uniqueId]
-			
+			   var msk:Sprite
+			   if((other is fObject) && (other as fObject).simpleShadows) msk = this.simpleShadowsLayer
+			   else msk = this.lightShadows[light.uniqueId]
+
 				 // Render
 				 this.renderShadowInt(light,other,msk)
 			
@@ -591,7 +615,9 @@ package org.ffilmation.engine.core {
        	  this.lightBumps[light.uniqueId].cacheAsBitmap = false
 
 			    // Select mask
-			   	var msk:Sprite = this.lightShadows[light.uniqueId]
+			   	var msk:Sprite
+			   	if(fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
+			   	else msk = this.lightShadows[light.uniqueId]
 				 			
 				 	// Render
 				  this.renderShadowInt(light,other,msk)
