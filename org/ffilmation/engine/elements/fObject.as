@@ -198,8 +198,8 @@ package org.ffilmation.engine.elements {
 			 	 this.container.cacheAsBitmap = this.animated!=true
 			 	 
 			 	 // Show and hide listeners, to redraw shadows
-			 	 this.addEventListener(fRenderableElement.SHOW,this.showListener)
-			 	 this.addEventListener(fRenderableElement.HIDE,this.hideListener)
+			 	 this.addEventListener(fRenderableElement.SHOW,this.showListener,false,0,true)
+			 	 this.addEventListener(fRenderableElement.HIDE,this.hideListener,false,0,true)
 			 	 
 				 
 			}
@@ -577,7 +577,10 @@ package org.ffilmation.engine.elements {
 				 this.simpleShadows = false
 				 if(fEngine.shadowQuality==fShadowQuality.BASIC || (this is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) this.simpleShadows = true
 				 
-				 if(this.allShadows) for(var i:Number=0;i<this.allShadows.length;i++) delete this.allShadows[i]
+				 if(this.allShadows) for(var i:Number=0;i<this.allShadows.length;i++) {
+				 	this.allShadows[i].dispose()
+				 	delete this.allShadows[i]
+				 }
 				 this.allShadows = new Array
 			}
 		
@@ -703,8 +706,8 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function setGlobalLight(light:fGlobalLight):void {
 				 this.glight = light
-				 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange)
-				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange)
+				 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange,false,0,true)
+				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange,false,0,true)
 			}
 
 			/** @private */
@@ -789,6 +792,31 @@ package org.ffilmation.engine.elements {
 					} else return null
 					
 			}
+
+			/** @private */
+			public function disposeObject():void {
+
+	    	this.baseObj = null
+	    	this.defObj = null
+				for(var i:Number=0;i<this.lights.length;i++) delete this.lights[i]
+				this.lights = null
+				this.glight = null
+				this.definitionXML = null
+				for(i=0;i<this.sprites.length;i++) delete this.sprites[i]
+				this.sprites = null
+				this.currentSprite = null
+				this.projectionCache = null
+				this.collisionModel = null
+				this.resetShadows()
+				this.disposeRenderable()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposeObject()
+			}		
+
 
 
 		}

@@ -956,6 +956,22 @@ package org.ffilmation.engine.elements {
 			   
 			}
 
+			/** @private */
+			public function disposeFloor():void {
+
+	    	this.polyClip = null
+	    	this.bounds = null
+				this.lastCharacterCollision = null
+				this.resetShadowsInt()
+				this.disposePlane()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposeFloor()
+			}		
+
 			
 		}
 }

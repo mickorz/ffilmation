@@ -506,6 +506,22 @@ package org.ffilmation.engine.elements {
 			  }
 				 
 			}
+
+			/** @private */
+			public function disposeCharacter():void {
+
+				for(var i in this.vLights) delete this.vLights[i]
+				this.vLights = null
+				this.disposeObject()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposeCharacter()
+			}		
+
+
 		
 	}	
 		

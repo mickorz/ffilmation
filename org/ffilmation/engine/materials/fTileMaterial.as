@@ -60,8 +60,8 @@ package org.ffilmation.engine.materials {
 
 			  var msk:BitmapData = new BitmapData(width,height,true,0x000000)
 				msk.draw(temp)
-				ret.addChild(new Bitmap(msk,"auto",true))
 				image.dispose()
+				ret.addChild(new Bitmap(msk,"auto",true))
 
 				return ret
 			}

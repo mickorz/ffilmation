@@ -207,7 +207,7 @@ package org.ffilmation.engine.core {
 					this.offz = target.z-this.z
 
 					this.elasticity = 1+elasticity
-					target.addEventListener(fElement.MOVE,this.moveListener)
+					target.addEventListener(fElement.MOVE,this.moveListener,false,0,true)
 					
 			}
 
@@ -232,7 +232,7 @@ package org.ffilmation.engine.core {
 						this.destx = evt.target.x-this.offx
 						this.desty = evt.target.y-this.offy
 						this.destz = evt.target.z-this.offz
-						fEngine.stage.addEventListener('enterFrame',this.followListener)
+						fEngine.stage.addEventListener('enterFrame',this.followListener,false,0,true)
 					}
 				
 			}
@@ -245,7 +245,10 @@ package org.ffilmation.engine.core {
 					var dx:Number = this.destx-this.x		
 					var dy:Number = this.desty-this.y		
 					var dz:Number = this.destz-this.z
-					this.moveTo(this.x+dx/this.elasticity,this.y+dy/this.elasticity,this.z+dz/this.elasticity)
+					try {
+						this.moveTo(this.x+dx/this.elasticity,this.y+dy/this.elasticity,this.z+dz/this.elasticity)
+					} catch(e:Error) {
+					}
 					
 					// Stop ?
 					if(Math.abs(dx)<1 && Math.abs(dy)<1 && Math.abs(dz)<1) {
@@ -261,6 +264,22 @@ package org.ffilmation.engine.core {
 			*/
 			public function distanceTo(x:Number,y:Number,z:Number):Number {
 				 return mathUtils.distance3d(x,y,z,this.x,this.y,this.z)
+			}
+
+			// Clean resources
+			
+			/** @private */
+			public function disposeElement():void {
+					this.xmlObj	= null
+					this.cell = null
+					this.scene = null
+					this._controller = null
+					fEngine.stage.removeEventListener('enterFrame',this.followListener)
+			}
+
+			/** @private */
+			public function dispose():void {
+					this.disposeElement()
 			}
 
 

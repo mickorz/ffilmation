@@ -162,6 +162,12 @@ package org.ffilmation.engine.core {
 				return ret
 			}
 
+			public function dispose():void {
+				this.element = null
+				this.cls = null
+				this.definitionXML = null
+			}
+
 		}
 
 }

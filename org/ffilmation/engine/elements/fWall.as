@@ -1248,6 +1248,23 @@ package org.ffilmation.engine.elements {
 			   
 			}
 
+			/** @private */
+			public function disposeWall():void {
+
+	    	this.bounds = null
+				this.lastCharacterCollision = null
+				this.polyClip = null
+				this.resetShadowsInt()
+				this.disposePlane()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposeWall()
+			}		
+
+
 		}
 
 }

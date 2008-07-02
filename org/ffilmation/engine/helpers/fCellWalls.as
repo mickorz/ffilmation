@@ -46,7 +46,7 @@ package org.ffilmation.engine.helpers {
 				public var bottom:fRenderableElement
 				
 				/** 
-				* Stores list ob objects
+				* Stores list of objects
 				*/
 				public var objects:Array
 
@@ -63,6 +63,20 @@ package org.ffilmation.engine.helpers {
 					this.bottom = null
 					this.objects = new Array
 					
+				}
+				
+				function dispose():void {
+					
+					this.up = null
+					this.down = null
+					this.left = null
+					this.right = null
+					this.top = null
+					this.bottom = null
+					if(this.objects) {
+						for(var i:Number=0;i<this.objects.length;i++) delete this.objects[i]
+						this.objects = null
+					}					
 				}
 
 		}

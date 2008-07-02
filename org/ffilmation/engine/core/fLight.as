@@ -150,6 +150,26 @@ package org.ffilmation.engine.core {
 				this.dispatchEvent(new Event(fLight.RENDER))
 			}
 			
+			/** @private */
+			public function disposeLight():void {
+
+				for(var i:Number=0;i<this.elementsV.length;i++) this.elementsV[i] = null
+				this.elementsV = null
+				for(i=0;i<this.vCharacters.length;i++) this.vCharacters[i] = null
+				this.vCharacters = null
+				this.lightColor = null
+				this.color = null
+				this.disposeElement()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposeLight()
+			}
+
+
+
 		}
 }
 

@@ -146,8 +146,8 @@ package org.ffilmation.engine.core {
 			   // Holes
 			   this.holes = this.material.getHoles()
 			   for(var i:Number=0;i<this.holes.length;i++) {
-   					 this.holes[i].addEventListener(fHole.OPEN,this.openHole)
-				 		 this.holes[i].addEventListener(fHole.CLOSE,this.closeHole)
+   					 this.holes[i].addEventListener(fHole.OPEN,this.openHole,false,0,true)
+				 		 this.holes[i].addEventListener(fHole.CLOSE,this.closeHole,false,0,true)
 				 		 this.holes[i].open = false
 			   }
 				 this.redrawHoles()
@@ -164,7 +164,7 @@ package org.ffilmation.engine.core {
 			   //if(this.holes.length==0)
 			   this.container.cacheAsBitmap = true
 				 this.cacheTimer = new Timer(100,1)
-         this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener)
+         this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener,false,0,true)
 
 			}
 
@@ -320,8 +320,8 @@ package org.ffilmation.engine.core {
 				 this.environmentC.graphics.endFill()
 	       this.setDimensions(this.environmentC)
 
-		 		 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange)
-				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange)
+		 		 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange,false,0,true)
+				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange,false,0,true)
 			}
 
 
@@ -650,6 +650,79 @@ package org.ffilmation.engine.core {
 			public function setLightZ(light:fLight):void {
 			}
 
+			/** @private */
+			public function disposePlane():void {
+
+       	this.cacheTimer.stop()
+				this.material.dispose()
+				this.material = null
+				this.holesC = null
+				this.bumpMap = null
+				if(this.bumpMapData) this.bumpMapData.dispose()
+				this.displacer = null
+				this.infront = null
+				this.tMatrix = null
+				this.tMatrixB = null
+				for(var i:Number=0;i<this.lightClips.length;i++) delete this.lightClips[i]
+				this.lightClips
+				for(i=0;i<this.lightMasks.length;i++) delete this.lightMasks[i]
+				this.lightMasks = null
+				for(i=0;i<this.lightShadows.length;i++) delete this.lightShadows[i]
+				this.lightShadows = null
+				for(i=0;i<this.lightBumps.length;i++) delete this.lightBumps[i]
+				this.lightBumps = null
+				for(i=0;i<this.holes.length;i++) delete this.holes[i]
+				this.holes = null
+				for(var j in this.lightStatuses) delete this.lightStatuses[j]
+				this.lightStatuses = null
+				try {
+					this.lightC.parent.removeChild(this.lightC)
+					this.lightC = null
+				} catch(e:Error) {}
+				try {
+					this.environmentC.parent.removeChild(this.environmentC)
+					this.environmentC = null
+				} catch(e:Error) {}
+				try {
+					this.black.parent.removeChild(this.black)
+					this.black = null
+				} catch(e:Error) {}
+				try {
+					this.diffuse.parent.removeChild(this.diffuse)
+					this.diffuse = null
+				} catch(e:Error) {}
+				try {
+					this.holesC.parent.removeChild(this.holesC)
+					this.holesC = null
+				} catch(e:Error) {}
+				try {
+					this.spriteToDraw.parent.removeChild(this.spriteToDraw)
+					this.spriteToDraw = null
+				} catch(e:Error) {}
+				try {
+					this.baseContainer.parent.removeChild(this.baseContainer)
+					this.baseContainer = null
+				} catch(e:Error) {}
+				try {
+					this.behind.parent.removeChild(this.behind)
+					this.behind = null
+				} catch(e:Error) {}
+				try {
+					this.infront.parent.removeChild(this.infront)
+					this.infront = null
+				} catch(e:Error) {}
+				try {
+					this.simpleShadowsLayer.parent.removeChild(this.simpleShadowsLayer)
+					this.simpleShadowsLayer = null
+				} catch(e:Error) {}
+				this.disposeRenderable()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposePlane()
+			}
 
 		}
 

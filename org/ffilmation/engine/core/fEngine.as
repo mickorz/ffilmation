@@ -220,6 +220,19 @@ package org.ffilmation.engine.core {
 		   		return nfScene
 		   		
 		   }
+
+			 /**
+			 * This method frees all resources allocated by an scene. Use this as often as possible and always clean unused scene objects:
+			 * scenes generate lots of internal Arrays and BitmapDatas that will eat your RAM fast if they are not properly deleted
+			 *
+		   * @param sc The fScene you want to destroy
+			 */
+			 public function destroyScene(sc:fScene):void {
+			 		this.hideScene(sc)
+			 		sc.dispose()
+			 		this.scenes.splice(this.scenes.indexOf(sc),1)
+			 }
+
 		
 			 /**
 		   * Makes active one scene in the Engine. Only one scene can be active ( visible ) at the same time.

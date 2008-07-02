@@ -104,6 +104,28 @@ package org.ffilmation.engine.helpers {
 					
 				}
 
+				function dispose():void {
+					this.walls.dispose()
+					this.object = null
+					if(this.visibleObjs) {
+						for(var i:Number=0;i<this.visibleObjs.length;i++) delete this.visibleObjs[i]
+						this.visibleObjs = null
+					}
+					if(this.characterShadowCache) {
+						for(i=0;i<this.characterShadowCache.length;i++) delete this.characterShadowCache[i]
+						this.characterShadowCache = null
+					}
+					if(this.elementsInFront) {
+						for(i=0;i<this.elementsInFront.length;i++) delete this.elementsInFront[i]
+						this.elementsInFront = null
+					}
+					if(this.events) {
+						for(i=0;i<this.events.length;i++) delete this.events[i]
+						this.events = null
+					}
+					
+				}
+
 		}
 		
 }

@@ -231,8 +231,8 @@ package org.ffilmation.engine.core {
 			// Sets global light
 			/** @private */
 			public function setGlobalLight(light:fGlobalLight):void {
-				 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange)
-				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange)
+				 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange,false,0,true)
+				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange,false,0,true)
 			}
 			
 			/** @private */
@@ -334,6 +334,26 @@ package org.ffilmation.engine.core {
 			public function testSecondaryCollision(other:fRenderableElement,dx:Number,dy:Number,dz:Number):fCollision {
 				return null
 			}
+
+			/** @private */
+			public function disposeRenderable():void {
+
+				this.containerToPaint = null
+				this.containerParent = null
+				this.flashClip = null
+				this.container.parent.removeChild(this.container)
+				this.container = null
+				this.container = null
+				this.disposeElement()
+				
+			}
+
+			/** @private */
+			public override function dispose():void {
+				this.disposeRenderable()
+			}
+
+
 
 		}
 

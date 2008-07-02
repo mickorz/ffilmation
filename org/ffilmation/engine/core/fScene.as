@@ -38,30 +38,24 @@ package org.ffilmation.engine.core {
 		  internal var engine:fEngine
 		 	/** @private */
 			internal var _orig_container:Sprite  		  					// Backup reference
-		  
 		  /** @private */
 			internal var elements:Sprite												// All elements in scene are added here
 		  /** @private */
 			internal var top:int
 		  /** @private */
 			internal var depthSortArr:Array									  	// Array of elements for depth sorting
-		
 			/** @private */
 			internal var gridWidth:Number												// Grid size in pixels
 			/** @private */
 			internal var gridDepth:Number
 			/** @private */
 			internal var gridHeight:Number
-
-			private var currentCamera:fCamera										// The camera currently in use
-			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
-			
-			
 			/** @private */
 			internal var sortAreas:Array												// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
 																													// It is used to find the proper zIndex for a cell
 																													
-			
+			private var currentCamera:fCamera										// The camera currently in use
+			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
 			private var _controller:fEngineSceneController = null
 
 		  // Public properties
@@ -101,7 +95,6 @@ package org.ffilmation.engine.core {
 			*/				
 			public var height:Number
 
-
 		  /**
 		  * An array of all floors for fast loop access. For "id" access use the .all array
 		  */
@@ -131,7 +124,6 @@ package org.ffilmation.engine.core {
 		  * An array of all elements for fast loop access. For "id" access use the .all array
 		  */
 		  public var everything:Array                 						
-
 
 		  /**
 		  * The global light for this scene. Use this property to change light properties such as intensity and color
@@ -322,7 +314,6 @@ package org.ffilmation.engine.core {
 					return new fCamera(this)
 			}
 
-
 			/**
 			* Creates a new light and adds it to the scene. You won't see the light until you call its
 			* render() or moveTo() methods
@@ -486,7 +477,6 @@ package org.ffilmation.engine.core {
          return new Point(xCart,yCart)
       }         
 
-
 			/**
 			* Use this method to completely rerender the scene. However, under normal circunstances there shouldn't be a need to call this manually
 			*/
@@ -503,6 +493,69 @@ package org.ffilmation.engine.core {
 			
 			// PRIVATE AND INTERNAL METHODS FOLLOW
 			
+			/**
+			* @private
+			* This method frees all resources allocated by this scene. Use this as often as possible and always clean unused scene objects:
+			* scenes generate lots of internal Arrays and BitmapDatas that will eat your RAM fast if they are not properly deleted
+			*/
+			public function dispose():void {
+				
+		  	// Free properties
+		  	this.engine = null
+				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
+				this._orig_container = null
+				if(this.elements.parent) this.elements.parent.removeChild(this.elements)
+				this.elements = null
+				for(var i:Number=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
+				this.depthSortArr = null
+				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
+				this.sortAreas = null
+				for(i=0;i<this.currentOccluding.length;i++) delete this.currentOccluding[i]
+				this.currentOccluding = null
+				this.currentCamera.dispose()
+				this.currentCamera = null
+				this._controller = null
+				
+				// Free elements
+		  	for(i=0;i<this.floors.length;i++) {
+		  		this.floors[i].dispose()
+		  		delete this.floors[i]
+		  	}
+		  	for(i=0;i<this.walls.length;i++) {
+		  		this.walls[i].dispose()
+		  		delete this.walls[i]
+		  	}
+		  	for(i=0;i<this.objects.length;i++) {
+		  		this.objects[i].dispose()
+		  		delete this.objects[i]
+		  	}
+		  	for(i=0;i<this.characters.length;i++) {
+		  		this.characters[i].dispose()
+		  		delete this.characters[i]
+		  	}
+		  	for(i=0;i<this.lights.length;i++) {
+		  		this.lights[i].dispose()
+		  		delete this.lights[i]
+		  	}
+				for(var n in this.all) delete this.all[n]
+				
+				// Free grid
+				for(i=0;i<this.gridWidth;i++) {  
+					for(var j:int=0;j<this.gridDepth;j++) {  
+		      	 for(var k:int=0;k<this.gridHeight;k++) {  
+			         try {
+			         		this.grid[i][j][k].dispose()
+			         		delete this.grid[i][j][k]
+			         } catch (e:Error) {
+			         	
+			         }
+			       }
+			    } 
+			  }
+				this.grid = null
+				
+			}
+
 			// This method is called when the shadowQuality option changes
 			/** @private */
 		  public function resetShadows():void {
@@ -510,7 +563,7 @@ package org.ffilmation.engine.core {
 		  	for(i=0;i<this.walls.length;i++) this.walls[i].resetShadows()
 		  	for(i=0;i<this.objects.length;i++) this.objects[i].resetShadows()
 		  	for(i=0;i<this.characters.length;i++) this.characters[i].resetShadows()
-		  	for(i=0;i<this.lights.length;i++) this.processNewCellOmniLight(lights[i])
+		  	for(i=0;i<this.lights.length;i++) this.processNewCellOmniLight(this.lights[i])
 		  }
 			
 			// Listens cameras moving
@@ -572,7 +625,7 @@ package org.ffilmation.engine.core {
 
 				if(this.depthSortArr.indexOf(item)<0) {
 				 	this.depthSortArr.push(item)
-			   	item.addEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener)
+			   	item.addEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener,false,0,true)
 			  }
 			
 			}
