@@ -653,6 +653,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function disposePlane():void {
 
+        this.cacheTimer.removeEventListener(TimerEvent.TIMER, cacheTimerListener)
        	this.cacheTimer.stop()
 				this.material.dispose()
 				this.material = null
@@ -664,7 +665,7 @@ package org.ffilmation.engine.core {
 				this.tMatrix = null
 				this.tMatrixB = null
 				for(var i:Number=0;i<this.lightClips.length;i++) delete this.lightClips[i]
-				this.lightClips
+				this.lightClips = null
 				for(i=0;i<this.lightMasks.length;i++) delete this.lightMasks[i]
 				this.lightMasks = null
 				for(i=0;i<this.lightShadows.length;i++) delete this.lightShadows[i]
@@ -675,46 +676,6 @@ package org.ffilmation.engine.core {
 				this.holes = null
 				for(var j in this.lightStatuses) delete this.lightStatuses[j]
 				this.lightStatuses = null
-				try {
-					this.lightC.parent.removeChild(this.lightC)
-					this.lightC = null
-				} catch(e:Error) {}
-				try {
-					this.environmentC.parent.removeChild(this.environmentC)
-					this.environmentC = null
-				} catch(e:Error) {}
-				try {
-					this.black.parent.removeChild(this.black)
-					this.black = null
-				} catch(e:Error) {}
-				try {
-					this.diffuse.parent.removeChild(this.diffuse)
-					this.diffuse = null
-				} catch(e:Error) {}
-				try {
-					this.holesC.parent.removeChild(this.holesC)
-					this.holesC = null
-				} catch(e:Error) {}
-				try {
-					this.spriteToDraw.parent.removeChild(this.spriteToDraw)
-					this.spriteToDraw = null
-				} catch(e:Error) {}
-				try {
-					this.baseContainer.parent.removeChild(this.baseContainer)
-					this.baseContainer = null
-				} catch(e:Error) {}
-				try {
-					this.behind.parent.removeChild(this.behind)
-					this.behind = null
-				} catch(e:Error) {}
-				try {
-					this.infront.parent.removeChild(this.infront)
-					this.infront = null
-				} catch(e:Error) {}
-				try {
-					this.simpleShadowsLayer.parent.removeChild(this.simpleShadowsLayer)
-					this.simpleShadowsLayer = null
-				} catch(e:Error) {}
 				this.disposeRenderable()
 				
 			}

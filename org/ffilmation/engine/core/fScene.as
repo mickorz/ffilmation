@@ -502,10 +502,6 @@ package org.ffilmation.engine.core {
 				
 		  	// Free properties
 		  	this.engine = null
-				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
-				this._orig_container = null
-				if(this.elements.parent) this.elements.parent.removeChild(this.elements)
-				this.elements = null
 				for(var i:Number=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
 				this.depthSortArr = null
 				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
@@ -515,7 +511,10 @@ package org.ffilmation.engine.core {
 				this.currentCamera.dispose()
 				this.currentCamera = null
 				this._controller = null
-				
+				this.recursiveDelete(this._orig_container)
+				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
+				this._orig_container = null
+
 				// Free elements
 		  	for(i=0;i<this.floors.length;i++) {
 		  		this.floors[i].dispose()
@@ -554,7 +553,23 @@ package org.ffilmation.engine.core {
 			  }
 				this.grid = null
 				
+				
 			}
+			
+			private function recursiveDelete(d:DisplayObjectContainer):void {
+					
+					if(d.numChildren!=0) do {
+						var c:DisplayObject = d.getChildAt(0)
+						if(c!=null) {
+							if(c is DisplayObjectContainer) this.recursiveDelete(c as DisplayObjectContainer)
+							if(c is MovieClip) c.stop()
+							d.removeChild(c)
+						}
+					} while(d.numChildren!=0 && c!=null)
+					
+				
+			}
+			
 
 			// This method is called when the shadowQuality option changes
 			/** @private */

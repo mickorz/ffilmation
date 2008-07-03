@@ -28,9 +28,7 @@ package org.ffilmation.engine.helpers {
 			}
 
 			public function dispose():void {
-				 if(this.shadow.parent) this.shadow.parent.removeChild(this.shadow)
 				 this.shadow = null
-				 if(this.clip.parent) this.clip.parent.removeChild(this.clip)
 				 this.clip = null
 				 this.request = null
 			}

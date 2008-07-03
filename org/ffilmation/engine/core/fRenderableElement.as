@@ -338,12 +338,13 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function disposeRenderable():void {
 
+				delete this.container.fElementId
+				delete this.container.fElement
 				this.containerToPaint = null
 				this.containerParent = null
 				this.flashClip = null
-				this.container.parent.removeChild(this.container)
 				this.container = null
-				this.container = null
+				
 				this.disposeElement()
 				
 			}
