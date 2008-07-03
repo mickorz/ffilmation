@@ -495,7 +495,7 @@ package org.ffilmation.engine.core {
 			
 			/**
 			* @private
-			* This method frees all resources allocated by this scene. Use this as often as possible and always clean unused scene objects:
+			* This method frees all resources allocated by this scene. Always clean unused scene objects:
 			* scenes generate lots of internal Arrays and BitmapDatas that will eat your RAM fast if they are not properly deleted
 			*/
 			public function dispose():void {
@@ -508,12 +508,19 @@ package org.ffilmation.engine.core {
 				this.sortAreas = null
 				for(i=0;i<this.currentOccluding.length;i++) delete this.currentOccluding[i]
 				this.currentOccluding = null
+				for(i=0;i<this.objectDefinitions.length;i++) delete this.objectDefinitions[i]
+				this.objectDefinitions = null
+				for(i=0;i<this.materialDefinitions.length;i++) delete this.materialDefinitions[i]
+				this.materialDefinitions = null
+				for(i=0;i<this.noiseDefinitions.length;i++) delete this.noiseDefinitions[i]
+				this.noiseDefinitions = null
 				this.currentCamera.dispose()
 				this.currentCamera = null
 				this._controller = null
 				this.recursiveDelete(this._orig_container)
 				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
 				this._orig_container = null
+				this.container = null
 
 				// Free elements
 		  	for(i=0;i<this.floors.length;i++) {
@@ -553,9 +560,9 @@ package org.ffilmation.engine.core {
 			  }
 				this.grid = null
 				
-				
 			}
 			
+			// Recursively deletes all DisplayObjects in this scene's hierarchy
 			private function recursiveDelete(d:DisplayObjectContainer):void {
 					
 					if(d.numChildren!=0) do {
@@ -566,10 +573,8 @@ package org.ffilmation.engine.core {
 							d.removeChild(c)
 						}
 					} while(d.numChildren!=0 && c!=null)
-					
 				
 			}
-			
 
 			// This method is called when the shadowQuality option changes
 			/** @private */

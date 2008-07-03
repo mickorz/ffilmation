@@ -164,6 +164,7 @@ package org.ffilmation.engine.core {
 
 			public function dispose():void {
 				this.element = null
+				if(this.cls) this.cls.dispose()
 				this.cls = null
 				this.definitionXML = null
 			}

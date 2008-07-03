@@ -1037,10 +1037,38 @@ package org.ffilmation.engine.core {
 				 // Update status
 			   this.scene.stat = "Ready"
 			   this.scene.ready = true
-
+			   
+			   // Dispatch completion event
 			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADCOMPLETE,false,false,100,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 
+			   // Free all resources allocated by this Object, to help the Garbage collector
+			   this.dispose()
+
 			}
+			
+			private function dispose():void {
+				
+				 this.scene = null
+				 this.retriever = null
+				 this.xmlObj = null
+				 this.generators = null
+				 this.generator = null
+				 
+				 for(var i:Number=0;i<this.mediaSrcs.length;i++) delete this.mediaSrcs[i]
+				 this.mediaSrcs = null
+				 for(i=0;i<this.srcs.length;i++) delete this.srcs[i]
+				 this.srcs = null
+				 for(i=0;i<this.verticals.length;i++) delete this.verticals[i]
+				 this.verticals = null
+				 for(i=0;i<this.horizontals.length;i++) delete this.horizontals[i]
+				 this.horizontals = null
+				 for(i=0;i<this.sortArray.length;i++) delete this.sortArray[i]
+				 this.sortArray = null
+				 for(i=0;i<this.duplicateSortArray.length;i++) delete this.duplicateSortArray[i]
+				 this.duplicateSortArray = null
+				
+			}
+			
 			
 		}
 			

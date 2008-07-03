@@ -59,6 +59,12 @@ package org.ffilmation.engine.interfaces {
 			* @return A MovieClip that will used to close the hole. If null is returned, the hole won't be "closeable".
 			*/
 			function getHoleBlock(index:Number):MovieClip;
+			
+			/**
+			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
+			*/
+			function dispose():void;
+			
 
 		}
 

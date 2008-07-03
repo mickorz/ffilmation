@@ -51,6 +51,14 @@ package org.ffilmation.engine.materials {
 				
 			}
 			
+			/**
+			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
+			*/
+			public function dispose():void {
+				this.definitionXML = null
+				this.element = null
+			}
+			
 			/** 
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
