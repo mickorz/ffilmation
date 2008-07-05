@@ -1187,6 +1187,9 @@ package org.ffilmation.engine.elements {
 			// Calculates and projects shadows of objects upon this wall
 			private function renderObjectShadow(light:fLight,other:fObject,msk:Sprite):void {
 				 
+				 // Too far away ?
+				 if((other.z-this.z)>fObject.SHADOWRANGE) return
+
 				 // Calculate projection
 				 var proj:fObjectProjection
 				 if(light.z<other.z) proj = other.getProjection(this.top,light.x,light.y,light.z)
@@ -1214,16 +1217,20 @@ package org.ffilmation.engine.elements {
 				 		cache[other.uniqueId] = other.getShadow(this)
 				 		cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
 				 }
-				 
+
+				 var distance:Number = (other.z-this.z)/fObject.SHADOWRANGE
+
 				 // Draw
 				 var clip:Sprite = cache[other.uniqueId]
 				 msk.addChild(clip)
+				 clip.alpha = 1-distance
 				 
 				 if(this.vertical) clip.x = intersect.y-this.y0
 				 else clip.x = intersect.x-this.x0
 
 		 		 clip.y = (this.z-intersect2.y)
-				 clip.height = (intersect3.y-intersect2.y)
+				 clip.height = (intersect3.y-intersect2.y)*(1+fObject.SHADOWSCALE*distance)
+		 		 clip.scaleX = 1+fObject.SHADOWSCALE*distance
 				 
 			}
 

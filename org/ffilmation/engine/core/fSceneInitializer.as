@@ -1054,17 +1054,17 @@ package org.ffilmation.engine.core {
 				 this.generators = null
 				 this.generator = null
 				 
-				 for(var i:Number=0;i<this.mediaSrcs.length;i++) delete this.mediaSrcs[i]
+				 if(this.mediaSrcs) for(var i:Number=0;i<this.mediaSrcs.length;i++) delete this.mediaSrcs[i]
 				 this.mediaSrcs = null
-				 for(i=0;i<this.srcs.length;i++) delete this.srcs[i]
+				 if(this.srcs) for(i=0;i<this.srcs.length;i++) delete this.srcs[i]
 				 this.srcs = null
-				 for(i=0;i<this.verticals.length;i++) delete this.verticals[i]
+				 if(this.verticals) for(i=0;i<this.verticals.length;i++) delete this.verticals[i]
 				 this.verticals = null
-				 for(i=0;i<this.horizontals.length;i++) delete this.horizontals[i]
+				 if(this.horizontals) for(i=0;i<this.horizontals.length;i++) delete this.horizontals[i]
 				 this.horizontals = null
-				 for(i=0;i<this.sortArray.length;i++) delete this.sortArray[i]
+				 if(this.sortArray) for(i=0;i<this.sortArray.length;i++) delete this.sortArray[i]
 				 this.sortArray = null
-				 for(i=0;i<this.duplicateSortArray.length;i++) delete this.duplicateSortArray[i]
+				 if(this.duplicateSortArray) for(i=0;i<this.duplicateSortArray.length;i++) delete this.duplicateSortArray[i]
 				 this.duplicateSortArray = null
 				
 			}

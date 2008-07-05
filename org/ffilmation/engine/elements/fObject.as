@@ -35,6 +35,18 @@ package org.ffilmation.engine.elements {
 			* Limits size of object shadow projection relative to X times the object's height (amount of stretching movieClips will suffer)
 			*/
 			public static const MAXSHADOW = 2
+			
+			/**
+			* Shadows are harder or softer depending on the distance from the shadow origin to the plane where the shadow is drawn
+			* This constant defines the max distance in pixels at which a shadow will be seen. The shadow's alpha values will fade
+			* from 1 to 0 along this distance
+			*/
+			public static const SHADOWRANGE = 100
+			
+			/**
+			* Shadows become bigger as they fade away. This is the scaling factor -1. 1 means the shadow doubles in size
+			*/
+			public static const SHADOWSCALE = 0.7
 
 			// Private properties
 	    private var baseObj:MovieClip
@@ -409,7 +421,7 @@ package org.ffilmation.engine.elements {
 				if(obj.collisionModel is fCilinderCollisionModel) {
 				
 					if(this.collisionModel is fCilinderCollisionModel) {
-					
+						
 						// Both elements use cilinder model
 						var distance:Number = mathUtils.distance(obj.x,obj.y,this.x,this.y)
 						var impulse:Number = (this.radius+obj.radius)

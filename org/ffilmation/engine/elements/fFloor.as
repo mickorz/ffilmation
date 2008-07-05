@@ -561,6 +561,9 @@ package org.ffilmation.engine.elements {
 			// Calculates and projects shadows of objects upon this floor
 			private function renderObjectShadow(light:fLight,other:fObject,msk:Sprite):void {
 			   
+				 // Too far away ?
+				 if((other.z-this.z)>fObject.SHADOWRANGE) return
+
 				 // Get projection
 				 var proj:fObjectProjection = other.getProjection(this.z,light.x,light.y,light.z)
 				 
@@ -576,15 +579,19 @@ package org.ffilmation.engine.elements {
 				 		if(!other.simpleShadows) cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
 				 }
 				 
+				 var distance:Number = (other.z-this.z)/fObject.SHADOWRANGE
+
 				 // Draw
 				 var clip:Sprite = cache[other.uniqueId]
 				 msk.addChild(clip.parent)
+				 clip.alpha = 1-distance
 
 				 // Rotate and deform
 		 		 clip.parent.x = proj.origin.x-this.x
 				 clip.parent.y = proj.origin.y-this.y
 				 if(!other.simpleShadows) {
-				 		clip.height = proj.size 		 
+				 		clip.height = proj.size*(1+fObject.SHADOWSCALE*distance)
+				 		clip.scaleX = 1+fObject.SHADOWSCALE*distance
 				 		clip.parent.rotation = 90-mathUtils.getAngle(light.x,light.y,other.x,other.y)
 				 }
 				 

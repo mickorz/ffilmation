@@ -257,138 +257,89 @@ package org.ffilmation.engine.elements {
 								// Retrieve list of possible walls. Separate between primary and secondary
 								primaryCandidates = new Array
 								secondaryCandidates = new Array
+								var tz:Number
 								
 				 				if(dx<0) {
 				 					
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x-radius,this.y,this.z)
-				 						if(testCell.walls.right) primaryCandidates.push(testCell.walls.right)
-			 						  
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
-				 						if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dx - 1")
-				 					}	
-				 					try {
-			 							testCell = this.scene.translateToCell(this.x-radius,this.y,this.top)
-				 						if(testCell.walls.right) primaryCandidates.push(testCell.walls.right)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-				 						
-				 						if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
-				 						if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dx - 2")
-				 					}	
+				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
+				 							try {
+				 								testCell = this.scene.translateToCell(this.x-radius,this.y,tz)
+				 								if(testCell.walls.right) primaryCandidates.push(testCell.walls.right)
+			 								  
+			 								  nobjects = testCell.walls.objects.length
+			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
+         		      		
+				 								if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
+				 								if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
+				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
+				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
+				 							} catch (e:Error) {
+				 								//trace("Error dx - 1")
+				 							}	
+									}
          		
 				 				}
          		
 				 				if(dx>0) {
 				 					
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x+radius,this.y,this.z)
-				 						if(testCell.walls.left) primaryCandidates.push(testCell.walls.left)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
-				 						if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dx + 1")
-				 					}
-         		
-				 					try {
-			 							testCell = this.scene.translateToCell(this.x+radius,this.y,this.top)
-				 						if(testCell.walls.left) primaryCandidates.push(testCell.walls.left)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
-				 						if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dx + 2")
+				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
+				 							try {
+				 								testCell = this.scene.translateToCell(this.x+radius,this.y,tz)
+				 								if(testCell.walls.left) primaryCandidates.push(testCell.walls.left)
+         		      		
+			 								  nobjects = testCell.walls.objects.length
+			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
+         		      		
+				 								if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
+				 								if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
+				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
+				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
+				 							} catch (e:Error) {
+				 								//trace("Error dx + 1")
+				 							}
 				 					}
          		
 				 				}
          		
 				 				if(dy<0) {
 				 					
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x,this.y-radius,this.z)
-				 						if(testCell.walls.down) primaryCandidates.push(testCell.walls.down)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
-				 						if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dy - 1")
-				 					}
-         		
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x,this.y-radius,this.top)
-				 						if(testCell.walls.down) primaryCandidates.push(testCell.walls.down)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
-				 						if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dy - 2")
-				 					}
+				 					         		
+				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
+				 							try {
+				 								testCell = this.scene.translateToCell(this.x,this.y-radius,tz)
+				 								if(testCell.walls.down) primaryCandidates.push(testCell.walls.down)
+         		      		
+			 								  nobjects = testCell.walls.objects.length
+			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
+         		      		
+				 								if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
+				 								if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
+				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
+				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
+				 							} catch (e:Error) {
+				 								//trace("Error dy - 1")
+				 							}
+         					}
 				 					
 				 				}
          		
 				 				if(dy>0) {
 				 					
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x,this.y+radius,this.z)
-				 						if(testCell.walls.up) primaryCandidates.push(testCell.walls.up)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
-				 						if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dy + 1")
-				 					}
-         		
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x,this.y+radius,this.top)
-				 						if(testCell.walls.up) primaryCandidates.push(testCell.walls.up)
-         		
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		
-				 						if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
-				 						if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
-				 						if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 						if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 					} catch (e:Error) {
-				 						//trace("Error dy + 1")
+				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
+				 							try {
+				 								testCell = this.scene.translateToCell(this.x,this.y+radius,tz)
+				 								if(testCell.walls.up) primaryCandidates.push(testCell.walls.up)
+         		      		
+			 								  nobjects = testCell.walls.objects.length
+			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
+         		      		
+				 								if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
+				 								if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
+				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
+				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
+				 							} catch (e:Error) {
+				 								//trace("Error dy + 1")
+				 							}
 				 					}
          		
 				 				}
