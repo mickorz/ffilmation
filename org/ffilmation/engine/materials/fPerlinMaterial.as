@@ -1,4 +1,4 @@
-package org.ffilmation.engine.materials {
+﻿package org.ffilmation.engine.materials {
 
 		// Imports
 		import flash.display.*
@@ -6,6 +6,7 @@ package org.ffilmation.engine.materials {
 		import flash.utils.getDefinitionByName
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.datatypes.*
 		
 		/**
 		* This class creates a material by stacking several layers of "tile" materials, using a perlin noise funcion as alpha mask for each layer

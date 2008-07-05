@@ -53,11 +53,11 @@ package org.ffilmation.engine.helpers {
 				 var dist:Number = this.element.distanceTo(this.light.x,this.light.y,this.light.z)
 				 var angle:Number = mathUtils.getAngle(this.element.x,this.element.y,this.light.x,this.light.y)
 
-				 if(angle>315 || angle<135) {
+				 if(angle>225 || angle<45) {
 				 		this.weight = 0
 				 } else {
-				 		if(angle>270) this.weight = (315-angle)/45
-				 		else if(angle<180) this.weight = 1-((180-angle)/45)
+				 		if(angle>180) this.weight = (225-angle)/45
+				 		else if(angle<90) this.weight = ((45-angle)/45)
 				 		this.weight = 1
 				 }
 

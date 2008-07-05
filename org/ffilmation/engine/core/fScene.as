@@ -15,6 +15,7 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.helpers.*
+		import org.ffilmation.engine.datatypes.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
 		
@@ -476,6 +477,63 @@ package org.ffilmation.engine.core {
          
          return new Point(xCart,yCart)
       }         
+
+			/**
+			* This method returns the element under a Stage coordinate, and a 3D translation of the 2D coordinates passed as input.
+			* To achieve this it finds which visible elements are under the input pixel, ignoring the engine's internal coordinates.
+			* Now you can find out what did you click and which point of that element did you click.
+			* is in front of the floor. 
+			*
+			* @param x Stage horizontal coordinate
+			* @param y Stage vertical coordinate
+			* 
+			* @return An array of objects storing both the element under that point and a 3d coordinate corresponding to the 2d Point. This method returns null
+			* if the coordinate is not occupied by any element.
+			* Why an Array an not a single element ? Because you may want to search the Array for the element that better suits your intentions: for
+			* example if you use it to walk around the scene, you will want to ignore trees to reach the floor behind. If you are shooting
+			* people, you will want to ignore floors and look for objects and characters to target at.
+			*
+			* @see org.ffilmation.engine.datatypes.fCoordinateOccupant
+			*/
+			public function translateStageCoordsToElements(x:Number,y:Number):Array {
+				
+				var objects:Array = this.container.getObjectsUnderPoint(new Point(x,y))
+				if(objects.length==0) return null
+				
+				var ret:Array = new Array
+				
+				for(var i:Number=0;i<objects.length;i++) {
+					
+						var obj:DisplayObject = objects[i]
+						
+						// Search for element containing this DisplayObject
+						var el:fRenderableElement = null
+						while(el==null && obj!=this.container && obj!=null) {
+							if(obj is MovieClip && obj.fElement) el = obj.fElement
+							obj = obj.parent
+						}
+						
+						if(el!=null) {
+						
+								// Get coordinate and push data
+								var p:Point = new Point(x,y)
+								p = el.container.globalToLocal(p)
+								if(el is fFloor) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
+								if(el is fWall) {
+									var w:fWall = el as fWall
+									if(w.vertical) ret.push(new fCoordinateOccupant(el,el.x,el.y+p.x,el.z+p.y))
+									else ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z+p.y))
+								}
+								if(el is fObject) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z+p.y))
+						}
+						
+				}
+				
+				if(ret.length==0) return null
+				else return ret
+			
+			}
+
 
 			/**
 			* Use this method to completely rerender the scene. However, under normal circunstances there shouldn't be a need to call this manually

@@ -9,6 +9,7 @@ package org.ffilmation.helpful.generators {
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.interfaces.*
+		import org.ffilmation.engine.datatypes.*
 		
 		
 		/**

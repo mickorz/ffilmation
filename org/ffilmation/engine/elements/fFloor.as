@@ -592,7 +592,7 @@ package org.ffilmation.engine.elements {
 				 if(!other.simpleShadows) {
 				 		clip.height = proj.size*(1+fObject.SHADOWSCALE*distance)
 				 		clip.scaleX = 1+fObject.SHADOWSCALE*distance
-				 		clip.parent.rotation = 90-mathUtils.getAngle(light.x,light.y,other.x,other.y)
+				 		clip.parent.rotation = 90+mathUtils.getAngle(light.x,light.y,other.x,other.y)
 				 }
 				 
 			}

@@ -1,6 +1,6 @@
 // Noise
 
-package org.ffilmation.engine.core {
+package org.ffilmation.engine.datatypes {
 	
 		// Imports
 		import flash.display.*
@@ -118,7 +118,7 @@ package org.ffilmation.engine.core {
 			* @return A Number from 0 ( noise does not cover that coordinate at all ) and 1 ( noise fully covers that coordinate)
 			*
 			*/
-			public function getIntensityAt(x,y):Number {
+			public function getIntensityAt(x:Number,y:Number):Number {
 				
 				var bmap:BitmapData = new BitmapData(1,1)
 				var offsets = new Array

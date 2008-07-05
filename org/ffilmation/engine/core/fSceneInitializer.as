@@ -18,6 +18,7 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
+		import org.ffilmation.engine.datatypes.*
 		
 
 		/**

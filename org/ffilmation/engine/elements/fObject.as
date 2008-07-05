@@ -429,7 +429,7 @@ package org.ffilmation.engine.elements {
 						
 						  impulse*=1.01
 						  var angle:Number = mathUtils.getAngle(this.x,this.y,obj.x,obj.y,distance)*Math.PI/180
-							return new fCollision(this.x+impulse*Math.cos(angle),this.y-impulse*Math.sin(angle),-1)
+							return new fCollision(this.x+impulse*Math.cos(angle),this.y+impulse*Math.sin(angle),-1)
 							
 						} else return null
 				
@@ -439,7 +439,7 @@ package org.ffilmation.engine.elements {
 			  	  // any point that is to be tested needs to be translated to the model's coordinate origin.
 						angle = mathUtils.getAngle(this.x,this.y,obj.x,obj.y)*Math.PI/180
 						var cos:Number = -obj.radius*Math.cos(angle)
-						var sin:Number = obj.radius*Math.sin(angle)
+						var sin:Number = -obj.radius*Math.sin(angle)
 						var nx:Number = obj.x+cos
 						var ny:Number = obj.y+sin
 						
@@ -510,7 +510,7 @@ package org.ffilmation.engine.elements {
 			  	  // any point that is to be tested needs to be translated to the model's coordinate origin.
 						var angle:Number = mathUtils.getAngle(this.x,this.y,obj.x,obj.y)*Math.PI/180
 						var cos:Number = -obj.radius*Math.cos(angle)
-						var sin:Number = obj.radius*Math.sin(angle)
+						var sin:Number = -obj.radius*Math.sin(angle)
 						var nx:Number = obj.x+cos
 						var ny:Number = obj.y+sin
 						
@@ -798,7 +798,7 @@ package org.ffilmation.engine.elements {
 						var angle:Number = mathUtils.getAngle(x,y,this.x,this.y)*Math.PI/180
 						var ret:fPlaneBounds = new fPlaneBounds()
 						ret.x0 = ret.x1 = this.x-this.radius*Math.cos(angle)
-						ret.y0 = ret.y1 = this.y+this.radius*Math.sin(angle)
+						ret.y0 = ret.y1 = this.y-this.radius*Math.sin(angle)
 						return ret
 						
 					} else return null
