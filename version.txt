@@ -6,6 +6,7 @@ NEW
 Nicer object shadows, that fade away as the object moves away from the plane. Try jumping in the demo to see it in action.
 The Grid is now generated on-demand, only used cells are generated. No longer we create a huge array that covers the whole scene. This has a huge impact
 in both initialization time and memory usage, and makes possible to have much bigger scenes. This is a gret improvement in my opinion.
+Added Mouse translation coordinates and an A* pathfinding: all you need to program point-and-click adventuring and Diablo clones.
 Added shadowQuality settings. Shadows are the main bottleneck of the engine, therefore there is a need to have quality options to adjust them to your requirements.
 Added the fMaterialTypes class, where you can find info on the available materials and how to use them
 Added the "fence" material

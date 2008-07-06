@@ -190,11 +190,11 @@ package org.ffilmation.engine.elements {
 			
 			}
 
-			// Confirm impact from a bullet
+			// Test a point's collision
 			/** @private */
-			public override function confirmImpact(x:Number,y:Number,z:Number,dx:Number,dy:Number,dz:Number):fPlaneBounds {
-
-				if(!this.solid) return null
+			public override function testPointCollision(x:Number,y:Number,z:Number):Boolean {		
+			
+				if(!this.solid) return false
 				
 				// Loop through holes and see if point is inside one
 				for(var h:int=0;h<this.holes.length;h++) {
@@ -202,39 +202,12 @@ package org.ffilmation.engine.elements {
 					 	if(this.holes[h].open) {
 						 	var hole:fPlaneBounds = this.holes[h].bounds
 						 	if(hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
-							 		return null
+							 		return false
 						 	}
 			 	  	}
-			 	  	
-				}				
-				
-
-				var lastCharacterCollision:fPlaneBounds = null
-
-				// Check previous positions to detect if we were inside a hole or not
-				for(h=0;h<this.holes.length;h++) {
-				
-					 	if(this.holes[h].open) {
-						 	hole = this.holes[h].bounds
-						 	if(hole.x<=(x-dx) && (hole.x+hole.width)>=(x-dx) && hole.y<=(y-dy) && (hole.y+hole.height)>=(y-dy)) {
-							 		lastCharacterCollision = hole
-						 	}
-			 			}
-			 			  	
 				}				
 
-				// Return fCollision
-				if(lastCharacterCollision!=null) {
-					var w:fPlaneBounds = new fPlaneBounds()
-					w.x0 = lastCharacterCollision.x1
-					w.x1 = lastCharacterCollision.x0
-					w.y0 = lastCharacterCollision.y1
-					w.y1 = lastCharacterCollision.y0
-					return w
-				} else {
-					return this.bounds
-				}
-
+				return true
 
 			}
 

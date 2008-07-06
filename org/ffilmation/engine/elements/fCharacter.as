@@ -9,6 +9,7 @@ package org.ffilmation.engine.elements {
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.events.*
+		import org.ffilmation.engine.datatypes.*
 
 
 		/** 

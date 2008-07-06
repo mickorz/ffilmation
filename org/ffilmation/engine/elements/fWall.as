@@ -270,13 +270,11 @@ package org.ffilmation.engine.elements {
 			}
 			
 
-			// Confirm impact from a bullet
+			// Test a point's collision
 			/** @private */
-			public override function confirmImpact(x:Number,y:Number,z:Number,dx:Number,dy:Number,dz:Number):fPlaneBounds {
+			public override function testPointCollision(x:Number,y:Number,z:Number):Boolean {				
 				
-				var w:fPlaneBounds
-
-				if(!this.solid) return null
+				if(!this.solid) return false
 				
 				// Loop through holes and see if point is inside one
 				if(this.vertical) {
@@ -285,7 +283,7 @@ package org.ffilmation.engine.elements {
 						 	if(this.holes[h].open) {
 							 	var hole:fPlaneBounds = this.holes[h].bounds
 							 	if(hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
-							 		return null
+							 		return false
 							 	}
 			 				}	  	
 					}				
@@ -295,48 +293,13 @@ package org.ffilmation.engine.elements {
 						 	if(this.holes[h].open) {
 							 	hole = this.holes[h].bounds
 							 	if(hole.z<=z && hole.top>=z && hole.x0<=x && hole.x1>=x) {
-							 		return null
+							 		return false
 							 	}
 			 				}	  	
 					}				
 			  }
 				
-				var lastCharacterCollision:fPlaneBounds = null
-
-				// Check previous positions to detect if we were inside a hole or not
-				if(this.vertical) {
-					for(h=0;h<this.holes.length;h++) {
-					
-						 	if(this.holes[h].open) {
-							 	hole = this.holes[h].bounds
-							 	if(hole.z<=z && hole.top>=z && hole.y0<=(y-dy) && hole.y1>=(y-dy)) {
-							 		lastCharacterCollision = hole
-							 	}
-			 				}	  	
-					}				
-			  } else {
-					for(h=0;h<this.holes.length;h++) {
-					
-						 	if(this.holes[h].open) {
-							 	hole = this.holes[h].bounds
-							 	if(hole.z<=z && hole.top>=z && hole.x0<=(x-dx) && hole.x1>=(x-dx)) {
-							 		lastCharacterCollision = hole
-							 	}
-			 				}	  	
-					}				
-			  }
-
-				// Return fCollision
-				if(lastCharacterCollision!=null) {
-					w = new fPlaneBounds
-					w.x0 = lastCharacterCollision.x1
-					w.x1 = lastCharacterCollision.x0
-					w.y0 = lastCharacterCollision.y1
-					w.y1 = lastCharacterCollision.y0
-					return w
-				} else {
-					return this.bounds
-				}
+				return true
 
 			}
 

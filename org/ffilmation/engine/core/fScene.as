@@ -482,7 +482,6 @@ package org.ffilmation.engine.core {
 			* This method returns the element under a Stage coordinate, and a 3D translation of the 2D coordinates passed as input.
 			* To achieve this it finds which visible elements are under the input pixel, ignoring the engine's internal coordinates.
 			* Now you can find out what did you click and which point of that element did you click.
-			* is in front of the floor. 
 			*
 			* @param x Stage horizontal coordinate
 			* @param y Stage vertical coordinate
@@ -501,6 +500,7 @@ package org.ffilmation.engine.core {
 				if(objects.length==0) return null
 				
 				var ret:Array = new Array
+				var found:Array = new Array
 				
 				for(var i:Number=0;i<objects.length;i++) {
 					
@@ -509,12 +509,18 @@ package org.ffilmation.engine.core {
 						// Search for element containing this DisplayObject
 						var el:fRenderableElement = null
 						while(el==null && obj!=this.container && obj!=null) {
-							if(obj is MovieClip && obj.fElement) el = obj.fElement
+							if(obj is MovieClip) {
+								 var m:MovieClip = obj as MovieClip
+								 if(m.fElement) el = m.fElement
+							}
 							obj = obj.parent
 						}
 						
-						if(el!=null) {
+						if(el!=null && found.indexOf(el)<0 && this.currentOccluding.indexOf(el)<0) {
 						
+								// Avoid repeated results
+								found.push(el)
+
 								// Get coordinate and push data
 								var p:Point = new Point(x,y)
 								p = el.container.globalToLocal(p)
@@ -528,6 +534,9 @@ package org.ffilmation.engine.core {
 						}
 						
 				}
+				
+				// Elements in front fo firts in the Array
+				ret.reverse()
 				
 				if(ret.length==0) return null
 				else return ret
@@ -1363,78 +1372,6 @@ package org.ffilmation.engine.core {
 			}
 			
 
-/*			
-			function searchPath(origin,destiny,limit) {
-			
-			      propagation = [origin]
-			      explored_so_far = [origin]
-			      origin.counter = " "
-			      var found = false
-			      
-			      for(var propagation_count=1;!found && propagation_count<limit;propagation_count++) {
-			         
-			         var aux_list = new Array
-			
-			         // For each in list
-			         for(var i=0;!found && i<propagation.length;i++) {
-			
-			            var cell = propagation[i]
-			
-			            if(cell.i==destiny.i && cell.j==destiny.j)  {
-			               
-			               found = true
-			               
-			            } else {
-			                     
-			               // Right
-			               if(this.grid[cell.i+1][cell.j].counter==0 && this.grid[cell.i][cell.j].walls.up==false) {
-			                  explored_so_far[explored_so_far.length] = this.grid[cell.i+1][cell.j]
-			                  aux_list[aux_list.length] = {i: cell.i+1,j: cell.j}
-			                  this.grid[cell.i+1][cell.j].counter = this.grid[cell.i][cell.j].counter+"R"
-			               }
-			               
-			               // Down
-			               if(this.grid[cell.i][cell.j+1].counter==0 && this.grid[cell.i][cell.j].walls.right==false) {
-			                  explored_so_far[explored_so_far.length] = this.grid[cell.i][cell.j+1]
-			                  aux_list[aux_list.length] = {i: cell.i,j: cell.j+1}
-			                  this.grid[cell.i][cell.j+1].counter = this.grid[cell.i][cell.j].counter+"D"
-			               }
-			   
-			               // Left
-			               if(this.grid[cell.i-1][cell.j].counter==0 && this.grid[cell.i][cell.j].walls.down==false) {
-			                  explored_so_far[explored_so_far.length] = this.grid[cell.i-1][cell.j]
-			                  aux_list[aux_list.length] = {i: cell.i-1,j: cell.j}
-			                  this.grid[cell.i-1][cell.j].counter = this.grid[cell.i][cell.j].counter+"L"
-			               }
-			               
-			               // Up
-			               if(this.grid[cell.i][cell.j-1].counter==0 && this.grid[cell.i][cell.j].walls.left==false) {
-			                  explored_so_far[explored_so_far.length] = this.grid[cell.i][cell.j-1]
-			                  aux_list[aux_list.length] = {i: cell.i,j: cell.j-1}
-			                  this.grid[cell.i][cell.j-1].counter = this.grid[cell.i][cell.j].counter+"U"
-			               }
-			            }
-			            
-			         }
-			         
-			         propagation = aux_list
-			      }
-			   
-			      // Generate output array ( path )
-			      var ret = []
-			      if(found) {
-			         
-			         var str = this.grid[cell.i][cell.j].counter
-			         for(var i=str.length-1;i>=0;i--) ret[ret.length] = str.charAt(i)
-			
-			      }
-			      
-			      // Reset all counters
-			      for(var i=0;i<explored_so_far.length;i++) explored_so_far[i].counter = 0
-			
-			      return ret
-			}
-		*/
 		
 		}
 

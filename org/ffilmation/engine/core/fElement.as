@@ -7,6 +7,7 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
+		import org.ffilmation.engine.datatypes.*
 
 		/**
 		* <p>The fElement class defines the basic structure of anything in a filmation Scene</p>

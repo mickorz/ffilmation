@@ -1,13 +1,11 @@
-package org.ffilmation.engine.helpers {
+package org.ffilmation.engine.datatypes {
 
 		// Imports
 		import org.ffilmation.engine.elements.*
+		import org.ffilmation.engine.helpers.*
 	
 		/** 
 		* @private
-		* THIS IS A HELPER OBJECT. OBJECTS IN THE HELPERS PACKAGE ARE NOT SUPPOSED TO BE USED EXTERNALLY. DOCUMENTATION ON THIS OBJECTS IS 
-		* FOR DEVELOPER REFERENCE, NOT USERS OF THE ENGINE
-		*
 		* Every scene is fit into a grid that allows to simplify visiblity and projection calculations.
 		* This grid is formed of fCells, a container that keeps information necessary to perform all the public
 		* rendering calculations
@@ -23,32 +21,32 @@ package org.ffilmation.engine.helpers {
 				/**
 				* The x coordinate of this cell in the grid. The measure is array position, not pixels.
 				*/
-				public var i:int
+				public var i:Number
 
 				/**
 				* The y coordinate of this cell in the grid. The measure is array position, not pixels.
 				*/
-				public var j:int
+				public var j:Number
 
 				/**
 				* The z coordinate of this cell in the grid. The measure is array position, not pixels.
 				*/
-				public var k:int
+				public var k:Number
 
 				/**
 				* The x coordinate in pixels of the center of this cell grid.
 				*/
-				public var x:int
+				public var x:Number
 
 				/**
 				* The y coordinate in pixels of the center of this cell grid.
 				*/
-				public var y:int
+				public var y:Number
 
 				/**
 				* The z coordinate in pixels of the center of this cell grid.
 				*/
-				public var z:int
+				public var z:Number
 
 				/**
 				* If this cell "touches" any wall or floor, it is stored in this object. This information is used when
@@ -56,12 +54,6 @@ package org.ffilmation.engine.helpers {
 				* to another, walls are cheched to see if any was inbetween
 				*/
 				public var walls:fCellWalls
-				
-				/**
-				* If an object occupies space in the cell, it is stored in this property.
-				* This information is used to test object collision
-				*/
-				public var object:fObject
 				
 				/**
 				* The cell caches an array of visible elements. This array contains a list of all walls and floors "visible"
@@ -91,6 +83,15 @@ package org.ffilmation.engine.helpers {
 				*/
 				public var elementsInFront:Array
 
+				// The following properties are used by pathFinding algorythms
+				
+				public var g:Number = 0													
+				public var h:Number = 0													// Heuristic score
+				public var cost:Number = 0											// Movement cost
+				public var parent:fCell													// Needed to return a solution (trackback)
+				
+				public function get f():Number { return g+h }
+
 
 				/**
 				* Constructor
@@ -104,9 +105,11 @@ package org.ffilmation.engine.helpers {
 					
 				}
 
-				function dispose():void {
+				/**
+				* Frees memory allocated by this cell
+				*/
+				public function dispose():void {
 					this.walls.dispose()
-					this.object = null
 					if(this.visibleObjs) {
 						for(var i:Number=0;i<this.visibleObjs.length;i++) delete this.visibleObjs[i]
 						this.visibleObjs = null

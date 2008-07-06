@@ -6,6 +6,7 @@ package org.ffilmation.utils {
 		import flash.geom.Point;
 
 		/**
+		* @private
 		* BumpMap class
 		* From Ralph Hauwert's at UnitZeroOne (ralph@unitzeroone.com)
 		*/

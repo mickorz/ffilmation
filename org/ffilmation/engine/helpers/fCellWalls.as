@@ -53,7 +53,7 @@ package org.ffilmation.engine.helpers {
 				/**
 				* Constructor
 				*/
-				function fCellWalls():void {
+				public function fCellWalls():void {
 					
 					this.up = null
 					this.down = null
@@ -65,7 +65,7 @@ package org.ffilmation.engine.helpers {
 					
 				}
 				
-				function dispose():void {
+				public function dispose():void {
 					
 					this.up = null
 					this.down = null

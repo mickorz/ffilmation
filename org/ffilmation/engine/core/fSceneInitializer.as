@@ -371,7 +371,7 @@ package org.ffilmation.engine.core {
 			   			  newFloorNode.@width = horizontalSplits[i+1]-horizontalSplits[i]
 			   			  newFloorNode.@y = verticalSplits[j]
 			   			  newFloorNode.@height = verticalSplits[j+1]-verticalSplits[j]
-			   			  if(horizontalSplits.length>1 || verticalSplits.length>1) newFloorNode.@id+="_Split_"+i+"_"+j
+			   			  if(horizontalSplits.length>2 || verticalSplits.length>2) newFloorNode.@id+="_Split_"+i+"_"+j
 			   	
 			   	  		var spr:MovieClip = new MovieClip()
 			   	  		spr.mouseEnabled = false

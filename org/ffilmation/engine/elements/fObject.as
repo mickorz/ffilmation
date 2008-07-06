@@ -12,6 +12,7 @@ package org.ffilmation.engine.elements {
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.collisionModels.*
+		import org.ffilmation.engine.datatypes.*
 
 		/** 
 		* <p>An Object is a graphic element that is part of the the environment and is not projected in any way.
@@ -260,7 +261,7 @@ package org.ffilmation.engine.elements {
 				var correctedAngle:Number = angle%360
 				if(correctedAngle<0) correctedAngle+=360
 				correctedAngle/=360
-				
+				if(isNaN(correctedAngle)) return
 				this._orientation = correctedAngle
 				
 				var newSprite:Number = Math.floor(correctedAngle*this.sprites.length)
@@ -354,6 +355,7 @@ package org.ffilmation.engine.elements {
 			* @param where A frame number or frame label
 			*/
 			public override function gotoAndPlay(where:*):void {
+					
 					this.flashClip.gotoAndPlay(where)
 			    
 			    // No animated shadows in this mode
@@ -783,25 +785,16 @@ package org.ffilmation.engine.elements {
 			}
 			
 
-			// Confirm fCollision with a given point
+			// Test a point's collision
 			/** @private */
-			public override function confirmImpact(x:Number,y:Number,z:Number,dx:Number,dy:Number,dz:Number):fPlaneBounds {
-				
-					if(!this.solid) return null
+			public override function testPointCollision(x:Number,y:Number,z:Number):Boolean {				
+					if(!this.solid) false
 					
 					// Above or below the object
-					if(z<this.z || z>=this.top) return null
+					if(z<this.z || z>=this.top) return false
 					
 					// Must check radius
-					if(mathUtils.distance(this.x,this.y,x,y)<this.radius) {
-						
-						var angle:Number = mathUtils.getAngle(x,y,this.x,this.y)*Math.PI/180
-						var ret:fPlaneBounds = new fPlaneBounds()
-						ret.x0 = ret.x1 = this.x-this.radius*Math.cos(angle)
-						ret.y0 = ret.y1 = this.y-this.radius*Math.sin(angle)
-						return ret
-						
-					} else return null
+					return (mathUtils.distance(this.x,this.y,x,y)<this.radius)
 					
 			}
 

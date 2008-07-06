@@ -2,6 +2,7 @@ package org.ffilmation.utils {
 
 
 		/** 
+		* @private
 		* A rectangular viewport, used to clip polygons
 		*
 	  */

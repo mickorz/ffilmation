@@ -316,11 +316,10 @@ package org.ffilmation.engine.core {
 			
 			}
 
-			// Confirm Impact from bullet
+			// Test a point's collision
 			/** @private */
-			public function confirmImpact(x:Number,y:Number,z:Number,dx:Number,dy:Number,dz:Number):fPlaneBounds {
-				if(this.solid) return new fPlaneBounds()
-				else return null
+			public function testPointCollision(x:Number,y:Number,z:Number):Boolean {
+				return this.solid
 			}
 
 			// Test primary fCollision

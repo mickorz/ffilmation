@@ -161,7 +161,8 @@ package org.ffilmation.engine.core {
 				
 				return ret
 			}
-
+			
+			/** @private */
 			public function dispose():void {
 				this.element = null
 				if(this.cls) this.cls.dispose()

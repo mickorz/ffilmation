@@ -5,7 +5,7 @@ package org.ffilmation.engine.datatypes {
 		import org.ffilmation.engine.core.*
 
 		/**
-		* This object stores the return value for the fScene,translateStageCoordsToElement method
+		* This object stores the return value for the fScene.translateStageCoordsToElement method
 	  * 
 		* @see org.ffilmation.engine.core.fScene#translateStageCoordsToElements()
 		*/
