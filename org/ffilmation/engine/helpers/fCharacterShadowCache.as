@@ -37,7 +37,7 @@ package org.ffilmation.engine.helpers {
 				}
 
 				public function addElement(el:fRenderableElement):void {
-						this.elements.push(el)
+						if(this.elements.indexOf(el)<0) this.elements.push(el)
 				}
 			 
 		}

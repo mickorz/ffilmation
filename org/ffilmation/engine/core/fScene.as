@@ -523,7 +523,7 @@ package org.ffilmation.engine.core {
 
 								// Get coordinate and push data
 								var p:Point = new Point(x,y)
-								p = el.container.globalToLocal(p)
+								p = el.baseContainer.globalToLocal(p)
 								if(el is fFloor) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
 								if(el is fWall) {
 									var w:fWall = el as fWall
@@ -933,7 +933,6 @@ package org.ffilmation.engine.core {
 				 var s:Number, len:Number,i:Number,i2:Number
 
 		 		 // Change depth of object
-				 var r:Number = getTimer()
 		 		 if(character.cell!=null) character.setDepth(character.cell.zIndex)
 		 		 
 			   // Count lights close enough
@@ -1034,7 +1033,6 @@ package org.ffilmation.engine.core {
 			   		  
 			   		}
 
-			   	  
 	  				// Delete shadows from this character that are no longer visible
 			   		oldCache = character.vLights[light.counter]
 			   		if(oldCache!=null) {

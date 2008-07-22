@@ -4,6 +4,7 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.utils.*
 	  import flash.display.*
 	  import flash.events.*	
+		import flash.geom.Rectangle
 		import flash.utils.*
 		import flash.filters.DisplacementMapFilter
 		import flash.filters.DisplacementMapFilterMode
@@ -27,41 +28,51 @@ package org.ffilmation.engine.core {
 			// Static properties
 
 			// Private properties
-			private var lightC:Sprite								  // All lights
-			private var environmentC:Shape				    // Global
-			private var black:Shape				  				  // No light
-			private var diffuse:DisplayObject					// Diffuse map
-			private var holesC:Sprite				    			// Holes
-			private var bumpMap:BumpMap								// Bump maps
-			private var bumpMapData:BitmapData
-			private var displacer:DisplacementMapFilter
-			private var spriteToDraw:Sprite
-			private var baseContainer:DisplayObjectContainer
-			
-			private var behind:DisplayObjectContainer  // Elements behind the wall will added here
-			private var infront:DisplayObjectContainer // Elements in front of the wall will added here
-			
-			private var tMatrix:Matrix
-			private var tMatrixB:Matrix
 			private var origWidth:Number
 			private var origHeight:Number
 			private var	cacheTimer:Timer
+
+			private var lightC:Sprite								   // All lights
+			private var environmentC:Shape				     // Global
+			private var black:Shape				  				   // No light
+			private var diffuse:DisplayObject					 // Diffuse map
+			private var holesC:Sprite				    			 // Holes
+			private var simpleHolesC:Sprite				    
+
+			private var spriteToDraw:Sprite
+			/** @private */
+			public var baseContainer:DisplayObjectContainer
+			private var behind:DisplayObjectContainer  // Elements behind the wall will added here
+			private var infront:DisplayObjectContainer // Elements in front of the wall will added here
+			
+			private var bumpMap:BumpMap								 // Bump maps
+			private var bumpMapData:BitmapData
+			private var displacer:DisplacementMapFilter
+			private var tMatrix:Matrix
+			private var tMatrixB:Matrix
 			private var firstBump:Boolean = true
+
 			
 			// Internal
 			
 			/** @private */
-			public var simpleShadowsLayer:Sprite			// Simple shadows go here
+			public var deformedSimpleShadowsLayer:Sprite
 			/** @private */
-			public var lightClips:Object            // List of containers used to represent lights (interior)
+			public var simpleShadowsLayer:Sprite		   // Simple shadows go here
+			/** @private */                            
+			public var lightClips:Object               // List of containers used to represent lights (interior)
+			/** @private */                            
+			public var lightMasks:Object               // List of containers representing the light mask / shape
+			/** @private */                            
+			public var lightShadows:Object             // Container where geometry shadows are drawn
+			/** @private */                            
+			public var lightBumps:Object           	   // Bump map layers
+			/** @private */                            
+			public var zIndex:Number = 0						   // zIndex
 			/** @private */
-			public var lightMasks:Object            // List of containers representing the light mask / shape
+			public var scrollR:Rectangle							 // Scrollrectangle for this plane, to optimize viewing areas. It is written by fFloor and fWall
 			/** @private */
-			public var lightShadows:Object          // Container where geometry shadows are drawn
-			/** @private */
-			public var lightBumps:Object           	// Bump map layers
-			/** @private */
-			public var zIndex:Number = 0						// zIndex
+			public var planeDeform:Matrix						   // Transformation matrix for this plane that sets the proper perspective
 
 			
 			/** 
@@ -72,7 +83,6 @@ package org.ffilmation.engine.core {
 			*/
 			public var holes:Array									// Array of holes in this plane
 			
-	
 			/** 
 			* Material applied to this plane
 			*/
@@ -95,8 +105,8 @@ package org.ffilmation.engine.core {
 				 // Previous
 				 super(defObj,scene,diffuse,spriteToShowHide)
 				 
+ 			   // Retrieve diffuse map
  			   this.diffuse = this.material.getDiffuse()
- 			   
  			   var d:Sprite = this.diffuse as Sprite
  			   d.mouseEnabled = false
  			   d.mouseChildren = false
@@ -106,8 +116,8 @@ package org.ffilmation.engine.core {
 			   this.origHeight = diffuse.height
 			   this.spriteToDraw = spriteToDraw
 
-				 // This is the Sprite where all light layers are generated. This Sprite is not deformed
-				 // This Sprite is attached to the deformed sprite that is visible onscreen
+				 // This is the Sprite where all light layers are generated. This is the Sprite being deformed
+				 // This Sprite is attached to the sprite that is visible onscreen
 				 this.baseContainer = new Sprite()
 				 this.behind = new Sprite()
 				 this.infront = new Sprite()
@@ -115,6 +125,7 @@ package org.ffilmation.engine.core {
 			   this.baseContainer.addChild(this.diffuse)
 			   this.baseContainer.addChild(this.infront)
 			   this.spriteToDraw.addChild(this.baseContainer)
+			   this.baseContainer.transform.matrix = this.planeDeform
 
 			   // LIGHT
 			   this.lightClips = new Object  
@@ -124,6 +135,7 @@ package org.ffilmation.engine.core {
 			   this.lightBumps = new Object   		
 			   this.lightC = new Sprite()
 			   this.holesC = new Sprite()
+			   this.simpleHolesC = new Sprite()
 				 this.black = new Shape()
 			   this.environmentC = new Shape()
  			   this.lightC.mouseEnabled = false
@@ -138,10 +150,14 @@ package org.ffilmation.engine.core {
 				 this.baseContainer.mouseEnabled = false
 
 				 // Object shadows with qualities other than fShadowQuality.BEST will be drawn here instead of into each lights's ERASE layer
+				 this.deformedSimpleShadowsLayer = new Sprite
+				 this.deformedSimpleShadowsLayer.mouseEnabled = false
+				 this.deformedSimpleShadowsLayer.mouseChildren = false
+				 this.deformedSimpleShadowsLayer.transform.matrix = this.planeDeform
 				 this.simpleShadowsLayer = new Sprite
-				 this.simpleShadowsLayer.mouseEnabled = false
-				 this.simpleShadowsLayer.mouseChildren = false
-				 this.baseContainer.addChild(this.simpleShadowsLayer)
+				 this.simpleShadowsLayer.scrollRect = this.scrollR
+				 this.spriteToDraw.addChild(this.deformedSimpleShadowsLayer)
+				 this.deformedSimpleShadowsLayer.addChild(this.simpleShadowsLayer)
 
 			   // Holes
 			   this.holes = this.material.getHoles()
@@ -153,6 +169,11 @@ package org.ffilmation.engine.core {
 				 this.redrawHoles()
 				 
 			   if(this.holes.length>0) {
+			   		this.deformedSimpleShadowsLayer.addChild(this.simpleHolesC)
+			   		this.deformedSimpleShadowsLayer.blendMode = BlendMode.LAYER
+			   		this.simpleHolesC.blendMode = BlendMode.ERASE
+				 		this.simpleHolesC.mouseEnabled = false
+				 		
 			   		this.baseContainer.addChild(this.holesC)
 			   		this.holesC.blendMode = BlendMode.ERASE
 				 		this.holesC.mouseEnabled = false
@@ -161,8 +182,7 @@ package org.ffilmation.engine.core {
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
 			   // if the plane doesn't change in a while
-			   //if(this.holes.length==0)
-			   this.container.cacheAsBitmap = true
+			   this.baseContainer.cacheAsBitmap = true
 				 this.cacheTimer = new Timer(100,1)
          this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener,false,0,true)
 
@@ -353,6 +373,33 @@ package org.ffilmation.engine.core {
 			 	  	}
 	       }
 				
+				 // Erases holes from simple sahdows layers
+				 this.simpleHolesC.graphics.clear()
+				 this.simpleHolesC.graphics.beginFill(0x000000,1)
+		 	   this.simpleHolesC.graphics.moveTo(0,0)
+			 	 this.simpleHolesC.graphics.lineTo(0,this.origHeight)
+			 	 this.simpleHolesC.graphics.lineTo(this.origWidth,this.origHeight)
+			 	 this.simpleHolesC.graphics.lineTo(this.origWidth,0)
+			 	 this.simpleHolesC.graphics.lineTo(0,0)
+ 	  		 this.simpleHolesC.graphics.endFill()
+			 	 this.setDimensions(this.simpleHolesC)
+
+				 this.simpleHolesC.graphics.clear()
+ 				 for(h=0;h<this.holes.length;h++) {
+
+					 	if(this.holes[h].open) {
+						 	hole = this.holes[h].bounds
+							this.simpleHolesC.graphics.beginFill(0x000000,1)
+				 	  	this.simpleHolesC.graphics.moveTo(hole.xrel,hole.yrel)
+				 	  	this.simpleHolesC.graphics.lineTo(hole.xrel+hole.width,hole.yrel)
+			 	  		this.simpleHolesC.graphics.lineTo(hole.xrel+hole.width,hole.yrel+hole.height)
+			 	  		this.simpleHolesC.graphics.lineTo(hole.xrel,hole.yrel+hole.height)
+			 	  		this.simpleHolesC.graphics.lineTo(hole.xrel,hole.yrel)
+			 	  		this.simpleHolesC.graphics.endFill()
+			 	  	}
+	       }
+
+
 			}			
 
 
@@ -381,6 +428,7 @@ package org.ffilmation.engine.core {
 				 light_c.addChild(lay)
 				 lay.cacheAsBitmap = true
 				 //lay.blendMode = BlendMode.LAYER
+				 lay.scrollRect = this.scrollR
 				 
 				 this.lightBumps[light.uniqueId] = lay
 				 light_c.blendMode = BlendMode.ADD
@@ -569,7 +617,7 @@ package org.ffilmation.engine.core {
 			   // Disable cache. Once the render is finished, a timeout is set that will
 			   // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	 this.cacheTimer.stop()
-       	 this.container.cacheAsBitmap = false
+       	 this.baseContainer.cacheAsBitmap = false
        	 if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
        	 this.lightBumps[light.uniqueId].cacheAsBitmap = false
 
@@ -593,7 +641,7 @@ package org.ffilmation.engine.core {
 			   
 			   // Select mask
 			   var msk:Sprite
-			   if((other is fObject) && (other as fObject).simpleShadows) msk = this.simpleShadowsLayer
+			   if((other is fObject) && ((other as fObject).simpleShadows || fEngine.shadowQuality!=fShadowQuality.BEST)) msk = this.simpleShadowsLayer
 			   else msk = this.lightShadows[light.uniqueId]
 
 				 // Render
@@ -606,18 +654,21 @@ package org.ffilmation.engine.core {
 			   
 			   try {
 			    
-			    // Disable cache. Once the render is finished, a timeout is set that will
-			    // restore cacheAsbitmap if the object doesn't change for a few seconds.
-       	  this.cacheTimer.stop()
-       	 	this.container.cacheAsBitmap = false
-
-       	  if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
-       	  this.lightBumps[light.uniqueId].cacheAsBitmap = false
-
-			    // Select mask
+			    // Simple shadows ?
 			   	var msk:Sprite
-			   	if(fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
-			   	else msk = this.lightShadows[light.uniqueId]
+			   	if((other is fObject) && ((other as fObject).simpleShadows || fEngine.shadowQuality!=fShadowQuality.BEST)) {
+			   		msk = this.simpleShadowsLayer
+			   	}
+			   	else {
+			   		msk = this.lightShadows[light.uniqueId]
+			    	// Disable cache. Once the render is finished, a timeout is set that will
+			    	// restore cacheAsbitmap if the object doesn't change for a few seconds.
+       	  	this.cacheTimer.stop()
+       	 		this.baseContainer.cacheAsBitmap = false
+          	
+       	  	if(this.holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
+       	  	this.lightBumps[light.uniqueId].cacheAsBitmap = false
+			   	}
 				 			
 				 	// Render
 				  this.renderShadowInt(light,other,msk)
@@ -642,7 +693,7 @@ package org.ffilmation.engine.core {
 			public function cacheTimerListener(event:TimerEvent):void {
          
          this.baseContainer.blendMode = BlendMode.NORMAL
-         this.container.cacheAsBitmap = true
+         this.baseContainer.cacheAsBitmap = true
 		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
 			}
 

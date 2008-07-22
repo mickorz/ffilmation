@@ -81,21 +81,19 @@ package org.ffilmation.engine.elements {
 			   this.horizontal = !this.vertical   					 							 
 			   
 				 // Generate Sprites
-				 var mask:Sprite = new Sprite()
 				 var destination:Sprite = new Sprite()
-				 container.addChild(mask)
-				 mask.mouseEnabled = false
-				 mask.addChild(destination)
-
-			   // Deform wall to match perspective
-			   if(this.vertical) container.transform.matrix = fWall.verticalMatrix	
-				 else container.transform.matrix = fWall.horizontalMatrix
+				 container.addChild(destination)
 
 			   // Dimensions, parse size and snap to gride
 			   this.size = Math.round(defObj.@size/scene.gridSize)  			 // Size ( in cells )
 			   this.pixelSize = this.size*scene.gridSize+1
 			   this.gHeight = Math.round(defObj.@height/scene.levelSize)
 			   this.height = this.pixelHeight = scene.levelSize*this.gHeight
+
+				 // Set specific wall dimensions
+				 this.scrollR = new Rectangle(0, 0, this.pixelSize, -this.pixelHeight)
+			   if(this.vertical) this.planeDeform = fWall.verticalMatrix	
+				 else this.planeDeform = fWall.horizontalMatrix
 
 				 // Previous
 				 super(defObj,scene,this.pixelSize,this.pixelHeight,destination,container)
@@ -141,9 +139,6 @@ package org.ffilmation.engine.elements {
 				 	 this.bounds.y1 = this.y
 			   }
 
-				 // Scale
-				 mask.scrollRect = new Rectangle(0, 0, this.pixelSize, -this.pixelHeight)
-        
 			   // Create polygon bounds, for clipping algorythm
 				 this.polyClip = [ new Point(this.x,this.y0),
 				 							     new Point(this.x,this.y1),
@@ -793,7 +788,6 @@ package org.ffilmation.engine.elements {
 			   
 			}
 
-
 			// Delete character shadows upon this wall
 			public override function unrenderShadowAlone(light:fLight,other:fRenderableElement):void {
 			   
@@ -801,7 +795,7 @@ package org.ffilmation.engine.elements {
 			   try {
 					var msk:Sprite
 					var o:fCharacter = other as fCharacter
-			   	if(o.simpleShadows) msk = this.simpleShadowsLayer
+			   	if(o.simpleShadows || fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 
 			 	 	var cache = fWall.objectRenderCache[this.uniqueId+"_"+light.uniqueId]
@@ -810,7 +804,6 @@ package org.ffilmation.engine.elements {
 			 	 } catch (e:Error) { }
 
 			}
-
 
 			// Calculates and projects shadows of a floor upon this wall
 			/** @private */
@@ -1127,7 +1120,7 @@ package org.ffilmation.engine.elements {
 				 return ret
 				 
 			}
-			
+		
 
 			/** 
 			* Resets shadows. This is called when the fEngine.shadowQuality value is changed

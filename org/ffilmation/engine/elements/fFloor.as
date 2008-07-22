@@ -24,7 +24,7 @@ package org.ffilmation.engine.elements {
 			private static var floorProjectionCache:fFloorProjectionCache = new fFloorProjectionCache()
 			private static var wallProjectionCache:Object = []
 			private static var objectProjectionCache:Object = []
-			private static var matrix:Matrix = new Matrix(0.7071075439453125,-0.35355377197265625,0.7071075439453125,0.35355377197265625,0,0)
+			public static var matrix:Matrix = new Matrix(0.7071075439453125,-0.35355377197265625,0.7071075439453125,0.35355377197265625,0,0)
 						
 			// Private properties
 	    private var polyClip:Array
@@ -60,22 +60,20 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			function fFloor(container:MovieClip,defObj:XML,scene:fScene):void {
 			
-				 // Generate sprites
-				 var mask:Sprite = new Sprite()
+				 // Generate sprite
 				 var destination:Sprite = new Sprite()
-				 container.addChild(mask)
-				 mask.mouseEnabled = false
-				 mask.addChild(destination)
-
-			   // Deform floor to match perspective
-			   container.transform.matrix = fFloor.matrix
+				 container.addChild(destination)
 			   
 			   // Dimensions, parse size and snap to gride
 			   this.gWidth = Math.round(defObj.@width/scene.gridSize)
 			   this.gDepth = Math.round(defObj.@height/scene.gridSize)
 			   this.width = scene.gridSize*this.gWidth
 			   this.depth = scene.gridSize*this.gDepth
-
+			   
+				 // Set specific wall dimensions
+			   this.scrollR = new Rectangle(0, 0, this.width, this.depth)
+				 this.planeDeform = fFloor.matrix
+				 
 			   // Previous
 				 super(defObj,scene,this.width,this.depth,destination,container)
 			   
@@ -100,9 +98,6 @@ package org.ffilmation.engine.elements {
 			   this.bounds.y1 = this.x+this.depth
 			   this.bounds.width = this.width
 			   this.bounds.depth = this.depth
-
-				 // Scale
-			   mask.scrollRect = new Rectangle(0, 0, this.width, this.depth)
 			   
 				 // Create polygon bounds, for clipping algorythm
 				 this.polyClip = [ new Point(this.x,this.y),
@@ -130,7 +125,7 @@ package org.ffilmation.engine.elements {
 			   
 			}
 
-			// Is this floor in front of other plane ? Note that a false return value doesn not imply the opposite: None of the planes
+			// Is this floor in front of other plane ? Note that a false return value does not imply the opposite: None of the planes
 			// may be in front of each other
 			/** @private */
 			public override function inFrontOf(p:fPlane):Boolean {
@@ -579,9 +574,8 @@ package org.ffilmation.engine.elements {
 
 					var msk:Sprite
 					var o:fCharacter = other as fCharacter
-			   	if(o.simpleShadows) msk = this.simpleShadowsLayer
+			   	if(o.simpleShadows || fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
-			   
 			 	 	var cache = fFloor.objectProjectionCache[this.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId]
 			 	 	msk.removeChild(clip.parent)
@@ -902,12 +896,9 @@ package org.ffilmation.engine.elements {
 			
 			   }
 			   
-
 			   // Projection must be closed
 			   ret[ret.length] = new Point(ret[0].x,ret[0].y)
-
 			   return ret
-			   
 			
 			}
 			
