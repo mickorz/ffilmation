@@ -1,4 +1,4 @@
-package org.ffilmation.engine.geometry {
+package org.ffilmation.engine.datatypes {
 
 		/**
 		* Geometric representation of a box. It is used as base for collisionModels and shadowModels

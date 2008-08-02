@@ -7,7 +7,8 @@ package org.ffilmation.engine.core {
 		import flash.events.*
 		import flash.display.*
 		import flash.geom.Rectangle
-		import org.ffilmation.engine.interfaces.fEngineSceneRetriever
+
+		import org.ffilmation.engine.interfaces.*
 		
 		
 		/**
@@ -65,11 +66,9 @@ package org.ffilmation.engine.core {
 		   * @private
 			 */
 			 public static const DEFORMATION:Number = 0.79
-			 
 		   
 		   /** @private */
 		   public static var stage:Stage
-
 
 			 /**
  			 * The fEngine.MEDIALOADPROGRESS constant defines the value of the 
@@ -180,9 +179,7 @@ package org.ffilmation.engine.core {
 			 }
 
 			 private function loadComplete(event:Event):void {
-			
 			   	this.dispatchEvent(new Event(fEngine.MEDIALOADCOMPLETE))
-
 			 }
 			
 			 private function loadProgress(event:ProgressEvent):void {
@@ -205,15 +202,17 @@ package org.ffilmation.engine.core {
 		   *
 			 * @param height Height of the viewport, in pixels. This avoids the need of masking the whole sprite		   
 			 *
+			 * @param renderer A renderer class for this scene. If none is specified, a default flash 9 renderer will be used
+			 *
 		   * @return A fScene Object.
 			 */
-			 public function createScene(retriever:fEngineSceneRetriever,width:Number,height:Number):fScene {
+			 public function createScene(retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine=null):fScene {
 		
 		   		// Create container for scene
 		   		var nSprite:Sprite = new Sprite()
 
 		   		// Create scene
-		   		var nfScene:fScene = new fScene(this,nSprite,retriever,width,height)
+		   		var nfScene:fScene = new fScene(this,nSprite,retriever,width,height,renderer)
 		
 		   		// Add to list and return
 		   		this.scenes[this.scenes.length] = nfScene
@@ -233,40 +232,43 @@ package org.ffilmation.engine.core {
 			 		this.scenes.splice(this.scenes.indexOf(sc),1)
 			 }
 
-		
 			 /**
 		   * Makes active one scene in the Engine. Only one scene can be active ( visible ) at the same time.
-		   * The current active scene, if any, will me moved to the inactive scene list
+		   * The current active scene, if any, will me moved to the inactive scene list.<br>
+		   * Showing an scene does not enable it
 		   *
 		   * @param sc The fScene you want to activate
 		   */
 			 public function showScene(sc:fScene):void {
 			 	
+			 	  if(this.current==sc) return
+			 	  
 			 	  if(this.current!=null) {
-			 	  	this.current.disable()
+			 	  	this.current.stopRendering()
 			 	  	this.container.removeChild(this.current.container)
 			 	  }
-			 	  this.container.addChild(sc.container)
+
 			 	  this.current = sc
-			 	  
-			 	  // Resize viewable area
-			 	  this.container.scrollRect = new Rectangle(0, 0, sc.viewWidth, sc.viewHeight)
-			 	  
-			 	  // Enable
+		 	  	this.current.startRendering()
 		 	  	this.current.enable()
+			 	  this.container.addChild(sc.container)
 
 			 }
 
 			 /**
-		   * Hides / disables a scene
+		   * Hides an scene.<br>
+		   * Hiding an scene does not disable it.<br>
+		   * If you hide an scene all the Sprites and graphic resources are destroyed, and so are Mouse Events attached to them. You will need
+		   * to reset the events if the scene is shown again.
 		   *
 		   * @param sc The fScene you want to hide
+		   * @param destroyRender Pass false if you don't want the rendering to be destroyed when you hide the scene. By doing this, the graphics are already available when the scene is shown again
 		   */
-			 public function hideScene(sc:fScene):void {
+			 public function hideScene(sc:fScene,destroyRender:Boolean=true):void {
 			 	
 			 	  if(this.current==sc) {
-			 	  	this.current.disable()
 			 	  	this.container.removeChild(this.current.container)
+			 	  	if(destroyRender) this.current.stopRendering()
 			 	    this.current = null
 			 	  }
 

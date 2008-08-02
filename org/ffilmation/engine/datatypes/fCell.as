@@ -83,6 +83,11 @@ package org.ffilmation.engine.datatypes {
 				*/
 				public var elementsInFront:Array
 
+				/**
+				* This is the list of characters that occupy this cell
+				*/
+				public var charactersOccupying:Array
+
 				// The following properties are used by pathFinding algorythms
 				
 				public var g:Number = 0													
@@ -102,6 +107,7 @@ package org.ffilmation.engine.datatypes {
 					this.walls = new fCellWalls
 					this.events = new Array
 					this.elementsInFront = new Array
+					this.charactersOccupying = new Array
 					
 				}
 
@@ -121,6 +127,10 @@ package org.ffilmation.engine.datatypes {
 					if(this.elementsInFront) {
 						for(i=0;i<this.elementsInFront.length;i++) delete this.elementsInFront[i]
 						this.elementsInFront = null
+					}
+					if(this.charactersOccupying) {
+						for(i=0;i<this.charactersOccupying.length;i++) delete this.charactersOccupying[i]
+						this.charactersOccupying = null
 					}
 					if(this.events) {
 						for(i=0;i<this.events.length;i++) delete this.events[i]

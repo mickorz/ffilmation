@@ -5,6 +5,7 @@ package org.ffilmation.engine.core {
 		// Imports
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.datatypes.*
+		import org.ffilmation.engine.logicSolvers.collisionSolver.*
 
 		/**
 		* <p>This object provides access to the AI methods of the engine.</p>
@@ -169,7 +170,7 @@ package org.ffilmation.engine.core {
 				var next:fCell
 				
 				// Up ?
-				if(!cell.walls.up || !cell.walls.up.testPointCollision(cell.x,cell.y,cell.z)) {
+				if(!cell.walls.up || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.up)) {
 					next = this.scene.getCellAt(cell.i,cell.j-1,cell.k)
 					if(next) {
 						next.cost = fAiContainer.COST_ORTHOGONAL
@@ -177,7 +178,7 @@ package org.ffilmation.engine.core {
 					}
 				}
 				// Down ?
-				if(!cell.walls.down || !cell.walls.down.testPointCollision(cell.x,cell.y,cell.z)) {
+				if(!cell.walls.down || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.down)) {
 					next = this.scene.getCellAt(cell.i,cell.j+1,cell.k)
 					if(next) {
 						next.cost = fAiContainer.COST_ORTHOGONAL
@@ -185,7 +186,7 @@ package org.ffilmation.engine.core {
 					}
 				}
 				// Left ?
-				if(!cell.walls.left || !cell.walls.left.testPointCollision(cell.x,cell.y,cell.z)) {
+				if(!cell.walls.left || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.left)) {
 					next = this.scene.getCellAt(cell.i-1,cell.j,cell.k)
 					if(next) {
 						next.cost = fAiContainer.COST_ORTHOGONAL
@@ -193,7 +194,7 @@ package org.ffilmation.engine.core {
 					}
 				}
 				// Right ?
-				if(!cell.walls.right || !cell.walls.right.testPointCollision(cell.x,cell.y,cell.z)) {
+				if(!cell.walls.right || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.right)) {
 					next = this.scene.getCellAt(cell.i+1,cell.j,cell.k)
 					if(next) {
 						next.cost = fAiContainer.COST_ORTHOGONAL
@@ -201,7 +202,7 @@ package org.ffilmation.engine.core {
 					}
 				}
 				// Top ?
-				if(!cell.walls.top || !cell.walls.top.testPointCollision(cell.x,cell.y,cell.z)) {
+				if(!cell.walls.top || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.top)) {
 					next = this.scene.getCellAt(cell.i,cell.j,cell.k+1)
 					if(next) {
 						next.cost = fAiContainer.COST_GOING_UP
@@ -209,7 +210,7 @@ package org.ffilmation.engine.core {
 					}
 				}
 				// Bottom ?
-				if(!cell.walls.bottom || !cell.walls.bottom.testPointCollision(cell.x,cell.y,cell.z)) {
+				if(!cell.walls.bottom || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.bottom)) {
 					next = this.scene.getCellAt(cell.i,cell.j,cell.k-1)
 					if(next) {
 						next.cost = fAiContainer.COST_GOING_DOWN

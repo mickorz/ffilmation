@@ -48,6 +48,10 @@ package org.ffilmation.engine.materials {
 				var t:String = this.definitionXML.geometry
 				try { this.geometryW = new Number(t.split("x")[0]) } catch(e:Error) { this.geometryW = 1}
 				try { this.geometryH = new Number(t.split("x")[1]) } catch(e:Error) { this.geometryH = 1}
+
+				// Subdivisions in frame
+				this.hDivisionSize = (this.wwidth-(this.geometryW-1)*this.framesize)/this.geometryW
+				this.vDivisionSize = (this.wheight-(this.geometryH-1)*this.framesize)/this.geometryH
 				
 			}
 			
@@ -58,6 +62,25 @@ package org.ffilmation.engine.materials {
 				this.definitionXML = null
 				this.element = null
 			}
+			
+
+			private function calcWindows(width:Number,height:Number) {
+
+				// Count how many windows fit in
+				var nWindows:Number = Math.floor(width/(this.wwidth+this.separation+this.framesize))
+				
+				// Calculate window vertical position
+				var range:Number = (height-this.wheight)/2
+				var vPosition:Number = Math.round((height/2)+(-range*this.position/100)-(this.wheight/2))
+				
+				// Generate window array
+				this.windows = new Array()
+				for(var j:Number=1;j<=nWindows;j++) {
+					this.windows.push(new Rectangle(j*width/(nWindows+1)-this.wwidth/2,vPosition,this.wwidth,this.wheight))
+				}
+				
+			}
+			
 			
 			/** 
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
@@ -73,19 +96,8 @@ package org.ffilmation.engine.materials {
 				
 				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
-
-				// Count how many windows fit in
-				var nWindows:Number = Math.floor(width/(this.wwidth+this.separation+this.framesize))
 				
-				// Calculate window vertical position
-				var range:Number = (height-this.wheight)/2
-				var vPosition:Number = Math.round((height/2)+(-range*this.position/100)-(this.wheight/2))
-				
-				// Generate window array
-				this.windows = new Array()
-				for(var j:Number=1;j<=nWindows;j++) {
-					this.windows.push(new Rectangle(j*width/(nWindows+1)-this.wwidth/2,vPosition,this.wwidth,this.wheight))
-				}
+				this.calcWindows(width,height)
 
 				// Draw base
 				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
@@ -99,7 +111,7 @@ package org.ffilmation.engine.materials {
 				temp.graphics.lineTo(0,height)
 				temp.graphics.lineTo(0,0)
 				
-				for(j=0;j<this.windows.length;j++) {
+				for(var j:Number=0;j<this.windows.length;j++) {
 					
 					var window:Rectangle = this.windows[j]
 					
@@ -113,9 +125,6 @@ package org.ffilmation.engine.materials {
 
 				temp.graphics.endFill()				
 
-				// Subdivisions in frame
-				this.hDivisionSize = (this.wwidth-(this.geometryW-1)*this.framesize)/this.geometryW
-				this.vDivisionSize = (this.wheight-(this.geometryH-1)*this.framesize)/this.geometryH
 
 				// Draw frame, if any
 				var framesize:Number = new Number(this.definitionXML.framesize)
@@ -197,6 +206,9 @@ package org.ffilmation.engine.materials {
 			*
 			*/
 			public function getHoles(width:Number,height:Number):Array {
+				
+				this.calcWindows(width,height)
+
 				var holes:Array = new Array
 				for(var j:Number=0;j<this.windows.length;j++) {
 					

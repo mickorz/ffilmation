@@ -3,7 +3,6 @@ package org.ffilmation.engine.core {
 		// Imports
 	  import flash.display.*
 		import flash.events.*
-		import org.ffilmation.engine.helpers.*
 	  
 		/**
 		* <p>The fHole class stores information about holes in a plane. Doors and windows are fHoles.

@@ -148,6 +148,7 @@ package org.ffilmation.engine.materials {
 			*
 			*/
 			public function getHoles(width:Number,height:Number):Array {
+				this.realPosition = (this.dwidth/2)+(width-this.dwidth)*(0.5+(this.position/200))
 				return [ new Rectangle(this.realPosition-this.dwidth/2,height-this.dheight,this.dwidth,this.dheight)]
 			}
 

@@ -37,10 +37,10 @@ package org.ffilmation.engine.core {
 			public var xmlObj:XML
 			
 			/**
-			* Unique ID. This is automatically assigned and used internally in hasTables and such
+			* Unique ID. This is automatically assigned and used internally in hashTables and such
 			* @private
 			*/
-			public var uniqueId:String
+			public var uniqueId:Number
 
 			/** 
 			* X coordinate fot this element
@@ -68,6 +68,12 @@ package org.ffilmation.engine.core {
       * @private
       */
 			public var scene:fScene
+			
+			/**
+			* As elements are not defined as "dynamic", this property can be used to store extra info about this element at run-time.
+			*/
+			public var customData:Object
+			
 
 			/**
  			* The fElement.MOVE constant defines the value of the 
@@ -117,9 +123,9 @@ package org.ffilmation.engine.core {
 			   this.xmlObj = defObj
 			   var temp:XMLList= defObj.@id
 			   
-			   this.uniqueId = "fElement_"+(fElement.count++)
+			   this.uniqueId = fElement.count++
 			   if(temp.length()==1) this.id = temp.toString()
-			   else this.id = this.uniqueId
+			   else this.id = "fElement_"+this.uniqueId
 
 			   // Reference to container scene
 			   this.scene = scene
@@ -134,6 +140,8 @@ package org.ffilmation.engine.core {
 			   if(isNaN(this.x)) this.x = 0
 			   if(isNaN(this.y)) this.y = 0
 			   if(isNaN(this.z)) this.z = 0
+			   
+			   this.customData = new Object()
 
 			}
 

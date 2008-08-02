@@ -197,18 +197,13 @@ package org.ffilmation.engine.core {
 				 this.processXml_Decompile()
 		  }
 
-			// Decompile BOX and GENERATOR Tags
+			// Decompile GENERATOR Tags
 			private function processXml_Decompile():void {
 				
 				 // Remove listeners. Otherwise we would react to other scene's load calls
 				 this.scene.engine.removeEventListener(fEngine.MEDIALOADCOMPLETE,this.loadComplete)
 				 this.scene.engine.removeEventListener(fEngine.MEDIALOADPROGRESS,this.loadProgress)
 				 
-				 // Create elements
-				 this.scene.elements = new Sprite()
-				 this.scene.elements.mouseEnabled = false
-				 this.scene.container.addChild(this.scene.elements)
-			
 			   // Setup environment
 			   if(this.xmlObj.@gridsize.length()>0) this.scene.gridSize = new Number(this.xmlObj.@gridsize)
 			   if(this.xmlObj.@levelsize.length()>0) this.scene.levelSize = new Number(this.xmlObj.@levelsize)
@@ -292,10 +287,7 @@ package org.ffilmation.engine.core {
 			   // Add walls
  				 tempObj = this.xmlObj.body.child("wall")
 			   for(i=0;i<tempObj.length();i++) { 
-			   	  var spr:MovieClip = new MovieClip()
-			   	  this.scene.elements.addChild(spr)
-			   		
-	       		var nWall:fWall = new fWall(spr,tempObj[i],this.scene)
+	       		var nWall:fWall = new fWall(tempObj[i],this.scene)
 			   		if(nWall.vertical) this.verticals[this.verticals.length] = nWall
 			   		else this.horizontals[this.horizontals.length] = nWall
 			   		this.scene.walls.push(nWall)
@@ -303,7 +295,6 @@ package org.ffilmation.engine.core {
 			   		this.scene.all[nWall.id] = nWall
 			   		if(nWall.top>this.scene.top) this.scene.top = nWall.top
 			   }
-
 
 		 		 // Next step
 		  	 this.scene.stat = "Optimizing geometry and applying materials."
@@ -319,7 +310,7 @@ package org.ffilmation.engine.core {
 				 
 			}
 
-			// Floors are split so they don't cross walls. This results in faster calculations and renders 
+			// DISABLED!!! Floors are split so they don't cross walls. This results in faster calculations and renders 
 			private function optimizeGeometryT(event:TimerEvent):void {
 
 				 var loop:Number = event.target.currentCount-1
@@ -373,11 +364,7 @@ package org.ffilmation.engine.core {
 			   			  newFloorNode.@height = verticalSplits[j+1]-verticalSplits[j]
 			   			  if(horizontalSplits.length>2 || verticalSplits.length>2) newFloorNode.@id+="_Split_"+i+"_"+j
 			   	
-			   	  		var spr:MovieClip = new MovieClip()
-			   	  		spr.mouseEnabled = false
-			   	  		this.scene.elements.addChild(spr)
-			   	  		 
-								var nFloor:fFloor = new fFloor(spr,newFloorNode,this.scene)
+								var nFloor:fFloor = new fFloor(newFloorNode,this.scene)
          				this.scene.floors.push(nFloor)
          				this.scene.everything.push(nFloor)
 			   				this.scene.all[nFloor.id] = nFloor
@@ -410,16 +397,14 @@ package org.ffilmation.engine.core {
 			   // Add objects and characters
 			   var tempObj:XMLList = this.xmlObj.body.child("object")
 			   for(var i:Number=0;i<tempObj.length();i++) {
-			   		var spr:MovieClip = new MovieClip()
-		   	    this.scene.elements.addChild(spr)
 			   		if(tempObj[i].@dynamic=="true") {
-						  var nCharacter:fCharacter = new fCharacter(spr,tempObj[i],this.scene)
+						  var nCharacter:fCharacter = new fCharacter(tempObj[i],this.scene)
 			   			this.scene.characters.push(nCharacter)
 			   			this.scene.everything.push(nCharacter)
 			   			this.scene.all[nCharacter.id] = nCharacter
 			   		}
 			   		else {
-			   			var nObject:fObject = new fObject(spr,tempObj[i],this.scene)
+			   			var nObject:fObject = new fObject(tempObj[i],this.scene)
 			   			this.scene.objects.push(nObject)
 			   			this.scene.everything.push(nObject)
 			   			this.scene.all[nObject.id] = nObject
@@ -429,9 +414,7 @@ package org.ffilmation.engine.core {
 
 			   tempObj = this.xmlObj.body.child("character")
 			   for(i=0;i<tempObj.length();i++) {
-			   		spr = new MovieClip()
-		   	    this.scene.elements.addChild(spr)
-						nCharacter = new fCharacter(spr,tempObj[i],this.scene)
+						nCharacter = new fCharacter(tempObj[i],this.scene)
 			   		this.scene.characters.push(nCharacter)
 			   		this.scene.everything.push(nCharacter)
 			   		this.scene.all[nCharacter.id] = nCharacter
@@ -484,12 +467,6 @@ package org.ffilmation.engine.core {
 
 			   // Sort floors
 	       this.scene.floors.sort(this.sortFloors)
-
-			   // Place walls and floors
-			   for(j=0;j<this.scene.floors.length;j++) this.scene.floors[j].place()
-			   for(j=0;j<this.scene.walls.length;j++) this.scene.walls[j].place()
-			   for(j=0;j<this.scene.objects.length;j++) this.scene.objects[j].place()
-			   for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].place()
 
 			   // Next step
          this.processXml_Part4()
@@ -601,7 +578,6 @@ package org.ffilmation.engine.core {
 	       
 	    }
 	      
-	      
 			// zSort End
 			private function zSortComplete(event:TimerEvent):void {
 	     
@@ -644,7 +620,6 @@ package org.ffilmation.engine.core {
 	      // Set depth of objects and characters and finish zSort
 				for(var j=0;j<this.scene.objects.length;j++) this.scene.objects[j].updateDepth()
 				for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].updateDepth()
-			  this.scene.depthSort()
 	
 	      // Next step: Setup initial raytracing
 	      try {
@@ -774,7 +749,7 @@ package org.ffilmation.engine.core {
 
 		     // Next step
 			   var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part6)
+         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part7)
          myTimer.start()
 			
 			}
@@ -974,6 +949,7 @@ package org.ffilmation.engine.core {
 				 var tempObj:XMLList = this.xmlObj.body.child("event")
 			    for(var i:Number=0;i<tempObj.length();i++) {
 			   	  var evt:XML = tempObj[i]
+			   	  var tEvt:fCellEventInfo = new fCellEventInfo(evt)
 			   	  
 						var rz:int = Math.floor((new Number(evt.@z[0]))/this.scene.levelSize)
 			   		var obi:int = Math.floor((new Number(evt.@x[0]))/this.scene.gridSize)
@@ -988,7 +964,7 @@ package org.ffilmation.engine.core {
 			   				for(var k:Number=rz;k<=(rz+height);k++) {
 			   					try {
 			   						var cell:fCell = this.scene.getCellAt(l,n,k)
-			   						cell.events.push(new fCellEventInfo(evt))   	  
+			   						cell.events.push(tEvt)   	  
 			   					} catch(e:Error){}
 			   	  		}
 			   	  	}
@@ -997,17 +973,13 @@ package org.ffilmation.engine.core {
 
 			   // Setup environment light, if any
 			   this.scene.environmentLight = new fGlobalLight(this.xmlObj.head.child("light")[0],this.scene)
-			   for(var j:Number=0;j<this.scene.floors.length;j++) this.scene.floors[j].setGlobalLight(this.scene.environmentLight)
-			   for(j=0;j<this.scene.walls.length;j++) this.scene.walls[j].setGlobalLight(this.scene.environmentLight)
-			   for(j=0;j<this.scene.objects.length;j++) this.scene.objects[j].setGlobalLight(this.scene.environmentLight)
-			   for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].setGlobalLight(this.scene.environmentLight)
 			
 			   // Add dynamic lights
 			   var objfLight:XMLList = this.xmlObj.body.child("light")
 			   for(i=0;i<objfLight.length();i++) this.scene.addLight(objfLight[i])
 
 			   // Prepare characters
-			   for(j=0;j<this.scene.characters.length;j++) {
+			   for(var j:Number=0;j<this.scene.characters.length;j++) {
 			   	  this.scene.characters[j].cell = this.scene.translateToCell(this.scene.characters[j].x,this.scene.characters[j].y,this.scene.characters[j].z)
 				 		this.scene.characters[j].addEventListener(fElement.NEWCELL,this.scene.processNewCell)			   
 				 		this.scene.characters[j].addEventListener(fElement.MOVE,this.scene.renderElement)			   
@@ -1023,9 +995,6 @@ package org.ffilmation.engine.core {
 						throw new Error("Filmation Engine Exception: Scene contains an invalid controller definition: "+cls+" "+e)		   	 		
 		   	 	}
 		   	 }
-		   	 
-		   	 // Initial render pass
-		   	 this.scene.render()
 		   	 
 		   	 var myTimer:Timer = new Timer(200, 1)
          myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Complete)

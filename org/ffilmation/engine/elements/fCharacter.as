@@ -1,5 +1,4 @@
-// Basic renderable element class
-
+// Character class
 package org.ffilmation.engine.elements {
 	
 		// Imports
@@ -10,6 +9,7 @@ package org.ffilmation.engine.elements {
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.datatypes.*
+		import org.ffilmation.engine.logicSolvers.collisionSolver.*
 
 
 		/** 
@@ -75,7 +75,6 @@ package org.ffilmation.engine.elements {
  		  public static const EVENT_OUT:String = "charactereventout"
 
 			
-			
 			// Public properties
 			
 			/** 
@@ -90,18 +89,30 @@ package org.ffilmation.engine.elements {
 			*/
 			public var vLights:Array
 			
+			/**
+			* Array of cells the character occupies
+			* @private
+			*/
+			public var occupiedCells:Array
+
+
 			// Constructor
 			/** @private */
-			function fCharacter(container:MovieClip,defObj:XML,scene:fScene):void {
+			function fCharacter(defObj:XML,scene:fScene):void {
 				
 				 // Characters are animated always
 				 this.animated = true
 				 
 				 // Previous
-				 super(container,defObj,scene)
+				 super(defObj,scene)
 				 
 				 // Lights
 				 this.vLights = new Array
+				 
+				 // Occupied cells
+				 this.occupiedCells = new Array
+				 if(!this.scene.ready) this.scene.addEventListener(fScene.LOADCOMPLETE, onSceneLoaded)
+				 else this.updateOccupiedCells()
 				 
 			}
 			
@@ -153,264 +164,19 @@ package org.ffilmation.engine.elements {
 			   try {
 			   	
 			   		// Set new coordinates			   
-			   		this.x = (x<0)?(0):(x)
-			   		this.y = (y<0)?(0):(y)
-			   		this.z = (z<0)?(0):(z)
+			   		this.x = x
+			   		this.y = y
+			   		this.z = z
 			   		
  		 		 		var radius:Number = this.radius
  		 		 		var height:Number = this.height
          		
-			   		if(this.x>=this.scene.width) this.x=this.scene.width-1
-			   		if(this.y>=this.scene.depth) this.y=this.scene.depth-1
 			   		this.top = this.z+height
          		
-				 		// Check for collisions against other fRenderableElements
-				 		if(this.solid) {
-				 			
-		 		 				var testCell:fCell,testElement:fRenderableElement, confirm:fCollision
-		 		 				var primaryCandidates:Array = new Array
-		 		 				var secondaryCandidates:Array = new Array
-		 		 				
-			 				  // Test against floors
-			 				  if(dz<0) {
-				 					
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x,this.y,z)
-				 						if(testCell.walls.top) primaryCandidates.push(testCell.walls.top)
-				 					} catch (e:Error) {
-				 						testCell = this.scene.translateToCell(this.x,this.y,0)
-										primaryCandidates.push(testCell.walls.bottom)
-				 					}
-				 					
-			 						if(testCell.walls.up) secondaryCandidates.push(testCell.walls.up)
-			 						if(testCell.walls.down) secondaryCandidates.push(testCell.walls.down)
-			 						if(testCell.walls.left) secondaryCandidates.push(testCell.walls.left)
-			 						if(testCell.walls.right) secondaryCandidates.push(testCell.walls.right)
-			 						
-			 						var nobjects:Number = testCell.walls.objects.length
-			 						for(var k:Number=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) secondaryCandidates.push(testCell.walls.objects[k])
-         		
-				 				}
-				 			
-				 				if(dz>0) {
-				 					
-				 					try {
-				 						testCell = this.scene.translateToCell(this.x,this.y,z+height)
-				 						if(testCell.walls.bottom) primaryCandidates.push(testCell.walls.bottom)	
-			 							
-			 							if(testCell.walls.up) secondaryCandidates.push(testCell.walls.up)
-			 							if(testCell.walls.down) secondaryCandidates.push(testCell.walls.down)
-			 							if(testCell.walls.left) secondaryCandidates.push(testCell.walls.left)
-			 							if(testCell.walls.right) secondaryCandidates.push(testCell.walls.right)
-			 							
-			 						  nobjects = testCell.walls.objects.length
-			 						  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) secondaryCandidates.push(testCell.walls.objects[k])
-         		
-				 					} catch (e:Error) {
-				 						
-				 					}
-				 					
-				 				}
-				 		
-								var l:Number
-								l = primaryCandidates.length
-				 				var some:Boolean = false
-				 				for(var j:Number=0;j<l;j++) {
-				 					testElement = primaryCandidates[j]
-				 					confirm = testElement.testPrimaryCollision(this,dx,dy,dz)
-		  					  if(confirm!=null) {
-		  					  	
-		  					  	if(testElement.solid) {
-		  					  		some = true
- 											this.z = confirm.z
- 											this.top = this.z+height
-	 										dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
-	 									} else {
-	 										dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
-	 									}
-		 							}
-				 					
-				 				}
-         		
-								// If no primary fCollisions were confirmed, test secondary
-				 				if(!some) {
-				 					
-				 					// Test secondary fCollisions
-								  l = secondaryCandidates.length
-				 					for(j=0;j<l;j++) {
-				 						testElement = secondaryCandidates[j]
-				 						confirm = testElement.testSecondaryCollision(this,dx,dy,dz)
-		  					  	if(confirm!=null && confirm.z>=0) {
-		  					  		
-			  					  	if(testElement.solid) {
- 												this.z = confirm.z
- 												this.top = this.z+height
- 												dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
- 											} else {
- 												dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
- 											}
- 												
- 										}
-				 					}
-				 					
-								}
-								
-								// Retrieve list of possible walls. Separate between primary and secondary
-								primaryCandidates = new Array
-								secondaryCandidates = new Array
-								var tz:Number
-								
-				 				if(dx<0) {
-				 					
-				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
-				 							try {
-				 								testCell = this.scene.translateToCell(this.x-radius,this.y,tz)
-				 								if(testCell.walls.right) primaryCandidates.push(testCell.walls.right)
-			 								  
-			 								  nobjects = testCell.walls.objects.length
-			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		      		
-				 								if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
-				 								if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
-				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 							} catch (e:Error) {
-				 								//trace("Error dx - 1")
-				 							}	
-									}
-         		
-				 				}
-         		
-				 				if(dx>0) {
-				 					
-				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
-				 							try {
-				 								testCell = this.scene.translateToCell(this.x+radius,this.y,tz)
-				 								if(testCell.walls.left) primaryCandidates.push(testCell.walls.left)
-         		      		
-			 								  nobjects = testCell.walls.objects.length
-			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		      		
-				 								if(testCell.walls.up && testCell.walls.up.y>(this.y-radius)) secondaryCandidates.push(testCell.walls.up)
-				 								if(testCell.walls.down && testCell.walls.down.y<(this.y+radius)) secondaryCandidates.push(testCell.walls.down)
-				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 							} catch (e:Error) {
-				 								//trace("Error dx + 1")
-				 							}
-				 					}
-         		
-				 				}
-         		
-				 				if(dy<0) {
-				 					
-				 					         		
-				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
-				 							try {
-				 								testCell = this.scene.translateToCell(this.x,this.y-radius,tz)
-				 								if(testCell.walls.down) primaryCandidates.push(testCell.walls.down)
-         		      		
-			 								  nobjects = testCell.walls.objects.length
-			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		      		
-				 								if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
-				 								if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
-				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 							} catch (e:Error) {
-				 								//trace("Error dy - 1")
-				 							}
-         					}
-				 					
-				 				}
-         		
-				 				if(dy>0) {
-				 					
-				 					for(tz=this.z;tz<=this.top;tz+=this.scene.levelSize) {
-				 							try {
-				 								testCell = this.scene.translateToCell(this.x,this.y+radius,tz)
-				 								if(testCell.walls.up) primaryCandidates.push(testCell.walls.up)
-         		      		
-			 								  nobjects = testCell.walls.objects.length
-			 								  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates.push(testCell.walls.objects[k])
-         		      		
-				 								if(testCell.walls.left && testCell.walls.left.x>(this.x-radius)) secondaryCandidates.push(testCell.walls.left)
-				 								if(testCell.walls.right && testCell.walls.right.x<(this.x+radius)) secondaryCandidates.push(testCell.walls.right)
-				 								if(testCell.walls.top && testCell.walls.top.z<this.top) secondaryCandidates.push(testCell.walls.top)
-				 								if(testCell.walls.bottom && testCell.walls.bottom.z>this.z) secondaryCandidates.push(testCell.walls.bottom)
-				 							} catch (e:Error) {
-				 								//trace("Error dy + 1")
-				 							}
-				 					}
-         		
-				 				}
-         		
-								// Make primary unique
-								var temp:Array = new Array
-								l = primaryCandidates.length
-								for(j=0;j<l;j++) if(temp.indexOf(primaryCandidates[j])<0) temp.push(primaryCandidates[j])
-								primaryCandidates = temp
-								l = primaryCandidates.length
-				 				
-				 				// Test primary fCollisions
-				 				some = false
-				 				for(j=0;j<l;j++) {
-				 					
-				 					testElement = primaryCandidates[j]
-				 					confirm = testElement.testPrimaryCollision(this,dx,dy,dz)
-		  					  if(confirm!=null) {
-		  					  	
-		  					  	if(testElement.solid) {
-		  					  		some = true
-	 										if(confirm.x>=0) this.x = confirm.x
-	 										if(confirm.y>=0) this.y = confirm.y
-	 										dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
-	 									} else {
-	 										dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
-	 									}
-	 									
-		 							}
-				 					
-				 				}
-				 				
-				 				// If no primary fCollisions were confirmed, test secondary
-				 				if(!some) {
-         		
-									// Make secondary unique
-									temp = new Array
-									l = secondaryCandidates.length
-									for(j=0;j<l;j++) if(temp.indexOf(secondaryCandidates[j])<0) temp.push(secondaryCandidates[j])
-									secondaryCandidates = temp
-									l = secondaryCandidates.length
-         		
-				 					// Test secondary fCollisions
-				 					for(j=0;j<l;j++) {
-				 						
-				 						testElement = secondaryCandidates[j]
-				 						confirm = testElement.testSecondaryCollision(this,dx,dy,dz)
-		  						  if(confirm!=null) {
-		  						  	
-		  					  		if(testElement.solid) {
-		  					  			some = true
-	 											if(confirm.x>=0) this.x = confirm.x
-	 											if(confirm.y>=0) this.y = confirm.y
-	 											dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
-	 										} else {
-	 											dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
-	 										}
-		 								}
-				 						
-				 					}
-				 					
-				 				}
-				 				
-				 				
-         		
-				 		} // End collison detection
-				 		
-         		
-				 		// Delete projection cache
-			 	 		this.projectionCache = new fObjectProjectionCache				 
+				 		// Check for collisions against other fRenderableElements.
+				 		// collisionSolver.solveCharacterCollisions() tests a character's collisions at its current position, generates collision events (if any)
+						// and moves the character into a valid position if necessary.
+				 		if(this.solid) fCollisionSolver.solveCharacterCollisions(this,dx,dy,dz)
          		
 			   		// Check if element moved into a different cell
 			   		var cell:fCell = this.scene.translateToCell(this.x,this.y,this.z)
@@ -418,14 +184,16 @@ package org.ffilmation.engine.elements {
 				 		
 				 				// Check for XML events in cell we leave
 				 				if(this.cell!=null) {
-				 					k = this.cell.events.length
+				 					var k:Number = this.cell.events.length
 				 					for(var i:Number=0;i<k;i++) {
 				 						var evt:fCellEventInfo = this.cell.events[i]
-				 						dispatchEvent(new fEventOut(fCharacter.EVENT_OUT,true,true,evt.name,evt.xml))
+				 						if(cell.events.indexOf(evt)<0) dispatchEvent(new fEventOut(fCharacter.EVENT_OUT,true,true,evt.name,evt.xml))
 				 					}
 				 				}
          		
+				 				var lastCell:fCell = this.cell
 				 				this.cell = cell
+				 				this.updateOccupiedCells()
 				 				dispatchEvent(new Event(fElement.NEWCELL))
 				 				
 				 				// Check for XML events in new cell
@@ -433,7 +201,7 @@ package org.ffilmation.engine.elements {
 				 					k = this.cell.events.length
 				 					for(i=0;i<k;i++) {
 				 						evt = this.cell.events[i]
-				 						dispatchEvent(new fEventIn(fCharacter.EVENT_IN,true,true,evt.name,evt.xml))
+				 						if(lastCell.events.indexOf(evt)<0) dispatchEvent(new fEventIn(fCharacter.EVENT_IN,true,true,evt.name,evt.xml))
 				 					}
 				 				}
          		
@@ -449,6 +217,7 @@ package org.ffilmation.engine.elements {
 				 
 			  } catch(e:Error) {
 			  		
+			  		trace(e)
 			  		// This means we tried to move outside scene limits
 			  		this.x = lx
 			  		this.y = ly
@@ -473,7 +242,47 @@ package org.ffilmation.engine.elements {
 				this.disposeCharacter()
 			}		
 
+			private function onSceneLoaded(evt:fProcessEvent):void {
+				this.updateOccupiedCells()
+			}
 
+			// Assigns a new list of occupied cells to this character. Thnx to Alex Stone
+			private function updateOccupiedCells():Array {
+				
+				// Retrieve new list of occupied cells
+				var theCell:fCell = this.scene.translateToCell(this.x,this.y,this.z)
+				var cells:Array = new Array
+				var cellRadius:Number = Math.ceil(this.radius / this.scene.gridSize)
+				for(i=Math.max(theCell.i-cellRadius,0);i<theCell.i+cellRadius;i++) {
+					for(j=Math.max(theCell.j-cellRadius, 0);j<theCell.j+cellRadius;j++) {
+						for(k=Math.max(theCell.k-cellRadius, 0);k<theCell.k+cellRadius;k++) {
+							var newCell:fCell = this.scene.getCellAt(i,j,k)
+							if(newCell) {
+								cells.push(newCell)
+							}
+						}
+					}
+				}
+				
+				// Clear out the old cells
+				var filter:Function = function(item:*, index:int, array:Array) {
+						if(item == this) {
+							return false
+						}
+						return true
+				}
+				forEach = function(item:*, index:int, array:Array) {
+						item.charactersOccupying.filter(filter)
+				}
+				this.occupiedCells.forEach(forEach, this)
+				
+				// Update new cells
+				this.occupiedCells = cells
+				forEach = function(item:*, index:int, array:Array) {
+						item.charactersOccupying.push(this)
+				}
+				this.occupiedCells.forEach(forEach, this)
+			}
 		
 	}	
 		

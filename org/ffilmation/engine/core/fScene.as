@@ -18,6 +18,9 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.datatypes.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
+		import org.ffilmation.engine.logicSolvers.coverageSolver.*
+		import org.ffilmation.engine.logicSolvers.visibilitySolver.*
+		import org.ffilmation.engine.renderEngines.flash9RenderEngine.*
 		
 		/**
 		* <p>The fScene class provides control over a scene in your application. The API for this object is used to add and remove 
@@ -40,8 +43,6 @@ package org.ffilmation.engine.core {
 		 	/** @private */
 			internal var _orig_container:Sprite  		  					// Backup reference
 		  /** @private */
-			internal var elements:Sprite												// All elements in scene are added here
-		  /** @private */
 			internal var top:int
 		  /** @private */
 			internal var depthSortArr:Array									  	// Array of elements for depth sorting
@@ -58,6 +59,9 @@ package org.ffilmation.engine.core {
 			private var currentCamera:fCamera										// The camera currently in use
 			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
 			private var _controller:fEngineSceneController = null
+			
+			/** @private */
+			public var IAmBeingRendered:Boolean = false				// If this scene is actually being rendered
 
 		  // Public properties
 		  
@@ -157,6 +161,9 @@ package org.ffilmation.engine.core {
 			public var materialDefinitions:Object								// The list of material definitions loaded for this scene
 			/** @private */
 			public var noiseDefinitions:Object									// The list of noise definitions loaded for this scene
+			
+			private var renderEngine:fEngineRenderEngine				// The render engine
+			
 
 		  // Events
 
@@ -187,7 +194,7 @@ package org.ffilmation.engine.core {
 			* Constructor. Don't call directly, use fEngine.createScene() instead
 			* 
 			*/
-			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number) {
+			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine) {
 			
 			   // Properties
 			   this.id = "fScene_"+(fScene.count++)
@@ -202,7 +209,6 @@ package org.ffilmation.engine.core {
  			   this.ready = false
  			   this.viewWidth = width
  			   this.viewHeight = height
- 			   this.container.scrollRect = new Rectangle(0,0,width,height)
 			
 			   // Internal arrays
 			   this.depthSortArr = new Array          
@@ -217,6 +223,10 @@ package org.ffilmation.engine.core {
 			   // AI
 			   this.AI = new fAiContainer(this)
 			
+			   // Render engine
+			   this.renderEngine = renderer || (new fFlash9RenderEngine(this,container))
+			   this.renderEngine.setViewportSize(width,height)
+			   
 			   // Start xml retrieve process
 			   var initializer:fSceneInitializer = new fSceneInitializer(this,retriever)
 			   initializer.start()
@@ -227,7 +237,7 @@ package org.ffilmation.engine.core {
 			
 			/**
 			* This Method is called to enable the scene. It will enable all controllers associated to the scene and its
-			* elements. The engine calls this method when the scene is shown, but you can call it manually too.
+			* elements. The engine no longer calls this method when the scene is shown. Do it manually when needed.
 			*
 			* A typical use of manual enabling/disabling of scenes is pausing the game or showing a dialog box of any type.
 			*
@@ -245,7 +255,7 @@ package org.ffilmation.engine.core {
 			
 			/**
 			* This Method is called to disable the scene. It will disable all controllers associated to the scene and its
-			* elements. The engine calls this method when the scene is hidden, but you can call it manually too.
+			* elements. The engine no longer calls this method when the scene is hidden. Do it manually when needed.
 			*
 			* A typical use of manual enabling/disabling of scenes is pausing the game or showing a dialog box of any type.
 			*
@@ -280,7 +290,6 @@ package org.ffilmation.engine.core {
 			public function get controller():fEngineSceneController {
 				return this._controller
 			}
-
 
 			/** 
 			* This method sets the active camera for this scene. The camera position determines the viewable area of the scene
@@ -361,11 +370,11 @@ package org.ffilmation.engine.core {
 					// Hide light from elements
 			    var cell:fCell = light.cell
 		      var nEl:Number = light.nElements
-		      for(var i2:Number=0;i2<nEl;i2++) light.elementsV[i2].obj.lightOut(light)
+		      for(var i2:Number=0;i2<nEl;i2++) this.renderEngine.lightOut(light.elementsV[i2].obj,light)
 		      light.scene = null
 		      
 		      nEl = this.characters.length
-		      for(i2=0;i2<nEl;i2++) this.characters[i2].lightOut(light)
+		      for(i2=0;i2<nEl;i2++) this.renderEngine.lightOut(this.characters[i2],light)
 		      this.all[light.id] = null
 		      
 		      // This light may be in some character cache
@@ -391,10 +400,12 @@ package org.ffilmation.engine.core {
 				
 					//Create
 					this.addCharacter(<character id={idchar} definition={def} x={x} y={y} z={z} />)
-					this.environmentLight.render()
+					var character:fCharacter = this.all[idchar]
+					if(IAmBeingRendered) this.addElementToRenderEngine(character)
+					character.updateDepth()
 
 					//Return
-					return this.all[idchar]
+					return character
 			}
 
 			/**
@@ -403,6 +414,18 @@ package org.ffilmation.engine.core {
 			* @param char The character to be removed
 			*/
 			public function removeCharacter(char:fCharacter):void {
+
+					// Remove from arraya
+					this.characters.splice(this.lights.indexOf(char),1)
+		      this.all[char.id] = null
+		      
+		      // Hide
+		      char.hide()
+		      
+		      // Remove from render engine
+		      this.removeElementFromRenderEngine(char)
+		      char.dispose()
+
 			}
 
 			/**
@@ -496,53 +519,11 @@ package org.ffilmation.engine.core {
 			*/
 			public function translateStageCoordsToElements(x:Number,y:Number):Array {
 				
-				var objects:Array = this.container.getObjectsUnderPoint(new Point(x,y))
-				if(objects.length==0) return null
-				
-				var ret:Array = new Array
-				var found:Array = new Array
-				
-				for(var i:Number=0;i<objects.length;i++) {
-					
-						var obj:DisplayObject = objects[i]
-						
-						// Search for element containing this DisplayObject
-						var el:fRenderableElement = null
-						while(el==null && obj!=this.container && obj!=null) {
-							if(obj is MovieClip) {
-								 var m:MovieClip = obj as MovieClip
-								 if(m.fElement) el = m.fElement
-							}
-							obj = obj.parent
-						}
-						
-						if(el!=null && found.indexOf(el)<0 && this.currentOccluding.indexOf(el)<0) {
-						
-								// Avoid repeated results
-								found.push(el)
-
-								// Get coordinate and push data
-								var p:Point = new Point(x,y)
-								p = el.baseContainer.globalToLocal(p)
-								if(el is fFloor) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
-								if(el is fWall) {
-									var w:fWall = el as fWall
-									if(w.vertical) ret.push(new fCoordinateOccupant(el,el.x,el.y+p.x,el.z+p.y))
-									else ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z+p.y))
-								}
-								if(el is fObject) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z+p.y))
-						}
-						
-				}
-				
-				// Elements in front fo firts in the Array
-				ret.reverse()
-				
-				if(ret.length==0) return null
-				else return ret
-			
+				// This must be passed to the renderer because we have no idea how things are drawn
+				if(IAmBeingRendered) return this.renderEngine.translateStageCoordsToElements(x,y)
+				else return null
+		
 			}
-
 
 			/**
 			* Use this method to completely rerender the scene. However, under normal circunstances there shouldn't be a need to call this manually
@@ -551,15 +532,122 @@ package org.ffilmation.engine.core {
 
 			   // Render global light
 			   this.environmentLight.render()
-			
+
 			   // Render dynamic lights
 			   for(var i:Number=0;i<this.lights.length;i++) this.lights[i].render()
 
 			}
+			
+			/**
+			* <p>Normally you don't need to call this method manually. When an scene is shown, this method is called to initialize the render engine
+			* for this scene ( this involves creating all the Sprites ). This may take a couple of seconds.</p>
+			* <p>Under special circunstances, however, you may want to call this method manually at some point before showing the scene. This is useful is you want
+			* the graphic assets to exist before the scene is shown ( to attach Mouse Events for example ).</p>
+			*/
+			public function startRendering() {
+				
+				 if(IAmBeingRendered) return
+		   	 
+			   // Init render engine
+			   this.renderEngine.initialize()
+			   
+			   // Init render for all elements
+			   for(var j:Number=0;j<this.floors.length;j++) addElementToRenderEngine(this.floors[j])
+			   for(j=0;j<this.walls.length;j++) addElementToRenderEngine(this.walls[j])
+			   for(j=0;j<this.objects.length;j++) addElementToRenderEngine(this.objects[j])
+			   for(j=0;j<this.characters.length;j++) addElementToRenderEngine(this.characters[j])
+		   	 
+			   // Set flag
+			   IAmBeingRendered = true
 
-			
+		   	 // Now sprites can be sorted
+			   this.depthSort()
+
+		   	 // Render scene
+		   	 this.render()
+			   
+			}
+
 			// PRIVATE AND INTERNAL METHODS FOLLOW
+
+			/**
+			* This method adds an element to the renderEngine poll
+			*/
+			private function addElementToRenderEngine(element:fRenderableElement) {
 			
+				 // Init
+				 element.container = this.renderEngine.initRenderFor(element)
+				 
+				 // This happens only if the render Engine returns a container for every element. 
+				 if(element.container) {
+				 	element.container.fElementId = element.id
+				 	element.container.fElement = element
+				 }
+				 
+				 // This can be null, depending on the render engine
+				 element.flashClip = this.renderEngine.getAssetFor(element)
+				 
+				 // Listen to show and hide events
+				 element.addEventListener(fRenderableElement.SHOW,this.showListener,false,0,true)
+				 element.addEventListener(fRenderableElement.HIDE,this.hideListener,false,0,true)
+				 element.addEventListener(fRenderableElement.ENABLE,this.enableListener,false,0,true)
+				 element.addEventListener(fRenderableElement.DISABLE,this.disableListener,false,0,true)
+				 
+				 // Elements default to Mouse-disabled
+				 element.disableMouseEvents()
+				 
+			}
+
+			/**
+			* This method removes an element from the renderEngine poll
+			*/
+			private function removeElementFromRenderEngine(element:fRenderableElement) {
+			
+				 this.renderEngine.stopRenderFor(element)
+				 
+				 // Stop listening to show and hide events
+				 element.removeEventListener(fRenderableElement.SHOW,this.showListener)
+				 element.removeEventListener(fRenderableElement.HIDE,this.hideListener)
+				 element.removeEventListener(fRenderableElement.ENABLE,this.enableListener)
+				 element.removeEventListener(fRenderableElement.DISABLE,this.disableListener)
+				 
+			}
+
+
+			// Listens to elements made visible
+			private function showListener(evt:Event):void {
+			   if(IAmBeingRendered) this.renderEngine.showElement(evt.target as fRenderableElement)
+			}
+			
+			// Listens to elements made invisible
+			private function hideListener(evt:Event):void {
+			   if(IAmBeingRendered) this.renderEngine.hideElement(evt.target as fRenderableElement)
+			}
+
+			// Listens to elements made visible
+			private function enableListener(evt:Event):void {
+			   this.renderEngine.enableElement(evt.target as fRenderableElement)
+			}
+			
+			// Listens to elements made invisible
+			private function disableListener(evt:Event):void {
+			   this.renderEngine.disableElement(evt.target as fRenderableElement)
+			}
+
+			/*
+			* @private
+			* This method is called when the scene is no longer displayed.
+			*/
+			public function stopRendering() {
+		   	 
+			   // Stop render engine
+			   this.renderEngine.dispose()
+			   
+			   // Set flag
+			   IAmBeingRendered = false
+			   
+			}
+
 			/**
 			* @private
 			* This method frees all resources allocated by this scene. Always clean unused scene objects:
@@ -584,7 +672,9 @@ package org.ffilmation.engine.core {
 				this.currentCamera.dispose()
 				this.currentCamera = null
 				this._controller = null
-				this.recursiveDelete(this._orig_container)
+				
+				this.renderEngine.dispose()
+				
 				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
 				this._orig_container = null
 				this.container = null
@@ -629,41 +719,20 @@ package org.ffilmation.engine.core {
 				
 			}
 			
-			// Recursively deletes all DisplayObjects in this scene's hierarchy
-			private function recursiveDelete(d:DisplayObjectContainer):void {
-					
-					if(d.numChildren!=0) do {
-						var c:DisplayObject = d.getChildAt(0)
-						if(c!=null) {
-							if(c is DisplayObjectContainer) this.recursiveDelete(c as DisplayObjectContainer)
-							if(c is MovieClip) c.stop()
-							d.removeChild(c)
-						}
-					} while(d.numChildren!=0 && c!=null)
-				
-			}
-
 			// This method is called when the shadowQuality option changes
 			/** @private */
 		  public function resetShadows():void {
-		  	for(var i:Number=0;i<this.floors.length;i++) this.floors[i].resetShadows()
-		  	for(i=0;i<this.walls.length;i++) this.walls[i].resetShadows()
-		  	for(i=0;i<this.objects.length;i++) this.objects[i].resetShadows()
-		  	for(i=0;i<this.characters.length;i++) this.characters[i].resetShadows()
-		  	for(i=0;i<this.lights.length;i++) this.processNewCellOmniLight(this.lights[i])
+		  	this.renderEngine.resetShadows()
+		  	for(var i:Number=0;i<this.lights.length;i++) this.processNewCellOmniLight(this.lights[i])
 		  }
 			
 			// Listens cameras moving
-			/** @private */
-			public function cameraMoveListener(evt:fMoveEvent):void {
-				
+			private function cameraMoveListener(evt:fMoveEvent):void {
 					this.followCamera(evt.target as fCamera)
-				
 			}
 
 			// Listens cameras changing cells. Applies camera occlusion
-			/** @private */
-			public function cameraNewCellListener(evt:Event):void {
+			private function cameraNewCellListener(evt:Event):void {
 				
 					var camera:fCamera = evt.target as fCamera
 					if(camera.occlusion>=100 && camera.cell) return
@@ -694,16 +763,8 @@ package org.ffilmation.engine.core {
 			}
 
 			// Adjusts visualization to camera position
-			/** @private */
-			internal function followCamera(camera:fCamera):void {				
-				
-					var p:Point = this.translateCoords(camera.x,camera.y,camera.z)
-					
-					var rect:Rectangle = this.container.scrollRect
-					rect.x = -this.viewWidth/2+p.x
-					rect.y = -this.viewHeight/2+p.y
-					this.container.scrollRect = rect
-					
+			private function followCamera(camera:fCamera):void {				
+					this.renderEngine.setCameraPosition(camera)
 			}
 
 			// Depth sorting
@@ -730,7 +791,7 @@ package org.ffilmation.engine.core {
 			public function depthChangeListener(evt:Event):void {
 				
 				//Element
-				if(!this.ready) return
+				if(!this.IAmBeingRendered) return
 				
 				var el:fRenderableElement = evt.target as fRenderableElement
 				var oldD:Number = el.depthOrder
@@ -738,19 +799,18 @@ package org.ffilmation.engine.core {
 				var newD:Number = this.depthSortArr.indexOf(el)
 				if(newD!=oldD) {
 					el.depthOrder = newD
-					this.elements.setChildIndex(el.container, newD)
+					this.container.setChildIndex(el.container, newD)
 				}
 				
 			}
 			
 		  // Initial depth sorting
-			/** @private */
-			internal function depthSort():void {
+			private function depthSort():void {
 				
 				var ar:Array = this.depthSortArr
 				ar.sortOn("_depth", Array.NUMERIC);
     		var i:Number = ar.length;
-    		var p:Sprite = this.elements
+    		var p:Sprite = this.container
     		
     		while(i--) {
         	p.setChildIndex(ar[i].container, i)
@@ -788,11 +848,8 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function processNewCell(evt:Event):void {
 
-				var e:Number = getTimer()
 				if(evt.target is fOmniLight) this.processNewCellOmniLight(evt.target as fOmniLight)
 				if(evt.target is fCharacter) this.processNewCellCharacter(evt.target as fCharacter)
-			  //trace("New cell:"+(getTimer()-e))
-
 				
 			}
 
@@ -816,11 +873,11 @@ package org.ffilmation.engine.core {
 			   }
 
 		     // Hide light from elements no longer within range
-		     for(var i2:Number=0;i2<nEl;i2++) light.elementsV[i2].obj.lightOut(light)
+		     for(var i2:Number=0;i2<nEl;i2++) this.renderEngine.lightOut(light.elementsV[i2].obj,light)
 
 			   if(cell==null) {
 			      // fLight outside grid
-			      light.elementsV = this.calcVisiblesCoords(light.x,light.y,light.z)
+			      light.elementsV = fVisibilitySolver.calcVisiblesCoords(this,light.x,light.y,light.z)
 			      tempElements = light.elementsV
 			      
 			   } 
@@ -844,7 +901,7 @@ package org.ffilmation.engine.core {
 			   for(i2=0;i2<nElements;i2++) {
 			   	  
 			   	  ele = tempElements[i2]
-			      if(ele.distance<light.size) ele.obj.lightIn(light)
+			      if(ele.distance<light.size) this.renderEngine.lightIn(ele.obj,light)
 			      
 			      // Calculate how many shadow containers are within range
 			      
@@ -894,12 +951,12 @@ package org.ffilmation.engine.core {
 				   		 	  			el = tempElements[i].obj
                	  	
 				   	   	  			// Shadows of this character upon other elements
-				   		 	  		  if(el.testShadow(character,x,y,z) == fCoverage.SHADOWED) {
+				   		 	  		  if(fCoverageSolver.calculateCoverage(character,el,x,y,z) == fCoverage.SHADOWED) {
 				   		 	  		  	cache.addElement(el)
 				   		 	  		  }
                	  	
 				   	   	  		  // Shadows of other elements upon this character
-					   	 	  		  //if(character.testShadow(el,x,y,z) == fCoverage.SHADOWED) character.renderShadow(light,el)
+					   	 	  		  //if(fCoverageSolver.calculateCoverage(el,character,x,y,z) == fCoverage.SHADOWED) character.renderShadow(light,el)
 				   		 	  	}
                	  
 			   			 	  } 
@@ -912,7 +969,7 @@ package org.ffilmation.engine.core {
 			   			cache.clear()
 			   			
 			   		  // Remove light
-			   		  character.lightOut(light)
+			   		  this.renderEngine.lightOut(character,light)
 			   		  
 			   		}
 
@@ -928,7 +985,7 @@ package org.ffilmation.engine.core {
 			private function processNewCellCharacter(character:fCharacter):void {
 			
 				 // Init
-				 var light:fLight, elements:Array, nEl:Number, distL:Number, range:Number,x:Number, y:Number, z:Number
+				 var light:fOmniLight, elements:Array, nEl:Number, distL:Number, range:Number,x:Number, y:Number, z:Number
 				 var cache:fCharacterShadowCache, oldCache:fCharacterShadowCache, elementsV:Array, el:fPlane
 				 var s:Number, len:Number,i:Number,i2:Number
 
@@ -991,7 +1048,7 @@ package org.ffilmation.engine.core {
 				   		    			try {
 				   		    				el = elementsV[i].obj
 				   	      				// Shadows of this character upon other elements
-				   	      			 	if(el.testShadow(character,x,y,z) == fCoverage.SHADOWED) cache.addElement(el)
+				   	      			 	if(fCoverageSolver.calculateCoverage(character,el,x,y,z) == fCoverage.SHADOWED) cache.addElement(el)
 				   	      			} catch(e:Error) {
 				   	      			}
                   	
@@ -1010,7 +1067,7 @@ package org.ffilmation.engine.core {
 				   		    				try {
 				   		    					el = elementsV[i].obj
 				   	      					// Shadows of this character upon other elements
-				   	      				 	if(el.testShadow(character,x,y,z) == fCoverage.SHADOWED) cache.addElement(el)
+				   	      				 	if(fCoverageSolver.calculateCoverage(el,character,x,y,z) == fCoverage.SHADOWED) cache.addElement(el)
 				   	      				} catch(e:Error) {
 				   	      				}
                   		
@@ -1029,7 +1086,7 @@ package org.ffilmation.engine.core {
 			   			cache.clear()
 			   		  
  			   		  // And remove light
-			   		  character.lightOut(light)
+			   		  this.renderEngine.lightOut(character,light)
 			   		  
 			   		}
 
@@ -1040,7 +1097,7 @@ package org.ffilmation.engine.core {
 						 	nEl = elements.length
 		   	 		 	for(var i3:Number=0;i3<nEl;i3++) {
 			   					if(cache.elements.indexOf(elements[i3])<0) {
-			   						elements[i3].unrenderShadowAlone(light,character)
+			   						this.renderEngine.removeShadow(elements[i3],light,character)
 			   					}
 		   	 			}
 		   	 		}
@@ -1059,8 +1116,13 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function renderElement(evt:Event):void {
 				
-			   if(evt.target is fOmniLight) this.renderOmniLight(evt.target as fOmniLight)
-				 if(evt.target is fCharacter) this.renderCharacter(evt.target as fCharacter)
+			   // If the scene is not being displayed, we don't update the render engine
+			   // However, the element's properties are modified. When the scene is shown the result is consistent
+			   // to what has changed while the render was not being updated
+			   if(IAmBeingRendered) {
+			   	if(evt.target is fOmniLight) this.renderOmniLight(evt.target as fOmniLight)
+				 	if(evt.target is fCharacter) this.renderCharacter(evt.target as fCharacter)
+				 }
 				
 			}
 
@@ -1071,20 +1133,21 @@ package org.ffilmation.engine.core {
 			   var x:Number = light.x, y:Number = light.y, z:Number = light.z, nElements:Number = light.nElements, tempElements:Array = light.elementsV, el:fRenderableElement,others:Array,withinRange:Number
 			   
 			   // Step 2: render Start
-				 for(var i2:Number=0;i2<nElements;i2++) tempElements[i2].obj.renderStart(light)
+				 for(var i2:Number=0;i2<nElements;i2++) this.renderEngine.renderStart(tempElements[i2].obj,light)
 		
 			   // Step 3: render light and shadows 
 				 for(i2=0;i2<nElements;i2++) {
 				    el = tempElements[i2].obj
 				    others = tempElements[i2].shadows
 				    withinRange = tempElements[i2].withinRange
-				    el.renderLight(light)
+				    this.renderEngine.renderLight(el,light)
 			    
 				    // Shadow from statics
 				    for(var i3:Number=0;i3<withinRange;i3++) {
 				    	try {
-				    		if(others[i3].obj._visible) el.renderShadow(light,others[i3].obj)
+				    		if(others[i3].obj._visible) this.renderEngine.renderShadow(el,light,others[i3].obj)
 				    	} catch(e:Error) {
+				    		trace(e)
 				    	}
 				    }
 				    
@@ -1100,13 +1163,13 @@ package org.ffilmation.engine.core {
 			   	  if(cache.withinRange) {
 			   	  	character = cache.character
 			   	  	elements = cache.elements
-			   			character.renderStart(light)
-			   			character.renderLight(light)
-			   			character.renderFinish(light)
+			   			this.renderEngine.renderStart(character,light)
+			   			this.renderEngine.renderLight(character,light)
+			   			this.renderEngine.renderFinish(character,light)
 			   		
 			   			for(i2=0;i2<elements.length;i2++) {
 					    	try {
-			   					if(character._visible) elements[i2].renderShadow(light,character)
+			   					if(character._visible) this.renderEngine.renderShadow(elements[i2],light,character)
 			   				} catch(e:Error) {
 			   					
 			   		  	}
@@ -1116,14 +1179,14 @@ package org.ffilmation.engine.core {
 			   }
 
 			   // Step 5: End render
-			   for(i2=0;i2<nElements;i2++) tempElements[i2].obj.renderFinish(light)
+			   for(i2=0;i2<nElements;i2++) this.renderEngine.renderFinish(tempElements[i2].obj,light)
 
 			}
 
 			// Main render method for characters
 			private function renderCharacter(character:fCharacter):void {
 			
-			   var light:fLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
+			   var light:fOmniLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
 			   
 			   // Render all lights and shadows
 			   
@@ -1134,16 +1197,16 @@ package org.ffilmation.engine.core {
 					 	if(!cache.light.removed && cache.withinRange) {
 					 	
 					 		// Start
-					 		light = cache.light
-			   		  character.renderStart(light)
-			   		  character.renderLight(light)
+					 		light = cache.light as fOmniLight
+			   		  this.renderEngine.renderStart(character,light)
+			   		  this.renderEngine.renderLight(character,light)
 			    		
 			    		// Update shadows for this character
 			    		elements = cache.elements
 			    		nEl = elements.length
 		   	 		  if(fEngine.characterShadows) for(var i2:Number=0;i2<nEl;i2++) {
 		   	 		  	try {
-			    				elements[i2].renderShadowAlone(light,character)
+			    				this.renderEngine.updateShadow(elements[i2],light,character)
 			    			} catch(e:Error) {
 			    			
 			    			}
@@ -1151,7 +1214,7 @@ package org.ffilmation.engine.core {
 			    		}
 
 							// End
-			   		  character.renderFinish(light)
+			   		  this.renderEngine.renderFinish(character,light)
 			   		  
 			   	  }
 			   
@@ -1184,9 +1247,7 @@ package org.ffilmation.engine.core {
 			internal function addCharacter(definitionObject:XML):void {
 			
 				 // Create
-				 var spr:MovieClip = new MovieClip()
-		   	 this.elements.addChild(spr)			   
-			   var nCharacter:fCharacter = new fCharacter(spr,definitionObject,this)
+			   var nCharacter:fCharacter = new fCharacter(definitionObject,this)
 			   
 			   // Events
 				 nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell)			   
@@ -1197,12 +1258,6 @@ package org.ffilmation.engine.core {
 			   this.characters.push(nCharacter)
 			   this.everything.push(nCharacter)
 			   this.all[nCharacter.id] = nCharacter
-			   
-				 // Set global light
-			   nCharacter.setGlobalLight(this.environmentLight)
-
-			   // Translate to 2D coordinates
-			   nCharacter.place()
 			
 			}
 
@@ -1278,95 +1333,10 @@ package org.ffilmation.engine.core {
 			}
 			
 			// Get visible elements from given cell, sorted by distance
-			/** @private */
-			internal function calcVisibles(cell:fCell,range:Number=Infinity):void {
-			   var r:Array = this.calcVisiblesCoords(cell.x,cell.y,cell.z,range)
+			private function calcVisibles(cell:fCell,range:Number=Infinity):void {
+			   var r:Array = fVisibilitySolver.calcVisiblesCoords(this,cell.x,cell.y,cell.z,range)
 			   cell.visibleObjs = r
 			   cell.visibleRange = range
-			}
-			
-			// Get visible elements from given coordinates, sorted by distance
-			/** @private */
-			internal function calcVisiblesCoords(x:Number,y:Number,z:Number,range:Number=Infinity):Array {
-			
-			   // Init
-			   var rcell:Array = new Array, candidates:Array = new Array, allElements:Array = new Array, floorc:fFloor, dist:Number, w:Number, len:Number, wallc:fWall, objc:fObject
-
-			   // Add possible floors
-			   len = this.floors.length
-			   for(w=0;w<len;w++) {
-			      floorc = this.floors[w] 
-			      dist = floorc.distanceTo(x,y,z)
-			      if(dist<range) {
-			      	if(floorc.receiveLights) if(floorc.z<z) candidates.push(new fShadowedVisibilityInfo(floorc,dist))
-			      	if(floorc.castShadows) allElements.push(new fShadowedVisibilityInfo(floorc,dist))
-			      }
-			   }
-			
-			   // Add possible walls
-			   len = this.walls.length
-			   for(w=0;w<len;w++) {
-			      wallc = this.walls[w]
-			      dist = wallc.distanceTo(x,y,z)
-			      if(dist<range) {
-			      	if(wallc.receiveLights) if((wallc.vertical && wallc.x>x) || (!wallc.vertical && wallc.y<y)) candidates.push(new fShadowedVisibilityInfo(wallc,dist))
-					  	if(floorc.castShadows) allElements.push(new fShadowedVisibilityInfo(wallc,dist))
-					  }
-			   }
-			
-				 // Add possible objects
-				 var withObjects:Boolean = fEngine.objectShadows
-				 len = this.objects.length
-			   for(w=0;w<len;w++) {
-			      objc = this.objects[w]
-			      dist = objc.distanceTo(x,y,z)
-			      if(dist<range) {
-			      	if(objc.receiveLights) candidates.push(new fShadowedVisibilityInfo(objc,dist))
-			      	if(withObjects) if(objc.castShadows) allElements.push(new fShadowedVisibilityInfo(objc,dist))
-			      }
-			   }
-
-			   // For each candidate, calculate possible shadows
-			   var candidate:fShadowedVisibilityInfo, covered:Boolean, other:fShadowedVisibilityInfo, result:int, len2:Number
-
-			   len = candidates.length
-			   for(w=0;w<len;w++) {
-			      
-			      candidate = candidates[w]
-			      covered = false
-			      len2 = allElements.length
-			      
-			      // Shadows from other elements
-			      if(candidate.obj.receiveShadows) {
-			      	
-			      	for(var k:Number=0;covered==false && k<len2;k++) {
-			      	   other = allElements[k]
-			      	   if(candidate.obj!=other.obj) {
-			      	      result = candidate.obj.testShadow(other.obj,x,y,z)
-			      	   	  //trace("Test "+candidate.obj.id+" "+other.obj.id+" "+result)
-			      	      switch(result) {
-			      	         case fCoverage.COVERED: covered = true;
-			      	         case fCoverage.SHADOWED: candidate.addShadow(new fVisibilityInfo(other.obj,other.distance))
-			      	      }
-			      	   }
-			      	}
-			      
-			      }
-
-			      // If not covered, sort shadows by distance to coords and add candidate to result list
-			      if(!covered) { 
-			         
-			         candidate.shadows.sortOn("distance",Array.NUMERIC)
-			         rcell.push(candidate)
-			         
-			      }
-			
-			   }
-
-			   // Sort results by distance to coords 
-	       rcell.sortOn("distance",Array.NUMERIC)	
-			   return rcell      
-			
 			}
 			
 

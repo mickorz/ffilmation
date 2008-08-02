@@ -4,8 +4,6 @@ package org.ffilmation.engine.core {
 		import flash.events.*
 		import flash.display.*
 
-		import org.ffilmation.engine.helpers.*
-
 		/**
 		* <p>The fRenderableElement class defines the basic interface for visible elements in your scene.</p>
 		*
@@ -59,6 +57,10 @@ package org.ffilmation.engine.core {
 			public var depthOrder:Number
 
 			/** 
+			* <p><b>WARNING!!!: </b> This property only exists when the scene is being rendered and the graphic elements have been created. This
+			* happens when you call fEngine.showScene(). Trying to access this property before the scene is shown ( to attach a Mouse Event for example )
+			* will throw an error.</p>
+			*
 			* <p>The container is the base MovieClip that contains everything. If you want to add Mouse Events to your elements, use this
 			* property. Camera occlusion will be applied: this means that if this element was occluded to show the camera position,
 			* its events are disabled as well so you can click on items behind this element.</p>
@@ -73,12 +75,6 @@ package org.ffilmation.engine.core {
 			* listener attached to the MovieClip
 			*/
 			public var container:MovieClip
-
-			/** @private */
-			public var containerToPaint:DisplayObject
-
-			/** @private */
-			protected var containerParent:DisplayObjectContainer
 
 			/** @private */
 			public var _visible = true
@@ -100,7 +96,7 @@ package org.ffilmation.engine.core {
 			/**
  			* The fRenderableElement.SHOW constant defines the value of the 
  			* <code>type</code> property of the event object for a <code>renderableElementShow</code> event.
- 			* The event is dispatched when the character is shown via the show() method
+ 			* The event is dispatched when the elements is shown via the show() method
  			* 
  			* @eventType renderableElementShow
  			*/
@@ -109,28 +105,39 @@ package org.ffilmation.engine.core {
 			/**
  			* The fRenderableElement.HIDE constant defines the value of the 
  			* <code>type</code> property of the event object for a <code>renderableElementHide</code> event.
- 			* The event is dispatched when the character is hidden via the hide() method
+ 			* The event is dispatched when the elements is hidden via the hide() method
  			* 
  			* @eventType renderableElementHide
  			*/
 		  public static const HIDE:String = "renderableElementHide"
 
+			/**
+			* @private
+ 			* The fRenderableElement.ENABLE constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>renderableElementEnable</code> event.
+ 			* The event is dispatched when the elements's Mouse events are enabled
+ 			* 
+ 			* @eventType renderableElementEnable
+ 			*/
+		  public static const ENABLE:String = "renderableElementEnable"
+
+			/**
+			* @private
+ 			* The fRenderableElement.DISABLE constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>renderableElementDisable</code> event.
+ 			* The event is dispatched when the elements's Mouse events are disabled
+ 			* 
+ 			* @eventType renderableElementDisable
+ 			*/
+		  public static const DISABLE:String = "renderableElementDisable"
 
 			// Constructor
 			/** @private */
-			function fRenderableElement(defObj:XML,scene:fScene,libraryMovieClip:DisplayObject,spriteToShowHide:MovieClip):void {
+			function fRenderableElement(defObj:XML,scene:fScene):void {
 				
 				 // Previous
 				 super(defObj,scene)
 				 
-				 // Main container
-				 this.containerToPaint = libraryMovieClip
-				 if(libraryMovieClip is MovieClip) this.flashClip = (libraryMovieClip as MovieClip)
-				 this.container = spriteToShowHide
-				 this.containerParent = this.container.parent
-				 this.container.fElementId = this.id
-				 this.container.fElement = this
-					
 				 // Lights enabled ?
 				 var temp:XMLList = defObj.@receiveLights
 			   if(temp.length()==1) this.receiveLights = (temp.toString()=="true")
@@ -153,11 +160,24 @@ package org.ffilmation.engine.core {
 			}
 
 			/**
+			* Mouse management
+			*/
+			public function disableMouseEvents():void {
+				dispatchEvent(new Event(fRenderableElement.DISABLE))
+			}
+
+			/**
+			* Mouse management
+			*/
+			public function enableMouseEvents():void {
+				dispatchEvent(new Event(fRenderableElement.ENABLE))
+			}
+
+			/**
 			* Makes element visible
 			*/
 			public function show():void {
 				 this._visible = true
-			   this.containerParent.addChild(this.container)
 				 this.scene.addToDepthSort(this)
 				 dispatchEvent(new Event(fRenderableElement.SHOW))
 			}
@@ -167,7 +187,6 @@ package org.ffilmation.engine.core {
 			*/
 			public function hide():void {
 				 this._visible = false
-			   this.containerParent.removeChild(this.container)
 				 this.scene.removeFromDepthSort(this)
 				 dispatchEvent(new Event(fRenderableElement.HIDE))
 			}
@@ -201,16 +220,6 @@ package org.ffilmation.engine.core {
 					if(this.flashClip) this.flashClip[what](param)
 			}
 
-			// Mouse management
-			/** @private */
-			public function disableMouseEvents():void {
-				this.container.mouseEnabled = false
-			}
-
-			/** @private */
-			public function enableMouseEvents():void {
-				this.container.mouseEnabled = true
-			}
 
 			// Depth management
 			/** @private */
@@ -218,132 +227,17 @@ package org.ffilmation.engine.core {
 				 
 				 this._depth = d
 				 
-				 // Reorder all objects ( merda )
+				 // Reorder all objects
 				 this.dispatchEvent(new Event(fRenderableElement.DEPTHCHANGE))
 				
 		  }
 
-			// Initial object position
-			/** @private */
-			public function place():void {
-			}
-
-			// Sets global light
-			/** @private */
-			public function setGlobalLight(light:fGlobalLight):void {
-				 light.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange,false,0,true)
-				 light.addEventListener(fLight.RENDER,this.processGlobalIntensityChange,false,0,true)
-			}
-			
-			/** @private */
-			public function processGlobalIntensityChange(evt:Event):void {
-			}
-
-			// fLight reaches element
-			/** @private */
-			public function lightIn(light:fLight):void {
-			
-			   // Hide container
-			   this.showLight(light)
-			   
-			}
-			
-			// fLight leaves element
-			/** @private */
-		  public function lightOut(light:fLight):void {
-			
-			   // Hide container
-			   this.hideLight(light)
-			   
-			}
-
-			// Makes light visible
-			/** @private */
-			public function showLight(light:fLight):void {
-			
-			}
-			
-			// Makes light invisible
-			/** @private */
-			public function hideLight(light:fLight):void {
-			
-			
-			}
-			
-			// Render start
-			/** @private */
-			public function renderStart(light:fLight):void {
-			
-			
-			}
-			
-			// Render ( draw ) light
-			/** @private */
-			public function renderLight(light:fLight):void {
-			
-			
-			}
-			
-			// Tests shadows of other elements upon this element
-			/** @private */
-			public function testShadow(other:fRenderableElement,x:Number,y:Number,z:Number):Number {
-					return fCoverage.NOT_SHADOWED
-			}
-
-
-			// Renders shadows of other elements upon this element
-			/** @private */
-			public function renderShadow(light:fLight,other:fRenderableElement):void {
-			   
-			
-			}
-
-			/** @private */
-			public function renderShadowAlone(light:fLight,other:fRenderableElement):void {
-			   
-			
-			}
-
-			/** @private */
-			public function unrenderShadowAlone(light:fLight,other:fRenderableElement):void {
-			   
-			
-			}
-
-			// Ends render
-			/** @private */
-			public function renderFinish(light:fLight):void {
-			
-			}
-
-			// Test a point's collision
-			/** @private */
-			public function testPointCollision(x:Number,y:Number,z:Number):Boolean {
-				return this.solid
-			}
-
-			// Test primary fCollision
-			/** @private */
-			public function testPrimaryCollision(other:fRenderableElement,dx:Number,dy:Number,dz:Number):fCollision {
-				return null
-			}
-
-			// Test secondary fCollision
-			/** @private */
-			public function testSecondaryCollision(other:fRenderableElement,dx:Number,dy:Number,dz:Number):fCollision {
-				return null
-			}
 
 			/** @private */
 			public function disposeRenderable():void {
 
-				delete this.container.fElementId
-				delete this.container.fElement
-				this.containerToPaint = null
-				this.containerParent = null
 				this.flashClip = null
 				this.container = null
-				
 				this.disposeElement()
 				
 			}

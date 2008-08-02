@@ -1,6 +1,17 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+New internal structure for the engine (99% backwards compatible ). Classes have been reorganized on a per-function basis, allowing easier extendability.
+Also, rendering is completely separated from geometrical information. You can load and control several scenes but only the one
+being shown will have its Sprites created and spend system resources.
+New extendable render engine interface, separated from logical calculations such as collisions. In the future, this will allow writing
+an specific flash 10 renderer or a papervision renderer, for example.
+Implemented scene.removeCharacter()
+Significant shadow rendering optimizations. Quality settings other than BEST now perform almost as if there were no shadows at all.
+Added character-character collision. Thanks to Alex Stone
+
+1.2:
+
 NEW
 
 Nicer object shadows, that fade away as the object moves away from the plane. Try jumping in the demo to see it in action.
