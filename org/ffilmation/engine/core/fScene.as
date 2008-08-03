@@ -1086,7 +1086,7 @@ package org.ffilmation.engine.core {
 			   			cache.clear()
 			   		  
  			   		  // And remove light
-			   		  this.renderEngine.lightOut(character,light)
+			   		  if(this.IAmBeingRendered) this.renderEngine.lightOut(character,light)
 			   		  
 			   		}
 
@@ -1188,8 +1188,10 @@ package org.ffilmation.engine.core {
 			
 			   var light:fOmniLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
 			   
+				 // Move character to its new position
+				 this.renderEngine.updateCharacterPosition(character)
+
 			   // Render all lights and shadows
-			   
 			   len = character.vLights.length
 			   for(var i:Number=0;i<len;i++) {
 			   

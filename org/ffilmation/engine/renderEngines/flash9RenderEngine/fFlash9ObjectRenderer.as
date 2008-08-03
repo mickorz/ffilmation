@@ -337,7 +337,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function lightOut(light:fLight):void {
 			
-				 delete this.lights[light.uniqueId]
+				 if(!this.lights[light.uniqueId]) delete this.lights[light.uniqueId]
 				 this.paintLights()
 			
 			}
@@ -388,6 +388,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.currentSprite = null
 				this.projectionCache = null
 				this.resetShadows()
+
+			 	this.element.removeEventListener(fRenderableElement.SHOW,this.showListener)
+			 	this.element.removeEventListener(fRenderableElement.HIDE,this.hideListener)
+			 	this.element.removeEventListener(fObject.NEWORIENTATION,this.rotationListener)
+			 	this.element.removeEventListener(fObject.GOTOANDPLAY,this.gotoAndPlayListener)
+			 	this.element.removeEventListener(fObject.GOTOANDSTOP,this.gotoAndStopListener)
+			 	if(this.element is fCharacter) {
+			 			this.element.removeEventListener(fElement.MOVE,this.moveListener)
+			 	}
 				this.disposeRenderer()
 				
 			}

@@ -90,6 +90,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					return element.customData.flash9Renderer.flashClip
 				}
 
+				/**
+				* This method updates the position of a character's sprite
+				*/
+				public function updateCharacterPosition(char:fCharacter):void {
+					char.customData.flash9Renderer.place()
+				}
+
 			  /**
 			  * This method renders an element visible
 			  **/

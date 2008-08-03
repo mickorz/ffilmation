@@ -55,6 +55,12 @@ package org.ffilmation.engine.interfaces {
 				*/
 				function getAssetFor(element:fRenderableElement):MovieClip;
 
+				/**
+				* This method updates the position of a character's sprite
+				*
+				* @param char The character that needs to be moved
+				*/
+				function updateCharacterPosition(char:fCharacter):void;
 
 			  /**
 			  * This method renders an element visible

@@ -667,6 +667,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
         this.cacheTimer.removeEventListener(TimerEvent.TIMER, cacheTimerListener)
        	this.cacheTimer.stop()
+			  // Holes
+			  var element:fPlane = this.element as fPlane
+			  for(var i:Number=0;i<element.holes.length;i++) {
+   					element.holes[i].removeEventListener(fHole.OPEN,this.openHole)
+				 		element.holes[i].removeEventListener(fHole.CLOSE,this.closeHole)
+			  }
+
 				this.holesC = null
 				this.bumpMap = null
 				if(this.bumpMapData) this.bumpMapData.dispose()
@@ -674,7 +681,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.infront = null
 				this.tMatrix = null
 				this.tMatrixB = null
-				for(var i:Number=0;i<this.lightClips.length;i++) delete this.lightClips[i]
+				for(i=0;i<this.lightClips.length;i++) delete this.lightClips[i]
 				this.lightClips = null
 				for(i=0;i<this.lightMasks.length;i++) delete this.lightMasks[i]
 				this.lightMasks = null

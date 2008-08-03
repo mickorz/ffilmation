@@ -197,7 +197,7 @@ package org.ffilmation.engine.elements {
 				 				dispatchEvent(new Event(fElement.NEWCELL))
 				 				
 				 				// Check for XML events in new cell
-				 				if(this.cell!=null) {
+				 				if(this.cell!=null && lastCell!=null) {
 				 					k = this.cell.events.length
 				 					for(i=0;i<k;i++) {
 				 						evt = this.cell.events[i]
@@ -207,11 +207,6 @@ package org.ffilmation.engine.elements {
          		
 				 		}
 				 		
-			   		// Update sprite
-			   		var coords:Point = this.scene.translateCoords(this.x,this.y,this.z)
-			   		this.container.x = coords.x
-			   		this.container.y = coords.y
-         		
 				 		// Dispatch move event
 				 		if(this.x!=lx || this.y!=ly || this.z!=lz) dispatchEvent(new fMoveEvent(fElement.MOVE,true,true,this.x-lx,this.y-ly,this.z-lz))
 				 
