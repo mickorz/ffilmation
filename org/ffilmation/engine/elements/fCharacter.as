@@ -247,15 +247,15 @@ package org.ffilmation.engine.elements {
 			}
 
 			// Assigns a new list of occupied cells to this character. Thnx to Alex Stone
-			private function updateOccupiedCells():Array {
+			private function updateOccupiedCells():void {
 				
 				// Retrieve new list of occupied cells
 				var theCell:fCell = this.scene.translateToCell(this.x,this.y,this.z)
 				var cells:Array = new Array
 				var cellRadius:Number = Math.ceil(this.radius / this.scene.gridSize)
-				for(i=Math.max(theCell.i-cellRadius,0);i<theCell.i+cellRadius;i++) {
-					for(j=Math.max(theCell.j-cellRadius, 0);j<theCell.j+cellRadius;j++) {
-						for(k=Math.max(theCell.k-cellRadius, 0);k<theCell.k+cellRadius;k++) {
+				for(var i:Number = Math.max(theCell.i-cellRadius,0);i<theCell.i+cellRadius;i++) {
+					for(var j:Number = Math.max(theCell.j-cellRadius, 0);j<theCell.j+cellRadius;j++) {
+						for(var k:Number = Math.max(theCell.k-cellRadius, 0);k<theCell.k+cellRadius;k++) {
 							var newCell:fCell = this.scene.getCellAt(i,j,k)
 							if(newCell) {
 								cells.push(newCell)
@@ -271,7 +271,7 @@ package org.ffilmation.engine.elements {
 						}
 						return true
 				}
-				forEach = function(item:*, index:int, array:Array) {
+				var forEach:Function  = function(item:*, index:int, array:Array) {
 						item.charactersOccupying.filter(filter)
 				}
 				this.occupiedCells.forEach(forEach, this)

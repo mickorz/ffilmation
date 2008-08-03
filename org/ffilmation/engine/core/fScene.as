@@ -1333,7 +1333,8 @@ package org.ffilmation.engine.core {
 			}
 			
 			// Get visible elements from given cell, sorted by distance
-			private function calcVisibles(cell:fCell,range:Number=Infinity):void {
+			/** @private */
+			public function calcVisibles(cell:fCell,range:Number=Infinity):void {
 			   var r:Array = fVisibilitySolver.calcVisiblesCoords(this,cell.x,cell.y,cell.z,range)
 			   cell.visibleObjs = r
 			   cell.visibleRange = range
