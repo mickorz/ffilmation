@@ -6,6 +6,7 @@ Also, rendering is completely separated from geometrical information. You can lo
 being shown will have its Sprites created and spend system resources.
 New extendable render engine interface, separated from logical calculations such as collisions. In the future, this will allow writing
 an specific flash 10 renderer or a papervision renderer, for example.
+PathFinding now uses an fEnginePathFindCriteria interface, so users can write their custom pathFind behaviours.
 Implemented scene.removeCharacter()
 Significant shadow rendering optimizations. Quality settings other than BEST now perform almost as if there were no shadows at all.
 Added character-character collision. Thanks to Alex Stone

@@ -88,14 +88,15 @@ package org.ffilmation.engine.datatypes {
 				*/
 				public var charactersOccupying:Array
 
-				// The following properties are used by pathFinding algorythms
-				
+				/**
+				* The following are temporal properties that are used by pathFinding algorythms
+				*/
 				public var g:Number = 0													
-				public var h:Number = 0													// Heuristic score
+				public var heuristic:Number = 0									// Heuristic score
 				public var cost:Number = 0											// Movement cost
 				public var parent:fCell													// Needed to return a solution (trackback)
-				
-				public function get f():Number { return g+h }
+				public function get totalScore():Number { return g+heuristic }
+				// End pathfinding
 
 
 				/**
