@@ -479,10 +479,20 @@ package org.ffilmation.engine.core {
 			   // Security margin
 			   this.scene.top+=this.scene.levelSize*10
 			
-			   // Generate grid
+			   // Generate grid only where there is a base floor
 			   this.scene.gridHeight = Math.ceil(this.scene.top/this.scene.levelSize)
 			   this.scene.height = this.scene.gridHeight*this.scene.levelSize
 			   this.scene.grid = new Array
+			   
+				 for(var fi=0;fi<this.scene.floors.length;fi++) {
+	      	 var f:fFloor = this.scene.floors[fi]
+	      	 if(f.k==0) {
+	      	 	for(var i:Number = f.i;i<(f.i+f.gWidth);i++) {
+ 				 			if(!this.scene.grid[i]) this.scene.grid[i] = new Array
+	      	 		for(var j:Number = f.j;j<(f.j+f.gDepth);j++) this.scene.grid[i][j] = new Array
+	      	 	}
+      		 }
+	       }
 
 				 // Next step
  	       this.scene.stat = "Z sorting..."

@@ -1277,8 +1277,7 @@ package org.ffilmation.engine.core {
 				if(i>=this.gridWidth || j>=this.gridDepth || k>=this.gridHeight) return null
 				
 				// Create new if necessary
-				if(!this.grid[i]) this.grid[i] = new Array
-				if(!this.grid[i][j]) this.grid[i][j] = new Array
+				if(!this.grid[i] || !this.grid[i][j]) return null
 				if(!this.grid[i][j][k]) {
 					
 					var cell:fCell = new fCell()

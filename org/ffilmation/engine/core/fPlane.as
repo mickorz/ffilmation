@@ -38,15 +38,16 @@ package org.ffilmation.engine.core {
 			/** @private */
 			function fPlane(defObj:XML,scene:fScene,width:Number,height:Number):void {
 				
-				 // Prepare material
-				 this.scene = scene
-				 this.material = new fMaterial(defObj.@src,width,height,this)
-				 
 				 // Previous
-				 super(defObj,scene)
-
-			   // Holes
-			   this.holes = this.material.getHoles()
+				 super(defObj,scene,defObj.@src.length()==0)
+				 
+				 // Prepare material & holes
+				 if(defObj.@src.length()==1) {
+				 		this.material = new fMaterial(defObj.@src,width,height,this)
+				    this.holes = this.material.getHoles()
+				 } else {
+				 		this.holes = []	
+				}
 
 			}
 

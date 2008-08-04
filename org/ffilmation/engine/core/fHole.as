@@ -61,6 +61,7 @@ package org.ffilmation.engine.core {
 				this.index = index
 				this.block = block
 				this.bounds = bounds
+				this.open = false
 			}			
 			
 			/**

@@ -120,7 +120,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   for(var i:Number=0;i<element.holes.length;i++) {
    					 element.holes[i].addEventListener(fHole.OPEN,this.openHole,false,0,true)
 				 		 element.holes[i].addEventListener(fHole.CLOSE,this.closeHole,false,0,true)
-				 		 element.holes[i].open = false
+				 		 if(!element.holes[i].open && element.holes[i].block) this.behind.addChild(element.holes[i].block)				 		 	
 			   }
 				 this.redrawHoles()
 				 
@@ -672,6 +672,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			  for(var i:Number=0;i<element.holes.length;i++) {
    					element.holes[i].removeEventListener(fHole.OPEN,this.openHole)
 				 		element.holes[i].removeEventListener(fHole.CLOSE,this.closeHole)
+				 		if(!element.holes[i].open && element.holes[i].block) this.behind.removeChild(element.holes[i].block)				 		 	
 			  }
 
 				this.holesC = null

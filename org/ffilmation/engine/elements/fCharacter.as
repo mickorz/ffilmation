@@ -160,7 +160,6 @@ package org.ffilmation.engine.elements {
 
 			   if(dx==0 && dy==0 && dz==0) return
 			   
-			   
 			   try {
 			   	
 			   		// Set new coordinates			   
@@ -180,7 +179,8 @@ package org.ffilmation.engine.elements {
          		
 			   		// Check if element moved into a different cell
 			   		var cell:fCell = this.scene.translateToCell(this.x,this.y,this.z)
-			   		if(cell!=this.cell || this.cell == null || cell==null) {
+			   		
+			   		if(cell!=this.cell || this.cell == null) {
 				 		
 				 				// Check for XML events in cell we leave
 				 				if(this.cell!=null) {

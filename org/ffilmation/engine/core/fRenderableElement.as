@@ -133,7 +133,7 @@ package org.ffilmation.engine.core {
 
 			// Constructor
 			/** @private */
-			function fRenderableElement(defObj:XML,scene:fScene):void {
+			function fRenderableElement(defObj:XML,scene:fScene,noDepthSort:Boolean=false):void {
 				
 				 // Previous
 				 super(defObj,scene)
@@ -155,7 +155,7 @@ package org.ffilmation.engine.core {
 			   if(temp.length()==1) this.solid = (temp.toString()=="true")
 			   
 			   // Add to all elements
-				 scene.addToDepthSort(this)
+				 if(!noDepthSort) scene.addToDepthSort(this)
 
 			}
 
