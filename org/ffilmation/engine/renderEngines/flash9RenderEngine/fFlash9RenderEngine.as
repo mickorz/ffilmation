@@ -215,6 +215,32 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					this.viewHeight = height
 				}
 
+				/**
+				* Starts acclusion related to one character
+				* @param element Element where occlusion is applied
+				* @param character Character causing the occlusion
+				*/
+				public function startOcclusion(element:fRenderableElement,character:fCharacter):void {
+					element.customData.flash9Renderer.startOcclusion(character)
+				}
+				
+				/**
+				* Updates acclusion related to one character
+				* @param element Element where occlusion is applied
+				* @param character Character causing the occlusion
+				*/
+				public function updateOcclusion(element:fRenderableElement,character:fCharacter):void {
+					element.customData.flash9Renderer.updateOcclusion(character)
+				}
+      	
+				/**
+				* Stops acclusion related to one character
+				* @param element Element where occlusion is applied
+				* @param character Character causing the occlusion
+				*/
+				public function stopOcclusion(element:fRenderableElement,character:fCharacter):void {
+					element.customData.flash9Renderer.stopOcclusion(character)
+				}
 
 				/**
 				* This method returns the element under a Stage coordinate, and a 3D translation of the 2D coordinates passed as input.

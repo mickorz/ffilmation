@@ -298,7 +298,6 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 		  	  			some = true
 	 							if(confirm.x>=0) character.x = confirm.x
 	 							if(confirm.y>=0) character.y = confirm.y
- 							trace("w2 "+testElement)
 	 							character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
 	 						} else {
 	 							character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))

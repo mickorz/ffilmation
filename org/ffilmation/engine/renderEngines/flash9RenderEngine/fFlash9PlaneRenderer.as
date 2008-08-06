@@ -24,7 +24,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private var origHeight:Number
 			private var	cacheTimer:Timer
 
-			protected var lightC:Sprite								   // All lights
+			protected var lightC:Sprite								 // All lights
 			private var environmentC:Shape				     // Global
 			private var black:Shape				  				   // No light
 			private var diffuse:DisplayObject					 // Diffuse map
@@ -53,8 +53,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public var zIndex:Number = 0						   // zIndex
 			public var scrollR:Rectangle							 // Scrollrectangle for this plane, to optimize viewing areas. It is written by fFloorRenderer and fWallRenderer
 			public var planeDeform:Matrix						   // Transformation matrix for this plane that sets the proper perspective
-			
 			public var lightStatuses:Object      			 // References to light status
+			
+			// Occlusion related
+			private var occlusionCount:Number = 0
+			private var occlusionLayer:Sprite
+			private var occlusionSpots:Object
 
 			// Constructor
 			function fFlash9PlaneRenderer(rEngine:fFlash9RenderEngine,element:fPlane,width:Number,height:Number,spriteToDraw:Sprite,spriteToShowHide:MovieClip):void {
@@ -134,6 +138,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   		this.holesC.blendMode = BlendMode.ERASE
 				 		this.holesC.mouseEnabled = false
 				 }
+				 
+				 // Occlusion
+				 this.occlusionLayer = new Sprite
+				 this.occlusionLayer.mouseEnabled = false
+			   this.occlusionLayer.blendMode = BlendMode.ERASE
+				 this.occlusionLayer.scrollRect = this.scrollR
+				 this.occlusionSpots = new Object
 
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
@@ -661,6 +672,61 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
          this.baseContainer.cacheAsBitmap = true
 		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
 			}
+
+			/**
+			* Starts acclusion related to one character
+			*/
+			public override function startOcclusion(character:fCharacter):void {
+				
+					if(this.occlusionCount==0) {
+						this.baseContainer.addChild(this.occlusionLayer)
+						this.disableMouseEvents()
+					}
+					this.occlusionCount++
+					
+					// Create spot if needed
+					if(!this.occlusionSpots[character.uniqueId]) {
+						var spr:Sprite = new Sprite()
+						spr.mouseEnabled = false
+						spr.mouseChildren = false
+						
+						// Floors ( ceilings in most cases ) need a bigger hole
+						var size:Number = Math.max(character.radius,character.height)
+						if(this.element is fFloor) size*=2
+						
+						movieClipUtils.circle(spr.graphics,0,0,size,50,0xFFFFFF,character.occlusion)
+						this.occlusionSpots[character.uniqueId] = spr
+					}
+					
+					this.occlusionLayer.addChild(this.occlusionSpots[character.uniqueId])
+					
+			}
+
+			/**
+			* Updates acclusion related to one character
+			*/
+			public override function updateOcclusion(character:fCharacter):void {
+					var spr:Sprite = this.occlusionSpots[character.uniqueId]
+					var p:Point = new Point(0,-character.height/2)
+					p = character.container.localToGlobal(p)
+					p = this.occlusionLayer.globalToLocal(p)
+					spr.x = p.x
+					spr.y = p.y
+			}
+
+			/**
+			* Stops acclusion related to one character
+			*/
+			public override function stopOcclusion(character:fCharacter):void {
+					this.occlusionLayer.removeChild(this.occlusionSpots[character.uniqueId])
+					this.occlusionCount--
+					if(this.occlusionCount==0) {
+						this.enableMouseEvents()
+						this.baseContainer.removeChild(this.occlusionLayer)
+					}
+			}
+
+
 
 			/** @private */
 			public function disposePlaneRenderer():void {

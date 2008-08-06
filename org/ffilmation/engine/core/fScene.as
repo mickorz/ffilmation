@@ -57,7 +57,6 @@ package org.ffilmation.engine.core {
 																													// It is used to find the proper zIndex for a cell
 																													
 			private var currentCamera:fCamera										// The camera currently in use
-			private var currentOccluding:Array = []							// Array of elements currently occluding the camera
 			private var _controller:fEngineSceneController = null
 			
 			/** @private */
@@ -661,8 +660,6 @@ package org.ffilmation.engine.core {
 				this.depthSortArr = null
 				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
 				this.sortAreas = null
-				for(i=0;i<this.currentOccluding.length;i++) delete this.currentOccluding[i]
-				this.currentOccluding = null
 				for(i=0;i<this.objectDefinitions.length;i++) delete this.objectDefinitions[i]
 				this.objectDefinitions = null
 				for(i=0;i<this.materialDefinitions.length;i++) delete this.materialDefinitions[i]
@@ -731,34 +728,11 @@ package org.ffilmation.engine.core {
 					this.followCamera(evt.target as fCamera)
 			}
 
-			// Listens cameras changing cells. Applies camera occlusion
+			// Listens cameras changing cells.
 			private function cameraNewCellListener(evt:Event):void {
 				
 					var camera:fCamera = evt.target as fCamera
-					if(camera.occlusion>=100 && camera.cell) return
-					
-					// Change alphas
-					var newAlpha:Number = camera.occlusion/100
-					var oldOccluding:Array = this.currentOccluding
-					var newOccluding:Array = camera.cell.elementsInFront
-					
-					for(var i:Number=0;i<oldOccluding.length;i++) {
-						oldOccluding[i].container.blendMode = BlendMode.NORMAL
-						oldOccluding[i].container.alpha = 1
-						
-						// Restore Mouse Events
-						oldOccluding[i].enableMouseEvents()
-					}
-					for(i=0;i<newOccluding.length;i++) {
-						if(newOccluding[i] is fPlane) newOccluding[i].container.blendMode = camera.planeOcclusionMode
-						else newOccluding[i].container.blendMode = camera.objectOcclusionMode
-						newOccluding[i].container.alpha = newAlpha
-						
-						// This will allow you to click elements behind the occluded element
-						newOccluding[i].disableMouseEvents()
-					}
-					
-					this.currentOccluding = newOccluding
+
 				
 			}
 
@@ -1107,6 +1081,23 @@ package org.ffilmation.engine.core {
 
 			   }
 			   
+				 // Update occlusion for this character
+				 var oldOccluding:Array = character.currentOccluding
+				 var newOccluding:Array = character.cell.elementsInFront
+				 
+				 for(i=0;i<oldOccluding.length;i++) {
+				 		// Disable occlusions no longer needed
+				 		if(newOccluding.indexOf(oldOccluding[i])<0) this.renderEngine.stopOcclusion(oldOccluding[i],character)
+				 }
+				 
+				 if(character.occlusion>=100) return
+				 
+ 				 for(i=0;i<newOccluding.length;i++) {
+						// Enable new occlusions				 	
+				 		if(oldOccluding.indexOf(newOccluding[i])<0) this.renderEngine.startOcclusion(newOccluding[i],character)
+				 }
+				 
+				 character.currentOccluding = newOccluding
 			   
 			   
 			   
@@ -1220,7 +1211,14 @@ package org.ffilmation.engine.core {
 			   		  
 			   	  }
 			   
+			      
 			   }
+			   
+				 // Update occlusion
+ 				 for(i=0;i<character.currentOccluding.length;i++) {
+				 		this.renderEngine.updateOcclusion(character.currentOccluding[i],character)
+				 }
+
 
 			}
 

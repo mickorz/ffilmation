@@ -759,7 +759,7 @@ package org.ffilmation.engine.core {
 
 		     // Next step
 			   var myTimer:Timer = new Timer(200, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part7)
+         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.processXml_Part6)
          myTimer.start()
 			
 			}
@@ -770,10 +770,6 @@ package org.ffilmation.engine.core {
 			   this.scene.stat = "Occlusion..."
 			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,99,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 
-		  	 // HitTestPoint with shape flag enabled only works if the DisplayObject is attached to the Stage. Go figure...
-		  	 this.scene.engine.container.addChild(this.scene.container)
-		  	 this.scene.container.visible = false
-		  	 
 		  	 // Update grid with object occlusion information
 			   for(var n:Number=0;n<this.scene.objects.length;n++) {
 			   		var ob:fObject = this.scene.objects[n]
@@ -782,7 +778,15 @@ package org.ffilmation.engine.core {
 			   		var obj:int = ob.y/this.scene.gridSize
 			   		var height:int = ob.height/this.scene.levelSize
 			   		var rad:int = Math.ceil(ob.radius/this.scene.gridSize)
-			   		var bounds:Rectangle = ob.container.getRect(this.scene.container) 
+			   		
+			   		var realPos:Point = this.scene.translateCoords(ob.x,ob.y,ob.z)
+			   		
+			   		// I need to load the symbol from the library to know its size. I will be destroyed immediately
+			   		var clase:Class = ob.sprites[0].sprite as Class
+						var tempSprite:MovieClip = new clase() as MovieClip
+			   		var bounds:Rectangle = new Rectangle(realPos.x-(tempSprite.width/2),realPos.y-tempSprite.height,tempSprite.width,tempSprite.height)
+			   		tempSprite = null
+			   		clase = null
 			   		
 			   		var cnt:Number = 0
 			   		do {
@@ -829,46 +833,30 @@ package org.ffilmation.engine.core {
 			   		obz = wa.z/this.scene.levelSize
 			   		obi = ((wa.vertical)?(wa.x):(wa.x0))/this.scene.gridSize
 			   		obj = ((wa.vertical)?(wa.y0):(wa.y))/this.scene.gridSize
-			   		height = wa.height/this.scene.levelSize
-			   		
-
-			   		do {
-			   		
-			   			some = false
-			   			for(i=0;i<=wa.size;i++) {
+			   		height = wa.gHeight
+		   			
+		   			for(var j:Number=0;j<(height*this.scene.levelSize/this.scene.gridSize);j++) {
+		   				
+			   			for(i=0;i<wa.size;i++) {
 			   				
 			   				  if(wa.vertical) {
-			   				  	row = obi
-			   				  	col = obj+i-1
+			   				  	row = obi+j
+			   				  	col = obj-j+i
 			   				  } else {
-			   				  	row = obi+i
-			   				  	col = obj-1
+			   				  	row = obi+j+i
+			   				  	col = obj-j-1
 			   				  }
-			   				  z = 0
-									
-									// Test lower cells
-									try {
-										cell = this.scene.getCellAt(row,col,Math.max(z,obz))
-										candidate = this.scene.translateCoords(cell.x,cell.y,cell.z)
-										candidate = this.scene.container.localToGlobal(candidate)
-										if(wa.container.hitTestPoint(candidate.x,candidate.y,true))	some = true
-									} catch(e:Error) {}
-
-									do {
-
+			   				  
+			   				  for(z = 0;z<height;z++) {
 										try {
-											cell = this.scene.getCellAt(row,col,z)
+											cell = this.scene.getCellAt(row,col,obz+z-j)
 		   								cell.elementsInFront.push(wa)
 										} catch(e:Error) {}
-										z++
-										
-									} while(z<(obz+height))			   			  
+									}
 			   				  
 			   			}
-		   				obj--
-		   				obi++
 			   		
-			   		} while(some)
+			   		} 
 
 			   }
 
@@ -878,69 +866,28 @@ package org.ffilmation.engine.core {
 			   		var flo:fFloor = this.scene.floors[n]
 			   		obz = flo.z/this.scene.levelSize
 			   		obi = flo.i
-			   		obj = flo.j+flo.gDepth-1
-			   		var width:Number = flo.gWidth
-			   		var depth:Number = flo.gDepth
-
-			   		do {
+			   		obj = flo.j
 			   		
-			   			some = false
-			   			for(i=0;i<width;i++) {
+			   		if(obj!=0) {
+			   			
+			   				var width:Number = flo.gWidth
+			   				var depth:Number = flo.gDepth
+			   				var loops:Number = Math.round(Math.max(width,depth)*this.scene.levelSize/this.scene.gridSize)
+			   				loops = Math.min(loops,obz)
+			   				for(;loops>0;loops--) {
+			   					for(i=obi;i<obi+width+6;i++) {
+			   						for(j=obj-6;j<obj+depth;j++) {
+												try {
+													cell = this.scene.getCellAt(i+loops,j-loops,obz-loops)
+		   										cell.elementsInFront.push(flo)
+												} catch(e:Error) {}
+			   						}
+			   					}
+			   				}
 			   				
-		   				  	row = obi+i
-		   				  	col = obj
-			   				  z = obz-1
-
-									do {
-
-										try {
-											cell = this.scene.getCellAt(row,col,z)
-											candidate = this.scene.translateCoords(cell.x,cell.y,cell.z)
-											candidate = this.scene.container.localToGlobal(candidate)
-											if(((row<(flo.i+flo.gWidth)) && col>=flo.j) || flo.container.hitTestPoint(candidate.x,candidate.y,true))	{
-												some = true
-		   									cell.elementsInFront.push(flo)
-		   								}
-										} catch(e:Error) {}
-										z--
-										
-									} while(z>=0)			   			  
-			   				  
-			   			}
-			   			for(i=0;i<depth;i++) {
-			   				
-		   				  	row = obi
-		   				  	col = obj-i
-			   				  z = obz-1
-
-									do {
-
-										try {
-											cell = this.scene.getCellAt(row,col,z)
-											candidate = this.scene.translateCoords(cell.x,cell.y,cell.z)
-											candidate = this.scene.container.localToGlobal(candidate)
-											if(((row<(flo.i+flo.gWidth)) && col>=flo.j) || flo.container.hitTestPoint(candidate.x,candidate.y,true))	{
-												some = true
-		   									cell.elementsInFront.push(flo)
-		   								}
-										} catch(e:Error) {}
-										z--
-										
-									} while(z>=0)			   			  
-			   				  
-			   			}
-
-		   				obj--
-		   				obi++
-			   		
-			   		} while(some)
+			   		}
 
 			   }
-
-
-		  	 // HitTestPoint with shape flag enabled only worked if the DisplayObject was attached to the Stage
-		  	 this.scene.engine.container.removeChild(this.scene.container)
-		  	 this.scene.container.visible = true
 
 		     // Next step
 			   var myTimer:Timer = new Timer(200, 1)

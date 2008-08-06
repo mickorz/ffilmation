@@ -26,6 +26,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private var allShadows:Array
 			private var currentSprite:MovieClip
 			private var currentSpriteIndex:Number
+			private var occlusionCount:Number = 0
 			public var simpleShadows:Boolean = false
 			
 			// Protected properties
@@ -68,6 +69,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	 		element.addEventListener(fElement.MOVE,this.moveListener,false,0,true)
 			 	 }
 			 	 
+				 this.occlusionCount = 0
+				 
 			 	 // Draw initial sprite
 				 this.rotationListener(new Event("Dummy"))
 				 
@@ -361,8 +364,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			
 			}
 			
-
-
 			/**
 			* Renders shadows of other elements upon this element
 			*/
@@ -378,6 +379,28 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					this.paintLights()
 			}
 			
+			/**
+			* Starts acclusion related to one character
+			*/
+			public override function startOcclusion(character:fCharacter):void {
+					this.occlusionCount++
+					this.container.alpha = character.occlusion/100
+			}
+
+			/**
+			* Updates acclusion related to one character
+			*/
+			public override function updateOcclusion(character:fCharacter):void {
+			}
+
+			/**
+			* Stops acclusion related to one character
+			*/
+			public override function stopOcclusion(character:fCharacter):void {
+					this.occlusionCount--
+					if(this.occlusionCount==0) this.container.alpha = 1
+			}
+
 			/** @private */
 			public function disposeObjectRenderer():void {
 

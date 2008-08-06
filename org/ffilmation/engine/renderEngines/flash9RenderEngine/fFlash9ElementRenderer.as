@@ -155,6 +155,24 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			
 			}
 
+			/**
+			* Starts acclusion related to one character
+			*/
+			public function startOcclusion(character:fCharacter):void {
+			}
+
+			/**
+			* Updates acclusion related to one character
+			*/
+			public function updateOcclusion(character:fCharacter):void {
+			}
+
+			/**
+			* Stops acclusion related to one character
+			*/
+			public function stopOcclusion(character:fCharacter):void {
+			}
+
 
 			/**
 			* Frees resources

@@ -204,6 +204,27 @@ package org.ffilmation.engine.interfaces {
 				function setViewportSize(width:Number,height:Number):void;
 
 				/**
+				* Starts acclusion related to one character
+				* @param element Element where occlusion is applied
+				* @param character Character causing the occlusion
+				*/
+				function startOcclusion(element:fRenderableElement,character:fCharacter):void;
+				
+				/**
+				* Updates acclusion related to one character
+				* @param element Element where occlusion is applied
+				* @param character Character causing the occlusion
+				*/
+				function updateOcclusion(element:fRenderableElement,character:fCharacter):void;
+      	
+				/**
+				* Stops acclusion related to one character
+				* @param element Element where occlusion is applied
+				* @param character Character causing the occlusion
+				*/
+				function stopOcclusion(element:fRenderableElement,character:fCharacter):void;
+
+				/**
 				* This method returns the element under a Stage coordinate, and a 3D translation of the 2D coordinates passed as input.
 				* To achieve this it finds which visible elements are under the input pixel, ignoring the engine's internal coordinates.
 				* Now you can find out what did you click and which point of that element did you click.

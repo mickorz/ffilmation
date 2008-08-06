@@ -74,8 +74,21 @@ package org.ffilmation.engine.elements {
  			*/
  		  public static const EVENT_OUT:String = "charactereventout"
 
-			
 			// Public properties
+			
+			/**
+			* This value goes from 0 to 100 and indicates the alpha strenght of the "hole" that is opened in planes that cover this character
+			* "Cover" means literally, onscreen. This allows you to see what you are doing behind a wall. The default "0" value disables this effect
+			*/
+			public var occlusion:Number = 0
+			
+			// Private properties
+			
+			/**
+			* Elements currently being occluded by this character
+			* @private
+			*/
+			public var currentOccluding:Array
 			
 			/** 
 			* Numeric counter assigned by scene
@@ -108,6 +121,9 @@ package org.ffilmation.engine.elements {
 				 
 				 // Lights
 				 this.vLights = new Array
+				 
+				 // Occlusion
+				 this.currentOccluding = new Array
 				 
 				 // Occupied cells
 				 this.occupiedCells = new Array
@@ -212,7 +228,6 @@ package org.ffilmation.engine.elements {
 				 
 			  } catch(e:Error) {
 			  		
-			  		trace(e)
 			  		// This means we tried to move outside scene limits
 			  		this.x = lx
 			  		this.y = ly
@@ -227,6 +242,8 @@ package org.ffilmation.engine.elements {
 			public function disposeCharacter():void {
 
 				for(var i in this.vLights) delete this.vLights[i]
+				for(i=0;i<this.currentOccluding.length;i++) delete this.currentOccluding[i]
+				this.currentOccluding = null
 				this.vLights = null
 				this.disposeObject()
 				
