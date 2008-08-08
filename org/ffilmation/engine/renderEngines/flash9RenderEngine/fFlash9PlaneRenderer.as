@@ -691,8 +691,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						spr.mouseChildren = false
 						
 						// Floors ( ceilings in most cases ) need a bigger hole
-						var size:Number = Math.max(character.radius,character.height)
-						if(this.element is fFloor) size*=2
+						var size:Number = 1.5*Math.max(character.radius,character.height)
+						//if(this.element is fFloor) size*=2
 						
 						movieClipUtils.circle(spr.graphics,0,0,size,50,0xFFFFFF,character.occlusion)
 						this.occlusionSpots[character.uniqueId] = spr

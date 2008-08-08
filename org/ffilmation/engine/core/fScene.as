@@ -1083,7 +1083,13 @@ package org.ffilmation.engine.core {
 			   
 				 // Update occlusion for this character
 				 var oldOccluding:Array = character.currentOccluding
-				 var newOccluding:Array = character.cell.elementsInFront
+				 var newOccluding:Array = new Array
+				 try {
+				 	var newOccluding2:Array = character.cell.elementsInFront
+				  for(var n:Number=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding.push(newOccluding2[n])
+				 	newOccluding2 = this.translateToCell(character.x,character.y,character.top).elementsInFront
+				  for(n=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding.push(newOccluding2[n])
+				 } catch(e:Error){}
 				 
 				 for(i=0;i<oldOccluding.length;i++) {
 				 		// Disable occlusions no longer needed
