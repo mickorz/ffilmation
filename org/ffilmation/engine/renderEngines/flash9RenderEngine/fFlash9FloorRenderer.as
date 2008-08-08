@@ -359,7 +359,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public override function lightOut(light:fLight):void {
 			
 			   // Hide container
-			   if(this.lightStatuses[light.uniqueId]) {
+			   if(this.lightStatuses && this.lightStatuses[light.uniqueId]) {
 			  	 var lClip:Sprite = this.lightClips[light.uniqueId]
 			   	 this.lightC.removeChild(lClip)
 			   }
@@ -367,12 +367,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   // Hide shadows
 				 if(fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]) {
 				 		var cache = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
-				 		for(var i in cache) {
-				 			try {
-				 				cache[i].parent.parent.removeChild(cache[i].parent)
-				 			} catch(e:Error) {
-				 			}
-				 		}			   
+				 		try {
+				 			for(var i in cache) cache[i].parent.parent.removeChild(cache[i].parent)
+				 		} catch(e:Error) {	}			   
 				 }
 			   
 			}

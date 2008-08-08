@@ -534,7 +534,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public override function lightIn(light:fLight):void {
 			
 			   // Show container
-				 if(this.lightStatuses[light.uniqueId]) this.showLight(light)
+				 if(this.lightStatuses && this.lightStatuses[light.uniqueId]) this.showLight(light)
 				 
 				 // Listen to intensity changes
 		 		 light.addEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange,false,0,true)
@@ -690,10 +690,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						spr.mouseEnabled = false
 						spr.mouseChildren = false
 						
-						// Floors ( ceilings in most cases ) need a bigger hole
 						var size:Number = 1.5*Math.max(character.radius,character.height)
-						//if(this.element is fFloor) size*=2
-						
 						movieClipUtils.circle(spr.graphics,0,0,size,50,0xFFFFFF,character.occlusion)
 						this.occlusionSpots[character.uniqueId] = spr
 					}

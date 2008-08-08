@@ -330,8 +330,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function lightIn(light:fLight):void {
 					
-				 // Already there ?	
-			   if(!this.lights[light.uniqueId]) this.lights[light.uniqueId] = new fLightWeight(this.element as fObject,light)
+				 // Already there ?
+			   if(this.lights && !this.lights[light.uniqueId]) this.lights[light.uniqueId] = new fLightWeight(this.element as fObject,light)
 				
 			}
 			
@@ -340,8 +340,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function lightOut(light:fLight):void {
 			
-				 if(!this.lights[light.uniqueId]) delete this.lights[light.uniqueId]
-				 this.paintLights()
+				 if(this.lights && this.lights[light.uniqueId]) {
+				 	delete this.lights[light.uniqueId]
+				 	this.paintLights()
+				 }
 			
 			}
 			

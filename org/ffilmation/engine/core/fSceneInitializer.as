@@ -835,7 +835,7 @@ package org.ffilmation.engine.core {
 			   		obj = ((wa.vertical)?(wa.y0):(wa.y))/this.scene.gridSize
 			   		height = wa.gHeight
 		   			
-		   			for(var j:Number=0;j<(height*this.scene.levelSize/this.scene.gridSize);j++) {
+		   			for(var j:Number=0;j<obz+height;j++) {
 		   				
 			   			for(i=0;i<wa.size;i++) {
 			   				
@@ -847,9 +847,9 @@ package org.ffilmation.engine.core {
 			   				  	col = obj-j-1
 			   				  }
 			   				  
-			   				  for(z = 0;z<height;z++) {
+			   				  for(z = 0;z<obz+height;z++) {
 										try {
-											cell = this.scene.getCellAt(row,col,obz+z-j)
+											cell = this.scene.getCellAt(row,col,z)
 		   								cell.elementsInFront.push(wa)
 										} catch(e:Error) {}
 									}
@@ -872,13 +872,12 @@ package org.ffilmation.engine.core {
 			   			
 			   				var width:Number = flo.gWidth
 			   				var depth:Number = flo.gDepth
-			   				var loops:Number = Math.round(Math.max(width,depth)*this.scene.levelSize/this.scene.gridSize)
-			   				loops = Math.min(loops,obz)
+			   				var loops:Number = obz
 			   				for(;loops>0;loops--) {
-			   					for(i=obi;i<obi+width+6;i++) {
-			   						for(j=obj-6;j<obj+depth;j++) {
+			   					for(i=obi;i<obi+width+6+loops;i++) {
+			   						for(j=obj-6-loops;j<obj+depth;j++) {
 												try {
-													cell = this.scene.getCellAt(i+loops,j-loops,obz-loops)
+													cell = this.scene.getCellAt(i,j,obz-loops)
 		   										cell.elementsInFront.push(flo)
 												} catch(e:Error) {}
 			   						}
