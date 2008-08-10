@@ -7,7 +7,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 		import org.ffilmation.engine.logicSolvers.coverageSolver.*
 
 		/** 
-		* This class calculates visibilities: what is visible from a certain point, is elemetn A visible from object B...
+		* This class calculates visibilities: what is visible from a certain point, is element A visible from object B...
 		* @private
 		*/
 		public class fVisibilitySolver {

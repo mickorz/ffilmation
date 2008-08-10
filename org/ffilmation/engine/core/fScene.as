@@ -349,11 +349,24 @@ package org.ffilmation.engine.core {
 			*/
 			public function createOmniLight(idlight:String,x:Number,y:Number,z:Number,size:Number,color:String,intensity:Number,decay:Number,bumpMapped:Boolean):fOmniLight {
 				
-					//Create
-					this.addLight(<light id={idlight} type="omni" size={size} x={x} y={y} z={z} color={color} intensity={intensity} decay={decay} bump={bumpMapped}/>)
-					
+					// Create
+					var definitionObject:XML = <light id={idlight} type="omni" size={size} x={x} y={y} z={z} color={color} intensity={intensity} decay={decay} bump={bumpMapped}/>
+			   	var nfLight:fOmniLight = new fOmniLight(definitionObject,this)
+			   	
+			   	// Events
+				 	nfLight.addEventListener(fElement.NEWCELL,this.processNewCell)			   
+				 	nfLight.addEventListener(fElement.MOVE,this.renderElement)			   
+				 	nfLight.addEventListener(fLight.RENDER,this.processNewCell)			   
+				 	nfLight.addEventListener(fLight.RENDER,this.renderElement)			   
+			   	
+			   	// Add to lists
+			   	nfLight.counter = this.lights.length
+			   	this.lights.push(nfLight)
+			   	this.everything.push(nfLight)
+			   	this.all[nfLight.id] = nfLight
+				
 					//Return
-					return this.all[idlight]
+					return nfLight
 			}
 
 			/**
@@ -397,14 +410,24 @@ package org.ffilmation.engine.core {
 			**/
 			public function createCharacter(idchar:String,def:String,x:Number,y:Number,z:Number):fCharacter {
 				
-					//Create
-					this.addCharacter(<character id={idchar} definition={def} x={x} y={y} z={z} />)
-					var character:fCharacter = this.all[idchar]
-					if(IAmBeingRendered) this.addElementToRenderEngine(character)
-					character.updateDepth()
+					// Create
+					var definitionObject:XML = <character id={idchar} definition={def} x={x} y={y} z={z} />
+			   	var nCharacter:fCharacter = new fCharacter(definitionObject,this)
+			   	
+			   	// Events
+				 	nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell)			   
+				 	nCharacter.addEventListener(fElement.MOVE,this.renderElement)			   
+         	
+			   	// Add to lists
+ 			   	nCharacter.counter = this.characters.length
+			   	this.characters.push(nCharacter)
+			   	this.everything.push(nCharacter)
+			   	this.all[nCharacter.id] = nCharacter
+					if(IAmBeingRendered) this.addElementToRenderEngine(nCharacter)
+					nCharacter.updateDepth()
 
 					//Return
-					return character
+					return nCharacter
 			}
 
 			/**
@@ -568,6 +591,8 @@ package org.ffilmation.engine.core {
 			}
 
 			// PRIVATE AND INTERNAL METHODS FOLLOW
+			
+			// INTERNAL METHODS RELATED TO RENDER
 
 			/**
 			* This method adds an element to the renderEngine poll
@@ -623,12 +648,12 @@ package org.ffilmation.engine.core {
 			   if(IAmBeingRendered) this.renderEngine.hideElement(evt.target as fRenderableElement)
 			}
 
-			// Listens to elements made visible
+			// Listens to elements made enabled
 			private function enableListener(evt:Event):void {
 			   this.renderEngine.enableElement(evt.target as fRenderableElement)
 			}
 			
-			// Listens to elements made invisible
+			// Listens to elements made disabled
 			private function disableListener(evt:Event):void {
 			   this.renderEngine.disableElement(evt.target as fRenderableElement)
 			}
@@ -645,177 +670,6 @@ package org.ffilmation.engine.core {
 			   // Set flag
 			   IAmBeingRendered = false
 			   
-			}
-
-			/**
-			* @private
-			* This method frees all resources allocated by this scene. Always clean unused scene objects:
-			* scenes generate lots of internal Arrays and BitmapDatas that will eat your RAM fast if they are not properly deleted
-			*/
-			public function dispose():void {
-				
-		  	// Free properties
-		  	this.engine = null
-				for(var i:Number=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
-				this.depthSortArr = null
-				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
-				this.sortAreas = null
-				for(i=0;i<this.objectDefinitions.length;i++) delete this.objectDefinitions[i]
-				this.objectDefinitions = null
-				for(i=0;i<this.materialDefinitions.length;i++) delete this.materialDefinitions[i]
-				this.materialDefinitions = null
-				for(i=0;i<this.noiseDefinitions.length;i++) delete this.noiseDefinitions[i]
-				this.noiseDefinitions = null
-				this.currentCamera.dispose()
-				this.currentCamera = null
-				this._controller = null
-				
-				this.renderEngine.dispose()
-				
-				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
-				this._orig_container = null
-				this.container = null
-
-				// Free elements
-		  	for(i=0;i<this.floors.length;i++) {
-		  		this.floors[i].dispose()
-		  		delete this.floors[i]
-		  	}
-		  	for(i=0;i<this.walls.length;i++) {
-		  		this.walls[i].dispose()
-		  		delete this.walls[i]
-		  	}
-		  	for(i=0;i<this.objects.length;i++) {
-		  		this.objects[i].dispose()
-		  		delete this.objects[i]
-		  	}
-		  	for(i=0;i<this.characters.length;i++) {
-		  		this.characters[i].dispose()
-		  		delete this.characters[i]
-		  	}
-		  	for(i=0;i<this.lights.length;i++) {
-		  		this.lights[i].dispose()
-		  		delete this.lights[i]
-		  	}
-				for(var n in this.all) delete this.all[n]
-				
-				// Free grid
-				for(i=0;i<this.gridWidth;i++) {  
-					for(var j:int=0;j<this.gridDepth;j++) {  
-		      	 for(var k:int=0;k<this.gridHeight;k++) {  
-			         try {
-			         		this.grid[i][j][k].dispose()
-			         		delete this.grid[i][j][k]
-			         } catch (e:Error) {
-			         	
-			         }
-			       }
-			    } 
-			  }
-				this.grid = null
-				
-			}
-			
-			// This method is called when the shadowQuality option changes
-			/** @private */
-		  public function resetShadows():void {
-		  	this.renderEngine.resetShadows()
-		  	for(var i:Number=0;i<this.lights.length;i++) this.processNewCellOmniLight(this.lights[i])
-		  }
-			
-			// Listens cameras moving
-			private function cameraMoveListener(evt:fMoveEvent):void {
-					this.followCamera(evt.target as fCamera)
-			}
-
-			// Listens cameras changing cells.
-			private function cameraNewCellListener(evt:Event):void {
-				
-					var camera:fCamera = evt.target as fCamera
-
-				
-			}
-
-			// Adjusts visualization to camera position
-			private function followCamera(camera:fCamera):void {				
-					this.renderEngine.setCameraPosition(camera)
-			}
-
-			// Depth sorting
-			/** @private */
-			public function addToDepthSort(item:fRenderableElement):void {				
-
-				if(this.depthSortArr.indexOf(item)<0) {
-				 	this.depthSortArr.push(item)
-			   	item.addEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener,false,0,true)
-			  }
-			
-			}
-
-			/** @private */
-			public function removeFromDepthSort(item:fRenderableElement):void {				
-
-				 this.depthSortArr.splice(this.depthSortArr.indexOf(item),1)
-			   item.removeEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener)
-			
-			}
-
-			// Listens to renderableitems changing its depth
-			/** @private */
-			public function depthChangeListener(evt:Event):void {
-				
-				//Element
-				if(!this.IAmBeingRendered) return
-				
-				var el:fRenderableElement = evt.target as fRenderableElement
-				var oldD:Number = el.depthOrder
-				this.depthSortArr.sortOn("_depth", Array.NUMERIC);
-				var newD:Number = this.depthSortArr.indexOf(el)
-				if(newD!=oldD) {
-					el.depthOrder = newD
-					this.container.setChildIndex(el.container, newD)
-				}
-				
-			}
-			
-		  // Initial depth sorting
-			private function depthSort():void {
-				
-				var ar:Array = this.depthSortArr
-				ar.sortOn("_depth", Array.NUMERIC);
-    		var i:Number = ar.length;
-    		var p:Sprite = this.container
-    		
-    		while(i--) {
-        	p.setChildIndex(ar[i].container, i)
-        	ar[i].depthOrder = i
-        }
-				
-			}
-
-			// Reset cell. This is called if the engine's quality options change to a better quality
-			// as all cell info will have to be recalculated
-			/** @private */
-			public function resetGrid():void {
-
-				for(var i:int=0;i<this.gridWidth;i++) {  
-
-					for(var j:int=0;j<=this.gridDepth;j++) {  
-
-		      	 for(var k:int=0;k<=this.gridHeight;k++) {  
-			
-			         try {
-			         		this.grid[i][j][k].characterShadowCache = new Array
-			         		delete this.grid[i][j][k].visibleObjs
-			         } catch (e:Error) {
-			         	
-			         }
-			   
-			       }
-		
-			    } 
-			  }
-				
 			}
 
 			// Element enters new cell
@@ -1109,7 +963,7 @@ package org.ffilmation.engine.core {
 			   
 			}
 
-			// Light render method
+			// LIstens to render events
 			/** @private */
 			public function renderElement(evt:Event):void {
 				
@@ -1228,44 +1082,123 @@ package org.ffilmation.engine.core {
 
 			}
 
+			// This method is called when the shadowQuality option changes
 			/** @private */
-			internal function addLight(definitionObject:XML):void {
+		  public function resetShadows():void {
+		  	this.renderEngine.resetShadows()
+		  	for(var i:Number=0;i<this.lights.length;i++) this.processNewCellOmniLight(this.lights[i])
+		  }
 			
-			   // Create
-			   var nfLight:fOmniLight = new fOmniLight(definitionObject,this)
-			   var temp:Array
-			   
-			   // Events
-				 nfLight.addEventListener(fElement.NEWCELL,this.processNewCell)			   
-				 nfLight.addEventListener(fElement.MOVE,this.renderElement)			   
-				 nfLight.addEventListener(fLight.RENDER,this.processNewCell)			   
-				 nfLight.addEventListener(fLight.RENDER,this.renderElement)			   
+			// INTERNAL METHODS RELATED TO CAMERA MANAGEMENT
+
+
+			// Listens cameras moving
+			private function cameraMoveListener(evt:fMoveEvent):void {
+					this.followCamera(evt.target as fCamera)
+			}
+
+			// Listens cameras changing cells.
+			private function cameraNewCellListener(evt:Event):void {
+					var camera:fCamera = evt.target as fCamera
+			}
+
+			// Adjusts visualization to camera position
+			private function followCamera(camera:fCamera):void {				
+					this.renderEngine.setCameraPosition(camera)
+			}
+
+			// INTERNAL METHODS RELATED TO DEPTHSORT
+
+			// Depth sorting
+			/** @private */
+			public function addToDepthSort(item:fRenderableElement):void {				
+
+				if(this.depthSortArr.indexOf(item)<0) {
+				 	this.depthSortArr.push(item)
+			   	item.addEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener,false,0,true)
+			  }
 			
-			   // Add to lists
-			   nfLight.counter = this.lights.length
-			   this.lights.push(nfLight)
-			   this.everything.push(nfLight)
-			   this.all[nfLight.id] = nfLight
-			     
+			}
+
+			// Returns a normalized zSort value for a cell in the grid. Bigger values display in front of lower values
+			/** @private */
+			public function computeZIndex(i:Number,j:Number,k:Number):Number {
+				 var ow = this.gridWidth
+				 var od = this.gridDepth
+				 var oh = this.gridHeight
+			   return ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
 			}
 
 			/** @private */
-			internal function addCharacter(definitionObject:XML):void {
-			
-				 // Create
-			   var nCharacter:fCharacter = new fCharacter(definitionObject,this)
-			   
-			   // Events
-				 nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell)			   
-				 nCharacter.addEventListener(fElement.MOVE,this.renderElement)			   
+			public function removeFromDepthSort(item:fRenderableElement):void {				
 
-			   // Add to lists
- 			   nCharacter.counter = this.characters.length
-			   this.characters.push(nCharacter)
-			   this.everything.push(nCharacter)
-			   this.all[nCharacter.id] = nCharacter
+				 this.depthSortArr.splice(this.depthSortArr.indexOf(item),1)
+			   item.removeEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener)
 			
 			}
+
+			// Listens to renderableitems changing its depth
+			/** @private */
+			public function depthChangeListener(evt:Event):void {
+				
+				//Element
+				if(!this.IAmBeingRendered) return
+				
+				var el:fRenderableElement = evt.target as fRenderableElement
+				var oldD:Number = el.depthOrder
+				this.depthSortArr.sortOn("_depth", Array.NUMERIC);
+				var newD:Number = this.depthSortArr.indexOf(el)
+				if(newD!=oldD) {
+					el.depthOrder = newD
+					this.container.setChildIndex(el.container, newD)
+				}
+				
+			}
+			
+		  // Initial depth sorting
+			private function depthSort():void {
+				
+				var ar:Array = this.depthSortArr
+				ar.sortOn("_depth", Array.NUMERIC);
+    		var i:Number = ar.length;
+    		var p:Sprite = this.container
+    		
+    		while(i--) {
+        	p.setChildIndex(ar[i].container, i)
+        	ar[i].depthOrder = i
+        }
+				
+			}
+
+
+			// INTERNAL METHODS RELATED TO GRID MANAGEMENT	
+
+
+			// Reset cell. This is called if the engine's quality options change to a better quality
+			// as all cell info will have to be recalculated
+			/** @private */
+			public function resetGrid():void {
+
+				for(var i:int=0;i<this.gridWidth;i++) {  
+
+					for(var j:int=0;j<=this.gridDepth;j++) {  
+
+		      	 for(var k:int=0;k<=this.gridHeight;k++) {  
+			
+			         try {
+			         		this.grid[i][j][k].characterShadowCache = new Array
+			         		delete this.grid[i][j][k].visibleObjs
+			         } catch (e:Error) {
+			         	
+			         }
+			   
+			       }
+		
+			    } 
+			  }
+				
+			}
+
 
 			// Returns the cell containing the given coordinates
 			/** @private */
@@ -1315,14 +1248,6 @@ package org.ffilmation.engine.core {
 				
 			}
 
-			// Returns a normalized zSort value for a cell in the grid. Bigger values display in front of lower values
-			/** @private */
-			public function computeZIndex(i:Number,j:Number,k:Number):Number {
-				 var ow = this.gridWidth
-				 var od = this.gridDepth
-				 var oh = this.gridHeight
-			   return ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
-			}
 
 			/** @private */
 			public function translateCoords(x:Number,y:Number,z:Number):Point {
@@ -1345,6 +1270,74 @@ package org.ffilmation.engine.core {
 			   cell.visibleRange = range
 			}
 			
+			/**
+			* @private
+			* This method frees all resources allocated by this scene. Always clean unused scene objects:
+			* scenes generate lots of internal Arrays and BitmapDatas that will eat your RAM fast if they are not properly deleted
+			*/
+			public function dispose():void {
+				
+		  	// Free properties
+		  	this.engine = null
+				for(var i:Number=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
+				this.depthSortArr = null
+				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
+				this.sortAreas = null
+				for(i=0;i<this.objectDefinitions.length;i++) delete this.objectDefinitions[i]
+				this.objectDefinitions = null
+				for(i=0;i<this.materialDefinitions.length;i++) delete this.materialDefinitions[i]
+				this.materialDefinitions = null
+				for(i=0;i<this.noiseDefinitions.length;i++) delete this.noiseDefinitions[i]
+				this.noiseDefinitions = null
+				this.currentCamera.dispose()
+				this.currentCamera = null
+				this._controller = null
+				
+				this.renderEngine.dispose()
+				
+				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
+				this._orig_container = null
+				this.container = null
+
+				// Free elements
+		  	for(i=0;i<this.floors.length;i++) {
+		  		this.floors[i].dispose()
+		  		delete this.floors[i]
+		  	}
+		  	for(i=0;i<this.walls.length;i++) {
+		  		this.walls[i].dispose()
+		  		delete this.walls[i]
+		  	}
+		  	for(i=0;i<this.objects.length;i++) {
+		  		this.objects[i].dispose()
+		  		delete this.objects[i]
+		  	}
+		  	for(i=0;i<this.characters.length;i++) {
+		  		this.characters[i].dispose()
+		  		delete this.characters[i]
+		  	}
+		  	for(i=0;i<this.lights.length;i++) {
+		  		this.lights[i].dispose()
+		  		delete this.lights[i]
+		  	}
+				for(var n in this.all) delete this.all[n]
+				
+				// Free grid
+				for(i=0;i<this.gridWidth;i++) {  
+					for(var j:int=0;j<this.gridDepth;j++) {  
+		      	 for(var k:int=0;k<this.gridHeight;k++) {  
+			         try {
+			         		this.grid[i][j][k].dispose()
+			         		delete this.grid[i][j][k]
+			         } catch (e:Error) {
+			         	
+			         }
+			       }
+			    } 
+			  }
+				this.grid = null
+				
+			}
 
 		
 		}

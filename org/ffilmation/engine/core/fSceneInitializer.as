@@ -932,7 +932,21 @@ package org.ffilmation.engine.core {
 			
 			   // Add dynamic lights
 			   var objfLight:XMLList = this.xmlObj.body.child("light")
-			   for(i=0;i<objfLight.length();i++) this.scene.addLight(objfLight[i])
+			   for(i=0;i<objfLight.length();i++) {
+			   	var nfLight:fOmniLight = new fOmniLight(objfLight[i],this.scene)
+			   	
+			   	// Events
+				 	nfLight.addEventListener(fElement.NEWCELL,this.scene.processNewCell)			   
+				 	nfLight.addEventListener(fElement.MOVE,this.scene.renderElement)			   
+				 	nfLight.addEventListener(fLight.RENDER,this.scene.processNewCell)			   
+				 	nfLight.addEventListener(fLight.RENDER,this.scene.renderElement)			   
+			   	
+			   	// Add to lists
+			   	nfLight.counter = this.scene.lights.length
+			   	this.scene.lights.push(nfLight)
+			   	this.scene.everything.push(nfLight)
+			   	this.scene.all[nfLight.id] = nfLight
+			   }
 
 			   // Prepare characters
 			   for(var j:Number=0;j<this.scene.characters.length;j++) {
