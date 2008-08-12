@@ -60,7 +60,7 @@ package org.ffilmation.engine.core {
 			private var _controller:fEngineSceneController = null
 			
 			/** @private */
-			public var IAmBeingRendered:Boolean = false				// If this scene is actually being rendered
+			public var IAmBeingRendered:Boolean = false					// If this scene is actually being rendered
 
 		  // Public properties
 		  
