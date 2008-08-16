@@ -13,6 +13,10 @@ package org.ffilmation.demos.mynameisponcho {
 	import org.ffilmation.engine.interfaces.*
 	import org.ffilmation.demos.mynameisponcho.controllers.*
 		
+	/** 
+	* This is a sample game engine
+	* @private
+	*/
 	public class game {
 		
 		// Controller type
@@ -26,7 +30,7 @@ package org.ffilmation.demos.mynameisponcho {
 		public var engine:fEngine	
 		public var scene:fScene
 		public var hero:fEngineElementController
-		public var controllerType = game.MOUSE
+		public var controllerType = game.KEYBOARD
 		public var scenes:Object
 		public var cameras:Object
 		public var path:String
@@ -205,18 +209,18 @@ package org.ffilmation.demos.mynameisponcho {
 
 
 		// Mouse Event handlers for Money Bags and Info
-    public function rolloverBag(evt:MouseEvent) {
-    	this.scene.container.root.cRollover.visible = true
-    	this.scene.container.root.cRollover.setText("Walk over money to collect it.")
+    private function rolloverBag(evt:MouseEvent) {
+    	this.timeline.cRollover.visible = true
+    	this.timeline.setText("Walk over money to collect it.")
   	}
 
-    public function rolloverInfo(evt:MouseEvent) {
-    	this.scene.container.root.cRollover.visible = true
-    	this.scene.container.root.cRollover.setText("Walk over sign to read it.")
+    private function rolloverInfo(evt:MouseEvent) {
+    	this.timeline.cRollover.visible = true
+    	this.timeline.cRollover.setText("Walk over sign to read it.")
   	}
 
-    public function rolloutAny(evt:MouseEvent) {
-    	this.scene.container.root.cRollover.visible = false
+    private function rolloutAny(evt:MouseEvent) {
+    	this.timeline.cRollover.visible = false
   	}
 
 		// Mouse Event handlers for doors

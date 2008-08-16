@@ -6,7 +6,9 @@ package org.ffilmation.demos.mynameisponcho.controllers {
 	import org.ffilmation.engine.elements.*
 	import org.ffilmation.engine.interfaces.*
 	
-	/** This class controls the forest scene */
+	/** This class controls the forest scene
+	* @private
+	*/
 	public class forest implements fEngineSceneController {
 		
 		  public var scene:fScene	

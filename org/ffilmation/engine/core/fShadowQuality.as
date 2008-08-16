@@ -3,7 +3,7 @@ package org.ffilmation.engine.core {
 		/**
 		* The fShadowQuality class provides constants for the shadowQuality property of the engine
 		*
-	  * @see org.ffilmation.engine.core.fEngine.shadowQuality
+	  * @see org.ffilmation.engine.core.fEngine#shadowQuality
 		*/
 		public class fShadowQuality {
 		

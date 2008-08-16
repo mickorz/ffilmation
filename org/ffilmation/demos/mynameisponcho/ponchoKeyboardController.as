@@ -4,30 +4,41 @@ package org.ffilmation.demos.mynameisponcho {
 	import flash.display.*
 	import flash.events.*
 	import flash.ui.Keyboard
+	import org.ffilmation.utils.*
 	import org.ffilmation.engine.core.*
 	import org.ffilmation.engine.elements.*
+	import org.ffilmation.engine.datatypes.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.engine.interfaces.*
 
-	/**
-		This class controls the hero in our demo
-	*/	
+	/** 
+	* This is a sample of a character controller that listens to keyboard events
+	* @private
+	*/
 	public class ponchoKeyboardController implements fEngineElementController {
+		
+		// These are the Keys we use to move our character
+		public static var UP:int = 87
+		public static var DOWN:int = 83
+		public static var LEFT:int = 65
+		public static var RIGHT:int = 68
+		public static var RUN:int = Keyboard.SHIFT
+		public static var JUMP:int = Keyboard.SPACE
+		public static var CROUCH:int = Keyboard.CONTROL
 	
 		// Properties
 		public var character:fCharacter
 		private var keysDown:Object
 
 		// Status
-		public var running:Boolean
-		public var walking:Boolean
-		public var crouching:Boolean
-		public var shooting:Boolean
-		public var jumping:Boolean
-		public var rolling:Boolean
+		public var running:Boolean = false
+		public var walking:Boolean = false
+		public var crouching:Boolean = false
+		public var shooting:Boolean = false
+		public var jumping:Boolean = false
+		public var rolling:Boolean = false
 		public var cnt:Number
 		public var angle:Number
-		public var turnSpeed:Number
 		public var vx:Number
 		public var vy:Number
 		public var vz:Number
@@ -56,6 +67,7 @@ package org.ffilmation.demos.mynameisponcho {
 			fEngine.stage.addEventListener(KeyboardEvent.KEY_UP, this.keyReleased)
 			fEngine.stage.addEventListener('enterFrame', this.control)
 			this.character.addEventListener(fCharacter.COLLIDE, this.collision)
+			this.character.scene.container.addEventListener(MouseEvent.MOUSE_DOWN, this.clic)
 		}
 
 		// Implements interface
@@ -69,29 +81,91 @@ package org.ffilmation.demos.mynameisponcho {
 		  this.stopWalking()
 		  this.character.gotoAndPlay("Stand")
 		  this.vx = this.vy = this.vz = 0
+			this.character.scene.container.removeEventListener(MouseEvent.MOUSE_DOWN, this.clic)
 		}
+
+		// Process Mouse clic
+		private function clic(evt:MouseEvent):void {
+			var ret:Array = this.character.scene.translateStageCoordsToElements(evt.stageX,evt.stageY)
+			if(ret) {
+				for(var i:Number=0;i<ret.length;i++) {
+					if(ret[i].element!=this.character) {
+						var destiny:fPoint3d = ret[i].coordinate
+						
+						var angle:Number = mathUtils.getAngle(this.character.x,this.character.y,destiny.x,destiny.y)
+						var d:Number = Math.abs(angle-this.angle)
+						
+						if(this.rolling || this.jumping) return
+						this.shoot()						
+						break;
+					}
+				}
+			} else {
+				trace("out")
+			}
+			
+		}
+
+		public function shoot():void {
+		
+			// If dodging, ignore
+			if(this.shooting) return
+			if(this.walking) this.stopWalking()
+			if(this.crouching) this.character.gotoAndPlay("CrouchFire")
+			else this.character.gotoAndPlay("StandFire")			
+			this.vx = this.vy = 0
+			this.shooting = true
+			this.cnt = 6
+			fEngine.stage.addEventListener('enterFrame', this.controlShoot)			
+			
+		}
+
+		public function controlShoot(evt:Event):void {
+			this.cnt--
+			if(this.cnt==0) {
+				fEngine.stage.removeEventListener('enterFrame', this.controlShoot)
+				this.doneShooting()
+			}
+		}
+		
+		public function doneShooting():void {
+			this.shooting = false
+			if(this.walking) {
+				if(this.running) this.character.gotoAndPlay("Run")
+				else this.character.gotoAndPlay("Walk")
+			}
+		}
+
+
 
 		// Receives keypresses		
 	  private function keyPressed(evt:KeyboardEvent):void {
 		    
 				// Ignore auto key repeats
-				
 				if(this.keysDown[evt.keyCode] == true) return
 				this.keysDown[evt.keyCode] = true
-
+				
 		    switch(evt.keyCode) {
 		
-		    	case Keyboard.SPACE: this.jump(); break;
+		    	case ponchoKeyboardController.CROUCH: if(this.running || this.walking) {
+		    																					this.dodge()
+		    																				} else {
+		    																					if(!this.crouching) this.crouch()
+		    																					else this.stopCrouching()
+		    																				}
+		    																				break;
 		
-		    	case Keyboard.SHIFT: this.run(); break;
+		    	case ponchoKeyboardController.JUMP: if(this.crouching) this.dodge(); else this.jump(); break;
 		
-		    	case Keyboard.UP: this.walk(); break;
+		    	case ponchoKeyboardController.RUN: this.run(); break;
+		
+		    	case ponchoKeyboardController.UP: this.walk(); break;
 
-		    	case Keyboard.RIGHT: this.walk(); break;
+		    	case ponchoKeyboardController.DOWN: this.walk(); break;
 
-		    	case Keyboard.LEFT: this.walk(); break;
+		    	case ponchoKeyboardController.LEFT: this.walk(); break;
 
-		    	case Keyboard.DOWN: this.walk(); break;
+		    	case ponchoKeyboardController.RIGHT: this.walk(); break;
 		    } 
 
 
@@ -104,15 +178,15 @@ package org.ffilmation.demos.mynameisponcho {
 
 		    switch(evt.keyCode) {
 		
-		    	case Keyboard.SHIFT: this.stopRunning(); break;
+		    	case ponchoKeyboardController.RUN: this.stopRunning(); break;
 		
-		    	case Keyboard.UP: this.stopWalking(); break;
+		    	case ponchoKeyboardController.UP: this.stopWalking(); break;
 
-		    	case Keyboard.RIGHT: this.stopWalking(); break;
+		    	case ponchoKeyboardController.DOWN: this.stopWalking(); break;
 
-		    	case Keyboard.LEFT: this.stopWalking(); break;
+		    	case ponchoKeyboardController.LEFT: this.stopWalking(); break;
 		    	
-		    	case Keyboard.DOWN: this.stopWalking(); break;
+		    	case ponchoKeyboardController.RIGHT: this.stopWalking(); break;
 		    	
 		    } 
 		
@@ -130,7 +204,7 @@ package org.ffilmation.demos.mynameisponcho {
 				this.vz-=1
 				
 				// Speed from status
-				if(this.rolling || this.jumping) {
+				if(this.rolling || this.jumping || this.crouching || this.shooting) {
 				
 				} else if(this.walking) {
 					
@@ -155,6 +229,16 @@ package org.ffilmation.demos.mynameisponcho {
 
 		// Collision listener
 		public function collision(evt:fCollideEvent):void {
+			
+				// The character is smart enought to climb small walls
+ 				if(evt.victim is fWall) {
+ 					var w:fWall = evt.victim as fWall
+ 					if(w.top<(this.character.z+20)) {
+ 						this.vz = 4 //This is kind of eye-balling it
+						if(w.top<(this.character.z+11)) this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+11,w.top+0.1))
+					}
+ 				}			
+			
 				if(evt.victim is fFloor || (evt.victim is fObject && this.character.z>evt.victim.top)) {
 					this.vz = 0
 					
@@ -167,9 +251,22 @@ package org.ffilmation.demos.mynameisponcho {
 					}
 					this.jumping = false
 				}
+				
+				
+				
 		}
 
 		// Movement methods
+		public function crouch():void {
+			this.crouching = true
+			this.character.gotoAndPlay("Crouch")
+		}
+		
+		public function stopCrouching():void {
+			this.crouching = false
+			if(!this.rolling) this.character.gotoAndPlay("Rise")
+		}
+		
 		public function jump():void {
 			
 			// If dodging, ignore
@@ -193,14 +290,19 @@ package org.ffilmation.demos.mynameisponcho {
 			if(this.running) {
 				this.vx = 12*Math.cos(angleRad)
 				this.vy = 12*Math.sin(angleRad)
-			} else if(this.walking){
+			} else if(this.walking || this.crouching){
 				this.vx = 8*Math.cos(angleRad)
 				this.vy = 8*Math.sin(angleRad)
 			} else return
 			
 			this.rolling = true
-			this.cnt = 25
-			this.character.gotoAndPlay("Roll")
+			if(this.crouching) {
+				this.cnt = 21
+				this.character.gotoAndPlay("Roll2")
+			} else {
+				this.cnt = 25
+				this.character.gotoAndPlay("Roll")
+			}
 		
 			fEngine.stage.addEventListener('enterFrame', this.controlDodge)			
 			
@@ -217,7 +319,10 @@ package org.ffilmation.demos.mynameisponcho {
 		public function doneDodging():void {
 	
 			this.rolling = false
-			if(this.walking) {
+			if(this.crouching) {
+				this.character.gotoAndStop("Down")
+				this.vx = this.vy = 0
+		  } else if(this.walking) {
 				if(this.running) this.character.gotoAndPlay("Run")
 				else this.character.gotoAndPlay("Walk")
 			} 
@@ -260,12 +365,12 @@ package org.ffilmation.demos.mynameisponcho {
 			this.updateAngle()
 		
 			// If already walking, don't reset animation
-			if(this.walking) return
+			if(this.walking || this.crouching) return
 			
 			this.walking = true
 
 			// If dodging, ignore
-			if(this.rolling || this.jumping) return
+			if(this.rolling || this.jumping ) return
 
 			if(this.running) this.character.gotoAndPlay("Run")
 			else this.character.gotoAndPlay("Walk")
@@ -275,33 +380,33 @@ package org.ffilmation.demos.mynameisponcho {
 		public function stopWalking():void {
 		
 			this.updateAngle()
-			if(this.keysDown[Keyboard.UP] == true || this.keysDown[Keyboard.DOWN] == true || this.keysDown[Keyboard.LEFT] == true || this.keysDown[Keyboard.RIGHT] == true) return
+			if(this.keysDown[ponchoKeyboardController.UP] == true || this.keysDown[ponchoKeyboardController.DOWN] == true || this.keysDown[ponchoKeyboardController.LEFT] == true || this.keysDown[ponchoKeyboardController.RIGHT] == true) return
 
 			this.walking = false
-			if(!this.rolling && !this.jumping) this.character.gotoAndPlay("Stand")
+			if(!this.rolling && !this.jumping && !this.crouching) this.character.gotoAndPlay("Stand")
 		
 		}
 
 
 		private function updateAngle():void {
 			
-			if(this.keysDown[Keyboard.UP] == true) {
+			if(this.keysDown[ponchoKeyboardController.UP] == true) {
 				
-				if(this.keysDown[Keyboard.LEFT] == true) this.angle = 270
-				else if(this.keysDown[Keyboard.RIGHT] == true) this.angle = 0
+				if(this.keysDown[ponchoKeyboardController.LEFT] == true) this.angle = 270
+				else if(this.keysDown[ponchoKeyboardController.RIGHT] == true) this.angle = 0
 				else this.angle = 315
 				
-			} else if(this.keysDown[Keyboard.DOWN] == true) {
+			} else if(this.keysDown[ponchoKeyboardController.DOWN] == true) {
 				
-				if(this.keysDown[Keyboard.LEFT] == true) this.angle = 180
-				else if(this.keysDown[Keyboard.RIGHT] == true) this.angle = 90
+				if(this.keysDown[ponchoKeyboardController.LEFT] == true) this.angle = 180
+				else if(this.keysDown[ponchoKeyboardController.RIGHT] == true) this.angle = 90
 				else this.angle = 135
 				
-			} else if(this.keysDown[Keyboard.RIGHT] == true) {
+			} else if(this.keysDown[ponchoKeyboardController.RIGHT] == true) {
 				
 				this.angle = 45
 			
-			}	else if(this.keysDown[Keyboard.LEFT] == true) {
+			}	else if(this.keysDown[ponchoKeyboardController.LEFT] == true) {
 				
 				this.angle = 225
 			

@@ -11,9 +11,10 @@ package org.ffilmation.demos.mynameisponcho {
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.engine.interfaces.*
 
-	/**
-		This class controls the hero in our demo
-	*/	
+	/** 
+	* This is a sample of a character controller that listens to mouse events
+	* @private
+	*/
 	public class ponchoMouseController implements fEngineElementController {
 	
 		// Properties
@@ -117,7 +118,7 @@ package org.ffilmation.demos.mynameisponcho {
 					var d:Number=mathUtils.distance3d(this.character.x,this.character.y,this.character.z,this.dx,this.dy,this.dz)
 					
 					// Are we stuck ?
-					if(Math.abs(d-this.lastDistance<1)) this.stuck++
+					if(Math.abs(d-this.lastDistance)<1) this.stuck++
 					else this.stuck=0
 					
 					if(d<10 || this.stuck>10) {
@@ -135,7 +136,7 @@ package org.ffilmation.demos.mynameisponcho {
 				// The character is smart enought to climb small walls
 				if(evt.victim is fWall) {
 					var w:fWall = evt.victim as fWall
-					if(w.top<(this.character.z+10)) this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+10,w.top+0.1))
+					if(w.top<(this.character.z+20)) this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+10,w.top+0.1))
 				}
 				
 				// Don't walk down floors

@@ -106,7 +106,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					} catch(e:Error) {
 						lastFrame = 1
 					}
-					
 					var clase:Class = el.sprites[newSprite].sprite as Class
 					this.currentSprite = new clase() as MovieClip
 					this.baseObj.addChild(this.currentSprite)

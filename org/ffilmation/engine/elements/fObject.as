@@ -50,9 +50,9 @@ package org.ffilmation.engine.elements {
 			
 			// Private properties
 			private var definitionXML:XML
-			/* @private */
+			/** @private */
 			public var sprites:Array
-			/* @private */
+			/** @private */
 			public var _orientation:Number
 			/** @private */
 			public var shadowRange:Number
@@ -92,6 +92,7 @@ package org.ffilmation.engine.elements {
  			* The event is dispatched when the object changes its orientation
  			* 
  			* @eventType objectNewOrientation
+ 			* @private
  			*/
 		  public static const NEWORIENTATION:String = "objectNewOrientation"
 
@@ -101,6 +102,7 @@ package org.ffilmation.engine.elements {
  			* The event is dispatched when you execute a gotoAndPlay call in the object
  			* 
  			* @eventType objectGotoAndPlay
+ 			* @private
  			*/
 		  public static const GOTOANDPLAY:String = "objectGotoAndPlay"
 
@@ -111,6 +113,7 @@ package org.ffilmation.engine.elements {
  			* The event is dispatched when you execute a gotoAndPlay call in the object
  			* 
  			* @eventType objectGotoAndStop
+ 			* @private
  			*/
 		  public static const GOTOANDSTOP:String = "objectGotoAndStop"
 

@@ -133,7 +133,7 @@ package org.ffilmation.engine.elements {
 			}
 			
 			
-			/*
+			/**
 			* Moves a character into a new position, ignoring collisions
 			* 
 			* @param x: New x coordinate

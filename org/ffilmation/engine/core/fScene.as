@@ -566,7 +566,7 @@ package org.ffilmation.engine.core {
 			* <p>Under special circunstances, however, you may want to call this method manually at some point before showing the scene. This is useful is you want
 			* the graphic assets to exist before the scene is shown ( to attach Mouse Events for example ).</p>
 			*/
-			public function startRendering() {
+			public function startRendering():void {
 				
 				 if(IAmBeingRendered) return
 		   	 
@@ -658,11 +658,11 @@ package org.ffilmation.engine.core {
 			   this.renderEngine.disableElement(evt.target as fRenderableElement)
 			}
 
-			/*
+			/**
 			* @private
 			* This method is called when the scene is no longer displayed.
 			*/
-			public function stopRendering() {
+			public function stopRendering():void {
 		   	 
 			   // Stop render engine
 			   this.renderEngine.dispose()
