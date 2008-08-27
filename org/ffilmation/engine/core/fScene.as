@@ -62,6 +62,30 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public var IAmBeingRendered:Boolean = false					// If this scene is actually being rendered
 
+			/** @private */
+		  public var gridSize:Number           								// Grid size ( in pixels )
+			/** @private */
+		  public var levelSize:Number          								// Vertical grid size ( along Z axis, in pixels )
+			/** @private */
+		  public var grid:Array                 						  // The grid
+			/** @private */
+		  public var viewWidth:Number													// Viewport size
+			/** @private */
+		  public var viewHeight:Number												// Viewport size
+			/** @private */
+			public var objectDefinitions:Object								  // The list of object definitions loaded for this scene
+			/** @private */
+			public var materialDefinitions:Object								// The list of material definitions loaded for this scene
+			/** @private */
+			public var noiseDefinitions:Object									// The list of noise definitions loaded for this scene
+			
+			private var renderEngine:fEngineRenderEngine				// The render engine
+			
+			private var bulletPool:Array												// Bullets go here instead of being deleted, so they can be reused
+			
+			private var _enabled:Boolean												// Is the scene enabled ?
+
+
 		  // Public properties
 		  
 		  /** 
@@ -125,7 +149,7 @@ package org.ffilmation.engine.core {
 		  public var lights:Array                 						
 
 		  /**
-		  * An array of all elements for fast loop access. For "id" access use the .all array
+		  * An array of all elements for fast loop access. For "id" access use the .all array. Bullets are not here
 		  */
 		  public var everything:Array                 						
 
@@ -135,7 +159,7 @@ package org.ffilmation.engine.core {
 		  public var environmentLight:fGlobalLight  					
 
 		  /**
-		  * An array of all elements in this scene, use it with ID Strings
+		  * An array of all elements in this scene, use it with ID Strings. Bullets are not here
 		  */
 		  public var all:Array                    						
 		  
@@ -143,25 +167,12 @@ package org.ffilmation.engine.core {
 		  * The AI-related method are grouped inside this object, for easier access
 		  */
 		  public var AI:fAiContainer
+		  
+		  /**
+		  * All the bullets currently active in the scene are here
+		  */
+		  public var bullets:Array
 
-			/** @private */
-		  public var gridSize:Number           								// Grid size ( in pixels )
-			/** @private */
-		  public var levelSize:Number          								// Vertical grid size ( along Z axis, in pixels )
-			/** @private */
-		  public var grid:Array                 						  // The grid
-			/** @private */
-		  public var viewWidth:Number													// Viewport size
-			/** @private */
-		  public var viewHeight:Number												// Viewport size
-			/** @private */
-			public var objectDefinitions:Object								  // The list of object definitions loaded for this scene
-			/** @private */
-			public var materialDefinitions:Object								// The list of material definitions loaded for this scene
-			/** @private */
-			public var noiseDefinitions:Object									// The list of noise definitions loaded for this scene
-			
-			private var renderEngine:fEngineRenderEngine				// The render engine
 			
 
 		  // Events
@@ -217,6 +228,8 @@ package org.ffilmation.engine.core {
 			   this.characters = new Array         
 			   this.lights = new Array         
 			   this.everything = new Array          
+			   this.bullets = new Array          
+			   this.bulletPool = new Array          
 			   this.all = new Array 
 			   
 			   // AI
@@ -245,10 +258,12 @@ package org.ffilmation.engine.core {
 			public function enable():void {
 				
 				// Enable scene controller
+				this._enabled = true
 				if(this.controller) this.controller.enable()
 				
 				// Enable controllers for all elements in the scene
 				for(var i:Number=0;i<this.everything.length;i++) if(this.everything[i].controller!=null) this.everything[i].controller.enable()
+				for(i=0;i<this.bullets.length;i++) this.bullets[i].enable()
 				
 			}
 			
@@ -263,10 +278,12 @@ package org.ffilmation.engine.core {
 			public function disable():void {
 				
 				// Disable scene controller
+				this._enabled = false
 				if(this.controller) this.controller.disable()
 				
 				// Disable  controllers for all elements in the scene
 				for(var i:Number=0;i<this.everything.length;i++) if(this.everything[i].controller!=null) this.everything[i].controller.disable()
+				for(i=0;i<this.bullets.length;i++) this.bullets[i].disable()
 				
 			}
 
@@ -451,6 +468,64 @@ package org.ffilmation.engine.core {
 			}
 
 			/**
+			* Creates a new bullet and adds it to the scene. Note that bullets use their own render system. The bulletRenderer interface allows
+			* you to have complex things such as trails. If it was integrated with the standard renderer, your bullets would have to be standard
+			* Sprites, and I dind't like that.
+			*
+			* <p><b>Note to developers:</b> bullets are reused. Creating new objects is slow, and depending on your game you could have a lot
+			* being created and destroyed. The engine uses an object pool to reuse "dead" bullets and minimize the amount of new() calls. This
+			* is transparent to you but I think this information can help tracking weird bugs</p>
+			*
+			* @param x Start position of the bullet
+			* @param y Start position of the bullet
+			* @param z Start position of the bullet
+			* @param speedx Speed of bullet
+			* @param speedy Speed of bullet
+			* @param speedz Speed of bullet
+			* @param renderer The renderer that will be drawing this bullet. In order to increase performace, you should't create a new
+			* renderer instance for each bullet: pass the same renderer to all bullets that look the same.
+			*
+			*/
+			public function createBullet(x:Number,y:Number,z:Number,speedx:Number,speedy:Number,speedz:Number,renderer:fEngineBulletRenderer):fBullet {
+				
+				// Is there an available bullet or a new one is needed ?
+				var b:fBullet
+				if(this.bulletPool.length>0) {
+					b = this.bulletPool.pop()
+					b.show()
+				}
+				else {
+					b = new fBullet(this)
+					if(IAmBeingRendered) this.addElementToRenderEngine(b)
+				}
+				
+				// Events
+				b.addEventListener(fElement.NEWCELL,this.processNewCell)			   
+				b.addEventListener(fElement.MOVE,this.renderElement)			   
+				b.addEventListener(fBullet.SHOT,this.processShot)			   
+
+				// Properties
+				b.moveTo(x,y,z)
+				b.speedx = speedx
+				b.speedy = speedy
+				b.speedz = speedz
+				
+				// Init renderer
+				b.customData.bulletRenderer = renderer
+				if(b.container) b.customData.bulletRenderer.init(b)
+         	
+			  // Add to lists
+ 			  this.bullets.push(b)
+				
+				// Enable
+				if(this._enabled) b.enable()
+
+				// Return
+				return b
+			}
+
+
+			/**
 			* This method translates scene 3D coordinates to 2D coordinates relative to the Sprite containing the scene
 			* 
 			* @param x x-axis coordinate
@@ -578,6 +653,10 @@ package org.ffilmation.engine.core {
 			   for(j=0;j<this.walls.length;j++) addElementToRenderEngine(this.walls[j])
 			   for(j=0;j<this.objects.length;j++) addElementToRenderEngine(this.objects[j])
 			   for(j=0;j<this.characters.length;j++) addElementToRenderEngine(this.characters[j])
+			   for(j=0;j<this.bullets.length;j++) {
+			   	addElementToRenderEngine(this.bullets[j])
+			   	this.bullets[j].customData.bulletRenderer.init()
+			   }
 		   	 
 			   // Set flag
 			   IAmBeingRendered = true
@@ -636,7 +715,24 @@ package org.ffilmation.engine.core {
 				 element.removeEventListener(fRenderableElement.DISABLE,this.disableListener)
 				 
 			}
+			
+			// Removes a bullet from the scene
+			private function removeBullet(bullet:fBullet):void {
 
+				// Events
+				bullet.removeEventListener(fElement.NEWCELL,this.processNewCell)			   
+				bullet.removeEventListener(fElement.MOVE,this.renderElement)			   
+				bullet.removeEventListener(fBullet.SHOT,this.processShot)
+				
+				// Hide
+				bullet.disable()
+				bullet.customData.bulletRenderer.clear(bullet)
+				bullet.hide()
+				// Back to pool
+				this.bullets.splice(this.bullets.indexOf(bullet),1)
+				this.bulletPool.push(bullet)
+				
+			}
 
 			// Listens to elements made visible
 			private function showListener(evt:Event):void {
@@ -678,8 +774,24 @@ package org.ffilmation.engine.core {
 
 				if(evt.target is fOmniLight) this.processNewCellOmniLight(evt.target as fOmniLight)
 				if(evt.target is fCharacter) this.processNewCellCharacter(evt.target as fCharacter)
+				if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
 				
 			}
+
+			// Process bullets shooting things
+			private function processShot(evt:fShotEvent):void {
+		 		 // When a bullet shots something, it is destroyed
+		 		 this.removeBullet(evt.bullet)
+		 	}
+
+			// Process New cell for Bullets
+			private function processNewCellBullet(bullet:fBullet):void {
+			
+		 		 // If it goes outside the scene, destroy it
+		 		 if(bullet.cell==null) this.removeBullet(bullet)
+		 		 else bullet.setDepth(bullet.cell.zIndex)
+		 		 
+		 	}
 
 			// Process New cell for Omni lights
 			private function processNewCellOmniLight(light:fOmniLight):void {
@@ -973,6 +1085,7 @@ package org.ffilmation.engine.core {
 			   if(IAmBeingRendered) {
 			   	if(evt.target is fOmniLight) this.renderOmniLight(evt.target as fOmniLight)
 				 	if(evt.target is fCharacter) this.renderCharacter(evt.target as fCharacter)
+				 	if(evt.target is fBullet) this.renderBullet(evt.target as fBullet)
 				 }
 				
 			}
@@ -1033,6 +1146,17 @@ package org.ffilmation.engine.core {
 			   for(i2=0;i2<nElements;i2++) this.renderEngine.renderFinish(tempElements[i2].obj,light)
 
 			}
+
+			// Main render method for bullets
+			private function renderBullet(bullet:fBullet):void {
+
+				 // Move character to its new position
+				 this.renderEngine.updateBulletPosition(bullet)
+				 // Update custom render
+				 if(bullet.customData.bulletRenderer) bullet.customData.bulletRenderer.update(bullet)
+				 
+			}
+
 
 			// Main render method for characters
 			private function renderCharacter(character:fCharacter):void {
@@ -1293,8 +1417,8 @@ package org.ffilmation.engine.core {
 				this.currentCamera = null
 				this._controller = null
 				
+				// Free render engine
 				this.renderEngine.dispose()
-				
 				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
 				this._orig_container = null
 				this.container = null
@@ -1319,6 +1443,14 @@ package org.ffilmation.engine.core {
 		  	for(i=0;i<this.lights.length;i++) {
 		  		this.lights[i].dispose()
 		  		delete this.lights[i]
+		  	}
+		  	for(i=0;i<this.bullets.length;i++) {
+		  		this.bullets[i].dispose()
+		  		delete this.bullets[i]
+		  	}
+		  	for(i=0;i<this.bulletPool.length;i++) {
+		  		this.bulletPool[i].dispose()
+		  		delete this.bulletPool[i]
 		  	}
 				for(var n in this.all) delete this.all[n]
 				
