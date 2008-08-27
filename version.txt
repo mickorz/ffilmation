@@ -10,6 +10,7 @@ PathFinding now uses an fEnginePathFindCriteria interface, so users can write th
 Implemented scene.removeCharacter()
 Significant shadow rendering optimizations. Quality settings other than BEST now perform almost as if there were no shadows at all.
 Added character-character collision. Thanks to Alex Stone
+Added the fBullets class.
 
 1.2:
 

@@ -3,6 +3,7 @@ package org.ffilmation.demos.mynameisponcho {
 	// Imports
 	import flash.display.*
 	import flash.events.*
+	import flash.media.*
 	import flash.ui.Keyboard
 	import org.ffilmation.utils.*
 	import org.ffilmation.engine.core.*
@@ -34,6 +35,8 @@ package org.ffilmation.demos.mynameisponcho {
 		public var character:fCharacter
 		private var keysDown:Object
 		private var bulletRenderer:fLineBulletRenderer
+		private var gunS:Sound = new gunSound()
+		private var ricochetS:Sound = new ricochetSound()
 
 		// Status
 		public var running:Boolean = false
@@ -119,9 +122,12 @@ package org.ffilmation.demos.mynameisponcho {
 						dy/=dtotal
 						dz/=dtotal
 						
-						this.character.scene.createBullet(this.character.x+60*dx,this.character.y+60*dy,gunZ,
-																						ponchoKeyboardController.bulletSpeed*dx,ponchoKeyboardController.bulletSpeed*dy,ponchoKeyboardController.bulletSpeed*dz,
-																						this.bulletRenderer)		
+						var b:fBullet = this.character.scene.createBullet(this.character.x+60*dx,this.character.y+60*dy,gunZ,
+																														 ponchoKeyboardController.bulletSpeed*dx,ponchoKeyboardController.bulletSpeed*dy,ponchoKeyboardController.bulletSpeed*dz,
+																														 this.bulletRenderer)		
+																														 
+						b.addEventListener(fBullet.SHOT,this.shotListener)																								 
+						
 						// Shoot animation
 						this.shoot()						
 						
@@ -133,6 +139,13 @@ package org.ffilmation.demos.mynameisponcho {
 			
 		}
 
+
+		// Receives gunshots
+	  private function shotListener(evt:fShotEvent):void {
+	  	evt.bullet.removeEventListener(fBullet.SHOT,this.shotListener)
+	  	this.ricochetS.play()
+	  }
+
 		public function shoot():void {
 		
 			// If dodging, ignore
@@ -140,6 +153,9 @@ package org.ffilmation.demos.mynameisponcho {
 			if(this.walking) this.stopWalking()
 			if(this.crouching) this.character.gotoAndPlay("CrouchFire")
 			else this.character.gotoAndPlay("StandFire")			
+			
+			this.gunS.play()
+			
 			this.vx = this.vy = 0
 			this.shooting = true
 			this.cnt = 6
