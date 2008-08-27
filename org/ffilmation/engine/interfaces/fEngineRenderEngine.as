@@ -62,6 +62,12 @@ package org.ffilmation.engine.interfaces {
 				*/
 				function updateCharacterPosition(char:fCharacter):void;
 
+				/**
+				* This method updates the position of a bullet's sprite
+				* @param bullet The bullet that needs to be moved
+				*/
+				function updateBulletPosition(bullet:fBullet):void;
+
 			  /**
 			  * This method renders an element visible
 			  * @param element The element we want to show
