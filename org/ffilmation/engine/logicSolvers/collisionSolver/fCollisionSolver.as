@@ -327,7 +327,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			* This methods tests a point's collision against a Floor
 			* @return A boolean result
 			*/
-			private static function testFloorPointCollision(x:Number,y:Number,z:Number,floor:fFloor):Boolean {
+			public static function testFloorPointCollision(x:Number,y:Number,z:Number,floor:fFloor):Boolean {
 
 				if(!floor.solid) return false
 				
@@ -350,7 +350,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			* This methods tests a point's collision against a wall
 			* @return A boolean result
 			*/
-			private static function testWallPointCollision(x:Number,y:Number,z:Number,wall:fWall):Boolean {
+			public static function testWallPointCollision(x:Number,y:Number,z:Number,wall:fWall):Boolean {
 
 				if(!wall.solid) return false
 				
@@ -385,7 +385,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			* This methods tests a point's collision against an object
 			* @return A boolean result
 			*/
-			private static function testObjectPointCollision(x:Number,y:Number,z:Number,obj:fObject):Boolean {
+			public static function testObjectPointCollision(x:Number,y:Number,z:Number,obj:fObject):Boolean {
 
 					if(!obj.solid) false
 					

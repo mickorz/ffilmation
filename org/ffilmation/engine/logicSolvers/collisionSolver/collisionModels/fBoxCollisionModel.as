@@ -2,6 +2,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 
 		// Imports
 		import flash.geom.Point
+		import org.ffilmation.utils.*
 		import org.ffilmation.engine.datatypes.*
 		
 		/**
@@ -117,6 +118,51 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 		  	return (nx<=halfWidth && nx>=-halfWidth && ny<=halfDepth && ny>=-halfDepth)
 		  }
 		  
+			/** 
+			* Test if given line intersects with this collision model, and return the point of intersection if any
+			*
+			* @param x1: Origin point
+			* @param y1: Origin point
+			* @param z1: Origin point
+			* @param x2: Destiny point
+			* @param y2: Destiny point
+			* @param z2: Destiny point
+			*
+			* @return Intersection coordinate, or null if there wasn't any
+			*
+			*/
+		  public function testLine(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d {
+
+				// Test all segments and find collison closest to origin point
+				var lastPoint:Point = null
+				var lastDistance:Number = Infinity
+				var q:Number = this.topView.length
+			  
+			  for(var i:Number=0;i<q;i++) {
+			  	var p1:Point = this.topView[i]
+			  	var p2:Point = this.topView[(i==0)?(q-1):(i-1)]
+			  	
+			  	var intersect:Point = mathUtils.segmentsIntersect(x1,y1,x2,y2,p1.x,p1.y,p2.x,p2.y)
+			  	if(intersect) {
+			  		var d:Number = mathUtils.distance(x1,y1,intersect.x,intersect.y)
+			  		if(d<lastDistance) {
+			  			lastDistance = d
+			  			lastPoint = intersect
+			  		}
+			  	}
+			  }
+
+				// See if there is z intersection as well
+				if(lastPoint) {
+		  		var inter1:Point = mathUtils.linesIntersect(x1,z1,x2,z2,lastPoint.x,0,lastPoint.x,this._height)
+		  		if(inter1) return new fPoint3d(lastPoint.x,lastPoint.y,inter1.y)
+				} 
+				
+				return null
+				
+		  }
+
+
 		  /**
 		  * Returns an array of points defining the polygon that represents this model from a "top view", ignoring the size along z-axis
 		  * of this collision model

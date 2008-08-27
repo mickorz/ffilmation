@@ -2,7 +2,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 
 		// Imports
 		import flash.geom.Point
-		import org.ffilmation.utils.mathUtils
+		import org.ffilmation.utils.*
 		import org.ffilmation.engine.datatypes.*
 		
 		/**
@@ -86,6 +86,32 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 		  	return ((z>=0) && (z<=this._height) && (mathUtils.distance(0,0,x,y)<this._radius))
 		  }
 		  
+			/** 
+			* Test if given line intersects with this collision model, and return the point of intersection if any
+			*
+			* @param x1: Origin point
+			* @param y1: Origin point
+			* @param z1: Origin point
+			* @param x2: Destiny point
+			* @param y2: Destiny point
+			* @param z2: Destiny point
+			*
+			* @return Intersection coordinate, or null if there wasn't any
+			*
+			*/
+		  public function testLine(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d {
+		  	
+		  	
+		  	var r:lineCircleIntersectionResult = mathUtils.lineIntersectCircle(new Point(x1,y1),new Point(x2,y2),new Point(0,0),this._radius)
+		  	if(r.intersects==false || !r.enter) return null
+		  	else {
+		  		var inter1:Point = mathUtils.linesIntersect(x1,z1,x2,z2,r.enter.x,0,r.enter.x,this._height)
+		  		if(inter1) return new fPoint3d(r.enter.x,r.enter.y,inter1.y)
+		  	}
+		  	return null
+
+		  }
+
 		  /**
 		  * Returns an array of points defining the polygon that represents this model from a "top view", ignoring the size along z-axis
 		  * of this collision model

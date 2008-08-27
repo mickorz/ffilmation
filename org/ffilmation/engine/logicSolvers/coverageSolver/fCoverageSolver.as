@@ -27,7 +27,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			* @return A Coverage value.
 			* @see org.ffilmation.engine.logicSolvers.coverageSolver.fCoverage
 			*/
-			public static function calculateCoverage(from:fRenderableElement,to:fRenderableElement,x:Number,y:Number,z:Number):int {
+			public static function calculateCoverage(from:fRenderableElement,to:*,x:Number,y:Number,z:Number):int {
 				
 				try {
 					

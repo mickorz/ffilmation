@@ -2,6 +2,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 
 		// Imports
 		import flash.display.*
+		import org.ffilmation.engine.datatypes.*
 
 		/**
 		* This interface defines methods that any class that is to be used as a collision model in the engine must implement.<br>
@@ -48,6 +49,21 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 			*
 			*/
 		  function testPoint(x:Number,y:Number,z:Number):Boolean;
+
+			/** 
+			* Test if given line intersects with this collision model, and return the point of intersection if any
+			*
+			* @param x1: Origin point
+			* @param y1: Origin point
+			* @param z1: Origin point
+			* @param x2: Destiny point
+			* @param y2: Destiny point
+			* @param z2: Destiny point
+			*
+			* @return Intersection coordinate, or null if there wasn't any
+			*
+			*/
+		  function testLine(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d;
 		  
 		  /**
 		  * Returns an array of points defining the polygon that represents this model from a "top view", ignoring the size along z-axis
