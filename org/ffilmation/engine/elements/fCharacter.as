@@ -267,7 +267,7 @@ package org.ffilmation.engine.elements {
 				var cellRadius:Number = Math.ceil(this.radius / this.scene.gridSize)
 				for(var i:Number = Math.max(theCell.i-cellRadius,0);i<theCell.i+cellRadius;i++) {
 					for(var j:Number = Math.max(theCell.j-cellRadius, 0);j<theCell.j+cellRadius;j++) {
-						for(var k:Number = Math.max(theCell.k-cellRadius, 0);k<theCell.k+cellRadius;k++) {
+						for(var k:Number = theCell.k;k<(this.top/this.scene.levelSize);k++) {
 							var newCell:fCell = this.scene.getCellAt(i,j,k)
 							if(newCell) {
 								cells.push(newCell)
@@ -284,7 +284,7 @@ package org.ffilmation.engine.elements {
 						return true
 				}
 				var forEach:Function  = function(item:*, index:int, array:Array) {
-						item.charactersOccupying.filter(filter)
+						item.charactersOccupying.filter(filter,this)
 				}
 				this.occupiedCells.forEach(forEach, this)
 				

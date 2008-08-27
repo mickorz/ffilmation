@@ -326,16 +326,16 @@ package org.ffilmation.engine.elements {
 
 			/*
 			* Objects can't be moved
+			* @private
 			*/
-			/** @private */
 			public override function moveTo(x:Number,y:Number,z:Number):void {
 			  throw new Error("Filmation Engine Exception: You can't move a fObject. If you want to move "+this.id+" make it an fCharacter"); 
 			}
 			
 			/*
 			* Updates zIndex of this object so it displays with proper depth inside the scene
+			* @private
 			*/
-			/** @private */
 			public function updateDepth():void {
 				
 				 var c:fCell = (this.cell==null)?(this.scene.translateToCell(this.x,this.y,this.z)):(this.cell)
