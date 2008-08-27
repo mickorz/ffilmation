@@ -30,7 +30,7 @@ package org.ffilmation.demos.mynameisponcho {
 		public var engine:fEngine	
 		public var scene:fScene
 		public var hero:fEngineElementController
-		public var controllerType = game.KEYBOARD
+		public var controllerType = game.MOUSE
 		public var scenes:Object
 		public var cameras:Object
 		public var path:String
