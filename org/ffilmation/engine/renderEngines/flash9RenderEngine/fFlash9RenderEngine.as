@@ -97,6 +97,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					char.customData.flash9Renderer.place()
 				}
 
+				/**
+				* This method updates the position of a bullet's sprite
+				*/
+				public function updateBulletPosition(bullet:fBullet):void {
+					bullet.customData.flash9Renderer.place()
+				}
+
 			  /**
 			  * This method renders an element visible
 			  **/
@@ -283,10 +290,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 									if(el is fFloor) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
 									if(el is fWall) {
 										var w:fWall = el as fWall
-										if(w.vertical) ret.push(new fCoordinateOccupant(el,el.x,el.y+p.x,el.z+p.y))
-										else ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z+p.y))
+										if(w.vertical) ret.push(new fCoordinateOccupant(el,el.x,el.y0+p.x,el.z-p.y))
+										else ret.push(new fCoordinateOccupant(el,el.x0+p.x,el.y,el.z-p.y))
 									}
-									if(el is fObject) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z+p.y))
+									if(el is fObject) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z-p.y))
 							}
 							
 					}
@@ -354,6 +361,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						if(element is fFloor) element.customData.flash9Renderer = new fFlash9FloorRenderer(this,spr,element as fFloor)
 						if(element is fWall) element.customData.flash9Renderer = new fFlash9WallRenderer(this,spr,element as fWall)
 						if(element is fObject) element.customData.flash9Renderer = new fFlash9ObjectRenderer(this,spr,element as fObject)
+						if(element is fBullet) element.customData.flash9Renderer = new fFlash9BulletRenderer(this,spr,element as fBullet)
 						
 						this.renderers[element.uniqueId] = element.customData.flash9Renderer
 						
