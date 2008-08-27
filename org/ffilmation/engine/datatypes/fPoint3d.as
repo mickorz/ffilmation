@@ -38,8 +38,8 @@ package org.ffilmation.engine.datatypes {
 			}
 
 			/** @private */
-			public function debug():void {
-				trace(x+", "+y+", "+z)
+			public function toString():String {
+				return ("fPoint3d: "+x+", "+y+", "+z)
 			}
 			
 		}

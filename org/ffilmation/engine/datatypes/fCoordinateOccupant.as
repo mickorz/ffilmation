@@ -1,11 +1,11 @@
-// Noise
-
+// This object stores an renderable element and a coordinate in this element's local coordinate system
 package org.ffilmation.engine.datatypes {
 	
 		import org.ffilmation.engine.core.*
 
 		/**
-		* This object stores the return value for the fScene.translateStageCoordsToElement method
+		* This object stores a renderable element and a coordinate in thie engine's coordinate system. Several methods in the
+		* engine return this.
 	  * 
 		* @see org.ffilmation.engine.core.fScene#translateStageCoordsToElements()
 		*/
@@ -16,7 +16,7 @@ package org.ffilmation.engine.datatypes {
 			*/
 			public var element:fRenderableElement
 			
-			/** Coordinate corresponding to the input Stage coordinate */
+			/** Coordinate in element local coordinates */
 			public var coordinate:fPoint3d
 			
 			/**
