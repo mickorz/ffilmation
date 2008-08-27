@@ -10,6 +10,7 @@ package org.ffilmation.demos.mynameisponcho {
 	import org.ffilmation.engine.datatypes.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.engine.interfaces.*
+	import org.ffilmation.engine.bulletRenderers.*
 
 	/** 
 	* This is a sample of a character controller that listens to keyboard events
@@ -25,10 +26,14 @@ package org.ffilmation.demos.mynameisponcho {
 		public static var RUN:int = Keyboard.SHIFT
 		public static var JUMP:int = Keyboard.SPACE
 		public static var CROUCH:int = Keyboard.CONTROL
+		
+		// Bullet speed
+		public static var bulletSpeed:Number = 100
 	
 		// Properties
 		public var character:fCharacter
 		private var keysDown:Object
+		private var bulletRenderer:fLineBulletRenderer
 
 		// Status
 		public var running:Boolean = false
@@ -43,8 +48,10 @@ package org.ffilmation.demos.mynameisponcho {
 		public var vy:Number
 		public var vz:Number
 		
+		
 		// Constructor
-		public function ponchoKeyBoardController():void { 
+		public function ponchoKeyboardController():void { 
+			this.bulletRenderer = new fLineBulletRenderer(0xFFFFFF,2,1)
 		}
 		
 		// Implements interface
@@ -88,16 +95,36 @@ package org.ffilmation.demos.mynameisponcho {
 		private function clic(evt:MouseEvent):void {
 			var ret:Array = this.character.scene.translateStageCoordsToElements(evt.stageX,evt.stageY)
 			if(ret) {
-				for(var i:Number=0;i<ret.length;i++) {
+				var some:Boolean = false
+				for(var i:Number=0;!some && i<ret.length;i++) {
 					if(ret[i].element!=this.character) {
+						some = true
 						var destiny:fPoint3d = ret[i].coordinate
+						if(this.rolling || this.jumping) return
+						
+						// Real gun height
+						if(this.crouching) var gunZ:Number = this.character.z+45
+						else gunZ = this.character.z+80
 						
 						var angle:Number = mathUtils.getAngle(this.character.x,this.character.y,destiny.x,destiny.y)
-						var d:Number = Math.abs(angle-this.angle)
+						this.character.orientation = this.angle = angle 
+
+						// Generate bullet
+						var dx:Number = destiny.x-this.character.x
+						var dy:Number = destiny.y-this.character.y
+						var dz:Number = destiny.z-gunZ
 						
-						if(this.rolling || this.jumping) return
+						var dtotal:Number = Math.abs(dx)+Math.abs(dy)+Math.abs(dz)
+						dx/=dtotal
+						dy/=dtotal
+						dz/=dtotal
+						
+						this.character.scene.createBullet(this.character.x+60*dx,this.character.y+60*dy,gunZ,
+																						ponchoKeyboardController.bulletSpeed*dx,ponchoKeyboardController.bulletSpeed*dy,ponchoKeyboardController.bulletSpeed*dz,
+																						this.bulletRenderer)		
+						// Shoot animation
 						this.shoot()						
-						break;
+						
 					}
 				}
 			} else {
