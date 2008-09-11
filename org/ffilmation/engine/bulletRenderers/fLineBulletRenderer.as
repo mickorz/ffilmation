@@ -3,6 +3,8 @@ package org.ffilmation.engine.bulletRenderers {
 		// Imports
 		import flash.display.*
 		import flash.events.*
+		import flash.utils.getDefinitionByName;
+		
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.interfaces.*
@@ -20,17 +22,32 @@ package org.ffilmation.engine.bulletRenderers {
 
 			//Size
 			private var size:Number
+			
+			//MovieClip definition for plane ricochets
+			private var planeRicochetDefinition:String
+
+			//MovieClip definition for character ricochets
+			private var characterRicochetDefinition:String
+
+			//MovieClip definition for object ricochets
+			private var objectRicochetDefinition:String
 
 			/**
 			* Constructor for the "Line" bullet renderer class
 			* @param color Line color
 			* @param size Line thickness
 			* @param alpha Line alpha
+			* @param planeRicochetDefinition MovieClip definition for plane ricochets
+			* @param characterRicochetDefinition MovieClip definition for character ricochets
+			* @param objectRicochetDefinition MovieClip definition for object ricochets
 			*/
-			public function fLineBulletRenderer(color:Number,size:Number,alpha:Number=1):void {
+			public function fLineBulletRenderer(color:Number,size:Number,alpha:Number=1,planeRicochetDefinition:String=null,characterRicochetDefinition:String=null,objectRicochetDefinition:String=null):void {
 		  	this.color = color
 		  	this.size = size
 		  	this.alpha = alpha
+		  	this.planeRicochetDefinition = planeRicochetDefinition
+		  	this.characterRicochetDefinition = characterRicochetDefinition
+		  	this.objectRicochetDefinition = objectRicochetDefinition
 			}
 
 		  /** @private */
@@ -52,6 +69,23 @@ package org.ffilmation.engine.bulletRenderers {
 		  /** @private */
 			public function clear(bullet:fBullet):void {
 		  	bullet.container.graphics.clear()
+			}
+			
+		  /** @private */
+			public function getRicochet(element:fRenderableElement):MovieClip {
+				
+					try {
+						
+						var clase:Class
+						if(element is fPlane) clase = getDefinitionByName(this.planeRicochetDefinition) as Class
+						if(element is fCharacter) clase = getDefinitionByName(this.characterRicochetDefinition) as Class
+						if(element is fObject) clase = getDefinitionByName(this.objectRicochetDefinition) as Class
+						var ret:MovieClip  = new clase() as MovieClip
+						return ret
+						
+					} catch(e:Error) {
+						return null
+					}
 			}
 
 		}

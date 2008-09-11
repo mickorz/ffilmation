@@ -21,16 +21,31 @@ package org.ffilmation.engine.bulletRenderers {
 			//Alpha
 			private var alpha:Number
 
+			//MovieClip definition for plane ricochets
+			private var planeRicochetDefinition:String
+
+			//MovieClip definition for character ricochets
+			private var characterRicochetDefinition:String
+
+			//MovieClip definition for object ricochets
+			private var objectRicochetDefinition:String
+
 			/**
 			* Constructor for the "Pixel" bullet renderer class
 			* @param color Color of the pixel to be drawn as bullet
 			* @param size Size of the pixel
 			* @param alpha Alpha value
+			* @param planeRicochetDefinition MovieClip definition for plane ricochets
+			* @param characterRicochetDefinition MovieClip definition for character ricochets
+			* @param objectRicochetDefinition MovieClip definition for object ricochets
 			*/
-			public function fPixelBulletRenderer(color:Number,size:Number,alpha:Number=1):void {
+			public function fPixelBulletRenderer(color:Number,size:Number,alpha:Number=1,planeRicochetDefinition:String=null,characterRicochetDefinition:String=null,objectRicochetDefinition:String=null):void {
 		  	this.pixelBitmapData = new BitmapData(size,size,false,color)
 		  	this.size = size
 		  	this.alpha = alpha
+		  	this.planeRicochetDefinition = planeRicochetDefinition
+		  	this.characterRicochetDefinition = characterRicochetDefinition
+		  	this.objectRicochetDefinition = objectRicochetDefinition
 			}
 
 		  /** @private */
@@ -50,6 +65,24 @@ package org.ffilmation.engine.bulletRenderers {
 		  	bullet.container.removeChild(bullet.customData.pixelBitmap)
 		  	bullet.customData.pixelBitmap = null
 			}
+
+		  /** @private */
+			public function getRicochet(element:fRenderableElement):MovieClip {
+				
+					try {
+						
+						var clase:Class
+						if(element is fPlane) clase = getDefinitionByName(this.planeRicochetDefinition) as Class
+						if(element is fCharacter) clase = getDefinitionByName(this.characterRicochetDefinition) as Class
+						if(element is fObject) clase = getDefinitionByName(this.objectRicochetDefinition) as Class
+						var ret:MovieClip  = new clase() as MovieClip
+						return ret
+						
+					} catch(e:Error) {
+						return null
+					}
+			}
+
 
 		}
 

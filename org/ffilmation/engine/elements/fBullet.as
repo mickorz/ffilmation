@@ -112,6 +112,9 @@ package org.ffilmation.engine.elements {
 						nx = oc.coordinate.x
 						ny = oc.coordinate.y
 						nz = oc.coordinate.z
+						if(this.speedx>0) nx-=0.1; else nx+=0.1
+						if(this.speedy>0) ny-=0.1; else ny+=0.1
+						if(this.speedz>0) nz-=0.1; else nz+=0.1
 						
 					}
 					

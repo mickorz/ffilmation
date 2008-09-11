@@ -29,7 +29,7 @@ package org.ffilmation.demos.mynameisponcho {
 		public static var CROUCH:int = Keyboard.CONTROL
 		
 		// Bullet speed
-		public static var bulletSpeed:Number = 100
+		public static var bulletSpeed:Number = 150
 	
 		// Properties
 		public var character:fCharacter
@@ -54,7 +54,7 @@ package org.ffilmation.demos.mynameisponcho {
 		
 		// Constructor
 		public function ponchoKeyboardController():void { 
-			this.bulletRenderer = new fLineBulletRenderer(0xFFFFFF,2,1)
+			this.bulletRenderer = new fLineBulletRenderer(0xFFFFFF,2,1,"Ricochet","Ricochet","Ricochet")
 		}
 		
 		// Implements interface

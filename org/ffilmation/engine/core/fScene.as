@@ -202,7 +202,7 @@ package org.ffilmation.engine.core {
 		
 			/**
 			* Constructor. Don't call directly, use fEngine.createScene() instead
-			* 
+			* @private
 			*/
 			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine) {
 			
@@ -636,10 +636,10 @@ package org.ffilmation.engine.core {
 			}
 			
 			/**
-			* <p>Normally you don't need to call this method manually. When an scene is shown, this method is called to initialize the render engine
-			* for this scene ( this involves creating all the Sprites ). This may take a couple of seconds.</p>
-			* <p>Under special circunstances, however, you may want to call this method manually at some point before showing the scene. This is useful is you want
-			* the graphic assets to exist before the scene is shown ( to attach Mouse Events for example ).</p>
+			* Normally you don't need to call this method manually. When an scene is shown, this method is called to initialize the render engine
+			* for this scene ( this involves creating all the Sprites ). This may take a couple of seconds.<br>
+			* Under special circunstances, however, you may want to call this method manually at some point before showing the scene. This is useful is you want
+			* the graphic assets to exist before the scene is shown ( to attach Mouse Events for example ).
 			*/
 			public function startRendering():void {
 				
@@ -728,6 +728,7 @@ package org.ffilmation.engine.core {
 				bullet.disable()
 				bullet.customData.bulletRenderer.clear(bullet)
 				bullet.hide()
+				
 				// Back to pool
 				this.bullets.splice(this.bullets.indexOf(bullet),1)
 				this.bulletPool.push(bullet)
@@ -780,9 +781,53 @@ package org.ffilmation.engine.core {
 
 			// Process bullets shooting things
 			private function processShot(evt:fShotEvent):void {
-		 		 // When a bullet shots something, it is destroyed
-		 		 this.removeBullet(evt.bullet)
+		 		 
+		 		 // A bullet shots something. Is there a ricochet defined ?
+		 		 var b:fBullet = evt.bullet
+		 		 var r:MovieClip = b.customData.bulletRenderer.getRicochet(evt.element)
+		 		 
+		 		 if(r) {
+		 		 		
+		 		 		b.disable()
+						b.customData.bulletRenderer.clear(b)
+		 		 		b.container.addChild(r)
+		 		 		r.addEventListener(Event.ENTER_FRAME,this.waitForRicochet)
+		 		 		
+		 		 		// Decide rotation of ricochet clip
+		 		 		if(evt.element is fObject) {
+		 		 			var o:fObject = evt.element as fObject
+		 		 			r.rotation = 45+mathUtils.getAngle(o.x,o.y,b.x,b.y)
+		 		 		} 
+		 		 		else if(evt.element is fWall) {
+		 		 			var w:fWall = evt.element as fWall
+		 		 			if(w.vertical) {
+		 		 				if(b.speedx>0) r.rotation = -120
+		 		 				else r.rotation = 60
+		 		 			} else {
+		 		 				if(b.speedy>0) r.rotation = -60
+		 		 				else r.rotation = 120
+		 		 			}
+		 		 			
+		 		 		}
+		 		 		
+		 		 	
+		 		 } else this.removeBullet(b)
+		 		 
 		 	}
+		 	
+		 	// Waits for a ricochet to end
+		 	private function waitForRicochet(evt:Event):void {
+		 		
+		 		var ricochet:MovieClip = evt.target as MovieClip
+		 		if(ricochet.currentFrame==ricochet.totalFrames) {
+		 			ricochet.removeEventListener(Event.ENTER_FRAME,this.waitForRicochet)
+		 			var bullet:fBullet = ricochet.parent.fElement as fBullet
+		 			ricochet.parent.removeChild(ricochet)
+		 			this.removeBullet(bullet)
+		 		}
+		 		
+		 	}
+		 	
 
 			// Process New cell for Bullets
 			private function processNewCellBullet(bullet:fBullet):void {

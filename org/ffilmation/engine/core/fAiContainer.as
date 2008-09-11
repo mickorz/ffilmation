@@ -6,6 +6,7 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.datatypes.*
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.logicSolvers.pathfindSolver.*
+		import org.ffilmation.engine.logicSolvers.lineOfSightSolver.*
 
 		/**
 		* <p>This object provides access to the AI methods of the engine.</p>
@@ -29,7 +30,24 @@ package org.ffilmation.engine.core {
 			* @private
 			*/
 			function fAiContainer(scene:fScene) {
-				 this.scene = scene		 
+					this.scene = scene		 
+			}
+
+			/** 
+			* <p>This methods returns an array of all the elements that cross an imaginary line between two points, sorted by distance to origin.
+			* This is a CPU-intensive calculation: Try to use it sparingly.</p>
+			* 
+			* @param fromx X coordinate for the origin
+			* @param fromy Y coordinate for the origin
+			* @param fromz Z coordinate for the origin
+			* @param tox X coordinate for the destiny
+			* @param toy Y coordinate for the destiny
+			* @param toz Z coordinate for the destiny
+			* @return An array of fCoordinateOccupant elements. If the array is null or empty there's nothing between the origin point and the end point.
+			* If the origin point is outside the scene's limits, the method will return null.
+			*/
+			public function calculateLineOfSight(fromx:Number,fromy:Number,fromz:Number,tox:Number,toy:Number,toz:Number):Array {
+					return fLineOfSightSolver.calculateLineOfSight(this.scene,fromx,fromy,fromz,tox,toy,toz)
 			}
 
 		  /**

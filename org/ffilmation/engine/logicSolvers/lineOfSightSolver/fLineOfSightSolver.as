@@ -74,7 +74,7 @@ package org.ffilmation.engine.logicSolvers.lineOfSightSolver {
 					cy+=increment*dy
 					cz+=increment*dz
 					
-				} while(cell!=destiny)
+				} while(cell && cell!=destiny)
 				
 			  
 			  // Check every element
