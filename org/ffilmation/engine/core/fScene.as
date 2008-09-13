@@ -821,7 +821,8 @@ package org.ffilmation.engine.core {
 		 		var ricochet:MovieClip = evt.target as MovieClip
 		 		if(ricochet.currentFrame==ricochet.totalFrames) {
 		 			ricochet.removeEventListener(Event.ENTER_FRAME,this.waitForRicochet)
-		 			var bullet:fBullet = ricochet.parent.fElement as fBullet
+		 			var m:MovieClip = ricochet.parent as MovieClip
+		 			var bullet:fBullet = m.fElement as fBullet
 		 			ricochet.parent.removeChild(ricochet)
 		 			this.removeBullet(bullet)
 		 		}

@@ -81,6 +81,9 @@ package org.ffilmation.engine.bulletRenderers {
 					} catch(e:Error) {
 						return null
 					}
+					
+					return null
+					
 			}
 
 

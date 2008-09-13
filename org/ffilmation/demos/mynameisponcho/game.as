@@ -17,7 +17,7 @@ package org.ffilmation.demos.mynameisponcho {
 	* This is a sample game engine
 	* @private
 	*/
-	public class game {
+	public class game extends MovieClip {
 		
 		// Controller type
 		public static const MOUSE:int = 1
@@ -31,19 +31,19 @@ package org.ffilmation.demos.mynameisponcho {
 		public var scene:fScene
 		public var hero:fEngineElementController
 		public var controllerType = game.MOUSE
-		public var scenes:Object
+		public var allScenes:Object
 		public var cameras:Object
 		public var path:String
 		public var destination:XML
 		public var money:Number = 0
 		
 		// Init demo
-		public function game(mainTimeline:MovieClip,container:Sprite,src:String) {
+		public function game():void {
 			
-				this.timeline = mainTimeline
+				this.timeline = this
 				this.container = new Sprite()
-				container.addChild(this.container)
-				this.scenes = new Object
+				filmationTest.addChild(this.container)
+				this.allScenes = new Object
 				this.cameras = new Object
 
 			  // Force controller classes to be included in the compiled SWF. I know there must be a nicer way to achieve this...
@@ -57,7 +57,7 @@ package org.ffilmation.demos.mynameisponcho {
 				this.engine = new fEngine(this.container)
 				
 				// Goto first scene
-				this.gotoScene(src)
+				this.gotoScene("xml/crossroads.xml")
 				
 		}
 	
@@ -91,15 +91,15 @@ package org.ffilmation.demos.mynameisponcho {
 		public function loadTransitionDone():void {
 
 				// Scene already loaded or not ?
-				if(this.scenes[this.path]) {
-					this.scene = this.scenes[this.path]
+				if(this.allScenes[this.path]) {
+					this.scene = this.allScenes[this.path]
 					if(controllerType == game.MOUSE) this.hero = new ponchoMouseController()
 					else this.hero = new ponchoKeyboardController()
 					this.timeline.gotoAndPlay("Play")
 					this.showScene()
 				} else {
 					this.timeline.stage.quality = "high"
-					this.scenes[this.path] = this.scene = this.engine.createScene(new fSceneLoader(path),1000,650)
+					this.allScenes[this.path] = this.scene = this.engine.createScene(new fSceneLoader(path),1000,650)
 					this.scene.addEventListener(fScene.LOADPROGRESS, this.loadProgressHandler)
 					this.scene.addEventListener(fScene.LOADCOMPLETE, this.loadCompleteHandler)
 				}
@@ -175,7 +175,7 @@ package org.ffilmation.demos.mynameisponcho {
 				}
 			}
 
-			// Add specific mouse behaviours to objects. This is done here so it is aplied to all scenes.
+			// Add specific mouse behaviours to objects. This is done here so it is aplied to all allScenes.
 			// Scene-specific behavous should be done via scene controllers
 			for(var i:Number=0;i<this.scene.objects.length;i++) {
 				var obj:fObject = this.scene.objects[i]
