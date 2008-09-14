@@ -128,6 +128,8 @@ package org.ffilmation.profiler
 		
 		private function endProfiling(): void	{
 
+			rootNode.end()
+
 			var count: int = nodes.length;
 			var i: int;
 			var c: ProfileNode;
@@ -137,8 +139,6 @@ package org.ffilmation.profiler
 				c = nodes[ i ];
 				c.computeStats();
 			}
-			
-			rootNode.end()
 			addChild( output )
 			render( null )
 
