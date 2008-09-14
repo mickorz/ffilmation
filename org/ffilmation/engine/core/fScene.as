@@ -1132,8 +1132,6 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function renderElement(evt:Event):void {
 				
-			   if(this.prof) this.prof.beginProfiling()
-			   
 			   // If the scene is not being displayed, we don't update the render engine
 			   // However, the element's properties are modified. When the scene is shown the result is consistent
 			   // to what has changed while the render was not being updated
@@ -1142,8 +1140,6 @@ package org.ffilmation.engine.core {
 				 	if(evt.target is fCharacter) this.renderCharacter(evt.target as fCharacter)
 				 	if(evt.target is fBullet) this.renderBullet(evt.target as fBullet)
 				 }
-				 
-				 if(this.prof) this.prof.endProfiling()
 				
 			}
 
@@ -1234,7 +1230,7 @@ package org.ffilmation.engine.core {
 			private function renderCharacter(character:fCharacter):void {
 			
 			   
-			   if(this.prof) this.prof.begin( "Render char:"+character.id, true )
+			   if(this.prof) this.prof.begin("Render char:"+character.id, true )
 			   
 			   var light:fOmniLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
 			   
@@ -1259,9 +1255,9 @@ package org.ffilmation.engine.core {
 		   	 		  if(fEngine.characterShadows) for(var i2:Number=0;i2<nEl;i2++) {
 		   	 		  	try {
 		   	 		  		if(this.prof) {
-		   	 		  			this.prof.begin( "S: "+light.id+" "+elements[i2].id)
+		   	 		  			this.prof.begin("S: "+light.id+" "+elements[i2].id)
 			    					this.renderEngine.updateShadow(elements[i2],light,character)
-		   	 		  			if(this.prof) this.prof.end( "S: "+light.id+" "+elements[i2].id)
+		   	 		  			if(this.prof) this.prof.end("S: "+light.id+" "+elements[i2].id)
 		   	 		  		} else {
 		   	 		  			this.renderEngine.updateShadow(elements[i2],light,character)
 		   	 		  		}
@@ -1280,12 +1276,15 @@ package org.ffilmation.engine.core {
 			   }
 			   
 				 // Update occlusion
-				 if(this.prof) this.prof.begin( "Occlusion")
- 				 for(i=0;i<character.currentOccluding.length;i++) this.renderEngine.updateOcclusion(character.currentOccluding[i],character)
-				 if(this.prof) this.prof.end( "Occlusion")
+				 if(character.currentOccluding.length>0) {
+				 	
+				 	 if(this.prof) this.prof.begin("Occlusion")
+ 				 	 for(i=0;i<character.currentOccluding.length;i++) this.renderEngine.updateOcclusion(character.currentOccluding[i],character)
+				 	 if(this.prof) this.prof.end("Occlusion")
+				 	 
+				 }
 
-
-			   if(this.prof) this.prof.end( "Render char:"+character.id)
+			   if(this.prof) this.prof.end("Render char:"+character.id)
 
 
 			}

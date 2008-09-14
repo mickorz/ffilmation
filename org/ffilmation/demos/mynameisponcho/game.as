@@ -45,7 +45,7 @@ package org.ffilmation.demos.mynameisponcho {
 			
 				// Profiler init
 				ProfilerConfig.Width = 650
-				this.prof = new fProfiler( 20 )
+				this.prof = new fProfiler()
 				profilerClip.addChild( this.prof )
 				
 				this.timeline = this
@@ -92,8 +92,6 @@ package org.ffilmation.demos.mynameisponcho {
 				// Start transition
 				this.path = path
 				this.timeline.gotoAndPlay("Load")
-				this.prof.clear()
-				
 		}
 		
 		// This allows me to animate transitions in the timeline. Call me oldschool, but I like the timeline
