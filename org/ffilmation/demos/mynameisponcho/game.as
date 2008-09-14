@@ -47,7 +47,7 @@ package org.ffilmation.demos.mynameisponcho {
 				ProfilerConfig.Width = 650
 				this.prof = new fProfiler()
 				profilerClip.addChild( this.prof )
-				
+				this.prof.y = 5
 				this.timeline = this
 				this.container = new Sprite()
 				filmationTest.addChild(this.container)

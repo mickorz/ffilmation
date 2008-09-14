@@ -86,6 +86,8 @@ package org.ffilmation.profiler
 			this.buttonText.text = "START PROFILING"
 			addChild(this.button)
 			this.button.addEventListener(MouseEvent.CLICK,this.clickListener)
+			this.button.buttonMode = true
+			this.buttonText.mouseEnabled = false
 			
 		}
 		
