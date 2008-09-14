@@ -7,6 +7,7 @@ package org.ffilmation.engine.core {
 		import flash.events.*
 		import flash.display.*
 		import flash.geom.Rectangle
+		import org.ffilmation.profiler.*
 
 		import org.ffilmation.engine.interfaces.*
 		
@@ -204,15 +205,17 @@ package org.ffilmation.engine.core {
 			 *
 			 * @param renderer A renderer class for this scene. If none is specified, a default flash 9 renderer will be used
 			 *
+			 * @param prof If a profiler is passed, the scene will update the profiler with some info that I hope becomes useful to tune the performance of your application
+			 *
 		   * @return A fScene Object.
 			 */
-			 public function createScene(retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine=null):fScene {
+			 public function createScene(retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine=null,prof:fProfiler=null):fScene {
 		
 		   		// Create container for scene
 		   		var nSprite:Sprite = new Sprite()
 
 		   		// Create scene
-		   		var nfScene:fScene = new fScene(this,nSprite,retriever,width,height,renderer)
+		   		var nfScene:fScene = new fScene(this,nSprite,retriever,width,height,renderer,prof)
 		
 		   		// Add to list and return
 		   		this.scenes[this.scenes.length] = nfScene

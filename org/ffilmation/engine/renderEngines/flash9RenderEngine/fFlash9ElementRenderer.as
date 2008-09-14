@@ -173,6 +173,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public function stopOcclusion(character:fCharacter):void {
 			}
 
+			/** 
+			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
+			*/
+			public function resetShadows():void {
+			}
 
 			/**
 			* Frees resources

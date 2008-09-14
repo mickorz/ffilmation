@@ -21,6 +21,8 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.logicSolvers.coverageSolver.*
 		import org.ffilmation.engine.logicSolvers.visibilitySolver.*
 		import org.ffilmation.engine.renderEngines.flash9RenderEngine.*
+		import org.ffilmation.profiler.*
+
 		
 		/**
 		* <p>The fScene class provides control over a scene in your application. The API for this object is used to add and remove 
@@ -37,7 +39,9 @@ package org.ffilmation.engine.core {
 			// This counter is used to generate unique scene Ids
 			private static var count:Number = 0
 
+
 		  // Private properties
+			private var prof:fProfiler = null										// Profiler
 		  /** @private */
 		  internal var engine:fEngine
 		 	/** @private */
@@ -204,7 +208,7 @@ package org.ffilmation.engine.core {
 			* Constructor. Don't call directly, use fEngine.createScene() instead
 			* @private
 			*/
-			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine) {
+			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine,p:fProfiler):void {
 			
 			   // Properties
 			   this.id = "fScene_"+(fScene.count++)
@@ -242,6 +246,9 @@ package org.ffilmation.engine.core {
 			   // Start xml retrieve process
 			   var initializer:fSceneInitializer = new fSceneInitializer(this,retriever)
 			   initializer.start()
+			   
+				 // Profiler
+				 this.prof = p
 
 			}
 			
@@ -1125,6 +1132,8 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function renderElement(evt:Event):void {
 				
+			   if(this.prof) this.prof.beginProfiling()
+			   
 			   // If the scene is not being displayed, we don't update the render engine
 			   // However, the element's properties are modified. When the scene is shown the result is consistent
 			   // to what has changed while the render was not being updated
@@ -1133,12 +1142,16 @@ package org.ffilmation.engine.core {
 				 	if(evt.target is fCharacter) this.renderCharacter(evt.target as fCharacter)
 				 	if(evt.target is fBullet) this.renderBullet(evt.target as fBullet)
 				 }
+				 
+				 if(this.prof) this.prof.endProfiling()
 				
 			}
 
 			// Main render method for omni lights
 			private function renderOmniLight(light:fOmniLight):void {
 			
+			   if(this.prof) this.prof.begin( "Render light:"+light.id, true )
+			   
 			   // Step 1: Init
 			   var x:Number = light.x, y:Number = light.y, z:Number = light.z, nElements:Number = light.nElements, tempElements:Array = light.elementsV, el:fRenderableElement,others:Array,withinRange:Number
 			   
@@ -1150,16 +1163,22 @@ package org.ffilmation.engine.core {
 				    el = tempElements[i2].obj
 				    others = tempElements[i2].shadows
 				    withinRange = tempElements[i2].withinRange
+				    
+	    			if(this.prof) this.prof.begin( "Element: "+el.id)	
 				    this.renderEngine.renderLight(el,light)
 			    
 				    // Shadow from statics
 				    for(var i3:Number=0;i3<withinRange;i3++) {
 				    	try {
-				    		if(others[i3].obj._visible) this.renderEngine.renderShadow(el,light,others[i3].obj)
+				    		if(others[i3].obj._visible) {
+				    			this.renderEngine.renderShadow(el,light,others[i3].obj)
+				    		}
 				    	} catch(e:Error) {
 				    		trace(e)
 				    	}
 				    }
+
+	    			if(this.prof) this.prof.end( "Element: "+el.id)	
 				    
 				    
 				 }
@@ -1173,6 +1192,8 @@ package org.ffilmation.engine.core {
 			   	  if(cache.withinRange) {
 			   	  	character = cache.character
 			   	  	elements = cache.elements
+			    		if(this.prof) this.prof.begin( "Character: "+character.id)
+
 			   			this.renderEngine.renderStart(character,light)
 			   			this.renderEngine.renderLight(character,light)
 			   			this.renderEngine.renderFinish(character,light)
@@ -1184,12 +1205,17 @@ package org.ffilmation.engine.core {
 			   					
 			   		  	}
 			   			}
+			    		if(this.prof) this.prof.end( "Character: "+character.id)
+			   			
 			   		}
 			   		
 			   }
 
 			   // Step 5: End render
 			   for(i2=0;i2<nElements;i2++) this.renderEngine.renderFinish(tempElements[i2].obj,light)
+
+			   if(this.prof) this.prof.end( "Render light:"+light.id)
+
 
 			}
 
@@ -1207,6 +1233,9 @@ package org.ffilmation.engine.core {
 			// Main render method for characters
 			private function renderCharacter(character:fCharacter):void {
 			
+			   
+			   if(this.prof) this.prof.begin( "Render char:"+character.id, true )
+			   
 			   var light:fOmniLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
 			   
 				 // Move character to its new position
@@ -1229,7 +1258,13 @@ package org.ffilmation.engine.core {
 			    		nEl = elements.length
 		   	 		  if(fEngine.characterShadows) for(var i2:Number=0;i2<nEl;i2++) {
 		   	 		  	try {
-			    				this.renderEngine.updateShadow(elements[i2],light,character)
+		   	 		  		if(this.prof) {
+		   	 		  			this.prof.begin( "S: "+light.id+" "+elements[i2].id)
+			    					this.renderEngine.updateShadow(elements[i2],light,character)
+		   	 		  			if(this.prof) this.prof.end( "S: "+light.id+" "+elements[i2].id)
+		   	 		  		} else {
+		   	 		  			this.renderEngine.updateShadow(elements[i2],light,character)
+		   	 		  		}
 			    			} catch(e:Error) {
 			    			
 			    			}
@@ -1245,9 +1280,12 @@ package org.ffilmation.engine.core {
 			   }
 			   
 				 // Update occlusion
- 				 for(i=0;i<character.currentOccluding.length;i++) {
-				 		this.renderEngine.updateOcclusion(character.currentOccluding[i],character)
-				 }
+				 if(this.prof) this.prof.begin( "Occlusion")
+ 				 for(i=0;i<character.currentOccluding.length;i++) this.renderEngine.updateOcclusion(character.currentOccluding[i],character)
+				 if(this.prof) this.prof.end( "Occlusion")
+
+
+			   if(this.prof) this.prof.end( "Render char:"+character.id)
 
 
 			}
@@ -1273,8 +1311,14 @@ package org.ffilmation.engine.core {
 			}
 
 			// Adjusts visualization to camera position
-			private function followCamera(camera:fCamera):void {				
-					this.renderEngine.setCameraPosition(camera)
+			private function followCamera(camera:fCamera):void {
+					if(this.prof) {
+						this.prof.begin( "Update camera")				
+						this.renderEngine.setCameraPosition(camera)
+						this.prof.end( "Update camera")				
+					} else {
+						this.renderEngine.setCameraPosition(camera)
+					}
 			}
 
 			// INTERNAL METHODS RELATED TO DEPTHSORT

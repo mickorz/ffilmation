@@ -3,7 +3,7 @@ package org.ffilmation.engine.bulletRenderers {
 		// Imports
 		import flash.display.*
 		import flash.events.*
-		import flash.utils.getDefinitionByName;
+		import flash.utils.getDefinitionByName
 		
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*

@@ -220,7 +220,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** 
 			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
 			*/
-			public function resetShadows():void {
+			public override function resetShadows():void {
 				 this.simpleShadowsLayer.graphics.clear()
 				 this.resetShadowsInt()
 			}

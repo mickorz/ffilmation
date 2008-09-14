@@ -12,6 +12,8 @@ package org.ffilmation.demos.mynameisponcho {
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.engine.interfaces.*
 	import org.ffilmation.demos.mynameisponcho.controllers.*
+	import org.ffilmation.profiler.*
+	
 		
 	/** 
 	* This is a sample game engine
@@ -36,10 +38,16 @@ package org.ffilmation.demos.mynameisponcho {
 		public var path:String
 		public var destination:XML
 		public var money:Number = 0
+		private var prof:fProfiler = null
 		
 		// Init demo
 		public function game():void {
 			
+				// Profiler init
+				ProfilerConfig.Width = 650
+				this.prof = new fProfiler( 20 )
+				profilerClip.addChild( this.prof )
+				
 				this.timeline = this
 				this.container = new Sprite()
 				filmationTest.addChild(this.container)
@@ -84,6 +92,7 @@ package org.ffilmation.demos.mynameisponcho {
 				// Start transition
 				this.path = path
 				this.timeline.gotoAndPlay("Load")
+				this.prof.clear()
 				
 		}
 		
@@ -99,7 +108,7 @@ package org.ffilmation.demos.mynameisponcho {
 					this.showScene()
 				} else {
 					this.timeline.stage.quality = "high"
-					this.allScenes[this.path] = this.scene = this.engine.createScene(new fSceneLoader(path),1000,650)
+					this.allScenes[this.path] = this.scene = this.engine.createScene(new fSceneLoader(path),1000,650,null,this.prof)
 					this.scene.addEventListener(fScene.LOADPROGRESS, this.loadProgressHandler)
 					this.scene.addEventListener(fScene.LOADCOMPLETE, this.loadCompleteHandler)
 				}
@@ -211,7 +220,7 @@ package org.ffilmation.demos.mynameisponcho {
 		// Mouse Event handlers for Money Bags and Info
     private function rolloverBag(evt:MouseEvent) {
     	this.timeline.cRollover.visible = true
-    	this.timeline.setText("Walk over money to collect it.")
+    	this.timeline.cRollover.setText("Walk over money to collect it.")
   	}
 
     private function rolloverInfo(evt:MouseEvent) {

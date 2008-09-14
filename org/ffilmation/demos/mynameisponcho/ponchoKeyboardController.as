@@ -35,8 +35,8 @@ package org.ffilmation.demos.mynameisponcho {
 		public var character:fCharacter
 		private var keysDown:Object
 		private var bulletRenderer:fLineBulletRenderer
-		private var gunS:Sound = new gunSound()
-		private var ricochetS:Sound = new ricochetSound()
+		private var gunS:Sound// = new gunSound()
+		private var ricochetS:Sound// = new ricochetSound()
 
 		// Status
 		public var running:Boolean = false

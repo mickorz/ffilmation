@@ -141,11 +141,13 @@ package org.ffilmation.engine.elements {
 			}
 
 			// Bullets control themselves
+			/** @private */
 			public function enable():void {
 				this.scene.container.addEventListener(Event.ENTER_FRAME,this.control)
 			}
 			
 			// Bullets control themselves
+			/** @private */
 			public function disable():void {
 				this.scene.container.removeEventListener(Event.ENTER_FRAME,this.control)
 			}
