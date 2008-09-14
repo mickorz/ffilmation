@@ -55,7 +55,6 @@ package org.ffilmation.profiler
 		private var button:Sprite
 		private var buttonText: TextField = null
 
-
 		/**
 		* Constructor
 		*/
