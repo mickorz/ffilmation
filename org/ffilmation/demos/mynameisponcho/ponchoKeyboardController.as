@@ -54,7 +54,7 @@ package org.ffilmation.demos.mynameisponcho {
 		
 		// Constructor
 		public function ponchoKeyboardController():void { 
-			this.bulletRenderer = new fLineBulletRenderer(0xFFFFFF,2,1,"Ricochet","Ricochet","Ricochet")
+			this.bulletRenderer = new fLineBulletRenderer(0xFFFFFF,2,1,"Ricochet","Blood","Ricochet")
 		}
 		
 		// Implements interface

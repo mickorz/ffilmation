@@ -75,8 +75,8 @@ package org.ffilmation.engine.bulletRenderers {
 						
 						var clase:Class
 						if(element is fPlane) clase = getDefinitionByName(this.planeRicochetDefinition) as Class
-						if(element is fCharacter) clase = getDefinitionByName(this.characterRicochetDefinition) as Class
-						if(element is fObject) clase = getDefinitionByName(this.objectRicochetDefinition) as Class
+						else if(element is fCharacter) clase = getDefinitionByName(this.characterRicochetDefinition) as Class
+						else if(element is fObject) clase = getDefinitionByName(this.objectRicochetDefinition) as Class
 						var ret:MovieClip  = new clase() as MovieClip
 						return ret
 						
