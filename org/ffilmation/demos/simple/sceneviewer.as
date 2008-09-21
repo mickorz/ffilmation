@@ -8,8 +8,6 @@ package org.ffilmation.demos.simple {
 	import org.ffilmation.utils.*
 	import org.ffilmation.engine.scenes.*
 	import org.ffilmation.engine.elements.*
-	import demo.poncho
-	
 	
 	public class sceneviewer {
 		

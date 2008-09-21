@@ -188,6 +188,7 @@ package org.ffilmation.demos.simple {
 
 		    switch(evt.keyCode) {
 		
+		    	case poncho.JUMP: this.jump(); break;
 
 		    	case poncho.RUN: this.run(); break;
 		
