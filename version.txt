@@ -12,6 +12,8 @@ Significant shadow rendering optimizations. Quality settings other than BEST now
 Added character-character collision. Thanks to Alex Stone
 Added the fBullet class which generates SHOT events and supports ricochet definitions.
 Added two bullet renderers (pixel and line)
+Added a simple profiler. You can use it to profile the performance of the rendering engine in your own scenes and also profile your own code.
+Occlusion is now a property of characters, not cameras, and has a new render method. I wasn’t sattisfied with the old one and besides it was very cpu-consuming.
 
 1.2:
 

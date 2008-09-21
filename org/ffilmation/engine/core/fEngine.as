@@ -236,8 +236,8 @@ package org.ffilmation.engine.core {
 			 }
 
 			 /**
-		   * Makes active one scene in the Engine. Only one scene can be active ( visible ) at the same time.
-		   * The current active scene, if any, will me moved to the inactive scene list.<br>
+		   * Makes visible one scene in the Engine. Only one scene can be visible at the same time.
+		   * The current visible scene, if any, will me moved to the invisible scene list.<br>
 		   * Showing an scene does not enable it
 		   *
 		   * @param sc The fScene you want to activate
