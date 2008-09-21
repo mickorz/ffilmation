@@ -9,6 +9,7 @@ package org.ffilmation.demos.simple {
 	import org.ffilmation.engine.scenes.*
 	import org.ffilmation.engine.elements.*
 	
+	/** @private */
 	public class sceneviewer {
 		
 		// Variables

@@ -11,6 +11,7 @@ package org.ffilmation.demos.simple {
 	import flash.ui.Keyboard
 	
 	
+	/** @private */
 	public class materialviewer {
 		
 		// Variables

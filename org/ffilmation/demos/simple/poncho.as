@@ -17,6 +17,7 @@ package org.ffilmation.demos.simple {
 	/**
 		This class controls the hero in our demo
 	*/	
+	/** @private */
 	public class poncho {
 	
 		// These are the Keys we use to move our character
