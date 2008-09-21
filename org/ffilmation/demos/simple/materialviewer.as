@@ -8,7 +8,6 @@ package org.ffilmation.demos.simple {
 	import org.ffilmation.utils.*
 	import org.ffilmation.engine.elements.*
 	import org.ffilmation.engine.scenes.*
-	import demo.poncho
 	import flash.ui.Keyboard
 	
 	
