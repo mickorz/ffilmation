@@ -112,6 +112,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				var sceneGridSorter:fSceneGridSorter = new fSceneGridSorter(this.scene)
 				sceneGridSorter.addEventListener(fScene.LOADPROGRESS,this.part3Progress)
 				sceneGridSorter.addEventListener(Event.COMPLETE,this.part3Complete)
+				sceneGridSorter.createGrid()
 				sceneGridSorter.start()
 				
 			}

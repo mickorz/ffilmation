@@ -54,6 +54,24 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 this.scene = s				
 			}
 
+	    // Create grid for this scene ( only where the are floors )
+			public function createGrid():void {
+
+			   this.scene.grid = new Array
+				 for(var fi=0;fi<this.scene.floors.length;fi++) {
+	      	 var f:fFloor = this.scene.floors[fi]
+	      	 if(f.k==0) {
+	      	 	for(var i:Number = f.i;i<(f.i+f.gWidth);i++) {
+ 				 			if(!this.scene.grid[i]) this.scene.grid[i] = new Array
+	      	 		for(var j:Number = f.j;j<(f.j+f.gDepth);j++) {
+	      	 			this.scene.grid[i][j] = new Array
+	      	 		}
+	      	 	}
+      		 }
+	       }
+
+		  }
+
 			// Start zSorting algorythm.
 			public function start():void {
 			
@@ -75,19 +93,6 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   this.verticals.sort(fSceneGridSorter.sortVerticals)
 	       this.scene.floors.sort(fSceneGridSorter.sortFloors)
 
-			   // Create grid for this scene ( only where the are floors )
-			   this.scene.grid = new Array
-				 for(var fi=0;fi<this.scene.floors.length;fi++) {
-	      	 var f:fFloor = this.scene.floors[fi]
-	      	 if(f.k==0) {
-	      	 	for(i = f.i;i<(f.i+f.gWidth);i++) {
- 				 			if(!this.scene.grid[i]) this.scene.grid[i] = new Array
-	      	 		for(var j:Number = f.j;j<(f.j+f.gDepth);j++) {
-	      	 			this.scene.grid[i][j] = new Array
-	      	 		}
-	      	 	}
-      		 }
-	       }
 
 		     this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fSceneGridSorter.SORTDESCRIPTION,0,fSceneGridSorter.SORTDESCRIPTION))
 
