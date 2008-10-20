@@ -740,6 +740,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 				this.holesC = null
 				this.bumpMap = null
+				this.diffuse = null
+				
 				if(this.bumpMapData) this.bumpMapData.dispose()
 				this.displacer = null
 				this.infront = null

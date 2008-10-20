@@ -378,8 +378,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						if(d.numChildren!=0) do {
 							var c:DisplayObject = d.getChildAt(0)
 							if(c!=null) {
+								c.cacheAsBitmap = false
 								if(c is DisplayObjectContainer) this.recursiveDelete(c as DisplayObjectContainer)
 								if(c is MovieClip) c.stop()
+								if(c is Bitmap) (c as Bitmap).bitmapData.dispose()
+								if(c is Shape) (c as Shape).graphics.clear()
 								d.removeChild(c)
 							}
 						} while(d.numChildren!=0 && c!=null)
