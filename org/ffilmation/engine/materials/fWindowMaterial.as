@@ -8,6 +8,7 @@ package org.ffilmation.engine.materials {
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
+		import org.ffilmation.engine.helpers.*
 		
 		/**
 		* This class adds windows to any wall. This is a fast way of creating nicer buildings with little effort
@@ -19,8 +20,7 @@ package org.ffilmation.engine.materials {
 		public class fWindowMaterial implements fEngineMaterial {
 			
 			// Private vars
-			private var definitionXML:XML								// Definition data
-			private var element:fRenderableElement			// The element where this material is applied.
+			private var definition:fMaterialDefinition	// Definition data
 			
 			private	var wwidth:Number										// Windows dimensions
 			private	var wheight:Number
@@ -34,18 +34,18 @@ package org.ffilmation.engine.materials {
 			private	var vDivisionSize:Number
 			
 			// Constructor
-			public function fWindowMaterial(definitionXML:XML,element:fRenderableElement):void {
-				this.definitionXML = definitionXML
-				this.element = element
+			public function fWindowMaterial(definition:fMaterialDefinition):void {
+				this.definition = definition
+				
 				
 				// Retrieve window data
-				this.wwidth = new Number(this.definitionXML.width)
-				this.wheight = new Number(this.definitionXML.height)
-				this.position = new Number(this.definitionXML.position)
-				this.framesize = new Number(this.definitionXML.framesize)
-				this.separation = new Number(this.definitionXML.separation)
+				this.wwidth = new Number(this.definition.xmlData.width)
+				this.wheight = new Number(this.definition.xmlData.height)
+				this.position = new Number(this.definition.xmlData.position)
+				this.framesize = new Number(this.definition.xmlData.framesize)
+				this.separation = new Number(this.definition.xmlData.separation)
 				
-				var t:String = this.definitionXML.geometry
+				var t:String = this.definition.xmlData.geometry
 				try { this.geometryW = new Number(t.split("x")[0]) } catch(e:Error) { this.geometryW = 1}
 				try { this.geometryH = new Number(t.split("x")[1]) } catch(e:Error) { this.geometryH = 1}
 
@@ -59,8 +59,8 @@ package org.ffilmation.engine.materials {
 			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
 			*/
 			public function dispose():void {
-				this.definitionXML = null
-				this.element = null
+				this.definition = null
+				
 			}
 			
 
@@ -86,13 +86,14 @@ package org.ffilmation.engine.materials {
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
 			*/
-			public function getDiffuse(width:Number,height:Number):DisplayObject {
+			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
 				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
@@ -100,9 +101,9 @@ package org.ffilmation.engine.materials {
 				this.calcWindows(width,height)
 
 				// Draw base
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
+				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base)
 				var base:BitmapData = new BitmapData(width,height,true,0x000000)
-				base.draw(tile.getDiffuse(width,height))
+				base.draw(tile.getDiffuse(element,width,height))
 				
 				temp.graphics.beginBitmapFill(base,null,true,true)
 				temp.graphics.moveTo(0,0)
@@ -127,11 +128,11 @@ package org.ffilmation.engine.materials {
 
 
 				// Draw frame, if any
-				var framesize:Number = new Number(this.definitionXML.framesize)
-				if(framesize>0 && this.definitionXML.frame) {
-					tile = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.frame],this.element)
+				var framesize:Number = new Number(this.definition.xmlData.framesize)
+				if(framesize>0 && this.definition.xmlData.frame) {
+					tile = fMaterial.getMaterial(this.definition.xmlData.frame)
 					var base2:BitmapData = new BitmapData(width,height,true,0x000000)
-					base2.draw(tile.getDiffuse(width,height))
+					base2.draw(tile.getDiffuse(element,width,height))
 					
 					var temp2:Sprite = new Sprite
 					for(j=0;j<this.windows.length;j++) {
@@ -161,7 +162,7 @@ package org.ffilmation.engine.materials {
 					
 					// Use a dropShadow filter to add some thickness to the frame
 					var angle:Number = 225
-					if(this.element is fWall && (this.element as fWall).vertical) angle=315
+					if(element is fWall && (element as fWall).vertical) angle=315
 					
 					var fil = new DropShadowFilter(3,angle,0,1,5,5,1,BitmapFilterQuality.HIGH)
 					temp2.filters = [fil]
@@ -185,13 +186,14 @@ package org.ffilmation.engine.materials {
 			* Retrieves the bump map for this material. If you write custom classes, make sure they return the proper size
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will used as BumpMap. If it is a MovieClip, the first frame will we used
 			*
 			*/
-			public function getBump(width:Number,height:Number):DisplayObject {
+			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				return null
 			}
 
@@ -199,13 +201,14 @@ package org.ffilmation.engine.materials {
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions
 			* and bullet impacts
 			*
+			* @param element: Element where the holes will be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return An array of Rectangle objects, one for each hole. Positions and sizes are relative to material origin of coordinates
 			*
 			*/
-			public function getHoles(width:Number,height:Number):Array {
+			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				
 				this.calcWindows(width,height)
 
@@ -231,7 +234,7 @@ package org.ffilmation.engine.materials {
 			* @param index The hole index, as returned by the getHoles() method
 			* @return A Movieclip that will used to close the hole. If null is returned, the hole won't be "closeable".
 			*/
-			public function getHoleBlock(index:Number):MovieClip {
+			public function getHoleBlock(element:fRenderableElement,index:Number):MovieClip {
 				
 				return null
 				

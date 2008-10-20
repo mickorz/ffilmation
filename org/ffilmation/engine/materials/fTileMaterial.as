@@ -7,6 +7,7 @@ package org.ffilmation.engine.materials {
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
+		import org.ffilmation.engine.helpers.*
 		
 		/**
 		* This class creates a material by "Tiling" an image in the imported libraries
@@ -18,48 +19,46 @@ package org.ffilmation.engine.materials {
 		public class fTileMaterial implements fEngineMaterial {
 			
 			// Private vars
-			private var definitionXML:XML								// Definition data
-			private var element:fRenderableElement			// The element where this material is applied.
+			private var definition:fMaterialDefinition	// Definition data
 			
 			// Constructor
-			public function fTileMaterial(definitionXML:XML,element:fRenderableElement):void {
-				this.definitionXML = definitionXML
-				this.element = element
-				
+			public function fTileMaterial(definition:fMaterialDefinition):void {
+				this.definition = definition
 			}
 			
 			/**
 			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
 			*/
 			public function dispose():void {
-				this.definitionXML = null
-				this.element = null
+				this.definition = null
+				
 			}
 
 			/** 
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
 			*/
-			public function getDiffuse(width:Number,height:Number):DisplayObject {
+			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
 				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
 				
-				var clase:Class = getDefinitionByName(this.definitionXML.diffuse) as Class
+				var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
 				var image:BitmapData = new clase(0,0) as BitmapData
 				
 				var matrix:Matrix = new Matrix()
-				if(this.element is fFloor) matrix.translate(-this.element.x,-this.element.y)
-				if(this.element is fWall) {
-					var tempw:fWall = this.element as fWall
-					if(tempw.vertical) matrix.translate(-this.element.y,-this.element.z)
-					else matrix.translate(-this.element.x,-this.element.z)
+				if(element is fFloor) matrix.translate(-element.x,-element.y)
+				if(element is fWall) {
+					var tempw:fWall = element as fWall
+					if(tempw.vertical) matrix.translate(-element.y,-element.z)
+					else matrix.translate(-element.x,-element.z)
 				}
 
 				temp.graphics.beginBitmapFill(image,matrix,true,true)
@@ -78,15 +77,16 @@ package org.ffilmation.engine.materials {
 			* Retrieves the bump map for this material. If you write custom classes, make sure they return the proper size
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will used as BumpMap. If it is a MovieClip, the first frame will we used
 			*
 			*/
-			public function getBump(width:Number,height:Number):DisplayObject {
+			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				var ret:Sprite = new Sprite
-				var clase:Class = getDefinitionByName(this.definitionXML.bump) as Class
+				var clase:Class = getDefinitionByName(this.definition.xmlData.bump) as Class
 				var image:BitmapData = new clase(0,0) as BitmapData
 				ret.graphics.beginBitmapFill(image,null,true,true)
 				ret.graphics.drawRect(0,0,width,height)
@@ -98,13 +98,14 @@ package org.ffilmation.engine.materials {
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions
 			* and bullet impatcs
 			*
+			* @param element: Element where the holes will be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return An array of Rectangle objects, one for each hole. Positions and sizes are relative to material origin of coordinates
 			*
 			*/
-			public function getHoles(width:Number,height:Number):Array {
+			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				return []
 			}
 
@@ -114,7 +115,7 @@ package org.ffilmation.engine.materials {
 			* @param index The hole index, as returned by the getHoles() method
 			* @return A MovieClip that will used to close the hole. If null is returned, the hole won't be "closeable".
 			*/
-			public function getHoleBlock(index:Number):MovieClip {
+			public function getHoleBlock(element:fRenderableElement,index:Number):MovieClip {
 				return null
 			}
 

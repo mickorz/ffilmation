@@ -13,6 +13,7 @@ package org.ffilmation.engine.core {
 		import flash.geom.Rectangle	
 
 		import org.ffilmation.utils.*
+		import org.ffilmation.engine.core.sceneInitialization.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.datatypes.*
@@ -39,54 +40,58 @@ package org.ffilmation.engine.core {
 			// This counter is used to generate unique scene Ids
 			private static var count:Number = 0
 
-
 		  // Private properties
-			private var prof:fProfiler = null										// Profiler
-		  /** @private */
-		  internal var engine:fEngine
-		 	/** @private */
-			internal var _orig_container:Sprite  		  					// Backup reference
-		  /** @private */
-			internal var top:int
-		  /** @private */
-			internal var depthSortArr:Array									  	// Array of elements for depth sorting
-			/** @private */
-			internal var gridWidth:Number												// Grid size in pixels
-			/** @private */
-			internal var gridDepth:Number
-			/** @private */
-			internal var gridHeight:Number
-			/** @private */
-			internal var sortAreas:Array												// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
-																													// It is used to find the proper zIndex for a cell
-																													
-			private var currentCamera:fCamera										// The camera currently in use
+		  
+		  // 1. References
+		  
 			private var _controller:fEngineSceneController = null
-			
-			/** @private */
-			public var IAmBeingRendered:Boolean = false					// If this scene is actually being rendered
+			private var currentCamera:fCamera										// The camera currently in use
+			private var prof:fProfiler = null										// Profiler
+			private var initializer:fSceneInitializer						// This scene's initializer
+			private var renderEngine:fEngineRenderEngine				// The render engine
+		  /** @private */
+		  public var engine:fEngine
+		 	/** @private */
+			public var _orig_container:Sprite  		  						// Backup reference
 
-			/** @private */
-		  public var gridSize:Number           								// Grid size ( in pixels )
-			/** @private */
-		  public var levelSize:Number          								// Vertical grid size ( along Z axis, in pixels )
-			/** @private */
-		  public var grid:Array                 						  // The grid
+			// 2. Geometry and sizes
+
 			/** @private */
 		  public var viewWidth:Number													// Viewport size
 			/** @private */
 		  public var viewHeight:Number												// Viewport size
+		  /** @private */
+			public var top:Number																// Highest Z in the scene
 			/** @private */
-			public var objectDefinitions:Object								  // The list of object definitions loaded for this scene
+			public var gridWidth:Number													// Grid size in cells
 			/** @private */
-			public var materialDefinitions:Object								// The list of material definitions loaded for this scene
+			public var gridDepth:Number
 			/** @private */
-			public var noiseDefinitions:Object									// The list of noise definitions loaded for this scene
+			public var gridHeight:Number
+			/** @private */
+		  public var gridSize:Number           								// Grid size ( in pixels )
+			/** @private */
+		  public var levelSize:Number          								// Vertical grid size ( along Z axis, in pixels )
+
+			// 3. zSort
+
+			/** @private */
+		  public var grid:Array                 						  // The grid
+		  /** @private */
+			public var depthSortArr:Array									  		// Array of elements for depth sorting
+			/** @private */
+			public var sortAreas:Array													// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
+																													// It is used to find the proper zIndex for a cell
+																													
+			// 4. Resources
 			
-			private var renderEngine:fEngineRenderEngine				// The render engine
+		 	/** @private */
+			public var resourceManager:fSceneResourceManager		// The resource manager stores all definitions loaded for this scene
 			
-			private var bulletPool:Array												// Bullets go here instead of being deleted, so they can be reused
-			
+			// 5.Status			
+
+			/** @private */
+			public var IAmBeingRendered:Boolean = false					// If this scene is actually being rendered
 			private var _enabled:Boolean												// Is the scene enabled ?
 
 
@@ -177,7 +182,9 @@ package org.ffilmation.engine.core {
 		  */
 		  public var bullets:Array
 
-			
+			// Bullets go here instead of being deleted, so they can be reused
+			private var bulletPool:Array												
+
 
 		  // Events
 
@@ -232,9 +239,9 @@ package org.ffilmation.engine.core {
 			   this.characters = new Array         
 			   this.lights = new Array         
 			   this.everything = new Array          
+			   this.all = new Array 
 			   this.bullets = new Array          
 			   this.bulletPool = new Array          
-			   this.all = new Array 
 			   
 			   // AI
 			   this.AI = new fAiContainer(this)
@@ -244,10 +251,10 @@ package org.ffilmation.engine.core {
 			   this.renderEngine.setViewportSize(width,height)
 			   
 			   // Start xml retrieve process
-			   var initializer:fSceneInitializer = new fSceneInitializer(this,retriever)
-			   initializer.start()
+			   this.initializer = new fSceneInitializer(this,retriever)
+			   this.initializer.start()
 			   
-				 // Profiler
+				 // Profiler ?
 				 this.prof = p
 
 			}
@@ -384,7 +391,6 @@ package org.ffilmation.engine.core {
 				 	nfLight.addEventListener(fLight.RENDER,this.renderElement)			   
 			   	
 			   	// Add to lists
-			   	nfLight.counter = this.lights.length
 			   	this.lights.push(nfLight)
 			   	this.everything.push(nfLight)
 			   	this.all[nfLight.id] = nfLight
@@ -443,7 +449,6 @@ package org.ffilmation.engine.core {
 				 	nCharacter.addEventListener(fElement.MOVE,this.renderElement)			   
          	
 			   	// Add to lists
- 			   	nCharacter.counter = this.characters.length
 			   	this.characters.push(nCharacter)
 			   	this.everything.push(nCharacter)
 			   	this.all[nCharacter.id] = nCharacter
@@ -462,7 +467,7 @@ package org.ffilmation.engine.core {
 			public function removeCharacter(char:fCharacter):void {
 
 					// Remove from arraya
-					this.characters.splice(this.lights.indexOf(char),1)
+					this.characters.splice(this.characters.indexOf(char),1)
 		      this.all[char.id] = null
 		      
 		      // Hide
@@ -542,7 +547,7 @@ package org.ffilmation.engine.core {
 			* @return A Point in this scene's container Sprite
 			*/
 			public function translate3DCoordsTo2DCoords(x:Number,y:Number,z:Number):Point {
-				 return this.translateCoords(x,y,z)
+				 return fScene.translateCoords(x,y,z)
 			}
 
 			/**
@@ -560,7 +565,7 @@ package org.ffilmation.engine.core {
          var rect:Rectangle = this.container.scrollRect
          
          // Get point
-				 var r:Point = this.translateCoords(x,y,z)
+				 var r:Point = fScene.translateCoords(x,y,z)
 				 
 				 // Translate
 				 r.x-=rect.x
@@ -594,16 +599,9 @@ package org.ffilmation.engine.core {
          var xx:Number = x+rect.x
          var yy:Number = y+rect.y
          
-         //rotate the coordinates
-         var yCart:Number = (xx/Math.cos(0.46365)+(yy)/Math.sin(0.46365))/2
-         var xCart:Number = (-1*(yy)/Math.sin(0.46365)+xx/Math.cos(0.46365))/2         
-         
-         //scale the coordinates
-         xCart = xCart/fEngine.DEFORMATION
-         yCart = yCart/fEngine.DEFORMATION
-         
-         return new Point(xCart,yCart)
-      }         
+         return fScene.translateCoordsInverse(xx,yy)
+      }
+      
 
 			/**
 			* This method returns the element under a Stage coordinate, and a 3D translation of the 2D coordinates passed as input.
@@ -776,15 +774,6 @@ package org.ffilmation.engine.core {
 			   
 			}
 
-			// Element enters new cell
-			/** @private */
-			public function processNewCell(evt:Event):void {
-
-				if(evt.target is fOmniLight) this.processNewCellOmniLight(evt.target as fOmniLight)
-				if(evt.target is fCharacter) this.processNewCellCharacter(evt.target as fCharacter)
-				if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
-				
-			}
 
 			// Process bullets shooting things
 			private function processShot(evt:fShotEvent):void {
@@ -836,6 +825,16 @@ package org.ffilmation.engine.core {
 		 		
 		 	}
 		 	
+			// Element enters new cell
+			/** @private */
+			public function processNewCell(evt:Event):void {
+
+				if(evt.target is fOmniLight) this.processNewCellOmniLight(evt.target as fOmniLight)
+				if(evt.target is fCharacter) this.processNewCellCharacter(evt.target as fCharacter)
+				if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
+				
+			}
+
 
 			// Process New cell for Bullets
 			private function processNewCellBullet(bullet:fBullet):void {
@@ -1463,7 +1462,7 @@ package org.ffilmation.engine.core {
 
 
 			/** @private */
-			public function translateCoords(x:Number,y:Number,z:Number):Point {
+			public static function translateCoords(x:Number,y:Number,z:Number):Point {
 			
 				 var xx:Number = x*fEngine.DEFORMATION
 				 var yy:Number = y*fEngine.DEFORMATION
@@ -1475,6 +1474,21 @@ package org.ffilmation.engine.core {
 
 			}
 			
+      /** @private */   
+      public static function translateCoordsInverse(x:Number,y:Number):Point {   
+         
+         //rotate the coordinates
+         var yCart:Number = (x/Math.cos(0.46365)+(y)/Math.sin(0.46365))/2
+         var xCart:Number = (-1*(y)/Math.sin(0.46365)+x/Math.cos(0.46365))/2         
+         
+         //scale the coordinates
+         xCart = xCart/fEngine.DEFORMATION
+         yCart = yCart/fEngine.DEFORMATION
+         
+         return new Point(xCart,yCart)
+      }         
+
+
 			// Get visible elements from given cell, sorted by distance
 			/** @private */
 			public function calcVisibles(cell:fCell,range:Number=Infinity):void {
@@ -1496,12 +1510,6 @@ package org.ffilmation.engine.core {
 				this.depthSortArr = null
 				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
 				this.sortAreas = null
-				for(i=0;i<this.objectDefinitions.length;i++) delete this.objectDefinitions[i]
-				this.objectDefinitions = null
-				for(i=0;i<this.materialDefinitions.length;i++) delete this.materialDefinitions[i]
-				this.materialDefinitions = null
-				for(i=0;i<this.noiseDefinitions.length;i++) delete this.noiseDefinitions[i]
-				this.noiseDefinitions = null
 				this.currentCamera.dispose()
 				this.currentCamera = null
 				this._controller = null

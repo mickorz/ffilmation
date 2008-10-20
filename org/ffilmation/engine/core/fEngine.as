@@ -63,6 +63,11 @@ package org.ffilmation.engine.core {
 			 // Constants
 			 
 			 /**
+		   * Just in case you want to display it
+			 */
+			 public static const VERSION:String = "1.3"
+
+			 /**
 		   * This constant is used everywhere to apply perspective correction to all heights
 		   * @private
 			 */
@@ -86,6 +91,15 @@ package org.ffilmation.engine.core {
  			 * 
  			 */
  		   public static const MEDIALOADCOMPLETE:String = "enginemedialoadcomplete"
+
+			 /**
+ 			 * The fEngine.MEDIALOADERROR constant defines the value of the 
+ 			 * <code>type</code> property of the event object for a <code>enginemedialoaderror</code> event.
+ 			 * The event is dispatched when the external media file is not loaded.
+ 			 * 
+ 			 */
+ 		   public static const MEDIALOADERROR:String = "enginemedialoaderror"
+
 
 
 			 // Static properties that define graphic options
@@ -169,6 +183,7 @@ package org.ffilmation.engine.core {
 				  	cLoader.load(new URLRequest(src),cont)
 				  	cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete)
 				  	cLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,this.loadProgress)
+				  	cLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR ,this.loadError)
 				  
 					} else {
 						
@@ -179,7 +194,20 @@ package org.ffilmation.engine.core {
 			 	
 			 }
 
+			 private function loadError(event:IOErrorEvent):void {
+
+			  	event.target.removeEventListener(Event.COMPLETE,this.loadComplete)
+				  event.target.removeEventListener(ProgressEvent.PROGRESS,this.loadProgress)
+				  event.target.removeEventListener(IOErrorEvent.IO_ERROR ,this.loadError)
+			   	this.dispatchEvent(new Event(fEngine.MEDIALOADERROR))
+
+			 }
+
 			 private function loadComplete(event:Event):void {
+
+			  	event.target.removeEventListener(Event.COMPLETE,this.loadComplete)
+				  event.target.removeEventListener(ProgressEvent.PROGRESS,this.loadProgress)
+				  event.target.removeEventListener(IOErrorEvent.IO_ERROR ,this.loadError)
 			   	this.dispatchEvent(new Event(fEngine.MEDIALOADCOMPLETE))
 			 }
 			

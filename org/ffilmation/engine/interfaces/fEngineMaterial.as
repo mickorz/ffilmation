@@ -3,6 +3,7 @@ package org.ffilmation.engine.interfaces {
 		// Imports
 		import flash.display.*
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.helpers.*
 
 		/**
 		* This interface defines methods that any class that is to be used as a material in the engine must implement
@@ -11,54 +12,57 @@ package org.ffilmation.engine.interfaces {
 
 			/**
 			* Constructor
-			* @param definitionXML The material definition data that created this class
-			* @param element The element( wall or floor ) where this material will be applied
+			* @param definition The material definition that created this class
 			*/
-			public function fEngineMaterial(definitionXML:XML,element:fRenderableElement);
+			public function fEngineMaterial(definition:fMaterialDefinition);
 
 			/** 
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element The element( wall or floor ) where this map will be applied
 			* @param width: Requested width
 			* @param height: Requested width
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
 			*/
-		  function getDiffuse(width:Number,height:Number):DisplayObject;
+		  function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject;
 
 			/** 
 			* Retrieves the bump map for this material. If you write custom classes, make sure they return the proper size
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element The element( wall or floor ) where this map will be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will used as BumpMap. If it is a MovieClip, the first frame will we used
 			*
 			*/
-			function getBump(width:Number,height:Number):DisplayObject;
+			function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject;
 
 			/** 
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions
 			* and bullet impatcs
 			*
+			* @param element The element( wall or floor ) where the holes will be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return An array of Rectangle objects, one for each hole. Positions and sizes are relative to material origin of coordinates
 			*
 			*/
-			function getHoles(width:Number,height:Number):Array;
+			function getHoles(element:fRenderableElement,width:Number,height:Number):Array;
 			
 			/**
 			* Retrieves the graphic element that is to be used to block a given hole when it is closed
 			*
+			* @param element The element( wall or floor ) where the block will be applied
 			* @param index The hole index, as returned by the getHoles() method
 			* @return A MovieClip that will used to close the hole. If null is returned, the hole won't be "closeable".
 			*/
-			function getHoleBlock(index:Number):MovieClip;
+			function getHoleBlock(element:fRenderableElement,index:Number):MovieClip;
 			
 			/**
 			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible

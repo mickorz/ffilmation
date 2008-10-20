@@ -18,15 +18,8 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public static const NOLIGHT:Object = { ra:0, ga:0, ba:0, aa:1, rb: 0,gb: 0, bb: 0, ab:0 }
 			
-			// Private properties
-
 			// Public properties
 			
-			/** 
-			* Numeric counter assigned by scene
-			* @private
-			*/
-			public var counter:int
 
 			/** An string specifying the color of the light in HTML format, example: #ffeedd */
 			public var hexcolor:Number
@@ -85,6 +78,7 @@ package org.ffilmation.engine.core {
 				 // Current color
 			   this.color = null                        
 
+				 
 				 // BumpMapped light ?
 			   this.bump = (defObj.@bump[0]=="true")
 

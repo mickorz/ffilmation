@@ -23,7 +23,7 @@ package org.ffilmation.engine.core {
 			*
 		  * @see org.ffilmation.engine.core.fHole
 			*/
-			public var holes:Array									// Array of holes in this plane
+			public var holes:Array											// Array of holes in this plane
 			
 			/** 
 			* Material applied to this plane
@@ -31,24 +31,34 @@ package org.ffilmation.engine.core {
 			public var material:fMaterial
 			
 			// Private properties
+
 			/** @private */
 			public var zIndex:Number
+			
+			private var planeWidth:Number
+			private var planeHeight:Number
 
 			// Constructor
 			/** @private */
 			function fPlane(defObj:XML,scene:fScene,width:Number,height:Number):void {
 				
 				 // Previous
-				 super(defObj,scene,defObj.@src.length()==0)
+				 super(defObj,scene,defObj.@src.length()!=1)
+				 
+				 // 2D dimensions
+				 this.planeWidth = width
+				 this.planeHeight = height
 				 
 				 // Prepare material & holes
-				 if(defObj.@src.length()==1) {
-				 		this.material = new fMaterial(defObj.@src,width,height,this)
-				    this.holes = this.material.getHoles()
-				 } else {
-				 		this.holes = []	
-				}
+		 		 this.holes = []	
+				 if(defObj.@src.length()==1) this.applyMaterial(defObj.@src)
 
+			}
+			
+			/** @private */
+			public function applyMaterial(id:String):void {
+				 this.material = fMaterial.getMaterial(id,this.scene)
+				 this.holes = this.material.getHoles(this,this.planeWidth,this.planeHeight)
 			}
 
 			// Planes don't move

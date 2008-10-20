@@ -51,7 +51,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public override function place():void {
 
 			   // Place in position
-			   var coords:Point = this.scene.translateCoords(this.element.x,this.element.y,this.element.z)
+			   var coords:Point = fScene.translateCoords(this.element.x,this.element.y,this.element.z)
 			   this.container.x = coords.x
 			   this.container.y = coords.y
 			   

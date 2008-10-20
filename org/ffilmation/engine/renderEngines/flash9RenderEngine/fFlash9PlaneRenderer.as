@@ -64,7 +64,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			function fFlash9PlaneRenderer(rEngine:fFlash9RenderEngine,element:fPlane,width:Number,height:Number,spriteToDraw:Sprite,spriteToShowHide:MovieClip):void {
 				
  			   // Retrieve diffuse map
- 			   this.diffuse = element.material.getDiffuse()
+ 			   this.diffuse = element.material.getDiffuse(element,width,height,true)
  			   var d:Sprite = this.diffuse as Sprite
  			   d.mouseEnabled = false
  			   d.mouseChildren = false
@@ -235,7 +235,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   // Bump map ?
 	       try {
 
-				 		var ptt:DisplayObject = (this.element as fPlane).material.getBump()
+				 		var ptt:DisplayObject = (this.element as fPlane).material.getBump(this.element,this.container.width,this.container.height,true)
 						
 						this.bumpMapData = new BitmapData(this.container.width,this.container.height)
 						this.tMatrix = this.container.transform.matrix.clone()

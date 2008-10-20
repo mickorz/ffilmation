@@ -22,6 +22,12 @@ package org.ffilmation.engine.interfaces {
 			*/
 			function getXML():XML;
 
+			/** 
+			* The scene will use this method to retrieve the basepath for this XML. This basepath will be used to resolve paths inside this XML
+			*/
+			function getBasePath():String;
+
+
 		}
 
 }

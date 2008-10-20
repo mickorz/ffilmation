@@ -73,6 +73,7 @@ package org.ffilmation.engine.elements {
  			* @eventType charactereventout
  			*/
  		  public static const EVENT_OUT:String = "charactereventout"
+ 		  
 
 			// Public properties
 			
@@ -91,10 +92,10 @@ package org.ffilmation.engine.elements {
 			public var currentOccluding:Array
 			
 			/** 
-			* Numeric counter assigned by scene
+			* Numeric counter for fast Array lookups
 			* @private
 			*/
-			public var counter:int
+			public var counter:Number
 			
 			/** 
 			* Array of render cache. For each light in the scene, a list of elements that are shadowed by this character at its current position
@@ -113,17 +114,20 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			function fCharacter(defObj:XML,scene:fScene):void {
 				
-				 // Characters are animated always
-				 this.animated = true
-				 
 				 // Previous
 				 super(defObj,scene)
 				 
+				 // Characters are animated always
+				 this.animated = true
+
 				 // Lights
 				 this.vLights = new Array
 				 
 				 // Occlusion
 				 this.currentOccluding = new Array
+				 
+				 // Counter
+				 this.counter = this.scene.characters.length
 				 
 				 // Occupied cells
 				 this.occupiedCells = new Array

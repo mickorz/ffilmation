@@ -6,12 +6,12 @@ package org.ffilmation.demos.mynameisponcho {
 	import org.ffilmation.engine.core.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.utils.*
-	import org.ffilmation.helpful.generators.*
 	import org.ffilmation.engine.scenes.*
 	import org.ffilmation.engine.elements.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.engine.interfaces.*
 	import org.ffilmation.demos.mynameisponcho.controllers.*
+	import org.ffilmation.engine.core.sceneInitialization.*
 	import org.ffilmation.profiler.*
 	
 		
@@ -56,10 +56,6 @@ package org.ffilmation.demos.mynameisponcho {
 
 			  // Force controller classes to be included in the compiled SWF. I know there must be a nicer way to achieve this...
 			  var c1:org.ffilmation.demos.mynameisponcho.controllers.forest
-
-		    // Force generator classes to be included in the compiled SWF. I know there must be a nicer way to achieve this...
-			  var sc:fScatterGenerator
-			  var bl:fBuildingGenerator
 
 				// Create engine
 				this.engine = new fEngine(this.container)

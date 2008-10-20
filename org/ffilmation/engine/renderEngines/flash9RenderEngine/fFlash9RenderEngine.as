@@ -202,7 +202,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				*/
 				public function setCameraPosition(camera:fCamera):void {
 
-					var p:Point = this.scene.translateCoords(camera.x,camera.y,camera.z)
+					var p:Point = fScene.translateCoords(camera.x,camera.y,camera.z)
 					var rect:Rectangle = new Rectangle()
 					rect.width = this.viewWidth
 					rect.height = this.viewHeight

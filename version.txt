@@ -1,6 +1,19 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+1.3.1:
+
+This version is mainly 1.3 but with several internal changes that were needed to build the scene editor. These are the most notable:
+
+IMPORTANT!: All paths defined in any XML are relative to that XML. The standalone editor does not have a valid basepath as a flash movie does, so this change was mandatory. Besides, I think it makes more sense and makes references easier to follow. If you load current scenes with the new version, you will get "File not found" errors.
+The scene dispatches ErrorEvent.ERROR events when something goes wrong at initialization time ( missing files, invalid material definitions ). This is a first step in making the engine more robust. However, If you use the editor you shouldn't be creating buggy XMLs.
+The whole scene initialization process has been cleaned up and split into several classes. This makes somehow possible to call certain processes separately from the editor ( add a new resource file, resort the walls, etc etc ). Also, the fSceneInitializer class becomes more simple and understandable.
+I have removed the generator interface and the generators: I must admit they were a poor replacement for an scene editor, and I don't find them useful anymore.
+The material interface is properly setup so any material can be the base to a compound material ( for example, a door material can be the base for a window material ). This is almost a bugfix rather than an improvement.
+Also with each release I try to tidy the code and class structure. I know it's already a bit intimidating at first, but if you stay within the documented API I think it is reasonabily easy to pick.
+
+1.3:
+
 New internal structure for the engine (99% backwards compatible ). Classes have been reorganized on a per-function basis, allowing easier extendability.
 Also, rendering is completely separated from geometrical information. You can load and control several scenes but only the one
 being shown will have its Sprites created and spend system resources.

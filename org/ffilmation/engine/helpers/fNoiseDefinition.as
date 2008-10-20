@@ -1,6 +1,6 @@
 // Noise
 
-package org.ffilmation.engine.datatypes {
+package org.ffilmation.engine.helpers {
 	
 		// Imports
 		import flash.display.*
@@ -9,7 +9,7 @@ package org.ffilmation.engine.datatypes {
 
 		/**
 		* This object stores a perlin noise definition that was loaded from a definition file. Noise definitions are
-		* used internally by Perlin materials but can be used externally to scatter objects along a surface, for example
+		* used internally by Perlin materials 
 		*
     * @example Here's an example of a noise definition in a definition XML
     *
@@ -42,7 +42,7 @@ package org.ffilmation.engine.datatypes {
 	  * 
 		* @see org.ffilmation.engine.materials.fPerlinMaterial
 		*/
-		public class fNoise {
+		public class fNoiseDefinition {
 		
 			private var seed:int
 
@@ -59,7 +59,7 @@ package org.ffilmation.engine.datatypes {
 		  *
 			* @private
 			*/
-			function fNoise(definitionXML:XML):void {
+			function fNoiseDefinition(definitionXML:XML):void {
 			
 				 // Make sure this noise has a proper definition
 				 try {
@@ -71,7 +71,6 @@ package org.ffilmation.engine.datatypes {
 				 		this.baseX = new Number(definitionXML.baseX)
 				 		this.baseY = new Number(definitionXML.baseY)
 				 		this.octaves = parseInt(definitionXML.octaves)
-				 		
 				 		this.fractal = (definitionXML.fractal!="false")
 				 		
 				 } catch (e:Error) {

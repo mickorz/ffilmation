@@ -49,7 +49,7 @@ package org.ffilmation.engine.elements {
 			public static const SHADOWSCALE = 0.7
 			
 			// Private properties
-			private var definitionXML:XML
+			private var definition:fObjectDefinition
 			/** @private */
 			public var sprites:Array
 			/** @private */
@@ -82,7 +82,7 @@ package org.ffilmation.engine.elements {
 			* Don't confuse "animated" ( a looping movieClip ) with "moveable".
 			* fObjects default to non-animated and fCharacters default to animated. You can use the <b>animated</b> attribute in your XMLs to change this
 			 */
-			public var animated:Boolean
+			public var animated:Boolean = false
 			
 			// Events
 			
@@ -122,77 +122,46 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			function fObject(defObj:XML,scene:fScene):void {
 				
+				 // Previous
+				 super(defObj,scene)
+
 				 // Make sure this object has a definition in the scene. If it doesn't, throw an error
-				 try {
-
-				 		this.definitionID = defObj.@definition
-				 		this.definitionXML = scene.objectDefinitions[defObj.@definition].copy()
-				
-						// Retrieve all sprites for this object
-						this.sprites = new Array
-						var sprites:XMLList = this.definitionXML.displayModel.child("sprite")
-						for(var i:Number=0;i<sprites.length();i++) {
-							
-								var spr:XML = sprites[i]
-								
-								// Check for library item
-			          var clase:Class = getDefinitionByName(spr.@src) as Class
-						
-								// Check for shadow definition or use default
-								try {
-			      			var shadow:Class = getDefinitionByName(spr.@shadowsrc) as Class
-			      		} catch(e:Error) {
-			      			shadow = clase
-			      		}
-								this.sprites.push(new fSpriteDefinition(parseInt(spr.@angle),clase,shadow))
-								
-						}
-						
-						// Sort sprites and add first one to the end of the list
-						this.sprites.sortOn("angle", Array.NUMERIC)
-						this.sprites[this.sprites.length] = this.sprites[0]
-						
-						// Initialize rotation for this object
-						this._orientation = 0
-						
-						// Previous
-						super(defObj,scene)
-						
-	  				// Is it animated ?
-	  			  if(defObj.@animated.length()!=1) this.animated = (defObj.@animated.toString()=="true")
-	  				
-	  				// Definition Lights enabled ?
-	  				var temp:XMLList = this.definitionXML.@receiveLights
-	  			  if(defObj.@receiveLights.length()!=1 && temp.length()==1) this.receiveLights = (temp.toString()=="true")
-	  
-	  				// Definition Shadows enabled ?
-	  				temp = this.definitionXML.@receiveShadows
-	  			  if(defObj.@receiveShadows.length()!=1 && temp.length()==1) this.receiveShadows = (temp.toString()=="true")
-	  
-	  				// Definition Projects shadow ?
-	  				temp = this.definitionXML.@castShadows
-	  			  if(defObj.@castShadows.length()!=1 && temp.length()==1) this.castShadows = (temp.toString()=="true")
-	  
-	  				// Definition Solid ?
-	  				temp = this.definitionXML.@solid
-	  			  if(defObj.@solid.length()!=1 && temp.length()==1) this.solid = (temp.toString()=="true")
-				 
-				 } catch (e:Error) {
-				 		throw new Error("Filmation Engine Exception: The scene does not contain a valid object definition that matches definition id '"+defObj.@definition+"' in object "+defObj.@id+"." +e)
+			 	 this.definitionID = defObj.@definition
+				 this.definition = this.scene.resourceManager.getObjectDefinition(this.definitionID)
+				 if(!this.definition) {
+						throw new Error("Filmation Engine Exception: The scene does not contain a valid object definition that matches definition id '"+this.definitionID+"'")
 				 }
-
+				
+				 // Retrieve all sprites for this object
+				 try {
+					 this.sprites = this.definition.sprites
+				 } catch(e:Error) {
+						throw new Error("Filmation Engine Exception: Object definition '"+this.definitionID+"' contains an invalid display model or it can't be applied to object '"+this.id+"' "+e)
+				 }
+				
+				 // Initialize rotation for this object
+				 this._orientation = 0
+						
+	  		 // Is it animated ?
+	  		 if(defObj.@animated.length()==1) this.animated = (defObj.@animated.toString()=="true")
+	  				
+	  		 // Definition Lights enabled ?
+	  		 if(defObj.@receiveLights.length()!=1) this.receiveLights = this.definition.receiveLights
+	  
+	  		 // Definition Shadows enabled ?
+	  		 if(defObj.@receiveShadows.length()!=1) this.receiveShadows = this.definition.receiveShadows
+	  
+	  		 // Definition Projects shadow ?
+	  		 if(defObj.@castShadows.length()!=1) this.castShadows = this.definition.castShadows
+	  
+	  		 // Definition Solid ?
+	  		 if(defObj.@solid.length()!=1) this.solid = this.definition.solid
+				 
 				 // Retrieve collision model
-				 if(this.definitionXML.collisionModel.cilinder.length()>0) {
-				 		try {
-				 			this.collisionModel = new fCilinderCollisionModel(this.definitionXML.collisionModel.cilinder[0])
-				 		} catch (e:Error) {
-				 			throw new Error("Filmation Engine Exception: Object definition '"+defObj.@definition+"' contains an invalid cilinder collision model. "+e)
-				 		}
-				 } else if(this.definitionXML.collisionModel.box.length()>0) {
-				 		if(this is fCharacter) throw new Error("Filmation Engine Exception: Sorry as of this relase fCharacters are only allowed to have the cilinder collision model ('"+defObj.@definition+"').")
-				 		else this.collisionModel = new fBoxCollisionModel(this.definitionXML.collisionModel.box[0])
-				 } else {
-				 		throw new Error("Filmation Engine Exception: Object definition '"+defObj.@definition+"' does not contain a valid collision model.")
+				 try {
+	 			 	this.collisionModel = this.definition.collisionModel
+				 } catch(e:Error) {
+						throw new Error("Filmation Engine Exception: Object definition '"+this.definitionID+"' contains an invalid collision model or it can't be applied to object '"+this.id+"'")
 				 }
 
 		     // Define shadowRange
@@ -347,8 +316,7 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public function disposeObject():void {
 
-				this.definitionXML = null
-				for(var i:Number=0;i<this.sprites.length;i++) delete this.sprites[i]
+				this.definition = null
 				this.sprites = null
 				this.collisionModel = null
 				this.disposeRenderable()

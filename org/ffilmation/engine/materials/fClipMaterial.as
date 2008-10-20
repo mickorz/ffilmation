@@ -7,6 +7,7 @@ package org.ffilmation.engine.materials {
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.helpers.fHoleClip
+		import org.ffilmation.engine.helpers.*
 		
 		/**
 		* <p>This class creates a material from a MovieClip or image exported in any SWF you import into the scene.
@@ -23,19 +24,17 @@ package org.ffilmation.engine.materials {
 		public class fClipMaterial implements fEngineMaterial {
 			
 			// Private vars
-			private var definitionXML:XML								// Definition data
-			private var element:fRenderableElement			// The element where this material is applied.
+			private var definition:fMaterialDefinition	// Definition data
 			
 			private var base:DisplayObject							// Base clip for this material
 			private var origw:Number
 			private var origh:Number
 			
 			// Constructor
-			public function fClipMaterial(definitionXML:XML,element:fRenderableElement):void {
-				 this.definitionXML = definitionXML
-				 this.element = element
+			public function fClipMaterial(definition:fMaterialDefinition):void {
+				 this.definition = definition
 				 
-	       var clase:Class = getDefinitionByName(this.definitionXML.diffuse) as Class
+	       var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
 	       
 				 this.base = new clase()
 				 this.origw = this.base.width
@@ -46,8 +45,7 @@ package org.ffilmation.engine.materials {
 			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
 			*/
 			public function dispose():void {
-				this.definitionXML = null
-				this.element = null
+				this.definition = null
 				this.base = null
 			}
 			
@@ -55,31 +53,35 @@ package org.ffilmation.engine.materials {
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
 			*/
-			public function getDiffuse(width:Number,height:Number):DisplayObject {
-				 this.base.width = width
-				 this.base.height = height
-				 return this.base
+			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
+	       var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
+	       var ret:DisplayObject = new clase()
+				 ret.width = width
+				 ret.height = height
+				 return ret
 			}
 
 			/** 
 			* Retrieves the bump map for this material. If you write custom classes, make sure they return the proper size
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will used as BumpMap. If it is a MovieClip, the first frame will we used
 			*
 			*/
-			public function getBump(width:Number,height:Number):DisplayObject {
+			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
-	       var clase:Class = getDefinitionByName(this.definitionXML.bump) as Class
+	       var clase:Class = getDefinitionByName(this.definition.xmlData.bump) as Class
 	       var ret:DisplayObject = new clase()
 				 ret.width = width
 				 ret.height = height
@@ -90,13 +92,14 @@ package org.ffilmation.engine.materials {
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions
 			* and bullet impatcs
 			*
+			* @param element: Element where the holes will be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return An array of Rectangle objects, one for each hole. Positions and sizes are relative to material origin of coordinates
 			*
 			*/
-			public function getHoles(width:Number,height:Number):Array {
+			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				
 				 var temp:Array = new Array
 				 var px = width/this.origw
@@ -126,7 +129,7 @@ package org.ffilmation.engine.materials {
 			* @param index The hole index, as returned by the getHoles() method
 			* @return A MovieClip that will used to close the hole. If null is returned, the hole won't be "closeable".
 			*/
-			public function getHoleBlock(index:Number):MovieClip {
+			public function getHoleBlock(element:fRenderableElement,index:Number):MovieClip {
 				return null
 			}
 

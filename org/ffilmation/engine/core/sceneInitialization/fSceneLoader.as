@@ -1,4 +1,4 @@
-package org.ffilmation.engine.scenes {
+package org.ffilmation.engine.core.sceneInitialization {
 
 		// Imports
 		import flash.net.*
@@ -45,6 +45,14 @@ package org.ffilmation.engine.scenes {
 			*/
 			public function getXML():XML {
 				return this.xml
+			}
+
+			/** 
+			* @private 
+			* The scene will use this method to retrieve the basepath for this XML. This basepath will be used to resolve paths inside this XML
+			*/
+			public function getBasePath():String {
+				return this.src
 			}
 
 		}

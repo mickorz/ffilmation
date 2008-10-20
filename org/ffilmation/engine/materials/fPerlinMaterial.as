@@ -7,6 +7,7 @@
 		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.datatypes.*
+		import org.ffilmation.engine.helpers.*
 		
 		/**
 		* This class creates a material by stacking several layers of "tile" materials, using a perlin noise funcion as alpha mask for each layer
@@ -18,22 +19,40 @@
 		public class fPerlinMaterial implements fEngineMaterial {
 			
 			// Private vars
-			private var definitionXML:XML								// Definition data
+			private var definition:fMaterialDefinition	// Definition data
 			private var element:fRenderableElement			// The element where this material is applied. In perlin materials you need to know
 																									// its coordinates so the material moves seamlessly between planes
+																									
+			private var baseMaterial:fMaterial					// Base material
+			private var materialLayers:Array						// Material for each layer
+			private var materialNoises:Array						// Noise for each layer
 			
 			// Constructor
-			public function fPerlinMaterial(definitionXML:XML,element:fRenderableElement):void {
-				this.definitionXML = definitionXML
-				this.element = element
+			public function fPerlinMaterial(definition:fMaterialDefinition):void {
+
+				this.definition = definition
+				
+
+				this.materialLayers = new Array
+				this.materialNoises = new Array
+				this.baseMaterial = fMaterial.getMaterial(this.definition.xmlData.base)
+				
+				var layers:XMLList = this.definition.xmlData.child("layer")
+				for(var i:Number=0;i<layers.length();i++) {
+				  this.materialLayers[i] = fMaterial.getMaterial(layers[i].material)
+					this.materialNoises[i] = new fNoiseDefinition(layers[i].noise[0])
+				}
+
 			}
 			
 			/**
 			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
 			*/
 			public function dispose():void {
-				this.definitionXML = null
-				this.element = null
+				this.definition = null
+				
+				this.materialLayers = null
+				this.materialNoises = null
 			}
 		
 			
@@ -41,35 +60,33 @@
 			* Retrieves the diffuse map for this material. If you write custom classes, make sure they return the proper size.
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will be display onscreen
 			*
 			*/
-			public function getDiffuse(width:Number,height:Number):DisplayObject {
+			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
 				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
 
 				// Draw base
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
-				temp.addChild(tile.getDiffuse(width,height))
-				
+				temp.addChild(this.baseMaterial.getDiffuse(element,width,height))
 				
 				// Draw layers, if any
-				var layers:XMLList = this.definitionXML.child("layer")
-				for(var i:Number=0;i<layers.length();i++) {
+				for(var i:Number=0;i<this.materialLayers.length;i++) {
 					
-				  tile = new fTileMaterial(this.element.scene.materialDefinitions[layers[i].material],this.element)
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
-					var diffuse:DisplayObject = tile.getDiffuse(width,height)
+					var diffuse:DisplayObject = this.materialLayers[i].getDiffuse(element,width,height)
 					layer.draw(diffuse)
 					var msk:BitmapData = new BitmapData(width,height,false,0x000000)
 					try {
-						this.element.scene.noiseDefinitions[layers[i].noise].drawNoise(msk,BitmapDataChannel.RED,this.element.x,this.element.y)
+						var n:fNoiseDefinition = this.materialNoises[i]
+						n.drawNoise(msk,BitmapDataChannel.RED,element.x,element.y)
 					} catch(e:Error) {
-						throw new Error("Filmation Engine Exception: Attempt to use a nonexistent noise definition: '"+layers[i].noise+"'")
+						throw new Error("Filmation Engine Exception: Attempt to use a nonexistent noise definition ")
 					}
 					layer.copyChannel(msk,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
 					msk.dispose()
@@ -90,33 +107,33 @@
 			* Retrieves the bump map for this material. If you write custom classes, make sure they return the proper size
 			* 0,0 of the returned DisplayObject corresponds to the top-left corner of material
 			*
+			* @param element: Element where this map is to be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return A DisplayObject (either Bitmap or MovieClip) that will used as BumpMap. If it is a MovieClip, the first frame will we used
 			*
 			*/
-			public function getBump(width:Number,height:Number):DisplayObject {
+			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
+				
 				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
 
 				// Draw base
-				var tile:fTileMaterial = new fTileMaterial(this.element.scene.materialDefinitions[this.definitionXML.base],this.element)
-				temp.addChild(tile.getBump(width,height))
+				temp.addChild(this.baseMaterial.getBump(element,width,height))
 				
 				// Draw layers, if any
-				var layers:XMLList = this.definitionXML.child("layer")
-				for(var i:Number=0;i<layers.length();i++) {
+				for(var i:Number=0;i<this.materialLayers.length;i++) {
 					
-				  tile = new fTileMaterial(this.element.scene.materialDefinitions[layers[i].material],this.element)
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
-					var diffuse:DisplayObject = tile.getBump(width,height)
+					var diffuse:DisplayObject = this.materialLayers[i].getBump(element,width,height)
 					layer.draw(diffuse)
 					var msk:BitmapData = new BitmapData(width,height,false,0x000000)
 					try {
-						this.element.scene.noiseDefinitions[layers[i].noise].drawNoise(msk,BitmapDataChannel.RED,this.element.x,this.element.y)
+						var n:fNoiseDefinition = this.materialNoises[i]
+						n.drawNoise(msk,BitmapDataChannel.RED,element.x,element.y)
 					} catch(e:Error) {
-						throw new Error("Filmation Engine Exception: Attempt to use a nonexistent noise definition: '"+layers[i].noise+"'")
+						throw new Error("Filmation Engine Exception: Attempt to use a nonexistent noise definition ")
 					}
 					layer.copyChannel(msk,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
 					msk.dispose()
@@ -137,13 +154,14 @@
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions
 			* and bullet impatcs
 			*
+			* @param element: Element where the holes will be applied
 			* @param width: Requested width
 			* @param height: Requested height
 			*
 			* @return An array of Rectangle objects, one for each hole. Positions and sizes are relative to material origin of coordinates
 			*
 			*/
-			public function getHoles(width:Number,height:Number):Array {
+			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				return []
 			}
 
@@ -153,7 +171,7 @@
 			* @param index The hole index, as returned by the getHoles() method
 			* @return A MovieClip that will used to close the hole. If null is returned, the hole won't be "closeable".
 			*/
-			public function getHoleBlock(index:Number):MovieClip {
+			public function getHoleBlock(element:fRenderableElement,index:Number):MovieClip {
 				return null
 			}
 
