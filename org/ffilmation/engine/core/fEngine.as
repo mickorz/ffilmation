@@ -225,7 +225,7 @@ package org.ffilmation.engine.core {
 		   * compiling at this moment, but will not be ready to use yet. You should wait for the scene's LOAD
 		   * event before making it active
 		   *
-		   * @param retriever Any class that implements the fEngineSceneRetriever interface
+		   * @param retriever Either an XML object or any class that implements the fEngineSceneRetriever interface
 			 *
 			 * @param width Width of the viewport, in pixels. This avoids the need of masking the whole sprite		   
 		   *
@@ -237,14 +237,15 @@ package org.ffilmation.engine.core {
 			 *
 		   * @return A fScene Object.
 			 */
-			 public function createScene(retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine=null,prof:fProfiler=null):fScene {
+			 public function createScene(retriever:*,width:Number,height:Number,renderer:fEngineRenderEngine=null,prof:fProfiler=null):fScene {
 		
 		   		// Create container for scene
 		   		var nSprite:Sprite = new Sprite()
 
 		   		// Create scene
 		   		var nfScene:fScene = new fScene(this,nSprite,retriever,width,height,renderer,prof)
-		
+					nfScene.initialize()
+					
 		   		// Add to list and return
 		   		this.scenes[this.scenes.length] = nfScene
 		   		return nfScene

@@ -215,7 +215,7 @@ package org.ffilmation.engine.core {
 			* Constructor. Don't call directly, use fEngine.createScene() instead
 			* @private
 			*/
-			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine,p:fProfiler):void {
+			function fScene(engine:fEngine,container:Sprite,retriever:*,width:Number,height:Number,renderer:fEngineRenderEngine=null,p:fProfiler=null):void {
 			
 			   // Properties
 			   this.id = "fScene_"+(fScene.count++)
@@ -252,13 +252,18 @@ package org.ffilmation.engine.core {
 			   
 			   // Start xml retrieve process
 			   this.initializer = new fSceneInitializer(this,retriever)
-			   this.initializer.start()
 			   
 				 // Profiler ?
 				 this.prof = p
 
 			}
 			
+			/** Starts initialization process */
+			public function initialize():void {
+			   this.initializer.start()
+			}
+
+
 			// Public methods
 			
 			/**

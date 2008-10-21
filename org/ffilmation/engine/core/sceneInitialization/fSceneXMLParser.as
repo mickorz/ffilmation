@@ -43,6 +43,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   scene.top = 0
 			   scene.gridWidth = 0
 			   scene.gridDepth = 0
+			   scene.gridHeight = 0
 
 			   // Parse FLOOR Tags
 				 tempObj = xmlObj.body.child("floor")

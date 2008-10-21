@@ -123,7 +123,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			 	 		// Retrieve nested definition files
 				 		for(i=0;i<xmlObj.child("definitions").length();i++) {
 				 			relativePath = xmlObj.child("definitions")[i].@src
-				 		 absolulePath = fSceneResourceManager.mergePaths(basePath,relativePath)
+				 		  absolulePath = fSceneResourceManager.mergePaths(basePath,relativePath)
 				 			if(this.srcs.indexOf(absolulePath)<0) this.srcs.push(absolulePath)
 				 		}
 				 		

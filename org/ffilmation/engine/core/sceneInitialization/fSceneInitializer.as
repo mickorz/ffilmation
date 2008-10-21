@@ -27,18 +27,24 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private var xmlObj:XML
 			
 			// Constructor
-			public function fSceneInitializer(scene:fScene,retriever:fEngineSceneRetriever) {
+			public function fSceneInitializer(scene:fScene,retriever:*) {
 				
 				 this.scene = scene
-				 this.retriever = retriever
+				 
+				 if(retriever is fEngineSceneRetriever) this.retriever = retriever
+				 if(retriever is XML) this.xmlObj = retriever
 				 
 			}					
 
 			// Start initialization process
 			public function start(): void {
-				
-				 this.retriever.start().addEventListener(Event.COMPLETE, this.loadListener)
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
+
+				 if(this.xmlObj) {
+			     this.initialization_Part1()
+			   } else if(this.retriever) {
+				 	 this.retriever.start().addEventListener(Event.COMPLETE, this.loadListener)
+			   	 this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
+			   }
 			   
 			}
 			
@@ -58,7 +64,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 this.scene.resourceManager.addEventListener(fScene.LOADPROGRESS,this.part1Progress)
 				 this.scene.resourceManager.addEventListener(Event.COMPLETE,this.part1Complete)
 				 this.scene.resourceManager.addEventListener(ErrorEvent.ERROR,this.part1Error)
-				 this.scene.resourceManager.addResourcesFrom(this.xmlObj.head[0],this.retriever.getBasePath())
+				 
+				 if(this.retriever) this.scene.resourceManager.addResourcesFrom(this.xmlObj.head[0],this.retriever.getBasePath())
+				 else this.scene.resourceManager.addResourcesFrom(this.xmlObj.head[0],"")
 				 
 			}
 
