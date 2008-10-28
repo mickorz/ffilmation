@@ -66,24 +66,29 @@ package org.ffilmation.engine.core {
 				 		// Make sure this material has a definition in the scene. If it doesn't, throw an error
 				 		try {
          		
-				 				mat.definition = fMaterial.currentScene.resourceManager.getMaterialDefinition(id)
-				 				mat.type = mat.definition.type
-				 				mat.cls = null
-				 				if(mat.type == fMaterialTypes.TILE) mat.cls = new fTileMaterial(mat.definition)
-				 				else if(mat.type == fMaterialTypes.PERLIN) mat.cls = new fPerlinMaterial(mat.definition)
-				 				else if(mat.type == fMaterialTypes.DOOR) mat.cls = new fDoorMaterial(mat.definition)
-				 				else if(mat.type == fMaterialTypes.CLIP) mat.cls = new fClipMaterial(mat.definition)
-				 				else if(mat.type == fMaterialTypes.WINDOW) mat.cls = new fWindowMaterial(mat.definition)
-				 				else if(mat.type == fMaterialTypes.FENCE) mat.cls = new fFenceMaterial(mat.definition)
-				 				else if(mat.type == fMaterialTypes.PROCEDURAL) {
-				 					var r:Class = getDefinitionByName(mat.definition.xmlData.classname) as Class
-				 					mat.cls = new r(mat.definition)
+				 				if(id=="default") {
+				 					mat.definition = null
+				 					mat.type = "default"
+				 					mat.cls = new fDefaultMaterial(mat.definition)
+				 				} else {
+				 					mat.definition = fMaterial.currentScene.resourceManager.getMaterialDefinition(id)
+				 					mat.type = mat.definition.type
+				 					mat.cls = null
+				 					if(mat.type == fMaterialTypes.TILE) mat.cls = new fTileMaterial(mat.definition)
+				 					else if(mat.type == fMaterialTypes.PERLIN) mat.cls = new fPerlinMaterial(mat.definition)
+				 					else if(mat.type == fMaterialTypes.DOOR) mat.cls = new fDoorMaterial(mat.definition)
+				 					else if(mat.type == fMaterialTypes.CLIP) mat.cls = new fClipMaterial(mat.definition)
+				 					else if(mat.type == fMaterialTypes.WINDOW) mat.cls = new fWindowMaterial(mat.definition)
+				 					else if(mat.type == fMaterialTypes.FENCE) mat.cls = new fFenceMaterial(mat.definition)
+				 					else if(mat.type == fMaterialTypes.PROCEDURAL) {
+				 						var r:Class = getDefinitionByName(mat.definition.xmlData.classname) as Class
+				 						mat.cls = new r(mat.definition)
+				 					}
 				 				}
-				 				
 				 				fMaterial.currentSceneMaterials[id] = mat
 				 		
 				 		} catch (e:Error) {
-				 				throw new Error("Filmation Engine Exception: The scene does not contain a valid material definition that matches definition id '"+id+" : "+e)
+				 				throw new Error("The scene does not contain a valid material definition that matches definition id '"+id+"'")
 				 		}
 				 		
 				 		

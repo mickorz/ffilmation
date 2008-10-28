@@ -7,8 +7,8 @@ package org.ffilmation.engine.core {
 		import flash.events.*
 		import flash.display.*
 		import flash.geom.Rectangle
-		import org.ffilmation.profiler.*
 
+		import org.ffilmation.profiler.*
 		import org.ffilmation.engine.interfaces.*
 		
 		
@@ -141,6 +141,9 @@ package org.ffilmation.engine.core {
 		   public var container:Sprite    		// Main moviecontainer
 		   private var scenes:Array           // List of scenes
 		   private var current: fScene				// fScene currently displayed
+		   
+		   /** @private */
+		   public static var context:LoaderContext = new LoaderContext(false,ApplicationDomain.currentDomain)
 
 		
 			 // Constructor
@@ -156,17 +159,23 @@ package org.ffilmation.engine.core {
 					this.scenes	= new Array
 					this.current = null
 					
-					// Arrg dirty trick !! So I have acces to onenterframe events from anywhere in the engine
+					// Arrg dirty trick !! So I have access to onenterframe events from anywhere in the engine
 					if(!fEngine.stage) fEngine.stage = container.stage
+					
 					
 					// Add engine to list of all engines
 					fEngine.engines[fEngine.engines.length] = this
+					
 			 }
 			
 			 /**
 			 * This method loads an external media file. Once the media file is loaded, the symbols in that file can
 			 * be used in you scene definitions. Listen to the engine's MEDIALOADPROGRESS and MEDIALOADCOMPLETE to
 			 * control the process. The class checks if the media is already loaded to avoid duplicate loads.
+			 *
+			 * <p><b>WARNING !</p> If you want to use the engine from within an Adobe AIR application, make sure to execute this
+			 * line: <b>fEngine.context.allowLoadBytesCodeExecution = true</b> before creating an scene. Otherwise assets won't load
+			 * into the application security domain and won't work.</p>
 			 *
 			 * @param src Path to the swf file you want to load
 			 *
@@ -178,12 +187,25 @@ package org.ffilmation.engine.core {
 				 		// This file is not loaded
 				 		fEngine.media[src] = true
 				 		
-				 		var cLoader:Loader = new Loader()
-				 		var cont:LoaderContext = new LoaderContext(true,ApplicationDomain.currentDomain)
-				  	cLoader.load(new URLRequest(src),cont)
-				  	cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete)
-				  	cLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,this.loadProgress)
-				  	cLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR ,this.loadError)
+						// Using loadBytes allows the adobe AIR editor to import loaed swfs into its security domain
+						if(Capabilities.playerType=="Desktop") {
+							
+							var ByteLoader:URLLoader = new URLLoader()
+							ByteLoader.dataFormat = URLLoaderDataFormat.BINARY
+							ByteLoader.addEventListener(Event.COMPLETE, this.loadBytesComplete)
+							ByteLoader.addEventListener(ProgressEvent.PROGRESS, this.loadBytesProgress)
+							ByteLoader.addEventListener(IOErrorEvent.IO_ERROR, this.loadBytesError)
+							ByteLoader.load(new URLRequest(src))
+							
+					  } else {
+
+				 			var cLoader:Loader = new Loader()
+				  		cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete)
+				  		cLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,this.loadProgress)
+				  		cLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,this.loadError)
+				  		cLoader.load(new URLRequest(src),fEngine.context)
+				  	
+				  	}
 				  
 					} else {
 						
@@ -194,6 +216,39 @@ package org.ffilmation.engine.core {
 			 	
 			 }
 
+			 // Using loadBytes allows the adobe AIR editor to import loaed swfs into its security domain
+			 private function loadBytesError(event:IOErrorEvent):void {
+
+			  	event.target.removeEventListener(Event.COMPLETE,this.loadBytesComplete)
+				  event.target.removeEventListener(ProgressEvent.PROGRESS,this.loadBytesProgress)
+				  event.target.removeEventListener(IOErrorEvent.IO_ERROR ,this.loadBytesError)
+			   	this.dispatchEvent(new Event(fEngine.MEDIALOADERROR))
+
+			 }
+
+			 private function loadBytesComplete(event:Event):void {
+
+			  	event.target.removeEventListener(Event.COMPLETE,this.loadBytesComplete)
+				  event.target.removeEventListener(ProgressEvent.PROGRESS,this.loadBytesProgress)
+				  event.target.removeEventListener(IOErrorEvent.IO_ERROR ,this.loadBytesError)
+				  
+				 	var cLoader:Loader = new Loader()
+				  cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete)
+				  cLoader.loadBytes(event.target.data,fEngine.context)
+				  
+			 }
+			
+			 private function loadBytesProgress(event:ProgressEvent):void {
+			 	
+			 	  var ret:ProgressEvent = new ProgressEvent(fEngine.MEDIALOADPROGRESS)
+			 	  ret.bytesLoaded = event.bytesLoaded
+			 	  ret.bytesTotal = event.bytesTotal
+			    dispatchEvent(ret)
+			   
+			 }
+
+
+			 // This is the standard non-Air media load process
 			 private function loadError(event:IOErrorEvent):void {
 
 			  	event.target.removeEventListener(Event.COMPLETE,this.loadComplete)
@@ -225,7 +280,7 @@ package org.ffilmation.engine.core {
 		   * compiling at this moment, but will not be ready to use yet. You should wait for the scene's LOAD
 		   * event before making it active
 		   *
-		   * @param retriever Either an XML object or any class that implements the fEngineSceneRetriever interface
+		   * @param retriever Any class that implements the fEngineSceneRetriever interface
 			 *
 			 * @param width Width of the viewport, in pixels. This avoids the need of masking the whole sprite		   
 		   *
@@ -237,7 +292,7 @@ package org.ffilmation.engine.core {
 			 *
 		   * @return A fScene Object.
 			 */
-			 public function createScene(retriever:*,width:Number,height:Number,renderer:fEngineRenderEngine=null,prof:fProfiler=null):fScene {
+			 public function createScene(retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine=null,prof:fProfiler=null):fScene {
 		
 		   		// Create container for scene
 		   		var nSprite:Sprite = new Sprite()

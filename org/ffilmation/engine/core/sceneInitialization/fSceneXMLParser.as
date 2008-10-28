@@ -130,6 +130,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			/** Inserts a new floor into an scene from an XML node */
 			public static function parseFloorFromXML(scene:fScene,xmlObj:XML):void {
 			
+				 if(xmlObj.@src.length()==0) xmlObj.@src="default"
+
 				 var nFloor:fFloor = new fFloor(xmlObj,scene)
          scene.floors.push(nFloor)
          scene.everything.push(nFloor)
@@ -147,6 +149,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			/** Inserts a new wall into an scene from an XML node */
 			public static function parseWallFromXML(scene:fScene,xmlObj:XML):void {
 			
+				 if(xmlObj.@src.length()==0) xmlObj.@src="default"
+
 	       var nWall:fWall = new fWall(xmlObj,scene)
 			   scene.walls.push(nWall)
 			   scene.everything.push(nWall)

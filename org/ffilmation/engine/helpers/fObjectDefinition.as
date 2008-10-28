@@ -3,6 +3,7 @@ package org.ffilmation.engine.helpers {
 		// Imports
 		import flash.utils.*
 
+		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels.*
 		
 		/**

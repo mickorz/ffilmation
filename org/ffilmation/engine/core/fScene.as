@@ -14,6 +14,7 @@ package org.ffilmation.engine.core {
 
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.sceneInitialization.*
+		import org.ffilmation.engine.core.sceneLogic.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.datatypes.*
@@ -46,9 +47,11 @@ package org.ffilmation.engine.core {
 		  
 			private var _controller:fEngineSceneController = null
 			private var currentCamera:fCamera										// The camera currently in use
-			private var prof:fProfiler = null										// Profiler
+		  /** @private */
+			public var prof:fProfiler = null										// Profiler
 			private var initializer:fSceneInitializer						// This scene's initializer
-			private var renderEngine:fEngineRenderEngine				// The render engine
+		  /** @private */
+			public var renderEngine:fEngineRenderEngine				// The render engine
 		  /** @private */
 		  public var engine:fEngine
 		 	/** @private */
@@ -215,7 +218,7 @@ package org.ffilmation.engine.core {
 			* Constructor. Don't call directly, use fEngine.createScene() instead
 			* @private
 			*/
-			function fScene(engine:fEngine,container:Sprite,retriever:*,width:Number,height:Number,renderer:fEngineRenderEngine=null,p:fProfiler=null):void {
+			function fScene(engine:fEngine,container:Sprite,retriever:fEngineSceneRetriever,width:Number,height:Number,renderer:fEngineRenderEngine=null,p:fProfiler=null):void {
 			
 			   // Properties
 			   this.id = "fScene_"+(fScene.count++)
@@ -834,8 +837,8 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function processNewCell(evt:Event):void {
 
-				if(evt.target is fOmniLight) this.processNewCellOmniLight(evt.target as fOmniLight)
-				if(evt.target is fCharacter) this.processNewCellCharacter(evt.target as fCharacter)
+				if(evt.target is fOmniLight) fLightSceneLogic.processNewCellOmniLight(this,evt.target as fOmniLight)
+				if(evt.target is fCharacter) fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
 				if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
 				
 			}
@@ -850,287 +853,6 @@ package org.ffilmation.engine.core {
 		 		 
 		 	}
 
-			// Process New cell for Omni lights
-			private function processNewCellOmniLight(light:fOmniLight):void {
-			
-			   // Init
-			   var cell:fCell = light.cell
-			   var x:Number, y:Number,z:Number
-		     var nEl:Number = light.nElements
-				 var tempElements:Array
-
-				 try {
-			    x = cell.x
-			    y = cell.y
-			    z = cell.z
-			   } catch (e:Error) {
-			    x = light.x
-			    y = light.y
-			    z = light.z
-			   }
-
-		     // Hide light from elements no longer within range
-		     for(var i2:Number=0;i2<nEl;i2++) this.renderEngine.lightOut(light.elementsV[i2].obj,light)
-
-			   if(cell==null) {
-			      // fLight outside grid
-			      light.elementsV = fVisibilitySolver.calcVisiblesCoords(this,light.x,light.y,light.z)
-			      tempElements = light.elementsV
-			      
-			   } 
-			   else {
-			      // fLight enters new cell
-			      if(!light.cell.visibleObjs || light.cell.visibleRange<light.size) this.calcVisibles(light.cell,light.size)
-			      light.elementsV = light.cell.visibleObjs
-			      tempElements = light.elementsV
-			   }
-			   
-			   // Count elements close enough
-			   var nElements:Number
-	   	   var ele:fShadowedVisibilityInfo
-			   var shadowArray:Array
-			   var shLength:Number
-
-			   nEl = tempElements.length
-			   for(nElements=0;nElements<nEl && tempElements[nElements].distance<light.size;nElements++);
-			   light.nElements = nElements
-
-			   for(i2=0;i2<nElements;i2++) {
-			   	  
-			   	  ele = tempElements[i2]
-			      if(ele.distance<light.size) this.renderEngine.lightIn(ele.obj,light)
-			      
-			      // Calculate how many shadow containers are within range
-			      
-			      shadowArray = ele.shadows
-			      shLength = shadowArray.length
-			      
-			      for(var var2:Number=0;var2<shLength && shadowArray[var2].distance<light.size;var2++);
-			      tempElements[i2].withinRange = var2
-			   }
-
-				 // Characters			   
-			   var chLength:Number = this.characters.length
-			   var character:fCharacter
-				 var cache:fCharacterShadowCache
-				 var el:fRenderableElement
-				 
-			   for(i2=0;i2<chLength;i2++) {
-			   	
-			   		character = this.characters[i2]
-			   		
-				   	// Shadow info already exists ?
-				   	try {
-				   		 cache = character.cell.characterShadowCache[light.counter]||new fCharacterShadowCache(light)
-				   	} catch(e:Error) {
-				   		 cache = new fCharacterShadowCache(light)
-				   	}
-
-			   		// Is character within range ?
-			   		if(character.distanceTo(x,y,z)<light.size) {
-			   			
-			   			 cache.withinRange = true
-			   			 
-				   		 if(cache.character==character && cache.cell==light.cell) {
-				   		 	
-				   		 	  // Cache is still valid, no need to update
-				   		 	
-				   		 } else {
-				   		 	
-				   		 	  // Cache is outdated. Update it
-				   		 	  cache.clear()
-				   		 	  cache.cell = light.cell
-				   		 	  cache.character = character
-				   		 	  
-				   		 	  if(fEngine.characterShadows) { 
-				   		 	    
-				   		 	  	for(var i:Number=0;i<nElements;i++) {
-				   		 	  			el = tempElements[i].obj
-               	  	
-				   	   	  			// Shadows of this character upon other elements
-				   		 	  		  if(fCoverageSolver.calculateCoverage(character,el,x,y,z) == fCoverage.SHADOWED) {
-				   		 	  		  	cache.addElement(el)
-				   		 	  		  }
-               	  	
-				   	   	  		  // Shadows of other elements upon this character
-					   	 	  		  //if(fCoverageSolver.calculateCoverage(el,character,x,y,z) == fCoverage.SHADOWED) character.renderShadow(light,el)
-				   		 	  	}
-               	  
-			   			 	  } 
-
-			   		  }
-
-			   		} else {
-			   			
-			   			cache.withinRange = false
-			   			cache.clear()
-			   			
-			   		  // Remove light
-			   		  this.renderEngine.lightOut(character,light)
-			   		  
-			   		}
-
-			   	  // Update cache
-			   	  character.vLights[light.counter] = light.vCharacters[character.counter] = cache
-			   	  if(character.cell) character.cell.characterShadowCache[light.counter] = cache
-
-			   }
-
-			}
-
-			// Process New cell for Characters
-			private function processNewCellCharacter(character:fCharacter):void {
-			
-				 // Init
-				 var light:fOmniLight, elements:Array, nEl:Number, distL:Number, range:Number,x:Number, y:Number, z:Number
-				 var cache:fCharacterShadowCache, oldCache:fCharacterShadowCache, elementsV:Array, el:fPlane
-				 var s:Number, len:Number,i:Number,i2:Number
-
-		 		 // Change depth of object
-		 		 if(character.cell!=null) character.setDepth(character.cell.zIndex)
-		 		 
-			   // Count lights close enough
-			   for(i2=0;i2<this.lights.length;i2++) {
-			   	
-			   		light = this.lights[i2]
-			   		
-				   	// Shadow info already already exists ?
-				   	try {
-				   		 cache = character.cell.characterShadowCache[light.counter]||new fCharacterShadowCache(light)
-				   	} catch(e:Error) {
-				   		 cache = new fCharacterShadowCache(light)
-				   	}
-				   	
-			   		// Range
-			   		distL = light.distanceTo(character.x,character.y,character.z)
-			   		range = character.shadowRange
-			   		
-			   		// Is character within range ?
-			   		if(distL<light.size) {
-			   			
-			   			cache.withinRange = true
-			   			
-			   			if(light.cell) {
-			   				x = light.cell.x
-			        	y = light.cell.y
-			        	z = light.cell.z
-			        } else {
-			   				x = light.x
-			        	y = light.y
-			        	z = light.z
-			        }
-			   			
-							if(cache.character==character && cache.cell==light.cell) {
-				   		 	
-				   		 	  // Cache is still valid, no need to update
-				   		 	
-				   		} else {
-				   			
-				   			 
-				   			  // Cache is outdated. Update it
-				   		 	  cache.clear()
-				   		 	  cache.cell = light.cell
-				   		 	  cache.character = character
-
-				   		    if(fEngine.characterShadows) {
-                  
-							    	// Add visibles from foot
-							    	if(!character.cell.visibleObjs || character.cell.visibleRange<range) {
-							    		this.calcVisibles(character.cell,range)
-							    	}
-			            	elementsV = character.cell.visibleObjs
-				   		    	nEl = elementsV.length
-				   		    	for(i=0;i<nEl && elementsV[i].distance<range;i++) {
-                  	
-				   		    			try {
-				   		    				el = elementsV[i].obj
-				   	      				// Shadows of this character upon other elements
-				   	      			 	if(fCoverageSolver.calculateCoverage(character,el,x,y,z) == fCoverage.SHADOWED) cache.addElement(el)
-				   	      			} catch(e:Error) {
-				   	      			}
-                  	
-				   		    	}
-				   		    	
-							    	// Add visibles from top
-							    	try {
-							    		var topCell:fCell = this.translateToCell(character.x,character.y,character.top)
-							    		if(!topCell.visibleObjs  || topCell.visibleRange<range) {
-							    			this.calcVisibles(topCell,range)
-							    		}
-			            		elementsV = topCell.visibleObjs
-				   		    		nEl = elementsV.length
-				   		    		for(i=0;i<nEl && elementsV[i].distance<range;i++) {
-                  		
-				   		    				try {
-				   		    					el = elementsV[i].obj
-				   	      					// Shadows of this character upon other elements
-				   	      				 	if(fCoverageSolver.calculateCoverage(el,character,x,y,z) == fCoverage.SHADOWED) cache.addElement(el)
-				   	      				} catch(e:Error) {
-				   	      				}
-                  		
-				   		    		}
-				   		      } catch(e:Error) {
-				   		      	
-				   		      }
-                  
-						      }
-						      
-						  }
-			   			
-			   		} else {
-			   		
-			   			cache.withinRange = false
-			   			cache.clear()
-			   		  
- 			   		  // And remove light
-			   		  if(this.IAmBeingRendered) this.renderEngine.lightOut(character,light)
-			   		  
-			   		}
-
-	  				// Delete shadows from this character that are no longer visible
-			   		oldCache = character.vLights[light.counter]
-			   		if(oldCache!=null) {
-						 	elements = oldCache.elements
-						 	nEl = elements.length
-		   	 		 	for(var i3:Number=0;i3<nEl;i3++) {
-			   					if(cache.elements.indexOf(elements[i3])<0) {
-			   						this.renderEngine.removeShadow(elements[i3],light,character)
-			   					}
-		   	 			}
-		   	 		}
-			   	  
-			   	  // Update cache
-			   	  character.vLights[light.counter] = light.vCharacters[character.counter] = character.cell.characterShadowCache[light.counter] = cache
-
-			   }
-			   
-				 // Update occlusion for this character
-				 var oldOccluding:Array = character.currentOccluding
-				 var newOccluding:Array = new Array
-				 try {
-				 	var newOccluding2:Array = character.cell.elementsInFront
-				  for(var n:Number=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding.push(newOccluding2[n])
-				 	newOccluding2 = this.translateToCell(character.x,character.y,character.top).elementsInFront
-				  for(n=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding.push(newOccluding2[n])
-				 } catch(e:Error){}
-				 
-				 for(i=0;i<oldOccluding.length;i++) {
-				 		// Disable occlusions no longer needed
-				 		if(newOccluding.indexOf(oldOccluding[i])<0) this.renderEngine.stopOcclusion(oldOccluding[i],character)
-				 }
-				 
-				 if(character.occlusion>=100) return
-				 
- 				 for(i=0;i<newOccluding.length;i++) {
-						// Enable new occlusions				 	
-				 		if(oldOccluding.indexOf(newOccluding[i])<0) this.renderEngine.startOcclusion(newOccluding[i],character)
-				 }
-				 
-				 character.currentOccluding = newOccluding
-			   
-			   
-			   
-			}
 
 			// LIstens to render events
 			/** @private */
@@ -1140,84 +862,14 @@ package org.ffilmation.engine.core {
 			   // However, the element's properties are modified. When the scene is shown the result is consistent
 			   // to what has changed while the render was not being updated
 			   if(IAmBeingRendered) {
-			   	if(evt.target is fOmniLight) this.renderOmniLight(evt.target as fOmniLight)
-				 	if(evt.target is fCharacter) this.renderCharacter(evt.target as fCharacter)
+			   	if(evt.target is fOmniLight) fLightSceneLogic.renderOmniLight(this,evt.target as fOmniLight)
+				 	if(evt.target is fCharacter) fCharacterSceneLogic.renderCharacter(this,evt.target as fCharacter)
 				 	if(evt.target is fBullet) this.renderBullet(evt.target as fBullet)
 				 }
 				
 			}
 
-			// Main render method for omni lights
-			private function renderOmniLight(light:fOmniLight):void {
-			
-			   if(this.prof) this.prof.begin( "Render light:"+light.id, true )
-			   
-			   // Step 1: Init
-			   var x:Number = light.x, y:Number = light.y, z:Number = light.z, nElements:Number = light.nElements, tempElements:Array = light.elementsV, el:fRenderableElement,others:Array,withinRange:Number
-			   
-			   // Step 2: render Start
-				 for(var i2:Number=0;i2<nElements;i2++) this.renderEngine.renderStart(tempElements[i2].obj,light)
-		
-			   // Step 3: render light and shadows 
-				 for(i2=0;i2<nElements;i2++) {
-				    el = tempElements[i2].obj
-				    others = tempElements[i2].shadows
-				    withinRange = tempElements[i2].withinRange
-				    
-	    			if(this.prof) this.prof.begin( "Element: "+el.id)	
-				    this.renderEngine.renderLight(el,light)
-			    
-				    // Shadow from statics
-				    for(var i3:Number=0;i3<withinRange;i3++) {
-				    	try {
-				    		if(others[i3].obj._visible) {
-				    			this.renderEngine.renderShadow(el,light,others[i3].obj)
-				    		}
-				    	} catch(e:Error) {
-				    		trace(e)
-				    	}
-				    }
 
-	    			if(this.prof) this.prof.end( "Element: "+el.id)	
-				    
-				    
-				 }
-
-			   // Step 4: Render characters
-			   var character:fCharacter, elements:Array, idChar:Number,len:Number, cache:fCharacterShadowCache           
-         
-         len = light.vCharacters.length
-			   for(idChar=0;idChar<len;idChar++) {
-			   	  cache = light.vCharacters[idChar]
-			   	  if(cache.withinRange) {
-			   	  	character = cache.character
-			   	  	elements = cache.elements
-			    		if(this.prof) this.prof.begin( "Character: "+character.id)
-
-			   			this.renderEngine.renderStart(character,light)
-			   			this.renderEngine.renderLight(character,light)
-			   			this.renderEngine.renderFinish(character,light)
-			   		
-			   			for(i2=0;i2<elements.length;i2++) {
-					    	try {
-			   					if(character._visible) this.renderEngine.renderShadow(elements[i2],light,character)
-			   				} catch(e:Error) {
-			   					
-			   		  	}
-			   			}
-			    		if(this.prof) this.prof.end( "Character: "+character.id)
-			   			
-			   		}
-			   		
-			   }
-
-			   // Step 5: End render
-			   for(i2=0;i2<nElements;i2++) this.renderEngine.renderFinish(tempElements[i2].obj,light)
-
-			   if(this.prof) this.prof.end( "Render light:"+light.id)
-
-
-			}
 
 			// Main render method for bullets
 			private function renderBullet(bullet:fBullet):void {
@@ -1230,68 +882,6 @@ package org.ffilmation.engine.core {
 			}
 
 
-			// Main render method for characters
-			private function renderCharacter(character:fCharacter):void {
-			
-			   
-			   if(this.prof) this.prof.begin("Render char:"+character.id, true )
-			   
-			   var light:fOmniLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
-			   
-				 // Move character to its new position
-				 this.renderEngine.updateCharacterPosition(character)
-
-			   // Render all lights and shadows
-			   len = character.vLights.length
-			   for(var i:Number=0;i<len;i++) {
-			   
-					 	cache =  character.vLights[i]
-					 	if(!cache.light.removed && cache.withinRange) {
-					 	
-					 		// Start
-					 		light = cache.light as fOmniLight
-			   		  this.renderEngine.renderStart(character,light)
-			   		  this.renderEngine.renderLight(character,light)
-			    		
-			    		// Update shadows for this character
-			    		elements = cache.elements
-			    		nEl = elements.length
-		   	 		  if(fEngine.characterShadows) for(var i2:Number=0;i2<nEl;i2++) {
-		   	 		  	try {
-		   	 		  		if(this.prof) {
-		   	 		  			this.prof.begin("S: "+light.id+" "+elements[i2].id)
-			    					this.renderEngine.updateShadow(elements[i2],light,character)
-		   	 		  			if(this.prof) this.prof.end("S: "+light.id+" "+elements[i2].id)
-		   	 		  		} else {
-		   	 		  			this.renderEngine.updateShadow(elements[i2],light,character)
-		   	 		  		}
-			    			} catch(e:Error) {
-			    			
-			    			}
-			    			
-			    		}
-
-							// End
-			   		  this.renderEngine.renderFinish(character,light)
-			   		  
-			   	  }
-			   
-			      
-			   }
-			   
-				 // Update occlusion
-				 if(character.currentOccluding.length>0) {
-				 	
-				 	 if(this.prof) this.prof.begin("Occlusion")
- 				 	 for(i=0;i<character.currentOccluding.length;i++) this.renderEngine.updateOcclusion(character.currentOccluding[i],character)
-				 	 if(this.prof) this.prof.end("Occlusion")
-				 	 
-				 }
-
-			   if(this.prof) this.prof.end("Render char:"+character.id)
-
-
-			}
 
 			// This method is called when the shadowQuality option changes
 			/** @private */
@@ -1515,9 +1105,13 @@ package org.ffilmation.engine.core {
 				this.depthSortArr = null
 				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
 				this.sortAreas = null
-				this.currentCamera.dispose()
+				if(this.currentCamera) this.currentCamera.dispose()
 				this.currentCamera = null
 				this._controller = null
+				
+				// Stop current initialization, if any
+				if(this.initializer) this.initializer.dispose()
+				this.resourceManager = null
 				
 				// Free render engine
 				this.renderEngine.dispose()

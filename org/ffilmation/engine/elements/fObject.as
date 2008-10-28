@@ -129,14 +129,14 @@ package org.ffilmation.engine.elements {
 			 	 this.definitionID = defObj.@definition
 				 this.definition = this.scene.resourceManager.getObjectDefinition(this.definitionID)
 				 if(!this.definition) {
-						throw new Error("Filmation Engine Exception: The scene does not contain a valid object definition that matches definition id '"+this.definitionID+"'")
+						throw new Error("The scene does not contain a valid object definition that matches definition id '"+this.definitionID+"'")
 				 }
 				
 				 // Retrieve all sprites for this object
 				 try {
 					 this.sprites = this.definition.sprites
 				 } catch(e:Error) {
-						throw new Error("Filmation Engine Exception: Object definition '"+this.definitionID+"' contains an invalid display model or it can't be applied to object '"+this.id+"' "+e)
+						throw new Error("Object definition '"+this.definitionID+"' contains an invalid display model or it can't be applied to object '"+this.id+"' "+e)
 				 }
 				
 				 // Initialize rotation for this object
@@ -161,7 +161,7 @@ package org.ffilmation.engine.elements {
 				 try {
 	 			 	this.collisionModel = this.definition.collisionModel
 				 } catch(e:Error) {
-						throw new Error("Filmation Engine Exception: Object definition '"+this.definitionID+"' contains an invalid collision model or it can't be applied to object '"+this.id+"'")
+						throw new Error("Object definition '"+this.definitionID+"' contains an invalid collision model or it can't be applied to object '"+this.id+"'")
 				 }
 
 		     // Define shadowRange

@@ -33,6 +33,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 if(path.indexOf(":")>=0) return path
 
 				 // Path is relative
+				 base = base.split("\\").join("/")
 				 base = base.substr(0,base.lastIndexOf("/"))
 				 var p1:Array = base.split("/")
 				 var p2:Array = path.split("/")
