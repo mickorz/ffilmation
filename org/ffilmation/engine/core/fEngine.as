@@ -173,7 +173,7 @@ package org.ffilmation.engine.core {
 			 * be used in you scene definitions. Listen to the engine's MEDIALOADPROGRESS and MEDIALOADCOMPLETE to
 			 * control the process. The class checks if the media is already loaded to avoid duplicate loads.
 			 *
-			 * <p><b>WARNING !</p> If you want to use the engine from within an Adobe AIR application, make sure to execute this
+			 * <p><b>WARNING !</b> If you want to use the engine from within an Adobe AIR application, make sure to execute this
 			 * line: <b>fEngine.context.allowLoadBytesCodeExecution = true</b> before creating an scene. Otherwise assets won't load
 			 * into the application security domain and won't work.</p>
 			 *

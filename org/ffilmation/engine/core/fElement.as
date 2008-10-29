@@ -283,7 +283,7 @@ package org.ffilmation.engine.core {
 					this.cell = null
 					this.scene = null
 					this._controller = null
-					fEngine.stage.removeEventListener('enterFrame',this.followListener)
+					if(fEngine.stage) fEngine.stage.removeEventListener('enterFrame',this.followListener)
 			}
 
 			/** @private */

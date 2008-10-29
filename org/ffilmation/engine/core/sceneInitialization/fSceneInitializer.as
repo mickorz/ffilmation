@@ -231,7 +231,7 @@ package org.ffilmation.engine.core.sceneInitialization {
  	       		this.waitFor = null
 				 }
 
-				 if(this.scene.resourceManager) {
+				 if(this.scene && this.scene.resourceManager) {
 				 		this.scene.resourceManager.removeEventListener(fScene.LOADPROGRESS,this.part1Progress)
 				 		this.scene.resourceManager.removeEventListener(Event.COMPLETE,this.part1Complete)
 				 		this.scene.resourceManager.removeEventListener(ErrorEvent.ERROR,this.part1Error)

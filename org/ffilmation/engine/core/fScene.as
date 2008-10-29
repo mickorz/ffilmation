@@ -887,7 +887,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 		  public function resetShadows():void {
 		  	this.renderEngine.resetShadows()
-		  	for(var i:Number=0;i<this.lights.length;i++) this.processNewCellOmniLight(this.lights[i])
+		  	for(var i:Number=0;i<this.lights.length;i++) fLightSceneLogic.processNewCellOmniLight(this,this.lights[i])
 		  }
 			
 			// INTERNAL METHODS RELATED TO CAMERA MANAGEMENT
