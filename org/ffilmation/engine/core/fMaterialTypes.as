@@ -7,6 +7,7 @@ package org.ffilmation.engine.core {
     */
     public class fMaterialTypes {
     
+       
        /**
        * <p>Creates a material by "Tiling" an image in the imported libraries.</p>
        *
@@ -185,6 +186,11 @@ package org.ffilmation.engine.core {
        *
        */
        public static const PROCEDURAL:String = "procedural"
+
+       /**
+       * An array of strings with all available material types
+       */
+       public static const all:Array = [fMaterialTypes.TILE,fMaterialTypes.CLIP,fMaterialTypes.PERLIN,fMaterialTypes.DOOR,fMaterialTypes.WINDOW,fMaterialTypes.FENCE,fMaterialTypes.PROCEDURAL]
 
        
     }

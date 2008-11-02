@@ -53,10 +53,6 @@ package org.ffilmation.engine.events {
 		   *
 			 * @param type The type of the event. Event listeners can access this information through the inherited type property.
 			 * 
-			 * @param bubbles Determines whether the Event object participates in the bubbling phase of the event flow. Event listeners can access this information through the inherited bubbles property.
- 			 *
-			 * @param cancelable Determines whether the Event object can be canceled. Event listeners can access this information through the inherited cancelable property.
-			 *
 		   * @param overall Overall process completion status, from 0 to 100
 		   *
 		   * @param overallDescription Overall process desccription
@@ -66,9 +62,9 @@ package org.ffilmation.engine.events {
 		   * @param currentDescription Cverall process desccription
 		   *
 			 */
-			 function fProcessEvent(type:String,bubbles:Boolean,cancelable:Boolean,overall:Number,overallDescription:String,current:Number,currentDescription:String):void {
+			 function fProcessEvent(type:String,overall:Number,overallDescription:String,current:Number,currentDescription:String):void {
 			 	
-			 		super(type,bubbles,cancelable)
+			 		super(type)
 			 		this.overall = overall
 			 		this.overallDescription = overallDescription
 			 		this.current = current

@@ -32,16 +32,12 @@ package org.ffilmation.engine.events {
 		   *
 			 * @param type The type of the event. Event listeners can access this information through the inherited type property.
 			 * 
-			 * @param bubbles Determines whether the Event object participates in the bubbling phase of the event flow. Event listeners can access this information through the inherited bubbles property.
- 			 *
-			 * @param cancelable Determines whether the Event object can be canceled. Event listeners can access this information through the inherited cancelable property.
-			 *
 		   * @param name Name that was given to this event in its XML definition
 		   *
-		   * @xml XML node associated tot he event in the XMl file
+		   * @param XML node associated tot he event in the XMl file
 		   *
 			 */
-			 function fEventIn(type:String,bubbles:Boolean,cancelable:Boolean,name:String,xml:XML):void {
+			 function fEventIn(type:String,name:String,xml:XML):void {
 			 	
 			 		super(type,bubbles,cancelable)
 			 		this.name = name

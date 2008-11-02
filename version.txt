@@ -12,6 +12,7 @@ I have removed the generator interface and the generators: I must admit they wer
 The material interface is properly setup so any material can be the base to a compound material ( for example, a door material can be the base for a window material ). This is almost a bugfix rather than an improvement.
 Also with each release I try to tidy the code and class structure. I know it's already a bit intimidating at first, but if you stay within the documented API I think it is reasonabily easy to pick.
 You can now destroy an scene while it is being initialized and the initialization process is cancelled.
+Planes support changing their materials on the fly using the assignMaterial() method
 
 1.3:
 

@@ -80,6 +80,24 @@ package org.ffilmation.engine.core.sceneInitialization {
 			}	
 
 			/**
+			* Retrieves a list of all material definition ids
+			*/
+			public function getMaterials():Array {
+				var ret:Array = new Array
+				for(var i in this.materialDefinitions) ret.push(i)
+				return ret
+			}
+
+			/**
+			* Retrieves a list of all object definition ids
+			*/
+			public function getObjects():Array {
+				var ret:Array = new Array
+				for(var i in this.objectDefinitions) ret.push(i)
+				return ret
+			}
+
+			/**
 			* This method is called to retrieve a material definition
 			*/
 			public function getMaterialDefinition(id:String):fMaterialDefinition {
@@ -150,7 +168,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 		loadUrl.addEventListener(ProgressEvent.PROGRESS, this.XMLloadProgress)
 				 		loadUrl.addEventListener(Event.COMPLETE, this.XMLloadComplete)
 				 		loadUrl.addEventListener(IOErrorEvent.IO_ERROR ,this.XMLloadError)
-			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fSceneResourceManager.LOADINGDESCRIPTION,0,"Loading definition file: "+this.src))
+			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneResourceManager.LOADINGDESCRIPTION,0,"Loading definition file: "+this.src))
 						
 				 } else {
 
@@ -175,14 +193,14 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function XMLloadProgress(event:ProgressEvent):void {
 
 			   var percent:Number = (event.bytesLoaded/event.bytesTotal)
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fSceneResourceManager.LOADINGDESCRIPTION,percent,"Loading definition file: "+this.src))
+			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneResourceManager.LOADINGDESCRIPTION,percent,"Loading definition file: "+this.src))
 			   
 			}
 
 	    // Definition file complete
 			private function XMLloadComplete(event:Event):void {
 
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fSceneResourceManager.LOADINGDESCRIPTION,100,"Loading definition file: "+this.src))
+			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneResourceManager.LOADINGDESCRIPTION,100,"Loading definition file: "+this.src))
 				 event.target.removeEventListener(ProgressEvent.PROGRESS, this.XMLloadProgress)
 				 event.target.removeEventListener(Event.COMPLETE, this.XMLloadComplete)
 				 event.target.removeEventListener(IOErrorEvent.IO_ERROR ,this.XMLloadError)
@@ -197,7 +215,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function loadMediaFiles():void {
 
 			   // Read media files
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fSceneResourceManager.LOADINGDESCRIPTION,0,"Loading media files"))
+			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneResourceManager.LOADINGDESCRIPTION,0,"Loading media files"))
 
 				 // Listen to media load events
 				 this.queuePointer = -1
@@ -227,7 +245,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 	  // Load
 				 		this.src = this.mediaSrcs[this.queuePointer]
 			      var current:Number = 100*(this.queuePointer)/this.mediaSrcs.length
-			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,current,fSceneResourceManager.LOADINGDESCRIPTION,current,"Loading media files ( current: "+this.src+"  ) "))
+			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,current,fSceneResourceManager.LOADINGDESCRIPTION,current,"Loading media files ( current: "+this.src+"  ) "))
 
 						this.scene.engine.loadMedia(this.src)
 						
@@ -238,7 +256,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 					  this.scene.engine.removeEventListener(fEngine.MEDIALOADCOMPLETE,this.loadComplete)
 					  this.scene.engine.removeEventListener(fEngine.MEDIALOADPROGRESS,this.loadProgress)
 				 		this.scene.engine.removeEventListener(fEngine.MEDIALOADERROR,this.loadError)
-			   	  this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,100,fSceneResourceManager.LOADINGDESCRIPTION,100,"All media files loaded"))
+			   	  this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,100,fSceneResourceManager.LOADINGDESCRIPTION,100,"All media files loaded"))
 			   	  this.dispatchEvent(new Event(Event.COMPLETE))
 				 }
 
@@ -249,7 +267,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			   var percent:Number = (event.bytesLoaded/event.bytesTotal)
 			   var current:Number = 100*(this.queuePointer+percent)/this.mediaSrcs.length
-			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,current,fSceneResourceManager.LOADINGDESCRIPTION,100*percent,"Loading media files ( current: "+this.src+"  ) "))
+			   this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,current,fSceneResourceManager.LOADINGDESCRIPTION,100*percent,"Loading media files ( current: "+this.src+"  ) "))
 			   
 			}
 			

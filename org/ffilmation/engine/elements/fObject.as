@@ -49,7 +49,8 @@ package org.ffilmation.engine.elements {
 			public static const SHADOWSCALE = 0.7
 			
 			// Private properties
-			private var definition:fObjectDefinition
+			/** @private */
+			public var definition:fObjectDefinition
 			/** @private */
 			public var sprites:Array
 			/** @private */

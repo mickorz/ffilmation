@@ -95,9 +95,9 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 		  	  		some = true
  							character.z = confirm.z
  							character.top = character.z+character.height
-	 						character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
+	 						character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
 	 					} else {
-	 						character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
+	 						character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,testElement))
 	 					}
 		 			}
 					
@@ -116,9 +116,9 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			  	  	if(testElement.solid) {
  								character.z = confirm.z
  								character.top = character.z+character.height
- 								character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
+ 								character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
  							} else {
- 								character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
+ 								character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,testElement))
  							}
  								
  						}
@@ -268,9 +268,9 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 	 						if(confirm.x>=0) character.x = confirm.x
 	 						if(confirm.y>=0) character.y = confirm.y
 
-	 						character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
+	 						character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
 	 					} else {
-	 						character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
+	 						character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,testElement))
 	 					}
 	 					
 		 			}
@@ -298,9 +298,9 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 		  	  			some = true
 	 							if(confirm.x>=0) character.x = confirm.x
 	 							if(confirm.y>=0) character.y = confirm.y
-	 							character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,testElement))
+	 							character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
 	 						} else {
-	 							character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,true,true,testElement))
+	 							character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,testElement))
 	 						}
 		 				}
 						

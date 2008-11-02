@@ -207,7 +207,7 @@ package org.ffilmation.engine.elements {
 				 					var k:Number = this.cell.events.length
 				 					for(var i:Number=0;i<k;i++) {
 				 						var evt:fCellEventInfo = this.cell.events[i]
-				 						if(cell.events.indexOf(evt)<0) dispatchEvent(new fEventOut(fCharacter.EVENT_OUT,true,true,evt.name,evt.xml))
+				 						if(cell.events.indexOf(evt)<0) dispatchEvent(new fEventOut(fCharacter.EVENT_OUT,evt.name,evt.xml))
 				 					}
 				 				}
          		
@@ -221,14 +221,14 @@ package org.ffilmation.engine.elements {
 				 					k = this.cell.events.length
 				 					for(i=0;i<k;i++) {
 				 						evt = this.cell.events[i]
-				 						if(lastCell.events.indexOf(evt)<0) dispatchEvent(new fEventIn(fCharacter.EVENT_IN,true,true,evt.name,evt.xml))
+				 						if(lastCell.events.indexOf(evt)<0) dispatchEvent(new fEventIn(fCharacter.EVENT_IN,evt.name,evt.xml))
 				 					}
 				 				}
          		
 				 		}
 				 		
 				 		// Dispatch move event
-				 		if(this.x!=lx || this.y!=ly || this.z!=lz) dispatchEvent(new fMoveEvent(fElement.MOVE,true,true,this.x-lx,this.y-ly,this.z-lz))
+				 		if(this.x!=lx || this.y!=ly || this.z!=lz) dispatchEvent(new fMoveEvent(fElement.MOVE,this.x-lx,this.y-ly,this.z-lz))
 				 
 			  } catch(e:Error) {
 			  		
@@ -236,7 +236,7 @@ package org.ffilmation.engine.elements {
 			  		this.x = lx
 			  		this.y = ly
 			  		this.z = lz
-			  		dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,true,true,null))
+			  		dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,null))
 			  		
 			  }
 				 

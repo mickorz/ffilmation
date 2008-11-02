@@ -31,7 +31,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
  	   		 this.scene.stat = "Raytracing..."
 	       var current:Number = 100*(i_loop/(this.limitHeight*this.scene.gridWidth))
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,85+current*0.13,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,85+current*0.13,fScene.LOADINGDESCRIPTION,current,this.scene.stat))
 			   
 			}
 			

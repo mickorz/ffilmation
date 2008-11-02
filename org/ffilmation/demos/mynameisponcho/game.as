@@ -6,7 +6,6 @@ package org.ffilmation.demos.mynameisponcho {
 	import org.ffilmation.engine.core.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.utils.*
-	import org.ffilmation.engine.scenes.*
 	import org.ffilmation.engine.elements.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.engine.interfaces.*

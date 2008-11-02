@@ -10,6 +10,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers.*
 	  
@@ -121,6 +122,64 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.deformedSimpleShadowsLayer.addChild(this.simpleShadowsLayer)
 
 			   // Holes
+			   this.processHoles(element)
+				 
+				 // Occlusion
+				 this.occlusionLayer = new Sprite
+				 this.occlusionLayer.mouseEnabled = false
+			   this.occlusionLayer.blendMode = BlendMode.ERASE
+				 this.occlusionLayer.scrollRect = this.scrollR
+				 this.occlusionSpots = new Object
+
+			   // Cache as Bitmap with Timer cache
+			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
+			   // if the plane doesn't change in a while
+			   this.baseContainer.cacheAsBitmap = true
+				 this.cacheTimer = new Timer(100,1)
+         this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener,false,0,true)
+         
+         // Listen to changes in material
+         element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial)
+
+			}
+			
+			/**
+			* This listens to the plane receiving a new material
+			*/
+			private function newMaterial(evt:fNewMaterialEvent):void {
+			
+			 	 // Diffuse
+			 	 var p:fPlane = evt.target as fPlane
+			 	 var nDiffuse = p.material.getDiffuse(element,evt.width,evt.height,true)
+ 			   var d:Sprite = nDiffuse as Sprite
+ 			   d.mouseEnabled = false
+ 			   d.mouseChildren = false
+ 			   this.baseContainer.addChild(nDiffuse)
+ 			   this.baseContainer.swapChildren(this.diffuse,nDiffuse)
+ 			   this.baseContainer.removeChild(this.diffuse)
+ 			   
+ 			   this.diffuse = this.containerToPaint = nDiffuse
+ 			   
+ 			   // Holes
+	   		 this.processHoles(p)
+	   		 
+	   		 // Redraw lights
+	   		 if(this.scene.IAmBeingRendered) this.redrawLights()
+			
+			}
+			
+			/**
+			* This processes new hole definitions for this plane
+			*/
+			private function processHoles(element:fPlane):void {
+				
+			   this.deformedSimpleShadowsLayer.blendMode = BlendMode.NORMAL
+			   this.simpleHolesC.blendMode = BlendMode.NORMAL
+			   try {
+			   		this.deformedSimpleShadowsLayer.removeChild(this.simpleHolesC)
+	   		 		this.baseContainer.removeChild(this.holesC)
+	   		 } catch(e:Error) {}
+
 			   for(var i:Number=0;i<element.holes.length;i++) {
    					 element.holes[i].addEventListener(fHole.OPEN,this.openHole,false,0,true)
 				 		 element.holes[i].addEventListener(fHole.CLOSE,this.closeHole,false,0,true)
@@ -138,22 +197,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   		this.holesC.blendMode = BlendMode.ERASE
 				 		this.holesC.mouseEnabled = false
 				 }
-				 
-				 // Occlusion
-				 this.occlusionLayer = new Sprite
-				 this.occlusionLayer.mouseEnabled = false
-			   this.occlusionLayer.blendMode = BlendMode.ERASE
-				 this.occlusionLayer.scrollRect = this.scrollR
-				 this.occlusionSpots = new Object
-
-			   // Cache as Bitmap with Timer cache
-			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
-			   // if the plane doesn't change in a while
-			   this.baseContainer.cacheAsBitmap = true
-				 this.cacheTimer = new Timer(100,1)
-         this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener,false,0,true)
 
 			}
+	
+			
 
 			/**
 			* This method listens to holes beign opened

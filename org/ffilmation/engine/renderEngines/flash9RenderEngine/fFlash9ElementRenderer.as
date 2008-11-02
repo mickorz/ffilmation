@@ -29,7 +29,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public var flashClip:MovieClip
 
 			/** The graphic asset that is displayed for this element */
-			private var containerToPaint:DisplayObject
+			public var containerToPaint:DisplayObject
 
 			/** Storing this allows us to show/hide the element */
 			private var containerParent:DisplayObjectContainer

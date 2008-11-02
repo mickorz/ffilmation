@@ -94,7 +94,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 	       this.scene.floors.sort(fSceneGridSorter.sortFloors)
 
 
-		     this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fSceneGridSorter.SORTDESCRIPTION,0,fSceneGridSorter.SORTDESCRIPTION))
+		     this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneGridSorter.SORTDESCRIPTION,0,fSceneGridSorter.SORTDESCRIPTION))
 
 				 // Next step
 				 var myTimer:Timer = new Timer(20, 1)
@@ -185,7 +185,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 	       
 				 // Progress event
 				 var current:Number = 100*((count)/this.sortArray.length)
-         this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,current,fSceneGridSorter.SORTDESCRIPTION,current,fSceneGridSorter.SORTDESCRIPTION))
+         this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,current,fSceneGridSorter.SORTDESCRIPTION,current,fSceneGridSorter.SORTDESCRIPTION))
 	       
 	    }
 	      
@@ -243,7 +243,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				this.duplicateSortArray = null
 
 				// Events
-        this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,100,fSceneGridSorter.SORTDESCRIPTION,100,fSceneGridSorter.SORTDESCRIPTION))
+        this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,100,fSceneGridSorter.SORTDESCRIPTION,100,fSceneGridSorter.SORTDESCRIPTION))
 				this.dispatchEvent(new Event(Event.COMPLETE))
 			
 			}

@@ -28,16 +28,12 @@ package org.ffilmation.engine.events {
 		   *
 			 * @param type The type of the event. Event listeners can access this information through the inherited type property.
 			 * 
-			 * @param bubbles Determines whether the Event object participates in the bubbling phase of the event flow. Event listeners can access this information through the inherited bubbles property.
- 			 *
-			 * @param cancelable Determines whether the Event object can be canceled. Event listeners can access this information through the inherited cancelable property.
-			 *
 		   * @param victim The element of the scene we collide against. If Null the event was triggered by an attemp to move a character autside the scene's limits
 		   *
 			 */
-			 function fCollideEvent(type:String,bubbles:Boolean,cancelable:Boolean,victim:fRenderableElement):void {
+			 function fCollideEvent(type:String,victim:fRenderableElement):void {
 			 	
-			 		super(type,bubbles,cancelable)
+			 		super(type)
 			 		this.victim = victim
 		
 			 }

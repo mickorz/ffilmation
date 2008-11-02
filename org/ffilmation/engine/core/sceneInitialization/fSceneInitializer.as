@@ -43,7 +43,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			 	 if(this.retriever) {
 			 	 		this.waitFor = this.retriever.start()
 			 	 		this.waitFor.addEventListener(Event.COMPLETE, this.loadListener)
-		   	 		this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,0,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
+		   	 		this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
 		   	 }
 			   
 			}
@@ -83,7 +83,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			}
 
 			private function part1Progress(evt:fProcessEvent):void {
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,evt.overall/2,fScene.LOADINGDESCRIPTION,evt.overall,evt.currentDescription))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,evt.overall/2,fScene.LOADINGDESCRIPTION,evt.overall,evt.currentDescription))
 			}
 
 			private function part1Complete(evt:Event):void {
@@ -91,7 +91,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				this.scene.resourceManager.removeEventListener(fScene.LOADPROGRESS,this.part1Progress)
 				this.scene.resourceManager.removeEventListener(Event.COMPLETE,this.part1Complete)
 				this.scene.resourceManager.removeEventListener(ErrorEvent.ERROR,this.part1Error)
-			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,50,"Parsing XML"))
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,50,fScene.LOADINGDESCRIPTION,50,"Parsing XML"))
 		   	
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
@@ -110,7 +110,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 	   		} catch(e:Error) {
 					this.scene.dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,"Scene error in geometry: "+e))
 	   		}
-			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50,fScene.LOADINGDESCRIPTION,0,"Parsing XML. Done."))
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,50,fScene.LOADINGDESCRIPTION,0,"Parsing XML. Done."))
 
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
@@ -133,7 +133,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			}
 
 			private function part3Progress(evt:fProcessEvent):void {
-			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,50+30*evt.overall/100,fScene.LOADINGDESCRIPTION,evt.overall,evt.overallDescription))
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,50+30*evt.overall/100,fScene.LOADINGDESCRIPTION,evt.overall,evt.overallDescription))
 			}
 
 			private function part3Complete(evt:Event):void {
@@ -141,7 +141,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				this.sceneGridSorter.removeEventListener(fScene.LOADPROGRESS,this.part3Progress)
 				this.sceneGridSorter.removeEventListener(Event.COMPLETE,this.part3Complete)
 				this.sceneGridSorter = null
-			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,80,fScene.LOADINGDESCRIPTION,100,"Z sorting done."))
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,80,fScene.LOADINGDESCRIPTION,100,"Z sorting done."))
 		   	
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
@@ -154,7 +154,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function initialization_Part4(event:TimerEvent):void {
 			
 				this.myTimer.removeEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part4)
-			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,false,false,95,fScene.LOADINGDESCRIPTION,100,"Calculating collision and occlusion grid."))
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,95,fScene.LOADINGDESCRIPTION,100,"Calculating collision and occlusion grid."))
 				
 				fSceneCollisionParser.calculate(this.scene)
 				fSceneOcclusionParser.calculate(this.scene)
@@ -216,7 +216,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   this.scene.ready = true
 			   
 			   // Dispatch completion event
-			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADCOMPLETE,false,false,100,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
+			   this.scene.dispatchEvent(new fProcessEvent(fScene.LOADCOMPLETE,100,fScene.LOADINGDESCRIPTION,100,this.scene.stat))
 
 			   // Free all resources allocated by this Object, to help the Garbage collector
 			   this.dispose()

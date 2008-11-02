@@ -197,7 +197,7 @@ package org.ffilmation.engine.core {
 				 }
 				 
 				 // Dispatch event
-				 this.dispatchEvent(new fMoveEvent(fElement.MOVE,true,true,this.x-dx,this.y-dy,this.z-dz))
+				 this.dispatchEvent(new fMoveEvent(fElement.MOVE,this.x-dx,this.y-dy,this.z-dz))
 			}
 
 

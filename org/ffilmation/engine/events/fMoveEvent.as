@@ -38,10 +38,6 @@ package org.ffilmation.engine.events {
 		   *
 			 * @param type The type of the event. Event listeners can access this information through the inherited type property.
 			 * 
-			 * @param bubbles Determines whether the Event object participates in the bubbling phase of the event flow. Event listeners can access this information through the inherited bubbles property.
- 			 *
-			 * @param cancelable Determines whether the Event object can be canceled. Event listeners can access this information through the inherited cancelable property.
-			 *
 		   * @param dx The increment of the x coordinate that corresponds to this movement
 		   *
 		   * @param dy The increment of the y coordinate that corresponds to this movement
@@ -50,9 +46,9 @@ package org.ffilmation.engine.events {
 		   *
 		   *
 			 */
-			 function fMoveEvent(type:String,bubbles:Boolean,cancelable:Boolean,dx:Number,dy:Number,dz:Number):void {
+			 function fMoveEvent(type:String,dx:Number,dy:Number,dz:Number):void {
 			 	
-			 		super(type,bubbles,cancelable)
+			 		super(type)
 			 		this.dx = dx
 			 		this.dy = dy
 			 		this.dz = dz

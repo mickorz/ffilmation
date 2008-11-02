@@ -2,6 +2,7 @@ package org.ffilmation.engine.core {
 	
 		// Imports
 		import org.ffilmation.engine.elements.*
+		import org.ffilmation.engine.events.*
 	  
 		/**
 		* <p>fPlanes are the 2d surfaces that provide the main structure for any scene. Once created, planes can't be altered
@@ -15,11 +16,22 @@ package org.ffilmation.engine.core {
 		*/
 		public class fPlane extends fRenderableElement {
 		
+			// Static properties
+			
+			/**
+ 			* The fPlane.NEWMATERIAL constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>planenewmaterial</code> event.
+ 			* The event is dispatched when an new material is assigned to a plane
+ 			* 
+ 			* @eventType elementmove
+ 			*/
+			public static const NEWMATERIAL:String = "planenewmaterial"
+			
 			// Public properties
 			
 			/** 
 			* Array of holes in this plane. 
-			* You can't create holes dynamically, they must be in the plane's material, but you can open and close them as you wish
+			* You can't create holes dynamically, they must be in the plane's material, but you can open and close them
 			*
 		  * @see org.ffilmation.engine.core.fHole
 			*/
@@ -51,14 +63,19 @@ package org.ffilmation.engine.core {
 				 
 				 // Prepare material & holes
 		 		 this.holes = []	
-				 if(defObj.@src.length()==1) this.applyMaterial(defObj.@src)
+				 if(defObj.@src.length()==1) this.assignMaterial(defObj.@src)
 
 			}
 			
-			/** @private */
-			public function applyMaterial(id:String):void {
+			/** 
+			* Changes the material for this plane.
+			*
+			* @param id Material Id
+			*/
+			public function assignMaterial(id:String):void {
 				 this.material = fMaterial.getMaterial(id,this.scene)
 				 this.holes = this.material.getHoles(this,this.planeWidth,this.planeHeight)
+				 this.dispatchEvent(new fNewMaterialEvent(fPlane.NEWMATERIAL,id,this.planeWidth,this.planeHeight))
 			}
 
 			// Planes don't move
