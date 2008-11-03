@@ -134,9 +134,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
 			   // if the plane doesn't change in a while
-			   this.baseContainer.cacheAsBitmap = true
+         if((this.element as fPlane).holes.length!=0) this.baseContainer.cacheAsBitmap = true
+         else this.container.cacheAsBitmap = true
 				 this.cacheTimer = new Timer(100,1)
-         this.cacheTimer.addEventListener(TimerEvent.TIMER, cacheTimerListener,false,0,true)
+         this.cacheTimer.addEventListener(TimerEvent.TIMER, this.cacheTimerListener,false,0,true)
          
          // Listen to changes in material
          element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial)
@@ -641,7 +642,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   // Disable cache. Once the render is finished, a timeout is set that will
 			   // restore cacheAsbitmap if the object doesn't change for a few seconds.
        	 this.cacheTimer.stop()
-       	 this.baseContainer.cacheAsBitmap = false
+       	 this.container.cacheAsBitmap = false
+				 this.baseContainer.cacheAsBitmap = false
        	 if((this.element as fPlane).holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
        	 this.lightBumps[light.uniqueId].cacheAsBitmap = false
 
@@ -673,6 +675,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    	// Disable cache. Once the render is finished, a timeout is set that will
 			    	// restore cacheAsbitmap if the object doesn't change for a few seconds.
        	  	this.cacheTimer.stop()
+       	 		this.container.cacheAsBitmap = false
        	 		this.baseContainer.cacheAsBitmap = false
           	
        	  	if((this.element as fPlane).holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
@@ -715,8 +718,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function cacheTimerListener(event:TimerEvent):void {
          
-         this.baseContainer.blendMode = BlendMode.NORMAL
-         this.baseContainer.cacheAsBitmap = true
+         if((this.element as fPlane).holes.length!=0) this.baseContainer.cacheAsBitmap = true
+         else this.container.cacheAsBitmap = true
 		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
 			}
 
@@ -775,7 +778,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			public function disposePlaneRenderer():void {
 
-        this.cacheTimer.removeEventListener(TimerEvent.TIMER, cacheTimerListener)
+        this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
        	this.cacheTimer.stop()
 			  // Holes
 			  var element:fPlane = this.element as fPlane
