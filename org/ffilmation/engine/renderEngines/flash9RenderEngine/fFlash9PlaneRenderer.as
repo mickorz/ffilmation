@@ -44,7 +44,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private var tMatrixB:Matrix
 			private var firstBump:Boolean = true
 			
-			private var finalBitmap:Bitmap
+			public var finalBitmap:Bitmap
 			private var finalBitmapData:BitmapData
 			
 			private var anyClosedHole:Boolean
@@ -804,7 +804,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public override function startOcclusion(character:fCharacter):void {
 				
 					if(this.occlusionCount==0) {
-						this.baseContainer.addChild(this.occlusionLayer)
+						this.container.addChild(this.occlusionLayer)
+						this.occlusionLayer.transform.matrix = this.planeDeform
 						this.disableMouseEvents()
 					}
 					this.occlusionCount++
@@ -844,7 +845,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					this.occlusionCount--
 					if(this.occlusionCount==0) {
 						this.enableMouseEvents()
-						this.baseContainer.removeChild(this.occlusionLayer)
+						this.container.removeChild(this.occlusionLayer)
 					}
 			}
 
