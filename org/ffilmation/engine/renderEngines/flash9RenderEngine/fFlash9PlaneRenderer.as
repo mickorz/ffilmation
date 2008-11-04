@@ -44,6 +44,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private var tMatrixB:Matrix
 			private var firstBump:Boolean = true
 			
+			private var finalBitmap:Bitmap
+			private var finalBitmapData:BitmapData
+			
+			private var anyClosedHole:Boolean
+			
+			
 			// Internal
 			public var deformedSimpleShadowsLayer:Sprite
 			public var simpleShadowsLayer:Sprite		   // Simple shadows go here
@@ -83,11 +89,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.baseContainer = new Sprite()
 				 this.behind = new Sprite()
 				 this.infront = new Sprite()
+			   this.behind.cacheAsBitmap = true
+			   this.infront.cacheAsBitmap = true
+			   
 			   this.baseContainer.addChild(this.behind)
 			   this.baseContainer.addChild(this.diffuse)
 			   this.baseContainer.addChild(this.infront)
-			   this.spriteToDraw.addChild(this.baseContainer)
-			   this.baseContainer.transform.matrix = this.planeDeform
+			   
+			   this.finalBitmap = new Bitmap(null,"never",true)
 
 			   // LIGHT
 			   this.lightClips = new Object  
@@ -134,16 +143,68 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
 			   // if the plane doesn't change in a while
-         if((this.element as fPlane).holes.length!=0) this.baseContainer.cacheAsBitmap = true
-         else this.container.cacheAsBitmap = true
+         this.undoCache()
 				 this.cacheTimer = new Timer(100,1)
          this.cacheTimer.addEventListener(TimerEvent.TIMER, this.cacheTimerListener,false,0,true)
+         this.cacheTimer.start()
          
          // Listen to changes in material
          element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial)
 
 			}
 			
+			/**
+			* Cache on
+			*/
+			private function doCache():void {
+
+				 // Already cached
+				 if(this.finalBitmap.parent || this.anyClosedHole) return
+				 
+		   	 this.baseContainer.blendMode = BlendMode.NORMAL
+			   this.diffuse.cacheAsBitmap = true
+
+				 // New cache
+				 if(this.finalBitmapData) this.finalBitmapData.dispose()
+ 			   this.baseContainer.transform.matrix = new Matrix()
+			   this.finalBitmapData = new BitmapData(this.baseContainer.width,this.baseContainer.height,true,0x00000000)
+			   
+				 // Draw
+				 var oMatrix:Matrix = new Matrix()
+				 var p:fPlane = this.element as fPlane
+   			 if(p is fWall) oMatrix.translate(0, this.baseContainer.height)
+				 this.finalBitmapData.draw(this.baseContainer,oMatrix)
+				 
+				 // Display
+				 this.finalBitmap.bitmapData = this.finalBitmapData
+			   this.finalBitmap.transform.matrix = this.planeDeform
+			   this.spriteToDraw.addChildAt(this.finalBitmap,0)
+			   if(element is fWall) this.finalBitmap.y = -this.baseContainer.height*fEngine.DEFORMATION
+			   
+			   try { this.spriteToDraw.removeChild(this.baseContainer) } catch(e:Error) {}
+
+         this.container.cacheAsBitmap = true
+
+			}
+			
+			/**
+			* Cache off
+			*/
+			private function undoCache():void {
+		   		
+			   this.diffuse.cacheAsBitmap = true
+
+		   	 var p:fPlane = this.element as fPlane
+		   	 if(p.holes.length>0) this.baseContainer.blendMode = BlendMode.LAYER
+
+				 if(this.finalBitmapData) this.finalBitmapData.dispose()
+			   this.baseContainer.transform.matrix = this.planeDeform
+			   this.spriteToDraw.addChildAt(this.baseContainer,0)
+			   try { this.spriteToDraw.removeChild(this.finalBitmap) } catch(e:Error) {}
+         
+         this.container.cacheAsBitmap = false
+			}
+
 			/**
 			* This listens to the plane receiving a new material
 			*/
@@ -181,27 +242,30 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	   		 		this.baseContainer.removeChild(this.holesC)
 	   		 } catch(e:Error) {}
 
+			   this.anyClosedHole = false
 			   for(var i:Number=0;i<element.holes.length;i++) {
    					 element.holes[i].addEventListener(fHole.OPEN,this.openHole,false,0,true)
 				 		 element.holes[i].addEventListener(fHole.CLOSE,this.closeHole,false,0,true)
-				 		 if(!element.holes[i].open && element.holes[i].block) this.behind.addChild(element.holes[i].block)				 		 	
+				 		 if(!element.holes[i].open && element.holes[i].block) {
+				 		 		this.behind.addChild(element.holes[i].block)
+			   				this.anyClosedHole = true
+				 		 }
 			   }
 				 this.redrawHoles()
 				 
 			   if(element.holes.length>0) {
-			   		this.deformedSimpleShadowsLayer.addChild(this.simpleHolesC)
-			   		this.deformedSimpleShadowsLayer.blendMode = BlendMode.LAYER
+			   		//this.deformedSimpleShadowsLayer.addChild(this.simpleHolesC)
+			   		//this.deformedSimpleShadowsLayer.blendMode = BlendMode.LAYER
 			   		this.simpleHolesC.blendMode = BlendMode.ERASE
 				 		this.simpleHolesC.mouseEnabled = false
 				 		
 			   		this.baseContainer.addChild(this.holesC)
 			   		this.holesC.blendMode = BlendMode.ERASE
 				 		this.holesC.mouseEnabled = false
-				 }
+				 } 
+
 
 			}
-	
-			
 
 			/**
 			* This method listens to holes beign opened
@@ -212,6 +276,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var hole:fHole = event.target as fHole
 					if(hole.block) {
 						this.behind.removeChild(hole.block)
+				 		this.anyClosedHole = false
+					  var p:fPlane = this.element as fPlane
+			   		for(var i:Number=0;i<p.holes.length;i++) {
+				 				 if(!p.holes[i].open && p.holes[i].block) {
+			   						this.anyClosedHole = true
+				 				 }
+			   		}						
 						if(this.scene.IAmBeingRendered) this.redrawLights()
 					}
 				} catch(e:Error) {
@@ -229,6 +300,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var hole:fHole = event.target as fHole
 					if(hole.block) {
 						this.behind.addChild(hole.block)
+					  var p:fPlane = this.element as fPlane
+			   		for(var i:Number=0;i<p.holes.length;i++) {
+				 				 if(!p.holes[i].open && p.holes[i].block) {
+			   						this.anyClosedHole = true
+				 				 }
+			   		}						
 						if(this.scene.IAmBeingRendered) this.redrawLights()
 					}
 				} catch(e:Error) {
@@ -434,7 +511,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Create layer
 				 var lay:Sprite = new Sprite()
 				 light_c.addChild(lay)
-				 lay.cacheAsBitmap = true
+				 //lay.cacheAsBitmap = true
 				 //lay.blendMode = BlendMode.LAYER
 				 lay.scrollRect = this.scrollR
 				 
@@ -640,12 +717,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   }
 			   
 			   // Disable cache. Once the render is finished, a timeout is set that will
-			   // restore cacheAsbitmap if the object doesn't change for a few seconds.
+			   // restore cache if the object doesn't change for a few seconds.
        	 this.cacheTimer.stop()
-       	 this.container.cacheAsBitmap = false
-				 this.baseContainer.cacheAsBitmap = false
-       	 if((this.element as fPlane).holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
-       	 this.lightBumps[light.uniqueId].cacheAsBitmap = false
+       	 this.undoCache()
+       	 //this.lightBumps[light.uniqueId].cacheAsBitmap = true
 
 			   // Init shadows
  			   var msk:Sprite = this.lightShadows[light.uniqueId]
@@ -669,25 +744,26 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   	var msk:Sprite
 			   	if(other is fObject && fEngine.shadowQuality!=fShadowQuality.BEST) {
 			   		msk = this.simpleShadowsLayer
+					  this.container.cacheAsBitmap = false
 			   	}
 			   	else {
 			   		msk = this.lightShadows[light.uniqueId]
 			    	// Disable cache. Once the render is finished, a timeout is set that will
-			    	// restore cacheAsbitmap if the object doesn't change for a few seconds.
+			    	// restore cache if the object doesn't change for a few seconds.
        	  	this.cacheTimer.stop()
-       	 		this.container.cacheAsBitmap = false
-       	 		this.baseContainer.cacheAsBitmap = false
-          	
-       	  	if((this.element as fPlane).holes.length!=0) this.baseContainer.blendMode = BlendMode.LAYER
-       	  	this.lightBumps[light.uniqueId].cacheAsBitmap = false
+       	 		this.undoCache()
+       	  	
+					  // Start cache timer
+					  this.cacheTimer.start()
+
+       	  	//this.lightBumps[light.uniqueId].cacheAsBitmap = true
 			   	}
 				 			
 				 	// Render
 				  this.renderShadowInt(light,other,msk)
+				  
 				 } catch(e:Error) { }
 				 
-				 // Start cache timer
-				 this.cacheTimer.start()
 				 
 			}
 
@@ -714,13 +790,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/**
-			* This listener sets the cacheAsBitmap of a Plane back to true when it doesn't change for a while
+			* This listener sets the cache of a Plane back to true when it doesn't change for a while
 			*/
 			public function cacheTimerListener(event:TimerEvent):void {
          
-         if((this.element as fPlane).holes.length!=0) this.baseContainer.cacheAsBitmap = true
-         else this.container.cacheAsBitmap = true
-		   	 for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = true
+		   	 //for(var i in this.lightBumps) this.lightBumps[i].cacheAsBitmap = false
+       	 this.doCache()
 			}
 
 			/**
@@ -778,8 +853,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			public function disposePlaneRenderer():void {
 
+				this.undoCache()
         this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
        	this.cacheTimer.stop()
+			  
 			  // Holes
 			  var element:fPlane = this.element as fPlane
 			  for(var i:Number=0;i<element.holes.length;i++) {

@@ -196,7 +196,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 				try {
 					fSceneXMLParser.parseSceneControllerFromXML(this.scene,this.xmlObj)
 	   		} catch(e:Error) {
-					this.scene.dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,"Scene contains an invalid controller definition. "+e))
+					//this.scene.dispatchEvent(new ErrorEvent(ErrorEvent.ERROR,false,false,"Scene contains an invalid controller definition. "+e))
+					trace("Scene contains an invalid controller definition. "+e)
 	   		}
 		   	
 		   	// Next step
