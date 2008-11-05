@@ -93,10 +93,8 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 
 			      // If not covered, sort shadows by distance to coords and add candidate to result list
 			      if(!covered) { 
-			         
 			         candidate.shadows.sortOn("distance",Array.NUMERIC)
 			         rcell.push(candidate)
-			         
 			      }
 			
 			   }

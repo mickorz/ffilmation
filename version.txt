@@ -13,6 +13,7 @@ The material interface is properly setup so any material can be the base to a co
 Also with each release I try to tidy the code and class structure. I know it's already a bit intimidating at first, but if you stay within the documented API I think it is reasonabily easy to pick.
 You can now destroy an scene while it is being initialized and the initialization process is cancelled.
 Planes support changing their materials on the fly using the assignMaterial() method
+Significant performance improvements: now the engine makes proper use cacheAsBitmap and Bitmaps
 
 1.3:
 

@@ -177,19 +177,24 @@ package org.ffilmation.engine.core {
 			* Makes element visible
 			*/
 			public function show():void {
-				 this._visible = true
-				 this.scene.addToDepthSort(this)
-				 dispatchEvent(new Event(fRenderableElement.SHOW))
+				 if(!this._visible) {
+				 		this._visible = true
+				 		this.scene.addToDepthSort(this)
+	 				 	dispatchEvent(new Event(fRenderableElement.SHOW))
+				 }
 			}
 			
 			/**
 			* Makes element invisible
 			*/
 			public function hide():void {
-				 this._visible = false
-				 this.scene.removeFromDepthSort(this)
-				 dispatchEvent(new Event(fRenderableElement.HIDE))
+				 if(!this._visible) {
+				 		this._visible = false
+				 		this.scene.removeFromDepthSort(this)
+				 		dispatchEvent(new Event(fRenderableElement.HIDE))
+				 }
 			}
+
 
 			/**
 			* Passes the stardard gotoAndPLay command to the base clip of this element

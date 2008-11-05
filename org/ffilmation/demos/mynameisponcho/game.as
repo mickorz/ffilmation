@@ -60,7 +60,7 @@ package org.ffilmation.demos.mynameisponcho {
 				this.engine = new fEngine(this.container)
 				
 				// Goto first scene
-				this.gotoScene("xml/crossroads.xml")
+				this.gotoScene("xml/forest.xml")
 				
 		}
 	

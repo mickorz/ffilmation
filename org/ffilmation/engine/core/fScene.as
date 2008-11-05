@@ -404,6 +404,7 @@ package org.ffilmation.engine.core {
 			   	this.all[nfLight.id] = nfLight
 				
 					//Return
+					nfLight.render()
 					return nfLight
 			}
 
@@ -464,6 +465,7 @@ package org.ffilmation.engine.core {
 					nCharacter.updateDepth()
 
 					//Return
+					this.render()
 					return nCharacter
 			}
 
