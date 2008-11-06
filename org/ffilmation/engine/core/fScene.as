@@ -404,7 +404,7 @@ package org.ffilmation.engine.core {
 			   	this.all[nfLight.id] = nfLight
 				
 					//Return
-					nfLight.render()
+					if(this.IAmBeingRendered) nfLight.render()
 					return nfLight
 			}
 
@@ -461,11 +461,11 @@ package org.ffilmation.engine.core {
 			   	this.characters.push(nCharacter)
 			   	this.everything.push(nCharacter)
 			   	this.all[nCharacter.id] = nCharacter
-					if(IAmBeingRendered) this.addElementToRenderEngine(nCharacter)
+					if(this.IAmBeingRendered) this.addElementToRenderEngine(nCharacter)
 					nCharacter.updateDepth()
 
 					//Return
-					this.render()
+					if(this.IAmBeingRendered) this.render()
 					return nCharacter
 			}
 
@@ -518,7 +518,7 @@ package org.ffilmation.engine.core {
 				}
 				else {
 					b = new fBullet(this)
-					if(IAmBeingRendered) this.addElementToRenderEngine(b)
+					if(this.IAmBeingRendered) this.addElementToRenderEngine(b)
 				}
 				
 				// Events
@@ -632,7 +632,7 @@ package org.ffilmation.engine.core {
 			public function translateStageCoordsToElements(x:Number,y:Number):Array {
 				
 				// This must be passed to the renderer because we have no idea how things are drawn
-				if(IAmBeingRendered) return this.renderEngine.translateStageCoordsToElements(x,y)
+				if(this.IAmBeingRendered) return this.renderEngine.translateStageCoordsToElements(x,y)
 				else return null
 		
 			}
@@ -658,7 +658,7 @@ package org.ffilmation.engine.core {
 			*/
 			public function startRendering():void {
 				
-				 if(IAmBeingRendered) return
+				 if(this.IAmBeingRendered) return
 		   	 
 			   // Init render engine
 			   this.renderEngine.initialize()
@@ -674,7 +674,7 @@ package org.ffilmation.engine.core {
 			   }
 		   	 
 			   // Set flag
-			   IAmBeingRendered = true
+			   this.IAmBeingRendered = true
 
 		   	 // Now sprites can be sorted
 			   this.depthSort()
@@ -752,12 +752,12 @@ package org.ffilmation.engine.core {
 
 			// Listens to elements made visible
 			private function showListener(evt:Event):void {
-			   if(IAmBeingRendered) this.renderEngine.showElement(evt.target as fRenderableElement)
+			   if(this.IAmBeingRendered) this.renderEngine.showElement(evt.target as fRenderableElement)
 			}
 			
 			// Listens to elements made invisible
 			private function hideListener(evt:Event):void {
-			   if(IAmBeingRendered) this.renderEngine.hideElement(evt.target as fRenderableElement)
+			   if(this.IAmBeingRendered) this.renderEngine.hideElement(evt.target as fRenderableElement)
 			}
 
 			// Listens to elements made enabled
@@ -780,7 +780,7 @@ package org.ffilmation.engine.core {
 			   this.renderEngine.dispose()
 			   
 			   // Set flag
-			   IAmBeingRendered = false
+			   this.IAmBeingRendered = false
 			   
 			}
 
@@ -863,7 +863,7 @@ package org.ffilmation.engine.core {
 			   // If the scene is not being displayed, we don't update the render engine
 			   // However, the element's properties are modified. When the scene is shown the result is consistent
 			   // to what has changed while the render was not being updated
-			   if(IAmBeingRendered) {
+			   if(this.IAmBeingRendered) {
 			   	if(evt.target is fOmniLight) fLightSceneLogic.renderOmniLight(this,evt.target as fOmniLight)
 				 	if(evt.target is fCharacter) fCharacterSceneLogic.renderCharacter(this,evt.target as fCharacter)
 				 	if(evt.target is fBullet) this.renderBullet(evt.target as fBullet)

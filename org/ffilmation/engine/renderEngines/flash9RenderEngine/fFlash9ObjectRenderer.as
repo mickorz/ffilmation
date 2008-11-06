@@ -25,7 +25,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private var glight:fGlobalLight
 			private var allShadows:Array
 			private var currentSprite:MovieClip
-			private var currentSpriteIndex:Number
+			private var currentSpriteIndex:Number = -1
 			private var occlusionCount:Number = 0
 			public var simpleShadows:Boolean = false
 			
@@ -111,7 +111,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					this.baseObj.addChild(this.currentSprite)
 					this.currentSprite.mouseEnabled = false
 					this.currentSprite.gotoAndPlay(lastFrame)
-					this.element.flashClip = this.currentSprite
+					this.flashClip = this.element.flashClip = this.currentSprite
 					
 					// Update shadow model
 			    if(!this.simpleShadows) {
