@@ -30,14 +30,15 @@ package org.ffilmation.engine.core.sceneInitialization {
 				
 				 // Search for BOX tags and decompile into walls and floors
 				 var tempObj:XMLList = xmlObj.body.child("box")
-			   for(var i:Number=0;i<tempObj.length();i++) {
-			   	 var box:XML = tempObj[i]
+			   while(tempObj.length()>0) {
+			   	 var box:XML = tempObj[0]
 			   	 if(box.@src1.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side1")+'" src="'+(box.@src1)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="horizontal"/>')
 			   	 if(box.@src2.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side2")+'" src="'+(box.@src2)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(parseInt(box.@x)+parseInt(box.@sizex))+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
 			   	 if(box.@src3.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side3")+'" src="'+(box.@src3)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(parseInt(box.@y)+parseInt(box.@sizey))+'" z="'+(box.@z)+'" direction="horizontal"/>')
 			   	 if(box.@src4.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side4")+'" src="'+(box.@src4)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
 			   	 if(box.@src5.length()>0) xmlObj.body.appendChild('<floor id="'+(box.@id+"_side5")+'" src="'+(box.@src5)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z)+parseInt(box.@sizez))+'"/>')
 			   	 if(box.@src6.length()>0) xmlObj.body.appendChild('<floor id="'+(box.@id+"_side6")+'" src="'+(box.@src6)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z))+'"/>')
+			   	 delete tempObj[0]
 				 }
 
 			   scene.top = 0
@@ -47,7 +48,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			   // Parse FLOOR Tags
 				 tempObj = xmlObj.body.child("floor")
-				 for(i=0;i<tempObj.length();i++) fSceneXMLParser.parseFloorFromXML(scene,tempObj[i])
+				 for(var i:Number=0;i<tempObj.length();i++) fSceneXMLParser.parseFloorFromXML(scene,tempObj[i])
 				 
 			   // Parse WALL Tags
  				 tempObj = xmlObj.body.child("wall")

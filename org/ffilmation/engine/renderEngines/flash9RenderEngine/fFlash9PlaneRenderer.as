@@ -457,7 +457,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	  	}
 	       }
 				
-				 // Erases holes from simple sahdows layers
+				 // Erases holes from simple shadows layers
 				 this.simpleHolesC.graphics.clear()
 				 this.simpleHolesC.graphics.beginFill(0x000000,1)
 		 	   this.simpleHolesC.graphics.moveTo(0,0)

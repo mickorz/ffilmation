@@ -131,32 +131,9 @@ package org.ffilmation.engine.core {
 				var t:Array = this.cls.getHoles(element,width,height)
 				var ret:Array = []
 				
-				// Convert holes to floor coordinates
-				if(element is fFloor) {
-						for(var c:Number=0;c<t.length;c++) {
-						  var mcontainer:Rectangle = t[c]
-							var nobj:fPlaneBounds = new fPlaneBounds()
-							nobj.z = element.z
-							nobj.xrel = mcontainer.x
-							nobj.yrel = mcontainer.y
-							nobj.x0 = nobj.x = element.x+mcontainer.x
-							nobj.y0 = nobj.y = element.y+mcontainer.y-mcontainer.height
-							nobj.width = mcontainer.width
-							nobj.height = mcontainer.height
-							nobj.x1 = nobj.x0+nobj.width  
-							nobj.y1 = nobj.y0+nobj.height  
-							
-							var block:MovieClip = this.cls.getHoleBlock(element,c)
-							if(block) {
-								block.x = nobj.xrel
-								block.y = nobj.yrel
-							}
-							ret[ret.length] = new fHole(c,nobj,block)
-						}
-        }
 
 				// Convert holes to wall coordinates
-				else if(element is fWall) {
+				if(element is fWall) {
 
 						var el:fWall = element as fWall
 
@@ -194,7 +171,32 @@ package org.ffilmation.engine.core {
 							ret[ret.length] = new fHole(c,nobj,block)
 						}
 				
-			  }
+			  } else {
+
+				// Convert holes to floor coordinates
+
+						for(var c:Number=0;c<t.length;c++) {
+						  var mcontainer:Rectangle = t[c]
+							var nobj:fPlaneBounds = new fPlaneBounds()
+							nobj.z = element.z
+							nobj.xrel = mcontainer.x
+							nobj.yrel = mcontainer.y
+							nobj.x0 = nobj.x = element.x+mcontainer.x
+							nobj.y0 = nobj.y = element.y+mcontainer.y-mcontainer.height
+							nobj.width = mcontainer.width
+							nobj.height = mcontainer.height
+							nobj.x1 = nobj.x0+nobj.width  
+							nobj.y1 = nobj.y0+nobj.height  
+							
+							var block:MovieClip = this.cls.getHoleBlock(element,c)
+							if(block) {
+								block.x = nobj.xrel
+								block.y = nobj.yrel
+							}
+							ret[ret.length] = new fHole(c,nobj,block)
+						}
+        }
+			  
 				
 				return ret
 			}

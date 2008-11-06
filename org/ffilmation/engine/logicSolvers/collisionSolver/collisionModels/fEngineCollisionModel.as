@@ -6,7 +6,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 
 		/**
 		* This interface defines methods that any class that is to be used as a collision model in the engine must implement.<br>
-		* A collision model is a matematical representation of an object's geometry that is ised to manage collisions.
+		* A collision model is a matematical representation of an object's geometry that is used to manage collisions.
 		* For example, a box is a good collision model for a car, and a cilinder is a good collision model for people.<br>
 		* Collision models need to be simple geometry so the engine can solve collisions fast.
 		* @private
