@@ -40,6 +40,9 @@ package org.ffilmation.engine.core {
 		
 			// This counter is used to generate unique scene Ids
 			private static var count:Number = 0
+			
+			// This flasg is set by the editor so eery object is created as a character and can be moved
+			public static var allCharacters:Boolean = false
 
 		  // Private properties
 		  
@@ -51,7 +54,7 @@ package org.ffilmation.engine.core {
 			public var prof:fProfiler = null										// Profiler
 			private var initializer:fSceneInitializer						// This scene's initializer
 		  /** @private */
-			public var renderEngine:fEngineRenderEngine				// The render engine
+			public var renderEngine:fEngineRenderEngine					// The render engine
 		  /** @private */
 		  public var engine:fEngine
 		 	/** @private */
@@ -417,6 +420,7 @@ package org.ffilmation.engine.core {
 				
 					// Remove from array
 					this.lights.splice(this.lights.indexOf(light),1)
+					this.everything.splice(this.everything.indexOf(light),1)
 					
 					// Hide light from elements
 			    var cell:fCell = light.cell
@@ -449,6 +453,13 @@ package org.ffilmation.engine.core {
 			**/
 			public function createCharacter(idchar:String,def:String,x:Number,y:Number,z:Number):fCharacter {
 				
+					// Ensure coordinates are inside the scene
+					var c:fCell = this.translateToCell(x,y,z)
+					if(c==null) {
+						trace("FFilmation warning: attempt to create a character outside the scene, it will be placed at 0,0,0")
+						x=y=z=10
+					}
+					
 					// Create
 					var definitionObject:XML = <character id={idchar} definition={def} x={x} y={y} z={z} />
 			   	var nCharacter:fCharacter = new fCharacter(definitionObject,this)
@@ -478,6 +489,7 @@ package org.ffilmation.engine.core {
 
 					// Remove from arraya
 					this.characters.splice(this.characters.indexOf(char),1)
+					this.everything.splice(this.everything.indexOf(char),1)
 		      this.all[char.id] = null
 		      
 		      // Hide

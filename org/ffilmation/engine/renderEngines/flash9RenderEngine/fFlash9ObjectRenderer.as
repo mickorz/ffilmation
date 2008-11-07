@@ -94,7 +94,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private function rotationListener(evt:Event):void {
 				
 				var el:fObject = this.element as fObject
-				var correctedAngle:Number = el._orientation
+				var correctedAngle:Number = el._orientation/360
 				var newSprite:Number = Math.floor(correctedAngle*el.sprites.length)
 				
 				if(this.currentSpriteIndex!=newSprite) {
@@ -170,7 +170,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    if(this.simpleShadows) return
 
 					var l:int = this.allShadows.length
-					for(var i:int=0;i<l;i++) this.allShadows[i].clip.gotoAndPlay((this.element as fObject).flashClip.currentFrame)
+					for(var i:int=0;i<l;i++) this.allShadows[i].clip.gotoAndPlay(this.flashClip.currentFrame)
 					
 			}
 
@@ -180,7 +180,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			private function showListener(evt:Event):void {
 				 var l:int = this.allShadows.length
-				 for(var i:int=0;i<l;i++) this.allShadows[i].clip.visible = true
+				 for(var i:int=0;i<l;i++) {
+				 	this.allShadows[i].clip.visible = true
+				 	var p:fRenderableElement = this.allShadows[i].request
+				 	if(p is fPlane) {
+				 		try { p.customData.flash9Renderer.undoCache() } catch(e:Error) {trace(e)}
+				 	}
+				 }
 			}
 			
 			/** 
@@ -188,7 +194,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			private function hideListener(evt:Event):void {
 				 var l:int = this.allShadows.length
-				 for(var i:int=0;i<l;i++) this.allShadows[i].clip.visible = false
+				 for(var i:int=0;i<l;i++) {
+				 	this.allShadows[i].clip.visible = false
+				 	var p:fRenderableElement = this.allShadows[i].request
+				 	if(p is fPlane) {
+				 		try { p.customData.flash9Renderer.undoCache() } catch(e:Error) {trace(e)}
+				 	}
+				 }
 			}
 
 			/*

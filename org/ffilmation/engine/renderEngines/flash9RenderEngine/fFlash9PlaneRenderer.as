@@ -156,7 +156,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Cache on
 			*/
-			private function doCache():void {
+			public function doCache():void {
 
 				 // Already cached
 				 if(this.finalBitmap.parent || this.anyClosedHole) return
@@ -190,7 +190,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Cache off
 			*/
-			private function undoCache():void {
+			public function undoCache():void {
 		   		
 			   this.diffuse.cacheAsBitmap = true
 

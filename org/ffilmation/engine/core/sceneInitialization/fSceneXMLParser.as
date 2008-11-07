@@ -57,7 +57,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   // Parse OBJECT Tags
 			   tempObj = xmlObj.body.child("object")
 			   for(i=0;i<tempObj.length();i++) {
-			   		if(tempObj[i].@dynamic=="true") fSceneXMLParser.parseCharacterFromXML(scene,tempObj[i])
+			   		if(fScene.allCharacters || tempObj[i].@dynamic=="true") fSceneXMLParser.parseCharacterFromXML(scene,tempObj[i])
 			   		else fSceneXMLParser.parseObjectFromXML(scene,tempObj[i])
 			   }
 

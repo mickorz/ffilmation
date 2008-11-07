@@ -75,7 +75,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					
 		  	 	// Delete renderer
 		  	 	this.renderers[element.uniqueId].dispose() 
-		  	 	this.renderers[element.uniqueId] = element.customData.flash9Renderer = null
+		  	 	delete this.renderers[element.uniqueId]
+		  	 	element.customData.flash9Renderer = null
 		  	 	
 		  	 	// Free graphics
 		  	 	this.recursiveDelete(element.container)

@@ -188,7 +188,7 @@ package org.ffilmation.engine.core {
 			* Makes element invisible
 			*/
 			public function hide():void {
-				 if(!this._visible) {
+				 if(this._visible) {
 				 		this._visible = false
 				 		this.scene.removeFromDepthSort(this)
 				 		dispatchEvent(new Event(fRenderableElement.HIDE))

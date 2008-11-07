@@ -214,9 +214,9 @@ package org.ffilmation.engine.elements {
 				
 				var correctedAngle:Number = angle%360
 				if(correctedAngle<0) correctedAngle+=360
+				this._orientation = correctedAngle
 				correctedAngle/=360
 				if(isNaN(correctedAngle)) return
-				this._orientation = correctedAngle
 				
 				// Update collision model
 				var newSprite:Number = Math.floor(correctedAngle*this.sprites.length)
