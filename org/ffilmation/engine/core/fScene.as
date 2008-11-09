@@ -450,14 +450,15 @@ package org.ffilmation.engine.core {
 			*
 			* @param z: Initial x coordinate for the character
 			*
+			* @returns The newly created character, or null if the coordinates not allowed (outside bounds)
+			*
 			**/
 			public function createCharacter(idchar:String,def:String,x:Number,y:Number,z:Number):fCharacter {
 				
 					// Ensure coordinates are inside the scene
 					var c:fCell = this.translateToCell(x,y,z)
 					if(c==null) {
-						trace("FFilmation warning: attempt to create a character outside the scene, it will be placed at 0,0,0")
-						x=y=z=10
+						return null
 					}
 					
 					// Create

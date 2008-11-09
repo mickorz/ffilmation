@@ -190,7 +190,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Cache off
 			*/
-			public function undoCache():void {
+			public function undoCache(autoStart:Boolean = false):void {
 		   		
 			   this.diffuse.cacheAsBitmap = true
 
@@ -203,6 +203,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   try { this.spriteToDraw.removeChild(this.finalBitmap) } catch(e:Error) {}
          
          this.container.cacheAsBitmap = false
+         
+         if(autoStart) this.cacheTimer.start()
+         
 			}
 
 			/**

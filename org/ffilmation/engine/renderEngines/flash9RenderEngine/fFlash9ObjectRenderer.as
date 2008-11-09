@@ -116,9 +116,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					// Update shadow model
 			    if(!this.simpleShadows) {
 
-							var l:int = this.allShadows.length
+							var l:Number = this.allShadows.length
 				  		var shadowClase:Class = el.sprites[newSprite].shadow as Class
-							for(var i:int=0;i<l;i++) {
+							for(var i:Number=0;i<l;i++) {
 								
 							  var info:fObjectShadow = this.allShadows[i]
 								var n:MovieClip = new shadowClase() as MovieClip
@@ -134,6 +134,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				}
 				
 				this.currentSpriteIndex = newSprite
+				
+				// Update shadows
+				l = this.allShadows.length
+				for(i=0;i<l;i++) {
+					var p:fRenderableElement = this.allShadows[i].request
+				 	if(p is fPlane) {
+				 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+				 	}				
+				}
 				
 			}
 
@@ -156,8 +165,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    // No animated shadows in this mode
 			    if(this.simpleShadows) return
 
-					var l:int = this.allShadows.length
-					for(var i:int=0;i<l;i++) this.allShadows[i].clip.gotoAndStop((this.element as fObject).flashClip.currentFrame)
+					var l:Number = this.allShadows.length
+					for(var i:Number=0;i<l;i++) this.allShadows[i].clip.gotoAndStop((this.element as fObject).flashClip.currentFrame)
 					
 			}
 
@@ -169,8 +178,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    // No animated shadows in this mode
 			    if(this.simpleShadows) return
 
-					var l:int = this.allShadows.length
-					for(var i:int=0;i<l;i++) this.allShadows[i].clip.gotoAndPlay(this.flashClip.currentFrame)
+					var l:Number = this.allShadows.length
+					for(var i:Number=0;i<l;i++) this.allShadows[i].clip.gotoAndPlay(this.flashClip.currentFrame)
 					
 			}
 
@@ -179,12 +188,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* This method will redraw this object's shadows when it is shown
 			*/
 			private function showListener(evt:Event):void {
-				 var l:int = this.allShadows.length
-				 for(var i:int=0;i<l;i++) {
+				 var l:Number = this.allShadows.length
+				 for(var i:Number=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = true
 				 	var p:fRenderableElement = this.allShadows[i].request
 				 	if(p is fPlane) {
-				 		try { p.customData.flash9Renderer.undoCache() } catch(e:Error) {trace(e)}
+				 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
 				 	}
 				 }
 			}
@@ -193,12 +202,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* This method will erase this object's shadows when it is hidden
 			*/
 			private function hideListener(evt:Event):void {
-				 var l:int = this.allShadows.length
-				 for(var i:int=0;i<l;i++) {
+				 var l:Number = this.allShadows.length
+				 for(var i:Number=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = false
 				 	var p:fRenderableElement = this.allShadows[i].request
 				 	if(p is fPlane) {
-				 		try { p.customData.flash9Renderer.undoCache() } catch(e:Error) {trace(e)}
+				 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
 				 	}
 				 }
 			}
