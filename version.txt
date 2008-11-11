@@ -14,6 +14,9 @@ Also with each release I try to tidy the code and class structure. I know it's a
 You can now destroy an scene while it is being initialized and the initialization process is cancelled.
 Planes support changing their materials on the fly using the assignMaterial() method
 Significant performance improvements: now the engine makes proper use cacheAsBitmap and Bitmaps
+Lights no longer have a setIntensity() method. Instead, intensity, size, hexcolor and decay are setter/getters and can be called at anytime to alter lights.
+Lights on objects now are properly translated. Objects are tinted according to light values and consistent with plane colors.
+Fixed hordes of bugs that showed up while developing the editor.
 
 1.3:
 

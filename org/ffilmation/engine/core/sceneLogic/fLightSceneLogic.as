@@ -22,7 +22,11 @@ package org.ffilmation.engine.core.sceneLogic {
 		*/
 		public class fLightSceneLogic {	
 
-			
+			// Process a light changing its dimensions
+			public static function processNewLightDimensions(scene:fScene,light:fOmniLight):void {
+				
+			}
+
 			// Process New cell for Omni lights
 			public static function processNewCellOmniLight(scene:fScene,light:fOmniLight):void {
 			
@@ -103,6 +107,9 @@ package org.ffilmation.engine.core.sceneLogic {
 			   		if(character.distanceTo(x,y,z)<light.size) {
 			   			
 			   			 cache.withinRange = true
+			   			 
+			   		   // Add light
+			   		   scene.renderEngine.lightIn(character,light)
 			   			 
 				   		 if(cache.character==character && cache.cell==light.cell) {
 				   		 	

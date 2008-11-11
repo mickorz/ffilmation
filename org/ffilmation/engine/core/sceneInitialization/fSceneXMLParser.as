@@ -199,6 +199,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 nfLight.addEventListener(fElement.MOVE,scene.renderElement)			   
 				 nfLight.addEventListener(fLight.RENDER,scene.processNewCell)			   
 				 nfLight.addEventListener(fLight.RENDER,scene.renderElement)			   
+				 nfLight.addEventListener(fLight.SIZECHANGE,scene.processNewLightDimensions)			   
 			   	
 			   // Add to lists
 			   scene.lights.push(nfLight)

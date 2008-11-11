@@ -52,6 +52,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				*/
 				public function initialize():void {
 		  	 	 
+					this.scene.environmentLight.addEventListener(fLight.COLORCHANGE,this.processGlobalColorChange,false,0,true)
 					this.scene.environmentLight.addEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange,false,0,true)
 					this.scene.environmentLight.addEventListener(fLight.RENDER,this.processGlobalIntensityChange,false,0,true)
 
@@ -315,6 +316,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				public function dispose():void {
 					
 					// Stop listeners
+					this.scene.environmentLight.removeEventListener(fLight.COLORCHANGE,this.processGlobalColorChange)
 					this.scene.environmentLight.removeEventListener(fLight.INTENSITYCHANGE,this.processGlobalIntensityChange)
 					this.scene.environmentLight.removeEventListener(fLight.RENDER,this.processGlobalIntensityChange)
 					
@@ -347,9 +349,16 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				* This event listener is executed when the global light changes its intensity
 				*/
 				private function processGlobalIntensityChange(evt:Event):void {
-					for(var i in this.renderers) this.renderers[i].renderGlobalLight(evt.target as fGlobalLight)
+					for(var i in this.renderers) this.renderers[i].processGlobalIntensityChange(evt.target as fGlobalLight)
 				}
 		
+				/**
+				* This event listener is executed when the global light changes its color
+				*/
+				private function processGlobalColorChange(evt:Event):void {
+					for(var i in this.renderers) this.renderers[i].processGlobalColorChange(evt.target as fGlobalLight)
+				}
+
 				/**
 				* Creates the renderer associated to a renderableElement. The renderer is created if it doesn't exist.
 				*/

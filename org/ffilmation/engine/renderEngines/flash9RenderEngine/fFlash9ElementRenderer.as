@@ -98,6 +98,20 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/** 
+			* Global light changes intensity
+			*/
+			public function processGlobalIntensityChange(light:fGlobalLight):void {
+			}
+
+			/**
+			* Global light changes color
+			*/
+			public function processGlobalColorChange(light:fGlobalLight):void {
+			}
+
+
+
+			/** 
 			*	Light reaches element
 			*/
 			public function lightIn(light:fLight):void {

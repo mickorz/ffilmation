@@ -389,7 +389,7 @@ package org.ffilmation.engine.core {
 			* the surface will need a bumpMap definition and bumpMapping must be enabled in the engine's global parameters
 			*
 			*/
-			public function createOmniLight(idlight:String,x:Number,y:Number,z:Number,size:Number,color:String,intensity:Number,decay:Number,bumpMapped:Boolean):fOmniLight {
+			public function createOmniLight(idlight:String,x:Number,y:Number,z:Number,size:Number,color:String,intensity:Number,decay:Number,bumpMapped:Boolean=false):fOmniLight {
 				
 					// Create
 					var definitionObject:XML = <light id={idlight} type="omni" size={size} x={x} y={y} z={z} color={color} intensity={intensity} decay={decay} bump={bumpMapped}/>
@@ -400,6 +400,7 @@ package org.ffilmation.engine.core {
 				 	nfLight.addEventListener(fElement.MOVE,this.renderElement)			   
 				 	nfLight.addEventListener(fLight.RENDER,this.processNewCell)			   
 				 	nfLight.addEventListener(fLight.RENDER,this.renderElement)			   
+				 	nfLight.addEventListener(fLight.SIZECHANGE,this.processNewLightDimensions)			   
 			   	
 			   	// Add to lists
 			   	this.lights.push(nfLight)
@@ -432,6 +433,13 @@ package org.ffilmation.engine.core {
 		      for(i2=0;i2<nEl;i2++) this.renderEngine.lightOut(this.characters[i2],light)
 		      this.all[light.id] = null
 		      
+			   	// Events
+				 	light.removeEventListener(fElement.NEWCELL,this.processNewCell)			   
+				 	light.removeEventListener(fElement.MOVE,this.renderElement)			   
+				 	light.removeEventListener(fLight.RENDER,this.processNewCell)			   
+				 	light.removeEventListener(fLight.RENDER,this.renderElement)			   
+				 	light.removeEventListener(fLight.SIZECHANGE,this.processNewLightDimensions)			   
+
 		      // This light may be in some character cache
 		      light.removed = true
 				
@@ -495,7 +503,11 @@ package org.ffilmation.engine.core {
 		      
 		      // Hide
 		      char.hide()
-		      
+			   	
+			   	// Events
+				 	char.removeEventListener(fElement.NEWCELL,this.processNewCell)			   
+				 	char.removeEventListener(fElement.MOVE,this.renderElement)			   
+
 		      // Remove from render engine
 		      this.removeElementFromRenderEngine(char)
 		      char.dispose()
@@ -848,6 +860,12 @@ package org.ffilmation.engine.core {
 		 		
 		 	}
 		 	
+			// A light changes its size
+			/** @private */
+			public function processNewLightDimensions(evt:Event):void {
+				fLightSceneLogic.processNewLightDimensions(this,evt.target as fOmniLight)
+			}
+
 			// Element enters new cell
 			/** @private */
 			public function processNewCell(evt:Event):void {

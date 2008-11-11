@@ -36,6 +36,9 @@ package org.ffilmation.engine.elements {
 			*/
 			function fOmniLight(defObj:XML,scene:fScene) {
 
+			   this.addEventListener(fLight.INTENSITYCHANGE,this.newIntensity)
+			   this.addEventListener(fLight.COLORCHANGE,this.newIntensity)
+
 			   super(defObj,scene)
 			   
 				 // Counter
@@ -43,23 +46,30 @@ package org.ffilmation.engine.elements {
 
 			}
 			
-			/**
-			* Sets the light intensity to a value
-			*
-			* @param percent The new intensity. Range from 0 to 100
-			*
-			* @private
-			*/
-			public override function setIntensity(percent:Number):void {
-			   this.intensity = percent
- 			   var pc:Number = percent/100
+			/** @private	*/
+			public function newIntensity(e:Event):void {
+ 			   var pc:Number = this.intensity/100
 
   	     this.color = new ColorTransform(this.lightColor.redMultiplier, this.lightColor.greenMultiplier, this.lightColor.blueMultiplier,pc,
   	                     								 this.lightColor.redOffset,this.lightColor.greenOffset,this.lightColor.blueOffset,0)
   	                     
-				 dispatchEvent(new Event(fLight.INTENSITYCHANGE))			           
 			}
-			
 		
+			/** @private */
+			public function disposeOmniLight():void {
+			   this.removeEventListener(fLight.INTENSITYCHANGE,this.newIntensity)
+			   this.removeEventListener(fLight.COLORCHANGE,this.newIntensity)
+				 this.disposeLight()
+			}
+
+			/** @private */
+			public override function dispose():void {
+				 this.disposeOmniLight()
+			}
+
+
+
 		}
+
+
 }

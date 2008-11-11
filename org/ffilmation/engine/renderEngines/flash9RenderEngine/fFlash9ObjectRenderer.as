@@ -166,7 +166,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    if(this.simpleShadows) return
 
 					var l:Number = this.allShadows.length
-					for(var i:Number=0;i<l;i++) this.allShadows[i].clip.gotoAndStop((this.element as fObject).flashClip.currentFrame)
+					for(var i:Number=0;i<l;i++) this.allShadows[i].clip.gotoAndStop(this.flashClip.currentFrame)
 					
 			}
 
@@ -324,10 +324,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		 		 res.redMultiplier = Math.min(1,res.redMultiplier)
 		 		 res.blueMultiplier = Math.min(1,res.blueMultiplier)
 	 		   res.greenMultiplier = Math.min(1,res.greenMultiplier)
-		 		 res.redOffset = Math.min(1,res.redOffset)
-		 		 res.blueOffset = Math.min(1,res.blueOffset)
-	 		   res.greenOffset = Math.min(1,res.greenOffset)
-				 
+		 		 res.redOffset = Math.min(128,res.redOffset)
+		 		 res.blueOffset = Math.min(128,res.blueOffset)
+	 		   res.greenOffset = Math.min(128,res.greenOffset)
 				 
 				 this.baseObj.transform.colorTransform = res
 			}
@@ -341,9 +340,16 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/** 
-			* Listens for changes in global light intensity
+			* Global light changes intensity
 			*/
-			public function processGlobalIntensityChange(evt:Event):void {
+			public override function processGlobalIntensityChange(light:fGlobalLight):void {
+				 this.paintLights()
+			}
+
+			/**
+			* Global light changes color
+			*/
+			public override function processGlobalColorChange(light:fGlobalLight):void {
 				 this.paintLights()
 			}
 			
@@ -353,7 +359,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public override function lightIn(light:fLight):void {
 					
 				 // Already there ?
-			   if(this.lights && !this.lights[light.uniqueId]) this.lights[light.uniqueId] = new fLightWeight(this.element as fObject,light)
+			   if(this.lights && !this.lights[light.uniqueId]) {
+			   	this.lights[light.uniqueId] = new fLightWeight(this.element as fObject,light)
+			   	light.addEventListener(fLight.COLORCHANGE,this.processLightIntensityChange,false,0,true)
+					light.addEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange,false,0,true)
+			   }
 				
 			}
 			
@@ -365,9 +375,17 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 if(this.lights && this.lights[light.uniqueId]) {
 				 	delete this.lights[light.uniqueId]
 				 	this.paintLights()
+			   	light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
+					light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
 				 }
 			
 			}
+			
+			private function processLightIntensityChange(e:Event) {
+				trace("1")
+				this.paintLights()
+			}
+			
 			
 			/**
 			* Render start

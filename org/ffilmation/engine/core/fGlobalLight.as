@@ -25,16 +25,18 @@ package org.ffilmation.engine.core {
 			/** @private */
 			function fGlobalLight(defObj:XML,scene:fScene):void {
 
+			   this.addEventListener(fLight.INTENSITYCHANGE,this.newIntensity)
+			   this.addEventListener(fLight.COLORCHANGE,this.newIntensity)
+
 			   super(defObj,scene)
 
 			}
 			
 			// Methods
 			/** @private */
-			public override function setIntensity(percent:Number):void {
+			public function newIntensity(e:Event):void {
 				
-			   this.intensity = percent
- 			   var pc:Number = percent/100
+ 			   var pc:Number = this.intensity/100
 
 				 this.color = new ColorTransform( 
 			                     fLight.NOLIGHT.ra+(this.lightColor.redMultiplier-fLight.NOLIGHT.ra)*pc,
@@ -46,8 +48,21 @@ package org.ffilmation.engine.core {
 			                     fLight.NOLIGHT.bb+(this.lightColor.blueOffset-fLight.NOLIGHT.bb)*pc,
 			                     0)
 
-				 dispatchEvent(new Event(fLight.INTENSITYCHANGE))			           
 			}
 			
+			/** @private */
+			public function disposeGlobalLight():void {
+			   this.removeEventListener(fLight.INTENSITYCHANGE,this.newIntensity)
+			   this.removeEventListener(fLight.COLORCHANGE,this.newIntensity)
+				 this.disposeLight()
+			}
+
+			/** @private */
+			public override function dispose():void {
+				 this.disposeGlobalLight()
+			}
+
+
 		}
+
 }

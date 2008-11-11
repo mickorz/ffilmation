@@ -492,12 +492,21 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** 
 			* Listens for changes in global light intensity
 			*/
-			public function processGlobalIntensityChange(evt:Event):void {
+			public override function processGlobalIntensityChange(light:fGlobalLight):void {
 				
-				 	 var light:Object = evt.target
 					 this.environmentC.alpha = light.intensity/100
 					 this.simpleShadowsLayer.alpha = 1-this.environmentC.alpha
+					 this.undoCache(true)
 			}
+
+			/**
+			* Global light changes color
+			*/
+			public override function processGlobalColorChange(light:fGlobalLight):void {
+					 this.renderGlobalLight(light)
+					 this.undoCache(true)
+			}
+
 
 			/**
 			* Creates masks and containers for a new light, and updates lightStatus
@@ -654,6 +663,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				  var light:fLight = event.target as fLight
    				var lClip:Shape = this.lightMasks[light.uniqueId]
 					this.createLightClip(light,lClip)
+					this.undoCache(true)
 			}
 
 			/** 
@@ -666,6 +676,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 // Listen to intensity changes
 		 		 light.addEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange,false,0,true)
+		 		 light.addEventListener(fLight.COLORCHANGE,this.processLightIntensityChange,false,0,true)
+		 		 light.addEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange,false,0,true)
 			   
 			}
 			
@@ -678,7 +690,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   if(this.lightStatuses[light.uniqueId]) this.hideLight(light)
 
 				 // Stop listening to intensity changes
-		 		 light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
+		 		 //light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
+		 		 //light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
+		 		 //light.removeEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange)
+		 		 
+		 		 this.undoCache(true)
 			   
 			}
 

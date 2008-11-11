@@ -55,6 +55,9 @@ package org.ffilmation.engine.core.sceneLogic {
 			   			
 			   			cache.withinRange = true
 			   			
+		   		    // Add light
+			   		  scene.renderEngine.lightIn(character,light)
+			   			
 			   			if(light.cell) {
 			   				x = light.cell.x
 			        	y = light.cell.y

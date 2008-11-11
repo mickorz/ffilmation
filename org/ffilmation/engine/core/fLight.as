@@ -18,20 +18,19 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public static const NOLIGHT:Object = { ra:0, ga:0, ba:0, aa:1, rb: 0,gb: 0, bb: 0, ab:0 }
 			
-			// Public properties
-			
-
 			/** An string specifying the color of the light in HTML format, example: #ffeedd */
-			public var hexcolor:Number
+			private var _hexcolor:uint
 
 			/** Radius of the sphere that identifies the light */
-			public var size:Number
+			private var _size:Number
 
-			/** Intensity of the light goes from 0 to 100 */
-			public var intensity:Number
+			/** Intensity of the light goes from 0 to 100	*/
+			private var _intensity:Number
 
 			/** From 0 to 100 marks the distance along the lights's radius from where intensity stars to fade. A 0 decay defines a solid light */
-			public var decay:Number
+			private var _decay:Number
+
+			// Public properties
 
 			/** Determines if this light will be rendered with bumpmapping.
 			* Please note that for the bumpMapping to work in a given surface,
@@ -68,6 +67,28 @@ package org.ffilmation.engine.core {
  			*/
 			public static const INTENSITYCHANGE:String = "lightintensitychange"
 			
+			/**
+ 			* The fLight.COLORCHANGE constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>lightcolorchange</code> event.
+ 			* The event is dispatched when the light changes its color
+ 			*/
+			public static const COLORCHANGE:String = "lightcolorchange"
+
+			/**
+ 			* The fLight.SIZECHANGE constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>lightsizechange</code> event.
+ 			* The event is dispatched when the light changes its size
+ 			*/
+			public static const SIZECHANGE:String = "lightsizechange"
+
+			/**
+ 			* The fLight.DECAYCHANGE constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>lightdecaychange</code> event.
+ 			* The event is dispatched when the light changes its decay
+ 			*/
+			public static const DECAYCHANGE:String = "lightdecaychange"
+
+
 			// Constructor
 			/** @private */
 			function fLight(defObj:XML,scene:fScene) {
@@ -77,15 +98,14 @@ package org.ffilmation.engine.core {
 				 
 				 // Current color
 			   this.color = null                        
-
 				 
 				 // BumpMapped light ?
 			   this.bump = (defObj.@bump[0]=="true")
 
 			   // Size
 			   var temp:XMLList = defObj.@["size"]
-			   if(temp.length()>0) this.size = new Number(temp[0])   
-			   else this.size = Infinity
+			   if(temp.length()>0) this._size = new Number(temp[0])   
+			   else this._size = Infinity
 			
 			   // fLight color
 			   temp = defObj.@color
@@ -94,27 +114,21 @@ package org.ffilmation.engine.core {
 			      // Color transform object (100% light)
 			      var col:String = temp.toString()
 			  	 	this.hexcolor = parseInt(col.substring(1),16)
-
-			      var r:Number=parseInt(col.substring(1,3),16)
-			      var g:Number=parseInt(col.substring(3,5),16)
-			      var b:Number=parseInt(col.substring(5,7),16)
-			      this.lightColor = new ColorTransform(0.5,0.5,0.5,1,r/2,g/2,b/2,0)
 			                                            
 			   } else {
 						// Defaults to white light			   
-			   		this.lightColor = new ColorTransform(1,1,1,1,0,0,0,0)
 			  	 	this.hexcolor = 0xffffff
 			   }                   
 
 				 // Intensity ( percentage from black to this.lightColor ) 
 			   temp = defObj.@intensity
-			   if(temp.length()>0) this.intensity = new Number(temp)
-			   else this.intensity = 0
+			   if(temp.length()>0) this._intensity = new Number(temp)
+			   else this._intensity = 0
 
 				 // Decay ( where does start to fade ) 
 			   temp = defObj.@decay
-			   if(temp.length()>0) this.decay = new Number(temp)
-			   else this.decay = 0
+			   if(temp.length()>0) this._decay = new Number(temp)
+			   else this._decay = 0
 					
 			   // fLight status
 			   this.elementsV = null                     // Current array of visible elements
@@ -122,20 +136,63 @@ package org.ffilmation.engine.core {
 				 this.vCharacters = new Array							 // Current array of afected characters
 			
 			   // Init
-			   this.setIntensity(this.intensity)
+			   this.intensity = this._intensity
 			   
 			}
 			
-			/** 
-			* This method changes the light's intensity
-			*
-			* @param percent New intensity from 0 to 100
-			*/
-			public function setIntensity(percent:Number):void {
-			   this.intensity = percent
+			/** Intensity of the light goes from 0 to 100	*/
+			public function set intensity(percent:Number):void {
+			   this._intensity = Math.max(0,Math.min(percent,100))
 			   this.dispatchEvent(new Event(fLight.INTENSITYCHANGE))
 			}
 			
+			public function get intensity():Number {
+			   return this._intensity
+			}
+
+			/** An hexdecimal number specifying the color of the light, example: ffeedd */
+			public function set hexcolor(color:uint):void {
+
+			   this._hexcolor = color
+		   	
+		     var r:uint=(this._hexcolor >> 16) & 0xFF
+	       var g:uint=(this._hexcolor >> 8) & 0xFF
+			   var b:uint=this._hexcolor & 0xFF
+			   
+			   var acr:uint = (g/2)+(b/2)
+			   var acg:uint = (r/2)+(b/2)
+			   var acb:uint = (r/2)+(g/2)
+			   
+			   this.lightColor = new ColorTransform(r/255,g/255,b/255,1,(255-acr)/2,(255-acg)/2,(255-acb)/2,0)
+
+			   this.dispatchEvent(new Event(fLight.COLORCHANGE))
+
+			}
+			
+			public function get hexcolor():uint {
+			   return this._hexcolor
+			}
+
+			/** Radius of the sphere that identifies the light, a value of 0 creates a light of Infinite size (ex: The Sun) */
+			public function set size(s:Number):void {
+			   this._size = Math.max(0,s)
+			   this.dispatchEvent(new Event(fLight.SIZECHANGE))
+			}
+			
+			public function get size():Number {
+			   return this._size
+			}
+
+			/** From 0 to 100 marks the distance along the lights's radius from where intensity stars to fade. A 0 decay defines a solid light */
+			public function set decay(d:Number):void {
+			   this._decay = Math.max(0,Math.min(d,100))
+			   this.dispatchEvent(new Event(fLight.DECAYCHANGE))
+			}
+			
+			public function get decay():Number {
+			   return this._decay
+			}
+
 			/**
 			* Renders the light
 			*/

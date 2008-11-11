@@ -372,6 +372,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		} catch(e:Error) {	}			   
 				 }
 			   
+		 		 this.undoCache(true)
+
+
 			}
 
 			/** @private */

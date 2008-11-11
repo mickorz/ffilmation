@@ -368,6 +368,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 			}
 				 		}			   
 				 }
+				 
+		 		 this.undoCache(true)
 			   
 			}
 
