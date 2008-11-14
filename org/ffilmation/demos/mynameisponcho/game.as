@@ -1,4 +1,4 @@
-package org.ffilmation.demos.mynameisponcho {
+﻿package org.ffilmation.demos.mynameisponcho {
 
 	// Imports
 	import flash.display.*
@@ -60,7 +60,7 @@ package org.ffilmation.demos.mynameisponcho {
 				this.engine = new fEngine(this.container)
 				
 				// Goto first scene
-				this.gotoScene("xml/forest.xml")
+				this.gotoScene("scenes/crossroads.xml")
 				
 		}
 	

@@ -870,9 +870,11 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function processNewCell(evt:Event):void {
 
-				if(evt.target is fOmniLight) fLightSceneLogic.processNewCellOmniLight(this,evt.target as fOmniLight)
-				if(evt.target is fCharacter) fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
-				if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
+				if(this.IAmBeingRendered) {
+					if(evt.target is fOmniLight) fLightSceneLogic.processNewCellOmniLight(this,evt.target as fOmniLight)
+					if(evt.target is fCharacter) fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
+					if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
+				}
 				
 			}
 

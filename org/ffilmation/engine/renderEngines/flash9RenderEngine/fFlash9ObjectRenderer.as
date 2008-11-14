@@ -138,10 +138,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				// Update shadows
 				l = this.allShadows.length
 				for(i=0;i<l;i++) {
-					var p:fRenderableElement = this.allShadows[i].request
-				 	if(p is fPlane) {
-				 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
-				 	}				
+					if(this.allShadows[i].clip.stage) {
+						var p:fRenderableElement = this.allShadows[i].request
+				 		if(p is fPlane) {
+				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+				 		}				
+				 	}
 				}
 				
 			}
@@ -191,9 +193,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var l:Number = this.allShadows.length
 				 for(var i:Number=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = true
-				 	var p:fRenderableElement = this.allShadows[i].request
-				 	if(p is fPlane) {
-				 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+					if(this.allShadows[i].clip.stage) {
+						var p:fRenderableElement = this.allShadows[i].request
+				 		if(p is fPlane) {
+				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+				 		}				
 				 	}
 				 }
 			}
@@ -205,9 +209,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var l:Number = this.allShadows.length
 				 for(var i:Number=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = false
-				 	var p:fRenderableElement = this.allShadows[i].request
-				 	if(p is fPlane) {
-				 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+					if(this.allShadows[i].clip.stage) {
+						var p:fRenderableElement = this.allShadows[i].request
+				 		if(p is fPlane) {
+				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+				 		}				
 				 	}
 				 }
 			}
