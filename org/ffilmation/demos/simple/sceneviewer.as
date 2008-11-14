@@ -6,7 +6,7 @@ package org.ffilmation.demos.simple {
 	import org.ffilmation.engine.core.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.utils.*
-	import org.ffilmation.engine.scenes.*
+	import org.ffilmation.engine.core.sceneInitialization.*
 	import org.ffilmation.engine.elements.*
 	
 	/** @private */
