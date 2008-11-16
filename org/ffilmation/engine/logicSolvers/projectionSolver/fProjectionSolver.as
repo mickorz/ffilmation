@@ -58,8 +58,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			*/
 			public static function calculateWallProjection(x:Number,y:Number,z:Number,wall:fPlaneBounds,destinyZ:Number,scene:fScene):Array {
 
+				 // Simplest test
+				 if(wall.z>=z) return []
+				 
 				 var ret:Array = []
-			
+				 			
 			   if(wall.vertical) {
 			
 						if(wall.x==x) x++

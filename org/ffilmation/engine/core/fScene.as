@@ -863,7 +863,22 @@ package org.ffilmation.engine.core {
 			// A light changes its size
 			/** @private */
 			public function processNewLightDimensions(evt:Event):void {
-				fLightSceneLogic.processNewLightDimensions(this,evt.target as fOmniLight)
+				
+				if(this.IAmBeingRendered) {
+					
+					var light:fOmniLight = evt.target as fOmniLight
+
+					// Hide light from elements
+			    var cell:fCell = light.cell
+		      var nEl:Number = light.nElements
+		      for(var i2:Number=0;i2<nEl;i2++) this.renderEngine.lightReset(light.elementsV[i2].obj,light)
+		      
+		      nEl = this.characters.length
+		      for(i2=0;i2<nEl;i2++) this.renderEngine.lightReset(this.characters[i2],light)
+
+					fLightSceneLogic.processNewLightDimensions(this,evt.target as fOmniLight)
+				}
+				
 			}
 
 			// Element enters new cell

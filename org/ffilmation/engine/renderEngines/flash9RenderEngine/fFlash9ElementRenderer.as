@@ -124,6 +124,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 			
 			/**
+			* Light is to be reset
+			*/
+		  public function lightReset(light:fLight):void {
+		  	this.lightOut(light)
+			}
+
+
+			/**
 			* Render start
 			*/
 			public function renderStart(light:fLight):void {

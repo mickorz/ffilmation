@@ -377,6 +377,19 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			}
 
+			/**
+			* Light is to be reset
+			*/
+		  public override function lightReset(light:fLight):void {
+		  	
+		  	this.lightOut(light)
+		  	delete this.lightStatuses[light.uniqueId]
+		  	delete this.lightClips[light.uniqueId]
+		  	delete fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
+		  	
+			}
+
+
 			/** @private */
 			public function disposeFloorRenderer():void {
 

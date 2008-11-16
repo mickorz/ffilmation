@@ -163,7 +163,8 @@ package org.ffilmation.engine.core {
 			   var acg:uint = (r/2)+(b/2)
 			   var acb:uint = (r/2)+(g/2)
 			   
-			   this.lightColor = new ColorTransform(r/255,g/255,b/255,1,(255-acr)/2,(255-acg)/2,(255-acb)/2,0)
+			   //this.lightColor = new ColorTransform(r/255,g/255,b/255,1,(255-acr)/2,(255-acg)/2,(255-acb)/2,0)
+			   this.lightColor = new ColorTransform(r/255,g/255,b/255,1,0,0,0,0)
 
 			   this.dispatchEvent(new Event(fLight.COLORCHANGE))
 

@@ -24,7 +24,8 @@ package org.ffilmation.engine.core.sceneLogic {
 
 			// Process a light changing its dimensions
 			public static function processNewLightDimensions(scene:fScene,light:fOmniLight):void {
-				
+					fLightSceneLogic.processNewCellOmniLight(scene,light)
+					fLightSceneLogic.renderOmniLight(scene,light)
 			}
 
 			// Process New cell for Omni lights

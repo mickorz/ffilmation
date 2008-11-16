@@ -108,6 +108,16 @@ package org.ffilmation.engine.interfaces {
 				*/
 				function lightOut(element:fRenderableElement,light:fOmniLight):void;
 
+
+				/**
+				* When a light is to be reset ( new size )
+				*
+				* @param element The element
+				* @param light The light
+				*/
+				function lightReset(element:fRenderableElement,light:fOmniLight):void;
+
+
 				/**
 				* <p>Rendering occurs in two ways: a light changes or an element changes. When a light changes this happens:</p>
 				* <ol>

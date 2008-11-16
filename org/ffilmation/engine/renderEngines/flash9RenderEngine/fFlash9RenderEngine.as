@@ -149,6 +149,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				}
 
 				/**
+				* When a light is to be reset ( new size )
+				*/
+				public function lightReset(element:fRenderableElement,light:fOmniLight):void {
+					element.customData.flash9Renderer.lightReset(light)
+				}
+
+
+				/**
 				* This is the renderStart call.
 				*/
 				public function renderStart(element:fRenderableElement,light:fOmniLight):void {

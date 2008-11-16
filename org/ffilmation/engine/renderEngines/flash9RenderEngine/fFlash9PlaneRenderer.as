@@ -229,7 +229,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	   		 this.processHoles(p)
 	   		 
 	   		 // Redraw lights
-	   		 if(this.scene.IAmBeingRendered) this.redrawLights()
+	   		 if(this.scene.IAmBeingRendered) {
+	   		 	this.redrawLights()
+	   		 	this.undoCache(true)
+	   		 }
 			
 			}
 			
