@@ -1,4 +1,12 @@
+/**
+
+INCOMPLETE !!
+
 package org.ffilmation.engine.core.sceneInitialization {
+	
+	
+	
+			
 	
 		      try {
 	      	if(this.xmlObj.@prerender=="true") this.limitHeight = this.scene.gridHeight-1
@@ -39,3 +47,4 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function rayTraceComplete(event:TimerEvent):void {
 			   this.processXml_Part5()
 			}
+*/
