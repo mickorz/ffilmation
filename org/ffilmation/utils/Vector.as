@@ -3,7 +3,7 @@ package org.ffilmation.utils {
 
 		/** 
 		* A 2d Vector class
-		*
+		* @private
 	  */
 		public class Vector	{
 

@@ -6,6 +6,7 @@ package org.ffilmation.engine.core {
 		import flash.geom.*
 		import flash.events.*
 
+
 		/**
 		* <p>The fLight is an abstract definition of a light that contains generic information such as
 		* intensity, size, decay and color. To create a new type of light you must extend this class</p>
@@ -141,16 +142,23 @@ package org.ffilmation.engine.core {
 			}
 			
 			/** Intensity of the light goes from 0 to 100	*/
+			public function get intensity():Number {
+			   return this._intensity
+			}
+
+			/** @private */
 			public function set intensity(percent:Number):void {
 			   this._intensity = Math.max(0,Math.min(percent,100))
 			   this.dispatchEvent(new Event(fLight.INTENSITYCHANGE))
 			}
 			
-			public function get intensity():Number {
-			   return this._intensity
+
+			/** An hexdecimal number specifying the color of the light, example: 0xffeedd */
+			public function get hexcolor():uint {
+			   return this._hexcolor
 			}
 
-			/** An hexdecimal number specifying the color of the light, example: ffeedd */
+			/** @private */
 			public function set hexcolor(color:uint):void {
 
 			   this._hexcolor = color
@@ -159,40 +167,35 @@ package org.ffilmation.engine.core {
 	       var g:uint=(this._hexcolor >> 8) & 0xFF
 			   var b:uint=this._hexcolor & 0xFF
 			   
-			   var acr:uint = (g/2)+(b/2)
-			   var acg:uint = (r/2)+(b/2)
-			   var acb:uint = (r/2)+(g/2)
-			   
-			   //this.lightColor = new ColorTransform(r/255,g/255,b/255,1,(255-acr)/2,(255-acg)/2,(255-acb)/2,0)
 			   this.lightColor = new ColorTransform(r/255,g/255,b/255,1,0,0,0,0)
 
 			   this.dispatchEvent(new Event(fLight.COLORCHANGE))
 
 			}
 			
-			public function get hexcolor():uint {
-			   return this._hexcolor
+			/** Radius of the sphere that identifies the light, a value of 0 creates a light of Infinite size (ex: The Sun) */
+			public function get size():Number {
+			   return this._size
 			}
 
-			/** Radius of the sphere that identifies the light, a value of 0 creates a light of Infinite size (ex: The Sun) */
+			/** @private */
 			public function set size(s:Number):void {
 			   this._size = Math.max(0,s)
 			   this.dispatchEvent(new Event(fLight.SIZECHANGE))
 			}
 			
-			public function get size():Number {
-			   return this._size
-			}
 
 			/** From 0 to 100 marks the distance along the lights's radius from where intensity stars to fade. A 0 decay defines a solid light */
+			public function get decay():Number {
+			   return this._decay
+			}
+
+			/** @private */
 			public function set decay(d:Number):void {
 			   this._decay = Math.max(0,Math.min(d,100))
 			   this.dispatchEvent(new Event(fLight.DECAYCHANGE))
 			}
 			
-			public function get decay():Number {
-			   return this._decay
-			}
 
 			/**
 			* Renders the light

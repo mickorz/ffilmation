@@ -53,9 +53,7 @@ package org.ffilmation.engine.core {
 			*/
 			public var index:Number
 			
-			/**
-			* @private
-			*/
+			/** @private */
 			public function fHole(index:Number,bounds:fPlaneBounds,block:MovieClip):void {
 				this._open = true
 				this.index = index
@@ -72,6 +70,11 @@ package org.ffilmation.engine.core {
 			*
 			* @see org.ffilmation.engine.interfaces.fEngineMaterial#getHoleBlock()
 			*/
+			public function get open():Boolean {
+				return this._open
+			}
+
+			/** @private */
 			public function set open(v:Boolean):void {
 				if(v==true) {
 					this._open = true
@@ -81,9 +84,6 @@ package org.ffilmation.engine.core {
 					this._open = false
 					this.dispatchEvent(new Event(fHole.CLOSE))
 				}
-			}
-			public function get open():Boolean {
-				return this._open
 			}
 		
 		}

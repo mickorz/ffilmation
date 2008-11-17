@@ -5,7 +5,7 @@ package org.ffilmation.utils {
 
 		/** 
 		* This class provides several polygon algorythms
-		*
+		* @private
 	  */
 		public class polygonUtils {
 

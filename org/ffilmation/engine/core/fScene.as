@@ -41,7 +41,8 @@ package org.ffilmation.engine.core {
 			// This counter is used to generate unique scene Ids
 			private static var count:Number = 0
 			
-			// This flasg is set by the editor so eery object is created as a character and can be moved
+			// This flag is set by the editor so eery object is created as a character and can be moved
+			/** @private */
 			public static var allCharacters:Boolean = false
 
 		  // Private properties

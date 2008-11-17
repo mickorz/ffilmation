@@ -45,6 +45,7 @@ package org.ffilmation.engine.core {
 			public var id:String
 
 			// Static functions
+			/** @private */
 			public static function getMaterial(id:String,scene:fScene=null):fMaterial {
 					
 				 // Use a new cache ?

@@ -3,7 +3,8 @@ package org.ffilmation.utils {
 		// Imports
 		import flash.geom.Point
 		
-		// This class stores the result of a collision between a line and a circle
+		/** This class stores the result of a collision between a line and a circle
+		*/
 		public class lineCircleIntersectionResult {
 		
 			public var enter:Point					// Intersection Point entering the circle

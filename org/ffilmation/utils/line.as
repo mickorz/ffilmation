@@ -3,7 +3,7 @@ package org.ffilmation.utils {
 
 		/** 
 		* A line definition, 2 points
-		*
+		* @private
 	  */
 		public class line	{
 

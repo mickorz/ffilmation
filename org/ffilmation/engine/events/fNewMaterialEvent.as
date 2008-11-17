@@ -13,13 +13,17 @@ package org.ffilmation.engine.events {
 		
 			 // Public
 			 
-			 /** Stores id of the new material */
+			 /** Stores id of the new material
+			 * @private
+			 */
 			 public var id:String
 			 
-			 /** Width of the plane where the material was assigned */
+			 /** Width of the plane where the material was assigned
+			 * @private */
 			 public var width:Number
 
-			 /** Height of the plane where the material was assigned */
+			 /** Height of the plane where the material was assigned
+			 * @private */
 			 public var height:Number
 			 
 				

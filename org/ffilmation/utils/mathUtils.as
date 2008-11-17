@@ -37,10 +37,10 @@ package org.ffilmation.utils {
 			}
 			
 			/**
-			* Finds out if a line an a circle intersect and if so, return the intersection points
+			* Finds out if a line an a circle intersect and if so, return the intersection points<br>
+			* source: http://keith-hair.net/blog/2008/08/05/line-to-circle-intersection-data/#more-23
 			* @return An lineCircleIntersectionResult with the results of the calculation
 			* 
-			* source: http://keith-hair.net/blog/2008/08/05/line-to-circle-intersection-data/#more-23
 			**/
 			public static function lineIntersectCircle(A : Point, B : Point, C : Point, r : Number ):lineCircleIntersectionResult {
 				
@@ -89,9 +89,9 @@ package org.ffilmation.utils {
 
 			/**
 			* Find out if two segments intersect and if so, retrieve the point 
-			* of intersection
-			*
-			* source: http://vision.dai.ed.ac.uk/andrewfg/c-g-a-faq.html
+			* of intersection.<br>
+			* Source: http://vision.dai.ed.ac.uk/andrewfg/c-g-a-faq.html
+			* @return the Point of intersection
 			*/
 			public static function segmentsIntersect(xa:Number, ya:Number, xb:Number, yb:Number, xc:Number, yc:Number, xd:Number, yd:Number):Point {
 
@@ -119,10 +119,9 @@ package org.ffilmation.utils {
 			
 			/**
 			* Find out if two lines intersect and if so, retrieve the point 
-			* of intersection
-			*
-			* source: http://members.shaw.ca/flashprogramming/wisASLibrary/wis/math/geom/intersect2D/Intersect2DLine.as
-			*
+			* of intersection.<br>
+			* Source: http://members.shaw.ca/flashprogramming/wisASLibrary/wis/math/geom/intersect2D/Intersect2DLine.as
+			* @return the Point of intersection
 			*/
 			public static function linesIntersect(xa:Number,ya:Number, xb:Number, yb:Number, xc:Number, yc:Number, xd:Number, yd:Number):Point {
 	    

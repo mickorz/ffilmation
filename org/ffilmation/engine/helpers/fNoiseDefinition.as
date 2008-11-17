@@ -11,6 +11,8 @@ package org.ffilmation.engine.helpers {
 		* This object stores a perlin noise definition that was loaded from a definition file. Noise definitions are
 		* used internally by Perlin materials 
 		*
+		* @private
+		*
     * @example Here's an example of a noise definition in a definition XML
     *
 	  * <listing version="3.0">

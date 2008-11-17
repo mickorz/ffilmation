@@ -6,7 +6,7 @@ package org.ffilmation.utils {
 
 		/** 
 		* This class provides various useful methods regarding movieClips
-		*
+		* @private
 	  */
 		public class movieClipUtils {
 		

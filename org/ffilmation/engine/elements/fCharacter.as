@@ -79,9 +79,9 @@ package org.ffilmation.engine.elements {
 			
 			/**
 			* This value goes from 0 to 100 and indicates the alpha strenght of the "hole" that is opened in planes that cover this character
-			* "Cover" means literally, onscreen. This allows you to see what you are doing behind a wall. The default "0" value disables this effect
+			* "Cover" means literally, onscreen. This allows you to see what you are doing behind a wall. The default "100" value disables this effect
 			*/
-			public var occlusion:Number = 0
+			public var occlusion:Number = 100
 			
 			// Private properties
 			

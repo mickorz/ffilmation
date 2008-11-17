@@ -294,7 +294,7 @@ package org.ffilmation.engine.elements {
 			}
 
 
-			/*
+			/**
 			* Objects can't be moved
 			* @private
 			*/
@@ -302,7 +302,7 @@ package org.ffilmation.engine.elements {
 			  throw new Error("Filmation Engine Exception: You can't move a fObject. If you want to move "+this.id+" make it an fCharacter"); 
 			}
 			
-			/*
+			/**
 			* Updates zIndex of this object so it displays with proper depth inside the scene
 			* @private
 			*/
