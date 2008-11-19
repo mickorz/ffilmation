@@ -105,7 +105,10 @@ package org.ffilmation.engine.core {
 
 			   // Size
 			   var temp:XMLList = defObj.@["size"]
-			   if(temp.length()>0) this._size = new Number(temp[0])   
+			   if(temp.length()>0) {
+			   	this._size = new Number(temp[0])   
+			   	if(this._size == 0) this._size = Infinity
+			   }
 			   else this._size = Infinity
 			
 			   // fLight color
@@ -181,6 +184,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function set size(s:Number):void {
 			   this._size = Math.max(0,s)
+				 if(this._size == 0) this._size = Infinity			   
 			   this.dispatchEvent(new Event(fLight.SIZECHANGE))
 			}
 			

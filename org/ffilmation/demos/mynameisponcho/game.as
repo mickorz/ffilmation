@@ -38,8 +38,8 @@
 		public var destination:XML
 		public var money:Number = 0
 		private var prof:fProfiler = null
-		public var filmationTest:MovieClip
-		public var profilerClip:MovieClip
+		//public var filmationTest:MovieClip
+		//public var profilerClip:MovieClip
 		
 		// Init demo
 		public function game():void {

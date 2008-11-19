@@ -6,6 +6,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		import flash.display.*
 
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.datatypes.*
 		import org.ffilmation.engine.interfaces.*
@@ -302,15 +303,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 									if(el is fFloor) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
 									if(el is fWall) {
 										var w:fWall = el as fWall
-										if(w.vertical) ret.push(new fCoordinateOccupant(el,el.x,el.y0+p.x,el.z-p.y))
-										else ret.push(new fCoordinateOccupant(el,el.x0+p.x,el.y,el.z-p.y))
+										if(w.vertical) ret.push(new fCoordinateOccupant(w,w.x,w.y0+p.x,w.z+w.pixelHeight-p.y))
+										else ret.push(new fCoordinateOccupant(w,w.x0+p.x,w.y,w.z+w.pixelHeight-p.y))
 									}
 									if(el is fObject) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z-p.y))
 							}
 							
 					}
 					
-					// Elements in front fo first in the Array
+					// Elements in front go first in the Array
 					ret.reverse()
 					
 					if(ret.length==0) return null

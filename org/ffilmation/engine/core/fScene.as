@@ -550,7 +550,7 @@ package org.ffilmation.engine.core {
 				// Events
 				b.addEventListener(fElement.NEWCELL,this.processNewCell)			   
 				b.addEventListener(fElement.MOVE,this.renderElement)			   
-				b.addEventListener(fBullet.SHOT,this.processShot)			   
+				b.addEventListener(fBullet.SHOT,fBulletSceneLogic.processShot)			   
 
 				// Properties
 				b.moveTo(x,y,z)
@@ -571,6 +571,30 @@ package org.ffilmation.engine.core {
 				// Return
 				return b
 			}
+
+			/**
+			* Removes a bullet from the scene. Bullets are automatically removed when they hit something, 
+			* but you If you can't wait for them to be delete, you can do it manually.
+			* @param bullet The fBullet to be removed. 
+			*/
+			public function removeBullet(bullet:fBullet):void {
+
+				// Events
+				bullet.removeEventListener(fElement.NEWCELL,this.processNewCell)			   
+				bullet.removeEventListener(fElement.MOVE,this.renderElement)			   
+				bullet.removeEventListener(fBullet.SHOT,fBulletSceneLogic.processShot)
+				
+				// Hide
+				bullet.disable()
+				bullet.customData.bulletRenderer.clear(bullet)
+				bullet.hide()
+				
+				// Back to pool
+				this.bullets.splice(this.bullets.indexOf(bullet),1)
+				this.bulletPool.push(bullet)
+				
+			}
+
 
 
 			/**
@@ -756,25 +780,6 @@ package org.ffilmation.engine.core {
 				 element.removeEventListener(fRenderableElement.DISABLE,this.disableListener)
 				 
 			}
-			
-			// Removes a bullet from the scene
-			private function removeBullet(bullet:fBullet):void {
-
-				// Events
-				bullet.removeEventListener(fElement.NEWCELL,this.processNewCell)			   
-				bullet.removeEventListener(fElement.MOVE,this.renderElement)			   
-				bullet.removeEventListener(fBullet.SHOT,this.processShot)
-				
-				// Hide
-				bullet.disable()
-				bullet.customData.bulletRenderer.clear(bullet)
-				bullet.hide()
-				
-				// Back to pool
-				this.bullets.splice(this.bullets.indexOf(bullet),1)
-				this.bulletPool.push(bullet)
-				
-			}
 
 			// Listens to elements made visible
 			private function showListener(evt:Event):void {
@@ -810,57 +815,7 @@ package org.ffilmation.engine.core {
 			   
 			}
 
-
-			// Process bullets shooting things
-			private function processShot(evt:fShotEvent):void {
-		 		 
-		 		 // A bullet shots something. Is there a ricochet defined ?
-		 		 var b:fBullet = evt.bullet
-		 		 var r:MovieClip = b.customData.bulletRenderer.getRicochet(evt.element)
-		 		 
-		 		 if(r) {
-		 		 		
-		 		 		b.disable()
-						b.customData.bulletRenderer.clear(b)
-		 		 		b.container.addChild(r)
-		 		 		r.addEventListener(Event.ENTER_FRAME,this.waitForRicochet)
-		 		 		
-		 		 		// Decide rotation of ricochet clip
-		 		 		if(evt.element is fObject) {
-		 		 			var o:fObject = evt.element as fObject
-		 		 			r.rotation = 45+mathUtils.getAngle(o.x,o.y,b.x,b.y)
-		 		 		} 
-		 		 		else if(evt.element is fWall) {
-		 		 			var w:fWall = evt.element as fWall
-		 		 			if(w.vertical) {
-		 		 				if(b.speedx>0) r.rotation = -120
-		 		 				else r.rotation = 60
-		 		 			} else {
-		 		 				if(b.speedy>0) r.rotation = -60
-		 		 				else r.rotation = 120
-		 		 			}
-		 		 			
-		 		 		}
-		 		 		
-		 		 	
-		 		 } else this.removeBullet(b)
-		 		 
-		 	}
-		 	
-		 	// Waits for a ricochet to end
-		 	private function waitForRicochet(evt:Event):void {
-		 		
-		 		var ricochet:MovieClip = evt.target as MovieClip
-		 		if(ricochet.currentFrame==ricochet.totalFrames) {
-		 			ricochet.removeEventListener(Event.ENTER_FRAME,this.waitForRicochet)
-		 			var m:MovieClip = ricochet.parent as MovieClip
-		 			var bullet:fBullet = m.fElement as fBullet
-		 			ricochet.parent.removeChild(ricochet)
-		 			this.removeBullet(bullet)
-		 		}
-		 		
-		 	}
-		 	
+	 	
 			// A light changes its size
 			/** @private */
 			public function processNewLightDimensions(evt:Event):void {
@@ -889,21 +844,10 @@ package org.ffilmation.engine.core {
 				if(this.IAmBeingRendered) {
 					if(evt.target is fOmniLight) fLightSceneLogic.processNewCellOmniLight(this,evt.target as fOmniLight)
 					if(evt.target is fCharacter) fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
-					if(evt.target is fBullet) this.processNewCellBullet(evt.target as fBullet)
+					if(evt.target is fBullet) fBulletSceneLogic.processNewCellBullet(this,evt.target as fBullet)
 				}
 				
 			}
-
-
-			// Process New cell for Bullets
-			private function processNewCellBullet(bullet:fBullet):void {
-			
-		 		 // If it goes outside the scene, destroy it
-		 		 if(bullet.cell==null) this.removeBullet(bullet)
-		 		 else bullet.setDepth(bullet.cell.zIndex)
-		 		 
-		 	}
-
 
 			// LIstens to render events
 			/** @private */
@@ -915,24 +859,10 @@ package org.ffilmation.engine.core {
 			   if(this.IAmBeingRendered) {
 			   	if(evt.target is fOmniLight) fLightSceneLogic.renderOmniLight(this,evt.target as fOmniLight)
 				 	if(evt.target is fCharacter) fCharacterSceneLogic.renderCharacter(this,evt.target as fCharacter)
-				 	if(evt.target is fBullet) this.renderBullet(evt.target as fBullet)
+				 	if(evt.target is fBullet) fBulletSceneLogic.renderBullet(this,evt.target as fBullet)
 				 }
 				
 			}
-
-
-
-			// Main render method for bullets
-			private function renderBullet(bullet:fBullet):void {
-
-				 // Move character to its new position
-				 this.renderEngine.updateBulletPosition(bullet)
-				 // Update custom render
-				 if(bullet.customData.bulletRenderer) bullet.customData.bulletRenderer.update(bullet)
-				 
-			}
-
-
 
 			// This method is called when the shadowQuality option changes
 			/** @private */
