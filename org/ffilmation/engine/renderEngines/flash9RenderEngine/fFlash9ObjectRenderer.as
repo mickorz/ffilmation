@@ -93,6 +93,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			private function rotationListener(evt:Event):void {
 				
+				trace("Rot!!")
+				
 				var el:fObject = this.element as fObject
 				var correctedAngle:Number = el._orientation/360
 				var newSprite:Number = Math.floor(correctedAngle*el.sprites.length)
@@ -117,6 +119,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    if(!this.simpleShadows) {
 
 							var l:Number = this.allShadows.length
+							trace("Tengo "+l+" sombras")
 				  		var shadowClase:Class = el.sprites[newSprite].shadow as Class
 							for(var i:Number=0;i<l;i++) {
 								
@@ -131,19 +134,24 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					
 					}
 					
-				}
+					this.currentSpriteIndex = newSprite
 				
-				this.currentSpriteIndex = newSprite
+					if(fEngine.shadowQuality==fShadowQuality.BEST) {
+					
+							// Update shadows
+							l = this.allShadows.length
+							for(i=0;i<l;i++) {
+								if(this.allShadows[i].clip.stage) {
+									
+									var p:fRenderableElement = this.allShadows[i].request
+							 		if(p is fPlane) {
+							 			trace("Undo cache "+i)
+							 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+							 		}				
+							 	}
+							}
+				  }
 				
-				// Update shadows
-				l = this.allShadows.length
-				for(i=0;i<l;i++) {
-					if(this.allShadows[i].clip.stage) {
-						var p:fRenderableElement = this.allShadows[i].request
-				 		if(p is fPlane) {
-				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
-				 		}				
-				 	}
 				}
 				
 			}
@@ -219,14 +227,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/*
-			* Returns a MovieClip of the shadow representation of this object, so
+			* Returns a Shadow representation of this object, so
 			* the other elements can draw this shadow on themselves 
 			*
 			* @param request The renderableElement requesting the shadow
 			*
 			* @return A movieClip instance ready to attach to the element that has to show the shadow of this object
 			*/
-			public function getShadow(request:fRenderableElement):Sprite {
+			public function getShadow(request:fRenderableElement):fObjectShadow {
 				
 				 var shadow:Sprite = new Sprite()
 				 var par:Sprite = new Sprite()
@@ -247,11 +255,27 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 }
 		 		 
 		 		 shadow.addChild(clip)
-				 this.allShadows.push(new fObjectShadow(shadow,clip,request))
-				 
-				 return shadow
+		 		 
+		 		 var ret:fObjectShadow = new fObjectShadow(shadow,clip,request)
+				 this.allShadows.push(ret)
+				 return ret
 
 			}
+
+			/*
+			* Deletes a shadow representation. It is called when this shadow is no longer needed
+			*
+			* @param sh The shadow we return
+			*
+			*/
+			public function returnShadow(sh:fObjectShadow):void {
+				
+				 var pos:Number = this.allShadows.indexOf(sh)
+				 this.allShadows.splice(pos,1)
+				 sh.dispose()
+
+			}
+
 
 			/** 
 			* Resets shadows. This is called when the fEngine.shadowQuality value is changed

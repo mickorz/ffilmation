@@ -119,6 +119,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
  			   this.lightC.mouseEnabled = false
  			   this.lightC.mouseChildren = false
 				 this.baseContainer.mouseEnabled = false
+				 this.baseContainer.transform.matrix = this.planeDeform
 
 				 // Object shadows with qualities other than fShadowQuality.BEST will be drawn here instead of into each lights's ERASE layer
 				 this.deformedSimpleShadowsLayer = new Sprite
@@ -158,11 +159,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function doCache():void {
 
+				 trace("DO !"+this.element.id)
+				 
 				 // Already cached
 				 if(this.finalBitmap.parent || this.anyClosedHole) return
 				 
 		   	 this.baseContainer.blendMode = BlendMode.NORMAL
-			   this.diffuse.cacheAsBitmap = true
+			   //this.diffuse.cacheAsBitmap = true
 
 				 // New cache
 				 if(this.finalBitmapData) this.finalBitmapData.dispose()
@@ -192,18 +195,20 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function undoCache(autoStart:Boolean = false):void {
 		   		
-			   this.diffuse.cacheAsBitmap = true
-
+			   trace("Undo "+this.element.id)
+			   	
+		   	 if(!this.diffuse) return
+		   	 this.diffuse.cacheAsBitmap = true
 		   	 var p:fPlane = this.element as fPlane
 		   	 if(p.holes.length>0) this.baseContainer.blendMode = BlendMode.LAYER
-
+         		
 				 if(this.finalBitmapData) this.finalBitmapData.dispose()
 			   this.baseContainer.transform.matrix = this.planeDeform
 			   this.spriteToDraw.addChildAt(this.baseContainer,0)
 			   try { this.spriteToDraw.removeChild(this.finalBitmap) } catch(e:Error) {}
-         
+         		
          this.container.cacheAsBitmap = false
-         
+
          if(autoStart) this.cacheTimer.start()
          
 			}
@@ -772,8 +777,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   		msk = this.lightShadows[light.uniqueId]
 			    	// Disable cache. Once the render is finished, a timeout is set that will
 			    	// restore cache if the object doesn't change for a few seconds.
-       	  	this.cacheTimer.stop()
-       	 		this.undoCache()
+     	  		this.cacheTimer.stop()
+			    	if(this.container.cacheAsBitmap==true) this.undoCache()
        	  	
 					  // Start cache timer
 					  this.cacheTimer.start()

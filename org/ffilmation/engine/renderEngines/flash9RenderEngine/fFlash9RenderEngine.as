@@ -350,10 +350,19 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				* This method retrieves the Sprite representing the shadow of a given fObject
 				* @private
 				*/
-				public function getObjectShadow(element:fObject,request:fRenderableElement):Sprite {
+				public function getObjectShadow(element:fObject,request:fRenderableElement):fObjectShadow {
 					return element.customData.flash9Renderer.getShadow(request)
 				}
 				
+				/**
+				* This method returns an unused shadow to the pool
+				* @private
+				*/
+				public function returnObjectShadow(element:fObject,sh:fObjectShadow):void {
+					element.customData.flash9Renderer.returnShadow(sh)
+				}
+
+
 				/**
 				* This event listener is executed when the global light changes its intensity
 				*/

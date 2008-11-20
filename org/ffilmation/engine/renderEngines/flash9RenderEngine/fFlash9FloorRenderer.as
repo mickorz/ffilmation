@@ -166,13 +166,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var cache:Array = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 				 if(!cache[other.uniqueId]) {
 				 		cache[other.uniqueId] = this.rEngine.getObjectShadow(other,this.element)
-				 		if(!simpleShadows) cache[other.uniqueId].transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
+				 		if(!simpleShadows) cache[other.uniqueId].shadow.transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
 				 }
 				 
 				 var distance:Number = (other.z-this.element.z)/fObject.SHADOWRANGE
 
 				 // Draw
-				 var clip:Sprite = cache[other.uniqueId]
+				 var clip:Sprite = cache[other.uniqueId].shadow
 				 msk.addChild(clip.parent)
 				 clip.alpha = 1-distance
 
@@ -206,9 +206,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   	else msk = this.lightShadows[light.uniqueId]
 			   	
 			 	 	var cache = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
-			 	 	var clip:Sprite = cache[other.uniqueId]
+			 	 	var clip:Sprite = cache[other.uniqueId].shadow
 			 	 	msk.removeChild(clip.parent)
+	 	 	
+			 	 	this.rEngine.returnObjectShadow(o,cache[other.uniqueId])
+			 	 	delete cache[other.uniqueId]
+			 	 	
 			 	 } catch(e:Error) {
+			 	 	trace("Error remove shadow "+e)
 			 	 }
 			 	 
 
