@@ -210,8 +210,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				delete this.container.fElementId
 				delete this.container.fElement
 				this.containerToPaint = null
-				this.containerParent = null
+				fFlash9RenderEngine.recursiveDelete(this.container)
 				this.container = null
+				this.containerParent = null
+				this.element = null
+				this.scene = null
+				this.rEngine = null
+				this.flashClip = null
 				
 			}
 

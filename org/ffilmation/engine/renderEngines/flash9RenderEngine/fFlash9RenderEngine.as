@@ -81,7 +81,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		  	 	element.customData.flash9Renderer = null
 		  	 	
 		  	 	// Free graphics
-		  	 	this.recursiveDelete(element.container)
+		  	 	fFlash9RenderEngine.recursiveDelete(element.container)
 		  	 	
 				}
 
@@ -330,9 +330,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					this.scene.environmentLight.removeEventListener(fLight.RENDER,this.processGlobalIntensityChange)
 					
 					// Delete resources
-					for(var i in this.renderers) this.renderers[i].dispose()
+					for(var i in this.renderers) {
+		  	 		this.renderers[i].element.customData.flash9Renderer = null						
+		  	 		trace(i)
+		  	 		this.renderers[i].dispose()
+						delete this.renderers[i]
+					}
 					this.renderers = new Array
-					this.recursiveDelete(this.container)
+					trace("Final")
+					fFlash9RenderEngine.recursiveDelete(this.container)
 				}
 				
 				
@@ -403,13 +409,16 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				}
 
 				// Recursively deletes all DisplayObjects in the container hierarchy
-				private function recursiveDelete(d:DisplayObjectContainer):void {
+				public static function recursiveDelete(d:DisplayObjectContainer):void {
+					
+						if(!d) return
 						
 						if(d.numChildren!=0) do {
 							var c:DisplayObject = d.getChildAt(0)
 							if(c!=null) {
+								trace("Muere "+c)
 								c.cacheAsBitmap = false
-								if(c is DisplayObjectContainer) this.recursiveDelete(c as DisplayObjectContainer)
+								if(c is DisplayObjectContainer) fFlash9RenderEngine.recursiveDelete(c as DisplayObjectContainer)
 								if(c is MovieClip) c.stop()
 								if(c is Bitmap) (c as Bitmap).bitmapData.dispose()
 								if(c is Shape) (c as Shape).graphics.clear()

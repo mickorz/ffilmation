@@ -27,7 +27,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private var currentSprite:MovieClip
 			private var currentSpriteIndex:Number = -1
 			private var occlusionCount:Number = 0
+
+			// These reflects how shadows are rendered
 			public var simpleShadows:Boolean = false
+			public var eraseShadows:Boolean = true
 			
 			// Protected properties
 			protected var projectionCache:fObjectProjectionCache
@@ -93,8 +96,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			private function rotationListener(evt:Event):void {
 				
-				trace("Rot!!")
-				
 				var el:fObject = this.element as fObject
 				var correctedAngle:Number = el._orientation/360
 				var newSprite:Number = Math.floor(correctedAngle*el.sprites.length)
@@ -119,7 +120,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    if(!this.simpleShadows) {
 
 							var l:Number = this.allShadows.length
-							trace("Tengo "+l+" sombras")
 				  		var shadowClase:Class = el.sprites[newSprite].shadow as Class
 							for(var i:Number=0;i<l;i++) {
 								
@@ -136,7 +136,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					
 					this.currentSpriteIndex = newSprite
 				
-					if(fEngine.shadowQuality==fShadowQuality.BEST) {
+					if(this.eraseShadows) {
 					
 							// Update shadows
 							l = this.allShadows.length
@@ -145,7 +145,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 									
 									var p:fRenderableElement = this.allShadows[i].request
 							 		if(p is fPlane) {
-							 			trace("Undo cache "+i)
 							 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
 							 		}				
 							 	}
@@ -201,7 +200,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var l:Number = this.allShadows.length
 				 for(var i:Number=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = true
-					if(this.allShadows[i].clip.stage) {
+					if(this.eraseShadows && this.allShadows[i].clip.stage) {
 						var p:fRenderableElement = this.allShadows[i].request
 				 		if(p is fPlane) {
 				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
@@ -217,7 +216,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var l:Number = this.allShadows.length
 				 for(var i:Number=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = false
-					if(this.allShadows[i].clip.stage) {
+					if(this.eraseShadows && this.allShadows[i].clip.stage) {
 						var p:fRenderableElement = this.allShadows[i].request
 				 		if(p is fPlane) {
 				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
@@ -284,6 +283,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 				 this.simpleShadows = false
 				 if(fEngine.shadowQuality==fShadowQuality.BASIC || (this.element is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) this.simpleShadows = true
+				 
+				 this.eraseShadows = false
+				 if(fEngine.shadowQuality==fShadowQuality.BEST || (!(this.element is fCharacter) && fEngine.shadowQuality==fShadowQuality.GOOD)) this.eraseShadows = true
 				 
 				 if(this.allShadows) for(var i:Number=0;i<this.allShadows.length;i++) {
 				 	this.allShadows[i].dispose()
@@ -476,24 +478,30 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			public function disposeObjectRenderer():void {
 
-	    	this.baseObj = null
+				// Lights
 				for(var i:Number=0;i<this.lights.length;i++) delete this.lights[i]
 				this.lights = null
 				this.glight = null
 				this.currentSprite = null
+				if(this.projectionCache) this.projectionCache.dispose()
 				this.projectionCache = null
 				this.resetShadows()
 
+			 	// Events
 			 	this.element.removeEventListener(fRenderableElement.SHOW,this.showListener)
 			 	this.element.removeEventListener(fRenderableElement.HIDE,this.hideListener)
 			 	this.element.removeEventListener(fObject.NEWORIENTATION,this.rotationListener)
 			 	this.element.removeEventListener(fObject.GOTOANDPLAY,this.gotoAndPlayListener)
 			 	this.element.removeEventListener(fObject.GOTOANDSTOP,this.gotoAndStopListener)
-			 	if(this.element is fCharacter) {
-			 			this.element.removeEventListener(fElement.MOVE,this.moveListener)
-			 	}
-				this.disposeRenderer()
+			 	if(this.element is fCharacter) this.element.removeEventListener(fElement.MOVE,this.moveListener)
 				
+    		// Gfx
+    		fFlash9RenderEngine.recursiveDelete(this.baseObj)
+    		this.baseObj = null
+
+				this.disposeRenderer()
+
+
 			}
 
 			/** @private */

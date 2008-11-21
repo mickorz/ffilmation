@@ -146,8 +146,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   if(other is fObject) {
 
 			    	// Simple shadows ?
-			    	var simpleShadows = false
-				  	if(fEngine.shadowQuality==fShadowQuality.BASIC || (other is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) simpleShadows = true
+			   		var simpleShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).simpleShadows
 
 			   		if(!simpleShadows) this.renderObjectShadow(light,other as fObject,msk)
 			   		
@@ -166,10 +165,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var o:fCharacter = other as fCharacter
 					
 			    // Simple shadows ?
-			    var simpleShadows = false
-				  if(fEngine.shadowQuality==fShadowQuality.BASIC || (other is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) simpleShadows = true
+			   	var simpleShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).simpleShadows
 					
-			   	if(simpleShadows || fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
+			   	if(!(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 
 			 	 	var cache = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
@@ -288,8 +286,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var a:Object = fFlash9WallRenderer.objectRenderCache[i]
 					for(var j in a) {
 						 try {
-						 	var clip:Sprite = a[j]
+						 	var clip:Sprite = a[j].shadow
 						 	clip.parent.removeChild(clip)
+							fFlash9RenderEngine.recursiveDelete(clip)
 						 	delete a[j]
 						 } catch(e:Error){}
 					}

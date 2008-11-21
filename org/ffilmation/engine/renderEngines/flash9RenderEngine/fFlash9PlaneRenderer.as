@@ -49,7 +49,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			
 			private var anyClosedHole:Boolean
 			
-			
 			// Internal
 			public var deformedSimpleShadowsLayer:Sprite
 			public var simpleShadowsLayer:Sprite		   // Simple shadows go here
@@ -159,8 +158,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function doCache():void {
 
-				 trace("DO !"+this.element.id)
-				 
 				 // Already cached
 				 if(this.finalBitmap.parent || this.anyClosedHole) return
 				 
@@ -195,8 +192,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function undoCache(autoStart:Boolean = false):void {
 		   		
-			   trace("Undo "+this.element.id)
-			   	
 		   	 if(!this.diffuse) return
 		   	 this.diffuse.cacheAsBitmap = true
 		   	 var p:fPlane = this.element as fPlane
@@ -769,7 +764,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   try {
 			    
 			   	var msk:Sprite
-			   	if(other is fObject && fEngine.shadowQuality!=fShadowQuality.BEST) {
+			   	if(other is fObject && !(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) {
 			   		msk = this.simpleShadowsLayer
 					  this.container.cacheAsBitmap = false
 			   	}
@@ -800,7 +795,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public override function renderShadow(light:fLight,other:fRenderableElement):void {
 			   
 			   var msk:Sprite
-			   if(other is fObject && fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
+			   if(other is fObject && !(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
 			   else msk = this.lightShadows[light.uniqueId]
 
 				 // Render
@@ -893,25 +888,66 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		if(!element.holes[i].open && element.holes[i].block) this.behind.removeChild(element.holes[i].block)				 		 	
 			  }
 
+				// Bump
 				this.holesC = null
 				this.bumpMap = null
 				this.diffuse = null
-				
 				if(this.bumpMapData) this.bumpMapData.dispose()
 				this.displacer = null
-				this.infront = null
 				this.tMatrix = null
 				this.tMatrixB = null
-				for(i=0;i<this.lightClips.length;i++) delete this.lightClips[i]
-				this.lightClips = null
+
+				// Lights
 				for(i=0;i<this.lightMasks.length;i++) delete this.lightMasks[i]
 				this.lightMasks = null
 				for(i=0;i<this.lightShadows.length;i++) delete this.lightShadows[i]
 				this.lightShadows = null
 				for(i=0;i<this.lightBumps.length;i++) delete this.lightBumps[i]
 				this.lightBumps = null
-				for(var j in this.lightStatuses) delete this.lightStatuses[j]
+				for(i=0;i<this.lightClips.length;i++) {
+					fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
+					delete this.lightClips[i]
+				}
+				this.lightClips = null
+				for(var j in this.lightStatuses) {
+					var light:fLight =this.lightStatuses[j].light
+		 		  light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
+		 		  light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
+		 		  light.removeEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange)
+					delete this.lightStatuses[j]
+				}
 				this.lightStatuses = null
+
+
+				// Occlusion
+				for(j in this.occlusionSpots) {
+					fFlash9RenderEngine.recursiveDelete(this.occlusionSpots[j])
+					delete this.occlusionSpots[j]
+				}
+				this.occlusionSpots = null
+
+				fFlash9RenderEngine.recursiveDelete(this.deformedSimpleShadowsLayer)
+				fFlash9RenderEngine.recursiveDelete(this.simpleShadowsLayer)
+				fFlash9RenderEngine.recursiveDelete(this.occlusionLayer)
+				this.deformedSimpleShadowsLayer = null
+				this.simpleShadowsLayer = null
+				this.occlusionLayer = null
+
+				// Base lights
+				this.behind = null
+				this.infront = null
+			  this.finalBitmap = null
+				if(this.finalBitmapData) this.finalBitmapData.dispose()
+				this.finalBitmapData = null
+			  this.lightC = null
+			  this.holesC = null
+			  this.simpleHolesC = null
+				this.black = null
+			  this.environmentC = null
+			  trace("Base")
+				fFlash9RenderEngine.recursiveDelete(this.baseContainer)
+				this.baseContainer = null
+
 				this.disposeRenderer()
 				
 			}

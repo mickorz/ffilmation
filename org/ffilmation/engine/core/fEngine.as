@@ -354,8 +354,8 @@ package org.ffilmation.engine.core {
 			 public function hideScene(sc:fScene,destroyRender:Boolean=true):void {
 			 	
 			 	  if(this.current==sc) {
-			 	  	this.container.removeChild(this.current.container)
 			 	  	if(destroyRender) this.current.stopRendering()
+			 	  	this.container.removeChild(this.current.container)
 			 	    this.current = null
 			 	  }
 

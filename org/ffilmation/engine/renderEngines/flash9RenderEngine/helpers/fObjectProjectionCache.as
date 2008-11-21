@@ -38,6 +38,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 					this.projection = proj
 			}
 
+			/** Frees memory */
+			public function dispose():void {
+					this.projection = null
+			}
 
 		}
 		

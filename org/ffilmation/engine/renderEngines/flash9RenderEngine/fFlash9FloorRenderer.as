@@ -133,8 +133,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var a:Array = fFlash9FloorRenderer.objectProjectionCache[i]
 					for(var j in a) {
 						 try {
-						 	var clip:Sprite = a[j]
+						 	var clip:Sprite = a[j].shadow
 						 	clip.parent.parent.removeChild(clip.parent)
+						 	fFlash9RenderEngine.recursiveDelete(clip.parent)
 						 	delete a[j]
 						 } catch (e:Error) {}
 					}
@@ -156,8 +157,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 if(proj==null) return
 
 			   // Simple shadows ?
-			   var simpleShadows = false
-				 if(fEngine.shadowQuality==fShadowQuality.BASIC || (other is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) simpleShadows = true
+			   var simpleShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).simpleShadows
 
 				 // Cache or new Movieclip ?
 				 if(!fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]) {
@@ -199,10 +199,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var o:fCharacter = other as fCharacter
 
 			    // Simple shadows ?
-			    var simpleShadows = false
-				  if(fEngine.shadowQuality==fShadowQuality.BASIC || (other is fCharacter && fEngine.shadowQuality==fShadowQuality.NORMAL)) simpleShadows = true
-					
-			   	if(simpleShadows || fEngine.shadowQuality!=fShadowQuality.BEST) msk = this.simpleShadowsLayer
+			   	if(!(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 			   	
 			 	 	var cache = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
@@ -389,6 +386,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		  	
 		  	this.lightOut(light)
 		  	delete this.lightStatuses[light.uniqueId]
+		  	fFlash9RenderEngine.recursiveDelete(this.lightClips[light.uniqueId])
 		  	delete this.lightClips[light.uniqueId]
 		  	delete fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 		  	
