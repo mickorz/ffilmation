@@ -1,6 +1,11 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+This is a performance and bugfixing release, so to put it short: nothing is new but everything is better.
+
+Finally this version does not have any memory leaks !! Well, at least my tests don't.
+An object pool has been implemented to remove the overhead of continually creating and removing library items and DisplayObjects ( which takes quite a lot of time ). This results in increased performance.
+
 1.3.1:
 
 This version is mainly 1.3 but with several internal changes that were needed to build the scene editor. These are the most notable:

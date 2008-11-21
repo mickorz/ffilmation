@@ -5,6 +5,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		import flash.geom.*
 		import flash.display.*
 
+		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.elements.*
@@ -364,8 +365,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				* This method returns an unused shadow to the pool
 				* @private
 				*/
-				public function returnObjectShadow(element:fObject,sh:fObjectShadow):void {
-					element.customData.flash9Renderer.returnShadow(sh)
+				public function returnObjectShadow(sh:fObjectShadow):void {
+					sh.object.customData.flash9Renderer.returnShadow(sh)
 				}
 
 
@@ -391,7 +392,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					//Create renderer if it doesn't exist
 					if(!this.renderers[element.uniqueId]) {
 				 		
-				 		var spr:MovieClip = new MovieClip()
+				 		var spr:MovieClip = objectPool.getInstanceOf(MovieClip) as MovieClip
 		   	 		this.container.addChild(spr)			   
 
 						if(element is fFloor) element.customData.flash9Renderer = new fFlash9FloorRenderer(this,spr,element as fFloor)

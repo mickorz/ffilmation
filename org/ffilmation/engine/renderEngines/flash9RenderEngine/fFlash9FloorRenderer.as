@@ -2,6 +2,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	
 		// Imports
 		import flash.display.*
+		import flash.utils.*
 		import flash.geom.Point
 		import flash.geom.Matrix
 		import flash.geom.Rectangle
@@ -22,8 +23,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		
 			// Static properties and Render cache
 			private static var floorProjectionCache:fFloorProjectionCache = new fFloorProjectionCache()
-			private static var wallProjectionCache:Object = []
-			private static var objectProjectionCache:Object = []
+			private static var wallProjectionCache:Dictionary = new Dictionary(true)
+			private static var objectProjectionCache:Dictionary = new Dictionary(true)
 			public static var matrix:Matrix = new Matrix(0.7071075439453125,-0.35355377197265625,0.7071075439453125,0.35355377197265625,0,0)
 						
 			// Public properties
@@ -33,7 +34,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			function fFlash9FloorRenderer(rEngine:fFlash9RenderEngine,container:MovieClip,element:fFloor):void {
 			
 				 // Generate sprite
-				 var destination:Sprite = new Sprite()
+				 var destination:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 				 container.addChild(destination)
 			   
 				 // Set specific wall dimensions
@@ -130,7 +131,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function resetShadowsInt():void {
 				for(var i in fFlash9FloorRenderer.objectProjectionCache) {
-					var a:Array = fFlash9FloorRenderer.objectProjectionCache[i]
+					var a:Dictionary = fFlash9FloorRenderer.objectProjectionCache[i]
 					for(var j in a) {
 						 try {
 						 	var clip:Sprite = a[j].shadow
@@ -161,9 +162,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 				 // Cache or new Movieclip ?
 				 if(!fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]) {
-				 		fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId] = new Array()
+				 		fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId] = new Dictionary(true)
 				 }
-				 var cache:Array = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
+				 var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 				 if(!cache[other.uniqueId]) {
 				 		cache[other.uniqueId] = this.rEngine.getObjectShadow(other,this.element)
 				 		if(!simpleShadows) cache[other.uniqueId].shadow.transform.colorTransform = new ColorTransform(0,0,0,1,0,0,0,0)
@@ -202,11 +203,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   	if(!(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 			   	
-			 	 	var cache = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
+			 	 	var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId].shadow
 			 	 	msk.removeChild(clip.parent)
 	 	 	
-			 	 	this.rEngine.returnObjectShadow(o,cache[other.uniqueId])
+			 	 	this.rEngine.returnObjectShadow(cache[other.uniqueId])
 			 	 	delete cache[other.uniqueId]
 			 	 	
 			 	 } catch(e:Error) {
@@ -368,7 +369,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   
 			   // Hide shadows
 				 if(fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]) {
-				 		var cache = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
+				 		var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 				 		try {
 				 			for(var i in cache) cache[i].parent.parent.removeChild(cache[i].parent)
 				 		} catch(e:Error) {	}			   

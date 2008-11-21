@@ -3,6 +3,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 		// Imports
 		import flash.display.*
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.elements.*
 		
 		/**
 		* @private
@@ -12,22 +13,19 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 
 			// Public properties
 			public var shadow:Sprite
-			
 			public var clip:MovieClip
-
 			public var request:fRenderableElement
+			public var object:fObject
 
 			// Constructor
-			function fObjectShadow(shadow:Sprite,clip:MovieClip,request:fRenderableElement):void {
-			   this.shadow = shadow
-			   this.clip = clip
-			   this.request = request
+			function fObjectShadow():void {
 			}
 
 			public function dispose():void {
 				 this.shadow = null
 				 this.clip = null
 				 this.request = null
+			   this.object = null
 			}
 
 		}

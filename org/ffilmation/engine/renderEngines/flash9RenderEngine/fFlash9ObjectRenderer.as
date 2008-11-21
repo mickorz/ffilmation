@@ -43,7 +43,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			function fFlash9ObjectRenderer(rEngine:fFlash9RenderEngine,container:MovieClip,element:fObject):void {
 				
 				 // Attach base clip
-				 this.baseObj = new MovieClip()
+				 this.baseObj = objectPool.getInstanceOf(MovieClip) as MovieClip
 				 container.addChild(this.baseObj)
 				 this.baseObj.mouseEnabled = false
 		     
@@ -105,12 +105,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					// Update display model
 					try {
 						var lastFrame:Number = this.currentSprite.currentFrame
+						objectPool.returnInstance(this.currentSprite)
 						this.baseObj.removeChild(this.currentSprite)
 					} catch(e:Error) {
 						lastFrame = 1
 					}
-					var clase:Class = el.sprites[newSprite].sprite as Class
-					this.currentSprite = new clase() as MovieClip
+					var clase:Class = el.sprites[newSprite].sprite
+					this.currentSprite = objectPool.getInstanceOf(clase) as MovieClip
 					this.baseObj.addChild(this.currentSprite)
 					this.currentSprite.mouseEnabled = false
 					this.currentSprite.gotoAndPlay(lastFrame)
@@ -120,12 +121,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			    if(!this.simpleShadows) {
 
 							var l:Number = this.allShadows.length
-				  		var shadowClase:Class = el.sprites[newSprite].shadow as Class
+				  		var shadowClase:Class = el.sprites[newSprite].shadow
 							for(var i:Number=0;i<l;i++) {
 								
 							  var info:fObjectShadow = this.allShadows[i]
-								var n:MovieClip = new shadowClase() as MovieClip
+								var n:MovieClip = objectPool.getInstanceOf(shadowClase) as MovieClip
 								info.shadow.removeChild(info.clip)
+								objectPool.returnInstance(info.clip)
 								info.shadow.addChild(n)
 								info.clip = n
 								n.gotoAndPlay(lastFrame)
@@ -235,8 +237,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function getShadow(request:fRenderableElement):fObjectShadow {
 				
-				 var shadow:Sprite = new Sprite()
-				 var par:Sprite = new Sprite()
+				 var shadow:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
+				 var par:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 				 var clip:MovieClip
 				 par.addChild(shadow)
 				 var el:fObject = this.element as fObject
@@ -245,17 +247,22 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 if(!this.simpleShadows) {
 				 		
 				 		var clase:Class = el.sprites[this.currentSpriteIndex].shadow as Class
-				 		clip = new clase() as MovieClip
+				 		clip = objectPool.getInstanceOf(clase) as MovieClip
 				 		clip.gotoAndPlay(this.currentSprite.currentFrame)
 				 		
 				 } else {
-				 	  clip = new MovieClip()
+				 	  clip = objectPool.getInstanceOf(MovieClip) as MovieClip
 				 		movieClipUtils.circle(clip.graphics,0,0,1.5*el.radius,20,0x000000,100-this.glight.intensity)
 				 }
 		 		 
 		 		 shadow.addChild(clip)
 		 		 
-		 		 var ret:fObjectShadow = new fObjectShadow(shadow,clip,request)
+		 		 var ret:fObjectShadow = objectPool.getInstanceOf(fObjectShadow) as fObjectShadow
+ 			   ret.shadow = shadow
+			   ret.clip = clip
+			   ret.request = request
+			   ret.object = this.element as fObject
+
 				 this.allShadows.push(ret)
 				 return ret
 
@@ -269,6 +276,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public function returnShadow(sh:fObjectShadow):void {
 				
+				 // Return library instances to pool so they can be reused.
+				 objectPool.returnInstance(sh.clip)
+				 objectPool.returnInstance(sh.shadow)
+				 objectPool.returnInstance(sh.shadow.parent)
+				 objectPool.returnInstance(sh)
+
 				 var pos:Number = this.allShadows.indexOf(sh)
 				 this.allShadows.splice(pos,1)
 				 sh.dispose()
@@ -497,6 +510,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				
     		// Gfx
     		fFlash9RenderEngine.recursiveDelete(this.baseObj)
+			  objectPool.returnInstance(this.baseObj)
     		this.baseObj = null
 
 				this.disposeRenderer()

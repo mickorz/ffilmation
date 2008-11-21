@@ -25,7 +25,7 @@ package org.ffilmation.engine.core {
 			private static var count:Number = 0
 
 			/**
-			* The string identifier of this element. Use it as input parameter to the scene's getElementById methods
+			* The string identifier of this element. Use it as input parameter to the scene's .all Array
 			*/
 			public var id:String
 			

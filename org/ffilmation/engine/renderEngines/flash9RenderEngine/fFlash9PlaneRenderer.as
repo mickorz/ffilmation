@@ -85,9 +85,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 				 // This is the Sprite where all light layers are generated. This is the Sprite being deformed
 				 // This Sprite is attached to the sprite that is visible onscreen
-				 this.baseContainer = new Sprite()
-				 this.behind = new Sprite()
-				 this.infront = new Sprite()
+				 this.baseContainer = objectPool.getInstanceOf(Sprite) as Sprite
+				 this.behind = objectPool.getInstanceOf(Sprite) as Sprite
+				 this.infront = objectPool.getInstanceOf(Sprite) as Sprite
 			   this.behind.cacheAsBitmap = true
 			   this.infront.cacheAsBitmap = true
 			   
@@ -103,9 +103,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   this.lightMasks = new Object   		
 			   this.lightShadows = new Object   		
 			   this.lightBumps = new Object   		
-			   this.lightC = new Sprite()
-			   this.holesC = new Sprite()
-			   this.simpleHolesC = new Sprite()
+			   this.lightC = objectPool.getInstanceOf(Sprite) as Sprite
+			   this.holesC = objectPool.getInstanceOf(Sprite) as Sprite
+			   this.simpleHolesC = objectPool.getInstanceOf(Sprite) as Sprite
 				 this.black = new Shape()
 			   this.environmentC = new Shape()
  			   this.lightC.mouseEnabled = false
@@ -121,11 +121,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.baseContainer.transform.matrix = this.planeDeform
 
 				 // Object shadows with qualities other than fShadowQuality.BEST will be drawn here instead of into each lights's ERASE layer
-				 this.deformedSimpleShadowsLayer = new Sprite
+				 this.deformedSimpleShadowsLayer = objectPool.getInstanceOf(Sprite) as Sprite
 				 this.deformedSimpleShadowsLayer.mouseEnabled = false
 				 this.deformedSimpleShadowsLayer.mouseChildren = false
 				 this.deformedSimpleShadowsLayer.transform.matrix = this.planeDeform
-				 this.simpleShadowsLayer = new Sprite
+				 this.simpleShadowsLayer = objectPool.getInstanceOf(Sprite) as Sprite
 				 this.simpleShadowsLayer.scrollRect = this.scrollR
 				 this.spriteToDraw.addChild(this.deformedSimpleShadowsLayer)
 				 this.deformedSimpleShadowsLayer.addChild(this.simpleShadowsLayer)
@@ -134,7 +134,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   this.processHoles(element)
 				 
 				 // Occlusion
-				 this.occlusionLayer = new Sprite
+				 this.occlusionLayer = objectPool.getInstanceOf(Sprite) as Sprite
 				 this.occlusionLayer.mouseEnabled = false
 			   this.occlusionLayer.blendMode = BlendMode.ERASE
 				 this.occlusionLayer.scrollRect = this.scrollR
@@ -520,11 +520,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   lightStatus.lightZ = -2000
 			
 			   // Create container
-			   var light_c:Sprite = new Sprite()
+			   var light_c:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 			   this.lightClips[light.uniqueId] = light_c
 
 				 // Create layer
-				 var lay:Sprite = new Sprite()
+				 var lay:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 				 light_c.addChild(lay)
 				 //lay.cacheAsBitmap = true
 				 //lay.blendMode = BlendMode.LAYER
@@ -541,7 +541,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   //msk.blendMode = BlendMode.NORMAL
 				 
 				 // Create shadow container
-			   var shd:Sprite = new Sprite()
+			   var shd:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 			   lay.addChild(shd)
 			   this.lightShadows[light.uniqueId] = shd
 			   shd.blendMode = BlendMode.ERASE
@@ -834,7 +834,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					
 					// Create spot if needed
 					if(!this.occlusionSpots[character.uniqueId]) {
-						var spr:Sprite = new Sprite()
+						var spr:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 						spr.mouseEnabled = false
 						spr.mouseChildren = false
 						
@@ -900,11 +900,18 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				// Lights
 				for(i=0;i<this.lightMasks.length;i++) delete this.lightMasks[i]
 				this.lightMasks = null
-				for(i=0;i<this.lightShadows.length;i++) delete this.lightShadows[i]
+				for(i=0;i<this.lightShadows.length;i++) {
+					objectPool.returnInstance(this.lightShadows[i])
+					delete this.lightShadows[i]
+				}
 				this.lightShadows = null
-				for(i=0;i<this.lightBumps.length;i++) delete this.lightBumps[i]
+				for(i=0;i<this.lightBumps.length;i++) {
+					objectPool.returnInstance(this.lightBumps[i])
+					delete this.lightBumps[i]
+				}
 				this.lightBumps = null
 				for(i=0;i<this.lightClips.length;i++) {
+					objectPool.returnInstance(this.lightClips[i])
 					fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
 					delete this.lightClips[i]
 				}
@@ -933,6 +940,19 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.simpleShadowsLayer = null
 				this.occlusionLayer = null
 
+
+				// Return to object pool
+				fFlash9RenderEngine.recursiveDelete(this.baseContainer)
+				objectPool.returnInstance(this.baseContainer)
+				objectPool.returnInstance(this.behind)
+				objectPool.returnInstance(this.infront)
+			  objectPool.returnInstance(this.lightC)
+			  objectPool.returnInstance(this.holesC)
+			  objectPool.returnInstance(this.simpleHolesC)
+				objectPool.returnInstance(this.deformedSimpleShadowsLayer)
+				objectPool.returnInstance(this.simpleShadowsLayer)
+				objectPool.returnInstance(this.occlusionLayer)
+
 				// Base lights
 				this.behind = null
 				this.infront = null
@@ -944,7 +964,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			  this.simpleHolesC = null
 				this.black = null
 			  this.environmentC = null
-				fFlash9RenderEngine.recursiveDelete(this.baseContainer)
 				this.baseContainer = null
 
 				this.disposeRenderer()

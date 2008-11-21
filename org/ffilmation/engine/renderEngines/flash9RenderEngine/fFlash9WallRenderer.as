@@ -23,7 +23,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		public class fFlash9WallRenderer extends fFlash9PlaneRenderer {
 			
 			// Static properties. Render cache
-			private static var objectRenderCache:Object = []
+			private static var objectRenderCache:Dictionary = new Dictionary(true)
 			
 			// Public properties
 
@@ -44,7 +44,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			function fFlash9WallRenderer(rEngine:fFlash9RenderEngine,container:MovieClip,element:fWall):void {
 				
 				 // Generate Sprites
-				 var destination:Sprite = new Sprite()
+				 var destination:Sprite = objectPool.getInstanceOf(Sprite) as Sprite
 				 container.addChild(destination)
 
 				 // Set specific wall dimensions
@@ -170,11 +170,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   	if(!(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
 			   	else msk = this.lightShadows[light.uniqueId]
 
-			 	 	var cache = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
+			 	 	var cache:Dictionary = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId].shadow
 			 	 	msk.removeChild(clip)
 			 	 	
-			 	 	this.rEngine.returnObjectShadow(o,cache[other.uniqueId])
+			 	 	this.rEngine.returnObjectShadow(cache[other.uniqueId])
 			 	 	delete cache[other.uniqueId]
 			 	 	
 			 	 } catch (e:Error) { }
@@ -283,7 +283,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function resetShadowsInt():void {
 				for(var i in fFlash9WallRenderer.objectRenderCache) {
-					var a:Object = fFlash9WallRenderer.objectRenderCache[i]
+					var a:Dictionary = fFlash9WallRenderer.objectRenderCache[i]
 					for(var j in a) {
 						 try {
 						 	var clip:Sprite = a[j].shadow
@@ -325,7 +325,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 // Cache or new Movieclip ?
 				 if(!fFlash9WallRenderer.objectRenderCache[element.uniqueId+"_"+light.uniqueId]) {
-				 		fFlash9WallRenderer.objectRenderCache[element.uniqueId+"_"+light.uniqueId] = new Object()
+				 		fFlash9WallRenderer.objectRenderCache[element.uniqueId+"_"+light.uniqueId] = new Dictionary(true)
 				 }
 				 var cache = fFlash9WallRenderer.objectRenderCache[element.uniqueId+"_"+light.uniqueId]
 				 if(!cache[other.uniqueId]) {
@@ -362,7 +362,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   
 			   // Hide shadows
 				 if(fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]) {
-				 		var cache = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
+				 		var cache:Dictionary = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
 				 		for(var i in cache) {
 				 			try {
 				 				cache[i].parent.removeChild(cache[i])
