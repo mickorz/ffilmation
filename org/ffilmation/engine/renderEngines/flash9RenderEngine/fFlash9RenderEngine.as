@@ -332,12 +332,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					// Delete resources
 					for(var i in this.renderers) {
 		  	 		this.renderers[i].element.customData.flash9Renderer = null						
-		  	 		trace(i)
+		  	 		this.renderers[i].element.container = null						
+		  	 		this.renderers[i].element.flashClip = null						
 		  	 		this.renderers[i].dispose()
 						delete this.renderers[i]
 					}
 					this.renderers = new Array
-					trace("Final")
 					fFlash9RenderEngine.recursiveDelete(this.container)
 				}
 				
@@ -416,7 +416,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						if(d.numChildren!=0) do {
 							var c:DisplayObject = d.getChildAt(0)
 							if(c!=null) {
-								trace("Muere "+c)
 								c.cacheAsBitmap = false
 								if(c is DisplayObjectContainer) fFlash9RenderEngine.recursiveDelete(c as DisplayObjectContainer)
 								if(c is MovieClip) c.stop()

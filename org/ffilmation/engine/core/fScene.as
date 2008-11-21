@@ -772,6 +772,8 @@ package org.ffilmation.engine.core {
 			private function removeElementFromRenderEngine(element:fRenderableElement) {
 			
 				 this.renderEngine.stopRenderFor(element)
+	  	 	 element.container = null
+	  	 	 element.flashClip = null
 				 
 				 // Stop listening to show and hide events
 				 element.removeEventListener(fRenderableElement.SHOW,this.showListener)

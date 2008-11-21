@@ -38,7 +38,7 @@ package org.ffilmation.engine.core {
 			public var holes:Array											// Array of holes in this plane
 			
 			/** 
-			* Material applied to this plane
+			* Material currently applied to this plane. This object is shared between all planes using the same definition
 			*/
 			public var material:fMaterial
 			

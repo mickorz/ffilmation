@@ -944,7 +944,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			  this.simpleHolesC = null
 				this.black = null
 			  this.environmentC = null
-			  trace("Base")
 				fFlash9RenderEngine.recursiveDelete(this.baseContainer)
 				this.baseContainer = null
 
