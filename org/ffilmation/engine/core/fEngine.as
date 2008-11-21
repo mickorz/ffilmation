@@ -192,17 +192,17 @@ package org.ffilmation.engine.core {
 							
 							var ByteLoader:URLLoader = new URLLoader()
 							ByteLoader.dataFormat = URLLoaderDataFormat.BINARY
-							ByteLoader.addEventListener(Event.COMPLETE, this.loadBytesComplete)
-							ByteLoader.addEventListener(ProgressEvent.PROGRESS, this.loadBytesProgress)
-							ByteLoader.addEventListener(IOErrorEvent.IO_ERROR, this.loadBytesError)
+							ByteLoader.addEventListener(Event.COMPLETE, this.loadBytesComplete,false,0,true)
+							ByteLoader.addEventListener(ProgressEvent.PROGRESS, this.loadBytesProgress,false,0,true)
+							ByteLoader.addEventListener(IOErrorEvent.IO_ERROR, this.loadBytesError,false,0,true)
 							ByteLoader.load(new URLRequest(src))
 							
 					  } else {
 
 				 			var cLoader:Loader = new Loader()
-				  		cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete)
-				  		cLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,this.loadProgress)
-				  		cLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,this.loadError)
+				  		cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete,false,0,true)
+				  		cLoader.contentLoaderInfo.addEventListener(ProgressEvent.PROGRESS,this.loadProgress,false,0,true)
+				  		cLoader.contentLoaderInfo.addEventListener(IOErrorEvent.IO_ERROR,this.loadError,false,0,true)
 				  		cLoader.load(new URLRequest(src),fEngine.context)
 				  	
 				  	}
@@ -233,7 +233,7 @@ package org.ffilmation.engine.core {
 				  event.target.removeEventListener(IOErrorEvent.IO_ERROR ,this.loadBytesError)
 				  
 				 	var cLoader:Loader = new Loader()
-				  cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete)
+				  cLoader.contentLoaderInfo.addEventListener(Event.COMPLETE,this.loadComplete,false,0,true)
 				  cLoader.loadBytes(event.target.data,fEngine.context)
 				  
 			 }

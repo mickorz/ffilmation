@@ -30,7 +30,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 		  public function start():EventDispatcher {
 		  	
 		   	 this.myTimer = new Timer(20, 1)
-         this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.done)
+         this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.done,false,0,true)
          this.myTimer.start()
 				 return this
 

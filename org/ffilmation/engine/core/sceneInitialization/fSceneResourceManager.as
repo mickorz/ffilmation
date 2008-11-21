@@ -165,9 +165,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 		var url:URLRequest = new URLRequest(this.src)
 				 		var loadUrl:URLLoader = new URLLoader(url)
 				 		loadUrl.load(url)
-				 		loadUrl.addEventListener(ProgressEvent.PROGRESS, this.XMLloadProgress)
-				 		loadUrl.addEventListener(Event.COMPLETE, this.XMLloadComplete)
-				 		loadUrl.addEventListener(IOErrorEvent.IO_ERROR ,this.XMLloadError)
+				 		loadUrl.addEventListener(ProgressEvent.PROGRESS, this.XMLloadProgress,false,0,true)
+				 		loadUrl.addEventListener(Event.COMPLETE, this.XMLloadComplete,false,0,true)
+				 		loadUrl.addEventListener(IOErrorEvent.IO_ERROR ,this.XMLloadError,false,0,true)
 			   		this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneResourceManager.LOADINGDESCRIPTION,0,"Loading definition file: "+this.src))
 						
 				 } else {
@@ -219,9 +219,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 				 // Listen to media load events
 				 this.queuePointer = -1
-				 this.scene.engine.addEventListener(fEngine.MEDIALOADCOMPLETE,this.loadComplete)
-				 this.scene.engine.addEventListener(fEngine.MEDIALOADPROGRESS,this.loadProgress)
-				 this.scene.engine.addEventListener(fEngine.MEDIALOADERROR,this.loadError)
+				 this.scene.engine.addEventListener(fEngine.MEDIALOADCOMPLETE,this.loadComplete,false,0,true)
+				 this.scene.engine.addEventListener(fEngine.MEDIALOADPROGRESS,this.loadProgress,false,0,true)
+				 this.scene.engine.addEventListener(fEngine.MEDIALOADERROR,this.loadError,false,0,true)
 			   this.loadComplete(new Event("Dummy"))
 
 			}

@@ -349,8 +349,8 @@ package org.ffilmation.engine.core {
 					
 					// Follow new camera
 					this.currentCamera = camera
-					this.currentCamera.addEventListener(fElement.MOVE,this.cameraMoveListener)
-					this.currentCamera.addEventListener(fElement.NEWCELL,this.cameraNewCellListener)
+					this.currentCamera.addEventListener(fElement.MOVE,this.cameraMoveListener,false,0,true)
+					this.currentCamera.addEventListener(fElement.NEWCELL,this.cameraNewCellListener,false,0,true)
 					this.followCamera(this.currentCamera)
 			}
 			
@@ -397,11 +397,11 @@ package org.ffilmation.engine.core {
 			   	var nfLight:fOmniLight = new fOmniLight(definitionObject,this)
 			   	
 			   	// Events
-				 	nfLight.addEventListener(fElement.NEWCELL,this.processNewCell)			   
-				 	nfLight.addEventListener(fElement.MOVE,this.renderElement)			   
-				 	nfLight.addEventListener(fLight.RENDER,this.processNewCell)			   
-				 	nfLight.addEventListener(fLight.RENDER,this.renderElement)			   
-				 	nfLight.addEventListener(fLight.SIZECHANGE,this.processNewLightDimensions)			   
+				 	nfLight.addEventListener(fElement.NEWCELL,this.processNewCell,false,0,true)			   
+				 	nfLight.addEventListener(fElement.MOVE,this.renderElement,false,0,true)			   
+				 	nfLight.addEventListener(fLight.RENDER,this.processNewCell,false,0,true)			   
+				 	nfLight.addEventListener(fLight.RENDER,this.renderElement,false,0,true)			   
+				 	nfLight.addEventListener(fLight.SIZECHANGE,this.processNewLightDimensions,false,0,true)			   
 			   	
 			   	// Add to lists
 			   	this.lights.push(nfLight)
@@ -475,8 +475,8 @@ package org.ffilmation.engine.core {
 			   	var nCharacter:fCharacter = new fCharacter(definitionObject,this)
 			   	
 			   	// Events
-				 	nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell)			   
-				 	nCharacter.addEventListener(fElement.MOVE,this.renderElement)			   
+				 	nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell,false,0,true)			   
+				 	nCharacter.addEventListener(fElement.MOVE,this.renderElement,false,0,true)			   
          	
 			   	// Add to lists
 			   	this.characters.push(nCharacter)
@@ -548,9 +548,9 @@ package org.ffilmation.engine.core {
 				}
 				
 				// Events
-				b.addEventListener(fElement.NEWCELL,this.processNewCell)			   
-				b.addEventListener(fElement.MOVE,this.renderElement)			   
-				b.addEventListener(fBullet.SHOT,fBulletSceneLogic.processShot)			   
+				b.addEventListener(fElement.NEWCELL,this.processNewCell,false,0,true)			   
+				b.addEventListener(fElement.MOVE,this.renderElement,false,0,true)			   
+				b.addEventListener(fBullet.SHOT,fBulletSceneLogic.processShot,false,0,true)			   
 
 				// Properties
 				b.moveTo(x,y,z)
@@ -968,9 +968,7 @@ package org.ffilmation.engine.core {
 			public function resetGrid():void {
 
 				for(var i:int=0;i<this.gridWidth;i++) {  
-
 					for(var j:int=0;j<=this.gridDepth;j++) {  
-
 		      	 for(var k:int=0;k<=this.gridHeight;k++) {  
 			
 			         try {
@@ -1132,7 +1130,16 @@ package org.ffilmation.engine.core {
 				for(var n in this.all) delete this.all[n]
 				
 				// Free grid
-				for(i=0;i<this.gridWidth;i++) {  
+				this.freeGrid()
+				this.grid = null
+				
+			}
+
+			/**
+			* This method frees memory used by the grid in this scene
+			*/
+			private function freeGrid():void {
+				for(var i:int=0;i<this.gridWidth;i++) {  
 					for(var j:int=0;j<this.gridDepth;j++) {  
 		      	 for(var k:int=0;k<this.gridHeight;k++) {  
 			         try {
@@ -1144,9 +1151,8 @@ package org.ffilmation.engine.core {
 			       }
 			    } 
 			  }
-				this.grid = null
-				
 			}
+
 
 		
 		}

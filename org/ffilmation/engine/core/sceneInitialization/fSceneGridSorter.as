@@ -98,7 +98,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 				 // Next step
 				 var myTimer:Timer = new Timer(20, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSort)
+         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSort,false,0,true)
          myTimer.start()
 				 
 			}
@@ -132,11 +132,11 @@ package org.ffilmation.engine.core.sceneInitialization {
 				// z Sort loop
 				if(this.sortArray.length>0) {
 					var myTimer:Timer = new Timer(20, this.sortArray.length)
-        	myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop)
+        	myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop,false,0,true)
         } else {
 					myTimer = new Timer(20, 1)
         }
-       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
+       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete,false,0,true)
         myTimer.start()
         	
       }

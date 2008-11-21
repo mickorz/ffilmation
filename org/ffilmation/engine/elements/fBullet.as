@@ -143,7 +143,7 @@ package org.ffilmation.engine.elements {
 			// Bullets control themselves
 			/** @private */
 			public function enable():void {
-				this.scene.container.addEventListener(Event.ENTER_FRAME,this.control)
+				this.scene.container.addEventListener(Event.ENTER_FRAME,this.control,false,0,true)
 			}
 			
 			// Bullets control themselves

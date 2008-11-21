@@ -36,8 +36,8 @@ package org.ffilmation.engine.elements {
 			*/
 			function fOmniLight(defObj:XML,scene:fScene) {
 
-			   this.addEventListener(fLight.INTENSITYCHANGE,this.newIntensity)
-			   this.addEventListener(fLight.COLORCHANGE,this.newIntensity)
+			   this.addEventListener(fLight.INTENSITYCHANGE,this.newIntensity,false,0,true)
+			   this.addEventListener(fLight.COLORCHANGE,this.newIntensity,false,0,true)
 
 			   super(defObj,scene)
 			   

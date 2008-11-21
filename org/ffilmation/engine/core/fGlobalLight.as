@@ -25,8 +25,8 @@ package org.ffilmation.engine.core {
 			/** @private */
 			function fGlobalLight(defObj:XML,scene:fScene):void {
 
-			   this.addEventListener(fLight.INTENSITYCHANGE,this.newIntensity)
-			   this.addEventListener(fLight.COLORCHANGE,this.newIntensity)
+			   this.addEventListener(fLight.INTENSITYCHANGE,this.newIntensity,false,0,true)
+			   this.addEventListener(fLight.COLORCHANGE,this.newIntensity,false,0,true)
 
 			   super(defObj,scene)
 

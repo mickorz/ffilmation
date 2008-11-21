@@ -42,7 +42,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			 	 if(this.retriever) {
 			 	 		this.waitFor = this.retriever.start()
-			 	 		this.waitFor.addEventListener(Event.COMPLETE, this.loadListener)
+			 	 		this.waitFor.addEventListener(Event.COMPLETE, this.loadListener,false,0,true)
 		   	 		this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fScene.LOADINGDESCRIPTION,0,this.scene.stat))
 		   	 }
 			   
@@ -63,9 +63,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function initialization_Part1() {
 				
 				 this.scene.resourceManager = new fSceneResourceManager(this.scene)
-				 this.scene.resourceManager.addEventListener(fScene.LOADPROGRESS,this.part1Progress)
-				 this.scene.resourceManager.addEventListener(Event.COMPLETE,this.part1Complete)
-				 this.scene.resourceManager.addEventListener(ErrorEvent.ERROR,this.part1Error)
+				 this.scene.resourceManager.addEventListener(fScene.LOADPROGRESS,this.part1Progress,false,0,true)
+				 this.scene.resourceManager.addEventListener(Event.COMPLETE,this.part1Complete,false,0,true)
+				 this.scene.resourceManager.addEventListener(ErrorEvent.ERROR,this.part1Error,false,0,true)
 				 
 				 if(this.retriever) this.scene.resourceManager.addResourcesFrom(this.xmlObj.head[0],this.retriever.getBasePath())
 				 else this.scene.resourceManager.addResourcesFrom(this.xmlObj.head[0],"")
@@ -95,7 +95,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 		   	
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
-        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part2)
+        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part2,false,0,true)
         this.myTimer.start()
         
 			}
@@ -114,7 +114,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
-        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part3)
+        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part3,false,0,true)
         this.myTimer.start()
         
 			}
@@ -125,8 +125,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 				this.myTimer.removeEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part3)
 
 				this.sceneGridSorter = new fSceneGridSorter(this.scene)
-				this.sceneGridSorter.addEventListener(fScene.LOADPROGRESS,this.part3Progress)
-				this.sceneGridSorter.addEventListener(Event.COMPLETE,this.part3Complete)
+				this.sceneGridSorter.addEventListener(fScene.LOADPROGRESS,this.part3Progress,false,0,true)
+				this.sceneGridSorter.addEventListener(Event.COMPLETE,this.part3Complete,false,0,true)
 				this.sceneGridSorter.createGrid()
 				this.sceneGridSorter.start()
 				
@@ -145,7 +145,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 		   	
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
-        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part4)
+        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part4,false,0,true)
         this.myTimer.start()
         
 			}
@@ -161,7 +161,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			  
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
-        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part5)
+        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part5,false,0,true)
         this.myTimer.start()
         
       }
@@ -188,8 +188,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			  // Prepare characters
 			  for(var j:Number=0;j<this.scene.characters.length;j++) {
 			  	  this.scene.characters[j].cell = this.scene.translateToCell(this.scene.characters[j].x,this.scene.characters[j].y,this.scene.characters[j].z)
-						this.scene.characters[j].addEventListener(fElement.NEWCELL,this.scene.processNewCell)			   
-						this.scene.characters[j].addEventListener(fElement.MOVE,this.scene.renderElement)			   
+						this.scene.characters[j].addEventListener(fElement.NEWCELL,this.scene.processNewCell,false,0,true)			   
+						this.scene.characters[j].addEventListener(fElement.MOVE,this.scene.renderElement,false,0,true)			   
 				}
 		   	
 		   	// Create controller for this scene, if any was specified in the XML
@@ -202,7 +202,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 		   	
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
-        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.initialization_Complete)
+        this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.initialization_Complete,false,0,true)
         this.myTimer.start()
         
 			}

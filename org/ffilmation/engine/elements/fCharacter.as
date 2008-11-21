@@ -131,7 +131,7 @@ package org.ffilmation.engine.elements {
 				 
 				 // Occupied cells
 				 this.occupiedCells = new Array
-				 if(!this.scene.ready) this.scene.addEventListener(fScene.LOADCOMPLETE, onSceneLoaded)
+				 if(!this.scene.ready) this.scene.addEventListener(fScene.LOADCOMPLETE, onSceneLoaded,false,0,true)
 				 else this.updateOccupiedCells()
 				 
 			}

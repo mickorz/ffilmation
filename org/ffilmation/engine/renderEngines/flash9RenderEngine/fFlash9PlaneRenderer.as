@@ -149,7 +149,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
          this.cacheTimer.start()
          
          // Listen to changes in material
-         element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial)
+         element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial,false,0,true)
 
 			}
 			

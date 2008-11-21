@@ -55,7 +55,7 @@ package org.ffilmation.engine.core.sceneLogic {
 		 		 		b.disable()
 						b.customData.bulletRenderer.clear(b)
 		 		 		b.container.addChild(r)
-		 		 		r.addEventListener(Event.ENTER_FRAME,fBulletSceneLogic.waitForRicochet)
+		 		 		r.addEventListener(Event.ENTER_FRAME,fBulletSceneLogic.waitForRicochet,false,0,true)
 		 		 		
 		 		 		// Decide rotation of ricochet clip
 		 		 		if(evt.element is fObject) {
