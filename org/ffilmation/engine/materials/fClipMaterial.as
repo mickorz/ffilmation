@@ -62,9 +62,10 @@ package org.ffilmation.engine.materials {
 			*/
 			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 	       var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
-	       var ret:DisplayObject = new clase()
+	       var ret:MovieClip = new clase() as MovieClip
 				 ret.width = width
 				 ret.height = height
+				 ret.gotoAndStop(2)
 				 return ret
 			}
 
@@ -82,9 +83,10 @@ package org.ffilmation.engine.materials {
 			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
 	       var clase:Class = getDefinitionByName(this.definition.xmlData.bump) as Class
-	       var ret:DisplayObject = new clase()
+	       var ret:MovieClip = new clase() as MovieClip
 				 ret.width = width
 				 ret.height = height
+				 ret.gotoAndStop(2)
 				 return ret
 			}
 
@@ -116,7 +118,6 @@ package org.ffilmation.engine.materials {
 				 			  	temp[temp.length] = new Rectangle(px*mcontainer.x,py*(mcontainer.y-mcontainer.height),px*mcontainer.width,py*mcontainer.height)
 				 			  }
 				 		}
-				 		b.gotoAndStop(2)
 				 }
 				 
 				 // Return array of rectangles

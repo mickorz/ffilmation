@@ -88,6 +88,7 @@ package org.ffilmation.engine.core.sceneLogic {
 		 			var m:MovieClip = ricochet.parent as MovieClip
 		 			var bullet:fBullet = m.fElement as fBullet
 		 			ricochet.parent.removeChild(ricochet)
+		 			objectPool.returnInstance(ricochet)
 		 			bullet.scene.removeBullet(bullet)
 		 		}
 		 		

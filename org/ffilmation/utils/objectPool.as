@@ -17,7 +17,13 @@ package org.ffilmation.utils {
 		* initialized, but this is not the case here.</p>
 		*
 		* <p>The engine uses this pool mainly to reuse Sprites and MovieClips, which are very expensive to instantiate. You can
-		* use it for you own projects if you want too</p>
+		* use it for you own classes if you want too</p>
+		*
+		* <p><b>IMPORTANT!</b>: This is a very simple implementation of an object Pool. There is no such thing as size control. If one of your scenes
+		* allocated 100 Sprites, for example, once they are returned they will still exist inside the pool and use memory.
+		* You can call objectPool.flush(Class) or objectPool.flush() at anytime to free these resources (after hiding an scene is a good moment).<br>
+		* I decided not to automate this process for now because I'm not sure about the real scenarios this engine will face yet. I may do it in future
+		* releases.</p>
 		*
 		* @see http://mikegrundvig.blogspot.com/2007/05/as3-is-fast.html
 		*/
@@ -45,7 +51,9 @@ package org.ffilmation.utils {
 				}
 				
 				// Return
-				return instances.pop()
+				var r:Object = instances.pop()
+				if(r is MovieClip) (r as MovieClip).gotoAndPlay(1)
+				return r
 
 			}
 			

@@ -5,6 +5,7 @@ package org.ffilmation.engine.bulletRenderers {
 		import flash.events.*
 		import flash.utils.getDefinitionByName
 		
+		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.interfaces.*
@@ -80,8 +81,7 @@ package org.ffilmation.engine.bulletRenderers {
 						if(element is fPlane) clase = getDefinitionByName(this.planeRicochetDefinition) as Class
 						else if(element is fCharacter) clase = getDefinitionByName(this.characterRicochetDefinition) as Class
 						else if(element is fObject) clase = getDefinitionByName(this.objectRicochetDefinition) as Class
-						var ret:MovieClip  = new clase() as MovieClip
-						return ret
+						return objectPool.getInstanceOf(clase) as MovieClip
 						
 					} catch(e:Error) {
 						return null
