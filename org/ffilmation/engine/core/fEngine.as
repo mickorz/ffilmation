@@ -380,13 +380,7 @@ package org.ffilmation.engine.core {
          for(var i:Number=0;i<fEngine.engines.length;i++) {
          	
          		var e:fEngine = fEngine.engines[i]
-            for(var j:Number=0;j<e.scenes.length;j++) {
-            	
-            	var s:fScene = e.scenes[j]
-							// Render again
-            	s.render()
-         		
-         	  }
+         		if(e.current) e.current.render()
          }
        
        }			 
@@ -406,15 +400,12 @@ package org.ffilmation.engine.core {
          for(var i:Number=0;i<fEngine.engines.length;i++) {
          	
          		var e:fEngine = fEngine.engines[i]
-            for(var j:Number=0;j<e.scenes.length;j++) {
-            	
-            	var s:fScene = e.scenes[j]
-            	s.resetGrid()
-							// Render again
-							s.resetShadows()
-            	s.render()
-         		
-         	  }
+         		if(e.current) {
+         			e.current.resetGrid()
+         			e.current.resetShadows()
+         			e.current.render()
+         		}
+
          }
 
        }			 
@@ -434,14 +425,10 @@ package org.ffilmation.engine.core {
          for(var i:Number=0;i<fEngine.engines.length;i++) {
          	
          		var e:fEngine = fEngine.engines[i]
-            for(var j:Number=0;j<e.scenes.length;j++) {
-            	
-            	var s:fScene = e.scenes[j]
-							// Render again
-							s.resetShadows()
-            	s.render()
-         		
-         	  }
+         		if(e.current) {
+         			e.current.resetShadows()
+         			e.current.render()
+         		}
          }
 
        }			 
@@ -464,14 +451,10 @@ package org.ffilmation.engine.core {
          for(var i:Number=0;i<fEngine.engines.length;i++) {
          	
          		var e:fEngine = fEngine.engines[i]
-            for(var j:Number=0;j<e.scenes.length;j++) {
-            	
-            	var s:fScene = e.scenes[j]
-							// Render again
-							s.resetShadows()
-            	s.render()
-         		
-         	  }
+         		if(e.current) {
+         			e.current.resetShadows()
+         			e.current.render()
+         		}
          }
 
        }			 

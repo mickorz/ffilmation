@@ -136,9 +136,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						 try {
 						 	var clip:Sprite = a[j].shadow
 						 	clip.parent.parent.removeChild(clip.parent)
-						 	fFlash9RenderEngine.recursiveDelete(clip.parent)
-						 	delete a[j]
-						 } catch (e:Error) {}
+							this.rEngine.returnObjectShadow(a[j])
+			 	 			delete a[j]
+						 } catch (e:Error) {
+						  trace("Floor reset error: "+e)	
+						 }
 					}
 					delete fFlash9FloorRenderer.objectProjectionCache[i]
 				}
@@ -159,6 +161,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			   // Simple shadows ?
 			   var simpleShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).simpleShadows
+			   var eraseShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows
 
 				 // Cache or new Movieclip ?
 				 if(!fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]) {
@@ -176,7 +179,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var clip:Sprite = cache[other.uniqueId].shadow
 				 msk.addChild(clip.parent)
 				 clip.alpha = 1-distance
-
+				 
 				 // Rotate and deform
 		 		 clip.parent.x = proj.origin.x-this.element.x
 				 clip.parent.y = proj.origin.y-this.element.y
@@ -186,6 +189,17 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		clip.parent.rotation = 90+mathUtils.getAngle(light.x,light.y,other.x,other.y)
 				 }
 				 
+				 // Adjust alpha if necessary
+				 if(light.size!=Infinity && !eraseShadows && !simpleShadows) {
+				 		var distToLight:Number = mathUtils.distance(light.x,light.y,other.x,other.y)
+				 		var distToLightBorder:Number = (this.lightMasks[light.uniqueId].width/2)-distToLight
+				 	  if(distToLightBorder<clip.height) {
+				 	  	var fade:Number = 1-((clip.height-distToLightBorder)/clip.height)
+				 	  	clip.alpha *= fade
+				 	  }
+				 }
+
+
 			}
 			
 			/**
@@ -193,27 +207,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function removeShadow(light:fLight,other:fRenderableElement):void {
 			   
-			   // Select mask
-			   try {
-
-					var msk:Sprite
 					var o:fCharacter = other as fCharacter
-
-			    // Simple shadows ?
-			   	if(!(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
-			   	else msk = this.lightShadows[light.uniqueId]
 			   	
 			 	 	var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId].shadow
-			 	 	msk.removeChild(clip.parent)
+			 	 	clip.parent.parent.removeChild(clip.parent)
 	 	 	
 			 	 	this.rEngine.returnObjectShadow(cache[other.uniqueId])
 			 	 	delete cache[other.uniqueId]
-			 	 	
-			 	 } catch(e:Error) {
-			 	 	trace("Error remove shadow "+e)
-			 	 }
-			 	 
 
 			}
 

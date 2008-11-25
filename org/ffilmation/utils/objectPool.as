@@ -89,6 +89,8 @@ package org.ffilmation.utils {
 					d.visible = true
 					d.transform.matrix = new Matrix()
 					d.transform.colorTransform = new ColorTransform()
+					
+					
 				}
 
 

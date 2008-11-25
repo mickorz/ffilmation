@@ -29,7 +29,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			}
 
 			// Process New cell for Omni lights
-			public static function processNewCellOmniLight(scene:fScene,light:fOmniLight):void {
+			public static function processNewCellOmniLight(scene:fScene,light:fOmniLight,forceReset:Boolean = false):void {
 			
 			   // Init
 			   var cell:fCell = light.cell
@@ -112,7 +112,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			   		   // Add light
 			   		   scene.renderEngine.lightIn(character,light)
 			   			 
-				   		 if(cache.character==character && cache.cell==light.cell) {
+				   		 if(!forceReset && cache.character==character && cache.cell==light.cell) {
 				   		 	
 				   		 	  // Cache is still valid, no need to update
 				   		 	

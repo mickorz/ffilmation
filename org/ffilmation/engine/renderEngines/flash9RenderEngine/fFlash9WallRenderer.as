@@ -159,26 +159,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function removeShadow(light:fLight,other:fRenderableElement):void {
 			   
-			   // Select mask
-			   try {
-					var msk:Sprite
 					var o:fCharacter = other as fCharacter
 					
-			    // Simple shadows ?
-			   	var simpleShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).simpleShadows
-					
-			   	if(!(other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows) msk = this.simpleShadowsLayer
-			   	else msk = this.lightShadows[light.uniqueId]
-
 			 	 	var cache:Dictionary = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId].shadow
-			 	 	msk.removeChild(clip)
+			 	 	clip.parent.removeChild(clip)
 			 	 	
 			 	 	this.rEngine.returnObjectShadow(cache[other.uniqueId])
 			 	 	delete cache[other.uniqueId]
 			 	 	
-			 	 } catch (e:Error) { }
-
 			}
 
 			/**
@@ -288,9 +277,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						 try {
 						 	var clip:Sprite = a[j].shadow
 						 	clip.parent.removeChild(clip)
-							fFlash9RenderEngine.recursiveDelete(clip)
-						 	delete a[j]
-						 } catch(e:Error){}
+							this.rEngine.returnObjectShadow(a[j])
+							delete a[j]
+						 } catch(e:Error) {
+						  trace("Wall reset error: "+e)	
+						 }
 					}
 					delete fFlash9WallRenderer.objectRenderCache[i]
 				}
@@ -347,6 +338,21 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 clip.height = (intersect3.y-intersect2.y)*(1+fObject.SHADOWSCALE*distance)
 		 		 clip.scaleX = 1+fObject.SHADOWSCALE*distance
 				 
+			   // Simple shadows ?
+			   var simpleShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).simpleShadows
+			   var eraseShadows:Boolean = (other.customData.flash9Renderer as fFlash9ObjectRenderer).eraseShadows
+
+				 // Adjust alpha if necessary
+				 if(light.size!=Infinity && !eraseShadows && !simpleShadows) {
+				 		var distToLight:Number = mathUtils.distance(light.x,light.y,other.x,other.y)
+				 		var distToLightBorder:Number = (this.lightMasks[light.uniqueId].width/2)-distToLight
+				 	  if(distToLightBorder<clip.height) {
+				 	  	var fade:Number = 1-((clip.height-distToLightBorder)/clip.height)
+				 	  	clip.alpha *= fade
+				 	  }
+				 }
+
+
 			}
 
 			/**

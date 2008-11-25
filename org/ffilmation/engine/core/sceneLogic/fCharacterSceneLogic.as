@@ -24,7 +24,7 @@ package org.ffilmation.engine.core.sceneLogic {
 
 			
 			// Process New cell for Characters
-			public static function processNewCellCharacter(scene:fScene,character:fCharacter):void {
+			public static function processNewCellCharacter(scene:fScene,character:fCharacter,forceReset:Boolean = false):void {
 			
 				 // Init
 				 var light:fOmniLight, elements:Array, nEl:Number, distL:Number, range:Number,x:Number, y:Number, z:Number
@@ -68,7 +68,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			        	z = light.z
 			        }
 			   			
-							if(cache.character==character && cache.cell==light.cell) {
+							if(!forceReset && cache.character==character && cache.cell==light.cell) {
 				   		 	
 				   		 	  // Cache is still valid, no need to update
 				   		 	

@@ -51,6 +51,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 super(rEngine,element,this.baseObj,container)
 
 				 // Shadows
+				 this.allShadows = new Array
 				 this.resetShadows()
 
 				 // Light control
@@ -277,6 +278,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public function returnShadow(sh:fObjectShadow):void {
 				
 				 // Return library instances to pool so they can be reused.
+				 if(sh.shadow.parent) sh.shadow.parent.removeChild(sh.shadow)
+				 sh.shadow.removeChild(sh.clip)
 				 objectPool.returnInstance(sh.clip)
 				 objectPool.returnInstance(sh.shadow)
 				 objectPool.returnInstance(sh.shadow.parent)
@@ -285,7 +288,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var pos:Number = this.allShadows.indexOf(sh)
 				 this.allShadows.splice(pos,1)
 				 sh.dispose()
-
+				 
 			}
 
 
@@ -300,11 +303,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.eraseShadows = false
 				 if(fEngine.shadowQuality==fShadowQuality.BEST || (!(this.element is fCharacter) && fEngine.shadowQuality==fShadowQuality.GOOD)) this.eraseShadows = true
 				 
-				 if(this.allShadows) for(var i:Number=0;i<this.allShadows.length;i++) {
+				 /*if(this.allShadows) for(var i:Number=0;i<this.allShadows.length;i++) {
 				 	this.allShadows[i].dispose()
 				 	delete this.allShadows[i]
 				 }
-				 this.allShadows = new Array
+				 this.allShadows = new Array*/
 
 			}
 		
@@ -498,7 +501,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.currentSprite = null
 				if(this.projectionCache) this.projectionCache.dispose()
 				this.projectionCache = null
-				this.resetShadows()
+			  if(this.allShadows) for(i=0;i<this.allShadows.length;i++) {
+				 	this.allShadows[i].dispose()
+				 	delete this.allShadows[i]
+				}
+				this.allShadows = null
 
 			 	// Events
 			 	this.element.removeEventListener(fRenderableElement.SHOW,this.showListener)
