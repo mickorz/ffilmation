@@ -30,7 +30,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 		  	
 		  	// Get final coordinates
 		  	var goal:fCell = criteria.getDestinyCell()
-		  	if(!goal) return null
+		  	if(!goal || goal==start) return null
 		  	
 		  	// Start at first node
 		  	var node:fCell = start
