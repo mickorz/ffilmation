@@ -163,7 +163,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					
 			 	 	var cache:Dictionary = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId].shadow
-			 	 	clip.parent.removeChild(clip)
+			 	 	if(clip.parent) clip.parent.removeChild(clip)
 			 	 	
 			 	 	this.rEngine.returnObjectShadow(cache[other.uniqueId])
 			 	 	delete cache[other.uniqueId]

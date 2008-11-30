@@ -211,7 +211,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   	
 			 	 	var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
 			 	 	var clip:Sprite = cache[other.uniqueId].shadow
-			 	 	clip.parent.parent.removeChild(clip.parent)
+			 	 	if(clip.parent.parent) clip.parent.parent.removeChild(clip.parent)
 	 	 	
 			 	 	this.rEngine.returnObjectShadow(cache[other.uniqueId])
 			 	 	delete cache[other.uniqueId]

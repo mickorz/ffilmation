@@ -295,8 +295,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 									var p:Point = new Point(x,y)
 									if(el is fPlane) {
 										var r:fFlash9PlaneRenderer = (el.customData.flash9Renderer as fFlash9PlaneRenderer)
-										if(r.baseContainer.stage)	p = r.baseContainer.globalToLocal(p)
-										else p = r.finalBitmap.globalToLocal(p)
+										if(r.baseContainer.stage)	{
+											p = r.baseContainer.globalToLocal(p)
+											if(el is fWall) p.y += (el as fWall).pixelHeight
+										}
+										else {
+											p = r.finalBitmap.globalToLocal(p)
+										}
 									}
 									else p = el.container.globalToLocal(p)
 									
