@@ -41,7 +41,7 @@ package org.ffilmation.engine.core {
 			// This counter is used to generate unique scene Ids
 			private static var count:Number = 0
 			
-			// This flag is set by the editor so eery object is created as a character and can be moved
+			// This flag is set by the editor so every object is created as a character and can be moved ( so ugly I know but It does work )
 			/** @private */
 			public static var allCharacters:Boolean = false
 
@@ -70,15 +70,15 @@ package org.ffilmation.engine.core {
 		  /** @private */
 			public var top:Number																// Highest Z in the scene
 			/** @private */
-			public var gridWidth:Number													// Grid size in cells
+			public var gridWidth:int														// Grid size in cells
 			/** @private */
-			public var gridDepth:Number
+			public var gridDepth:int
 			/** @private */
-			public var gridHeight:Number
+			public var gridHeight:int
 			/** @private */
-		  public var gridSize:Number           								// Grid size ( in pixels )
+		  public var gridSize:int		           								// Grid size ( in pixels )
 			/** @private */
-		  public var levelSize:Number          								// Vertical grid size ( along Z axis, in pixels )
+		  public var levelSize:int	          								// Vertical grid size ( along Z axis, in pixels )
 
 			// 3. zSort
 
@@ -714,7 +714,7 @@ package org.ffilmation.engine.core {
 			   this.renderEngine.initialize()
 			   
 			   // Init render for all elements
-			   for(var j:Number=0;j<this.floors.length;j++) addElementToRenderEngine(this.floors[j])
+			   for(var j:int=0;j<this.floors.length;j++) addElementToRenderEngine(this.floors[j])
 			   for(j=0;j<this.walls.length;j++) addElementToRenderEngine(this.walls[j])
 			   for(j=0;j<this.objects.length;j++) addElementToRenderEngine(this.objects[j])
 			   for(j=0;j<this.characters.length;j++) addElementToRenderEngine(this.characters[j])
@@ -914,9 +914,9 @@ package org.ffilmation.engine.core {
 			// Returns a normalized zSort value for a cell in the grid. Bigger values display in front of lower values
 			/** @private */
 			public function computeZIndex(i:Number,j:Number,k:Number):Number {
-				 var ow = this.gridWidth
-				 var od = this.gridDepth
-				 var oh = this.gridHeight
+				 var ow:int = this.gridWidth
+				 var od:int = this.gridDepth
+				 var oh:int = this.gridHeight
 			   return ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
 			}
 
@@ -936,9 +936,9 @@ package org.ffilmation.engine.core {
 				if(!this.IAmBeingRendered) return
 				
 				var el:fRenderableElement = evt.target as fRenderableElement
-				var oldD:Number = el.depthOrder
+				var oldD:int = el.depthOrder
 				this.depthSortArr.sortOn("_depth", Array.NUMERIC);
-				var newD:Number = this.depthSortArr.indexOf(el)
+				var newD:int = this.depthSortArr.indexOf(el)
 				if(newD!=oldD) {
 					el.depthOrder = newD
 					this.container.setChildIndex(el.container, newD)
@@ -951,7 +951,7 @@ package org.ffilmation.engine.core {
 				
 				var ar:Array = this.depthSortArr
 				ar.sortOn("_depth", Array.NUMERIC);
-    		var i:Number = ar.length;
+    		var i:int = ar.length;
     		var p:Sprite = this.container
     		
     		while(i--) {
@@ -992,43 +992,63 @@ package org.ffilmation.engine.core {
 			// Returns the cell containing the given coordinates
 			/** @private */
 			public function translateToCell(x:Number,y:Number,z:Number):fCell {
-				 return this.getCellAt(Math.floor(x/this.gridSize),Math.floor(y/this.gridSize),Math.floor(z/this.levelSize))
+				 return this.getCellAt(x/this.gridSize,y/this.gridSize,z/this.levelSize)
 			}
 			
 			// Returns the cell at specific grid coordinates. If cell does not exist, it is created.
 			/** @private */
-			public function getCellAt(i:Number,j:Number,k:Number) {
+			public function getCellAt(i:int,j:int,k:int) {
 				
 				if(i<0 || j<0 || k<0) return null
 				if(i>=this.gridWidth || j>=this.gridDepth || k>=this.gridHeight) return null
 				
 				// Create new if necessary
 				if(!this.grid[i] || !this.grid[i][j]) return null
-				if(!this.grid[i][j][k]) {
+				var arr:Array = this.grid[i][j]
+				if(!arr[k]) {
 					
 					var cell:fCell = new fCell()
 
 			    // Z-Index
-			    cell.zIndex = this.computeZIndex(i,j,k)
+			    
+			    // Original call
+			    //cell.zIndex = this.computeZIndex(i,j,k)
+			    
+			    // Inline for a bit of speedup
+				  var ow:int = this.gridWidth
+					var od:int = this.gridDepth
+				  var oh:int = this.gridHeight
+			    cell.zIndex =  ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
+		    
 			    var s:Array = this.sortAreas[i]
-			    var l:Number = s.length
+			    var l:int = s.length
 			    
 			    var found:Boolean = false
-			    for(var n:Number=0;!found && n<l;n++) {
+			    for(var n:int=0;!found && n<l;n++) {
+			    	
+			    	/* Original call
 			    	if(s[n].isPointInside(i,j,k)) {
 			    		found = true
-			    		cell.zIndex+=s[n].zValue
+			    		cell.zIndex+=(s[n] as fSortArea).zValue
+			    	}*/
+			    	
+			    	/* Inline for a bit of speedup */
+			    	var sA:fSortArea = s[n]
+					  if((i>=sA.i && i<=sA.i+sA.width) && (j>=sA.j && j<=sA.j+sA.depth) && (k>=sA.k && k<=sA.k+sA.height) ) {
+			    		found = true
+			    		cell.zIndex+=sA.zValue
 			    	}
+			    	
 			  	}
 			         
 			    // Internal
 			    cell.i = i
 			    cell.j = j
 			    cell.k = k
-			    cell.x = (this.gridSize/2)+(this.gridSize*i)
-			    cell.y = (this.gridSize/2)+(this.gridSize*j)
-			    cell.z = (this.levelSize/2)+(this.levelSize*k)
-					this.grid[i][j][k] = cell
+			    cell.x = (this.gridSize>>1)+(this.gridSize*i)
+			    cell.y = (this.gridSize>>1)+(this.gridSize*j)
+			    cell.z = (this.levelSize>>1)+(this.levelSize*k)
+					arr[k] = cell
 
 				}
 				
@@ -1037,17 +1057,17 @@ package org.ffilmation.engine.core {
 				
 			}
 
-
+			
 			/** @private */
 			public static function translateCoords(x:Number,y:Number,z:Number):Point {
 			
 				 var xx:Number = x*fEngine.DEFORMATION
 				 var yy:Number = y*fEngine.DEFORMATION
 				 var zz:Number = z*fEngine.DEFORMATION
-				 var xCart:Number = (xx+yy)*Math.cos(0.46365)
-				 var yCart:Number = zz+(xx-yy)*Math.sin(0.46365)
+				 var xCart:Number = (xx+yy)*0.8944261217100129			//Math.cos(0.46365)
+				 var yCart:Number = zz+(xx-yy)*0.4472157340733723  	//Math.sin(0.46365)
 
-				 return new Point(xCart,-yCart)
+				 return new Point(xCart,-yCart) 
 
 			}
 			
@@ -1055,8 +1075,8 @@ package org.ffilmation.engine.core {
       public static function translateCoordsInverse(x:Number,y:Number):Point {   
          
          //rotate the coordinates
-         var yCart:Number = (x/Math.cos(0.46365)+(y)/Math.sin(0.46365))/2
-         var xCart:Number = (-1*(y)/Math.sin(0.46365)+x/Math.cos(0.46365))/2         
+         var yCart:Number = (x/0.8944261217100129+(y)/0.4472157340733723)/2
+         var xCart:Number = (-1*(y)/0.4472157340733723+x/0.8944261217100129)/2         
          
          //scale the coordinates
          xCart = xCart/fEngine.DEFORMATION

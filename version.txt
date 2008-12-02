@@ -6,6 +6,7 @@ This is a performance and bugfixing release, so to put it short: nothing is new 
 Finally this version does not have any memory leaks !! Well, at least my tests don't.
 An object pool has been implemented to remove the overhead of continually creating and removing library items and DisplayObjects ( which takes quite a lot of time ). This results in increased performance. Be sure to check the API for the objectPool class: depending on your application you may need to call objectPool.flush() from time to time to free some additional memory.
 Switching between shadow models and qualities at runtime does not throw any exceptions. Also, no "zombie" shadows are left, everything switches nicely.
+A number of AS3 optimizations have been applied ( loops optimization, Number vs int, Array accés, etcc ). Basically I've been reading everything out there about AS optimization and applied what could be applied.
 The GOOD shadow quality has been greatly improved in both quality and performance. It is almost as nice as the BEST quality setting and has very little impact in performance, making it the best choice for most applications.
 Fixed several issues in the CLIP material.
 

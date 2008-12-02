@@ -15,15 +15,15 @@ package org.ffilmation.engine.elements {
 			// Private properties
 
 			/** @private */
-			public var i:Number
+			public var i:int
 			/** @private */
-			public var j:Number
+			public var j:int
 			/** @private */
-			public var k:Number
+			public var k:int
 			/** @private */
-			public var gHeight:Number
+			public var gHeight:int
 			/** @private */
-			public var size:Number
+			public var size:int
 			/** @private */
 			public var height:Number
 			/** @private */
@@ -60,20 +60,20 @@ package org.ffilmation.engine.elements {
 			   this.horizontal = !this.vertical   					 							 
 			   
 			   // Dimensions, parse size and snap to gride
-			   this.size = Math.round(defObj.@size/scene.gridSize)  			 // Size ( in cells )
+			   this.size = int((defObj.@size/scene.gridSize)+0.5)  			 // Size ( in cells )
 			   this.pixelSize = this.size*scene.gridSize+1
-			   this.gHeight = Math.round(defObj.@height/scene.levelSize)
+			   this.gHeight = int((defObj.@height/scene.levelSize)+0.5)
 			   this.height = this.pixelHeight = scene.levelSize*this.gHeight
 
 				 // Previous
 				 super(defObj,scene,this.pixelSize,this.pixelHeight)
 
 			   // Specific coordinates
-			   this.i = Math.round(this.x/scene.gridSize)                  // Grid coordinates
-			   this.j = Math.round(this.y/scene.gridSize)
+			   this.i = int(this.x/scene.gridSize)                  // Grid coordinates
+			   this.j = int(this.y/scene.gridSize)
 			   this.x0 = this.x1 = this.i*scene.gridSize
 			   this.y0 = this.y1 = this.j*scene.gridSize
-			   this.k = Math.round(this.z/scene.levelSize)
+			   this.k = int(this.z/scene.levelSize)
 			   this.z = scene.levelSize*this.k
 			   this.top = this.z + this.height
 

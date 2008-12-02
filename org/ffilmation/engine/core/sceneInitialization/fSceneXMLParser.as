@@ -67,7 +67,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			   // Final geometry adjustments
 			   scene.top += scene.levelSize*10
-			   scene.gridHeight = Math.ceil(scene.top/scene.levelSize)
+			   scene.gridHeight = int((scene.top/scene.levelSize)+0.5)
 			   scene.height = scene.gridHeight*scene.levelSize
 
 
@@ -106,13 +106,13 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   	  var evt:XML = tempObj[i]
 			   	  var tEvt:fCellEventInfo = new fCellEventInfo(evt)
 			   	  
-						var rz:int = Math.floor((new Number(evt.@z[0]))/scene.levelSize)
-			   		var obi:int = Math.floor((new Number(evt.@x[0]))/scene.gridSize)
-			   		var obj:int = Math.floor((new Number(evt.@y[0]))/scene.gridSize)
+						var rz:int = int((new Number(evt.@z[0]))/scene.levelSize)
+			   		var obi:int = int((new Number(evt.@x[0]))/scene.gridSize)
+			   		var obj:int = int((new Number(evt.@y[0]))/scene.gridSize)
 			   		
-			   		var height:int = Math.floor((new Number(evt.@height[0]))/scene.levelSize)
-			   		var width:int = Math.floor((new Number(evt.@width[0]))/(2*scene.gridSize))
-			   		var depth:int = Math.floor((new Number(evt.@depth[0]))/(2*scene.gridSize))
+			   		var height:int = int((new Number(evt.@height[0]))/scene.levelSize)
+			   		var width:int = int((new Number(evt.@width[0]))/(2*scene.gridSize))
+			   		var depth:int = int((new Number(evt.@depth[0]))/(2*scene.gridSize))
 			   		
 			   		for(var n:Number=obj-depth;n<=(obj+depth);n++) {
 			   			for(var l:Number=obi-width;l<=(obi+width);l++) {

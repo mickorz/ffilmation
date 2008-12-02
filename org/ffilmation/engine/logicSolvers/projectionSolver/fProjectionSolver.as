@@ -41,13 +41,13 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			   var pRight:Number = x+(floor.x+floor.width-x)*dz+1
 			   
 			   var ret:Array = new Array
-			   ret.push(new Point(pLeft,pUp))
-			   ret.push(new Point(pRight,pUp))
-			   ret.push(new Point(pRight,pDown))
-			   ret.push(new Point(pLeft,pDown))
+			   ret[ret.length] = (new Point(pLeft,pUp))
+			   ret[ret.length] = (new Point(pRight,pUp))
+			   ret[ret.length] = (new Point(pRight,pDown))
+			   ret[ret.length] = (new Point(pLeft,pDown))
 
 			   // Projection must be closed
-			   ret.push(ret[0])
+			   ret[ret.length] = (ret[0])
 			   return ret
 
 			}
@@ -77,21 +77,21 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						}
 			
 			      var pUp:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y0,pLeft,1,pLeft,-1).y-1
-			     	ret.push(new Point(pLeft, pUp))
+			     	ret[ret.length] = (new Point(pLeft, pUp))
 			     
 			      var pDown:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y1,pLeft,1,pLeft,-1).y+1
-			     	ret.push(new Point(pLeft,pDown))
+			     	ret[ret.length] = (new Point(pLeft,pDown))
 			
 						if(wall.z>destinyZ) {
 					 			var dzb:Number = 1+(wall.z-destinyZ)/(z-wall.z)
 							  var pRight:Number = x+(wall.x-x)*dzb
 			      		pUp = mathUtils.linesIntersect(x,y,wall.x,wall.y0,pRight,1,pRight,-1).y-1
 			      		pDown = mathUtils.linesIntersect(x,y,wall.x,wall.y1,pRight,1,pRight,-1).y+1
-			      		ret.push(new Point(pRight,pDown))
-			      		ret.push(new Point(pRight,pUp))
+			      		ret[ret.length] = (new Point(pRight,pDown))
+			      		ret[ret.length] = (new Point(pRight,pUp))
 			      } else {
-			      		ret.push(new Point(wall.x+1,wall.y1-1))
-			      		ret.push(new Point(wall.x+1,wall.y0-1))
+			      		ret[ret.length] = (new Point(wall.x+1,wall.y1-1))
+			      		ret[ret.length] = (new Point(wall.x+1,wall.y0-1))
 						}
 			
 			
@@ -109,27 +109,27 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 					  }
 					  
 			      pLeft = mathUtils.linesIntersect(x,y,wall.x0,wall.y,1,pUp,-1,pUp).x+1
-			      ret.push(new Point(pLeft, pUp))
+			      ret[ret.length] = (new Point(pLeft, pUp))
 			
 						if(wall.z>destinyZ) {
 							 dzb = 1+(wall.z-destinyZ)/(z-wall.z)
 							 pDown = y+(wall.y-y)*dzb
 			      	 pLeft = mathUtils.linesIntersect(x,y,wall.x0,wall.y,1,pDown,-1,pDown).x-1
 			         pRight = mathUtils.linesIntersect(x,y,wall.x1,wall.y,1,pDown,-1,pDown).x+1
-						   ret.push(new Point(pLeft,pDown))
-			         ret.push(new Point(pRight,pDown))
+						   ret[ret.length] = (new Point(pLeft,pDown))
+			         ret[ret.length] = (new Point(pRight,pDown))
 						} else {
-			         ret.push(new Point(wall.x0+1,wall.y-1))
-				       ret.push(new Point(wall.x1+1,wall.y-1))
+			         ret[ret.length] = (new Point(wall.x0+1,wall.y-1))
+				       ret[ret.length] = (new Point(wall.x1+1,wall.y-1))
 			      }
 			
 			      pRight = mathUtils.linesIntersect(x,y,wall.x1,wall.y,1,pUp,-1,pUp).x+1
-			      ret.push(new Point(pRight,pUp))
+			      ret[ret.length] = (new Point(pRight,pUp))
 			
 			   }
 			   
 			   // Projection must be closed
-			   ret.push(ret[0])
+			   ret[ret.length] = (ret[0])
 			   return ret
 			
 			}
@@ -185,7 +185,7 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 var ret:Array = [p1,p2,p3,p4]
 
 			   // Projection must be closed
-			   ret.push(ret[0])
+			   ret[ret.length] = (ret[0])
 			   return ret
 			   
 			}
@@ -303,7 +303,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			
 			     if(wall.x<x) {
 			
-			        if(y>wall.y1) var shadowLeft:Number = Math.max(mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x0,target.y,target.x1,target.y).x,target.x0)
+			        if(y>wall.y1) {
+			        	var n1:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x0,target.y,target.x1,target.y).x
+			        	var n2:Number = target.x0
+			        	var shadowLeft:Number = (n1>n2) ? n1 : n2
+			        }	
 			        else shadowLeft = target.x0
 			
 			        var shadowRight:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x0,target.y,target.x1,target.y).x
@@ -321,7 +325,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			
 			     } else if(wall.x>x) {
 			        
-			        if(y>wall.y1) shadowRight = Math.min(mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x0,target.y,target.x1,target.y).x,target.x1)
+			        if(y>wall.y1) {
+			        	n1 = mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x0,target.y,target.x1,target.y).x
+			        	n2 = target.x1
+			        	shadowRight = (n1<n2) ? n1 : n2
+			        }
 			        else shadowRight = target.x1
 			
 			        shadowLeft = mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x0,target.y,target.x1,target.y).x    
@@ -341,10 +349,18 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			
 			   } else if(wall.y!=y) {
 			
-			      shadowHeight1 = Math.min(target.top,mathUtils.linesIntersect(y,z,wall.y,wall.top,target.y,1,target.y,-1).y)
-			      shadowHeight2 = Math.max(target.z,mathUtils.linesIntersect(y,z,wall.y,wall.z,target.y,1,target.y,-1).y)
-			      shadowLeft = Math.max(mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x0,target.y,target.x1,target.y).x,target.x0)
-			      shadowRight = Math.min(mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x0,target.y,target.x1,target.y).x,target.x1)
+			      n1 = target.top
+			      n2 = mathUtils.linesIntersect(y,z,wall.y,wall.top,target.y,1,target.y,-1).y
+			      shadowHeight1 = (n1<n2) ? n1 : n2
+			      n1 = target.z
+			      n2 = mathUtils.linesIntersect(y,z,wall.y,wall.z,target.y,1,target.y,-1).y
+			      shadowHeight2 = (n1>n2) ? n1 : n2
+			      n1 = mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x0,target.y,target.x1,target.y).x
+			      n2 = target.x0
+			      shadowLeft = (n1>n2) ? n1 : n2
+			      n1 = mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x0,target.y,target.x1,target.y).x
+			      n2 = target.x1
+			      shadowRight = (n1<n2) ? n1 : n2
 			      
 			      ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight2+target.z)
 			      ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight1+target.z)         
@@ -372,8 +388,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			
 			     if(wall.y<y) {
 			
-			         if(x<wall.x0) var shadowLeft:Number = Math.max(mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x,target.y0,target.x,target.y1).y,target.y0)
-			         else shadowLeft = target.y0
+			         if(x<wall.x0) {
+			         	var n1:Number = mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x,target.y0,target.x,target.y1).y
+			         	var n2:Number = target.y0
+			         	var shadowLeft:Number =(n1>n2) ? n1 : n2
+			         } else shadowLeft = target.y0
 			         
 			         var shadowRight:Number = mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x,target.y0,target.x,target.y1).y
 							 // Top of shadow
@@ -390,7 +409,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			         
 			     } else if(wall.y>y) {
 			        
-			         if(x<wall.x0) shadowRight = Math.min(mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x,target.y0,target.x,target.y1).y,target.y1)
+			         if(x<wall.x0) {
+			         	n1 = mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x,target.y0,target.x,target.y1).y
+			         	n2 = target.y1
+			         	shadowRight = (n1<n2) ? n1 : n2
+			         }
 			         else shadowRight = target.y1
 			         
 			         shadowLeft = mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x,target.y0,target.x,target.y1).y    
@@ -410,10 +433,18 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			
 			   } else if(wall.x!=x) {
 			
-			      shadowHeight1 = Math.min(target.top,mathUtils.linesIntersect(x,z,wall.x,wall.top,target.x,1,target.x,-1).y)
-			      shadowHeight2 = Math.max(target.z,mathUtils.linesIntersect(x,z,wall.x,wall.z,target.x,1,target.x,-1).y)
-			      shadowLeft = Math.max(mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x,target.y0,target.x,target.y1).y,target.y0)
-			      shadowRight = Math.min(mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x,target.y0,target.x,target.y1).y,target.y1)
+			      n1 = target.top
+			      n2 = mathUtils.linesIntersect(x,z,wall.x,wall.top,target.x,1,target.x,-1).y
+			      shadowHeight1 = (n1<n2) ? n1 : n2
+			      n1 = target.z
+			      n2 = mathUtils.linesIntersect(x,z,wall.x,wall.z,target.x,1,target.x,-1).y
+			      shadowHeight2 = (n1>n2) ? n1 : n2
+			      n1 = mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x,target.y0,target.x,target.y1).y
+			      n2 = target.y0
+			      shadowLeft = (n1>n2) ? n1 : n2
+			      n1 = mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x,target.y0,target.x,target.y1).y
+			      n2 = target.y1
+			      shadowRight = (n1<n2) ? n1 : n2
 			
 			      ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight2+target.z)
 			      ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight1+target.z)         

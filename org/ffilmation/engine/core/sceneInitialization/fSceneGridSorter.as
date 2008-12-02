@@ -58,13 +58,17 @@ package org.ffilmation.engine.core.sceneInitialization {
 			public function createGrid():void {
 
 			   this.scene.grid = new Array
-				 for(var fi=0;fi<this.scene.floors.length;fi++) {
+			   var fl:int = this.scene.floors.length
+				 for(var fi=0;fi<fl;fi++) {
 	      	 var f:fFloor = this.scene.floors[fi]
 	      	 if(f.k==0) {
-	      	 	for(var i:Number = f.i;i<(f.i+f.gWidth);i++) {
+	      	 	var fl2:int = (f.i+f.gWidth)
+	      	 	for(var i:int = f.i;i<fl2;i++) {
  				 			if(!this.scene.grid[i]) this.scene.grid[i] = new Array
-	      	 		for(var j:Number = f.j;j<(f.j+f.gDepth);j++) {
-	      	 			this.scene.grid[i][j] = new Array
+ 				 			var temp:Array = this.scene.grid[i]
+ 				 			var fl3:int = (f.j+f.gDepth)
+	      	 		for(var j:int = f.j;j<fl3;j++) {
+	      	 			temp[j] = new Array
 	      	 		}
 	      	 	}
       		 }
@@ -82,10 +86,11 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 this.duplicateSortArray = new Array
 				 
 				 // Populate wall arrays
-				 for(var i:Number=0;i<this.scene.walls.length;i++) {
+				 var wl:int = this.scene.walls.length
+				 for(var i:int=0;i<wl;i++) {
 				 		var w:fWall = this.scene.walls[i]
-				 		if(w.vertical) this.verticals.push(w)
-				 		else this.horizontals.push(w)
+				 		if(w.vertical) this.verticals[this.verticals.length] = w
+				 		else this.horizontals[this.horizontals.length] = w
 				 }
 			
 			   // Sort arrays
@@ -110,21 +115,24 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 	      // Start zSorting planes
 	      this.sortArray = new Array
-	      for(var i=0;i<this.verticals.length;i++) {
+	      var vl:int = this.verticals.length
+	      for(var i:int=0;i<vl;i++) {
 	      	var w:fWall = this.verticals[i]
 	      	w.setZ(this.scene.computeZIndex(w.i-1,w.j+w.size-1,w.k))
-	      	this.sortArray.push(w)
+	      	this.sortArray[this.sortArray.length] = w
 	      }
-	      for(i=0;i<this.horizontals.length;i++) {
+	      var hl:int = this.horizontals.length 
+	      for(i=0;i<hl;i++) {
 	      	w = this.horizontals[i]
 	      	w.setZ(this.scene.computeZIndex(w.i,w.j,w.k))
-	      	this.sortArray.push(w)
+	      	this.sortArray[this.sortArray.length] = w
 	      }
-	      for(i=0;i<this.scene.floors.length;i++) {
+	      var fl:int = this.scene.floors.length 
+	      for(i=0;i<fl;i++) {
 	      	var f:fFloor = this.scene.floors[i]
 	      	if(f.k!=0) {
 	      		f.setZ(this.scene.computeZIndex(f.i,f.j+f.gDepth-1,f.k))
-      			this.sortArray.push(f)
+      			this.sortArray[this.sortArray.length] = f
       		}
 	      }
 	      this.sortArray.sortOn("zIndex",Array.NUMERIC | Array.DESCENDING)
@@ -148,9 +156,11 @@ package org.ffilmation.engine.core.sceneInitialization {
 				  if(initial) p.setZ(value)
 				  else p.setZ(p.zIndex+value)
 				  
-	      	for(var k:Number=0;k<this.sortArray.length;k++) {
-	      		  if(this.sortArray[k].zIndex<p.zIndex && this.sortArray[k].inFrontOf(p)) {
-	      		  	this.duplicateSortArray.push( { plane:this.sortArray[k],zValue: p.zIndex} )
+	      	var sl:int = this.sortArray.length
+	      	for(var k:int=0;k<sl;k++) {
+	      		 	var temp:fPlane = this.sortArray[k]
+	      		  if(temp.zIndex<p.zIndex && temp.inFrontOf(p)) {
+	      		  	this.duplicateSortArray[this.duplicateSortArray.length] =  { plane:temp,zValue: p.zIndex} 
 	      		  }
 	      	}
 				
@@ -160,7 +170,7 @@ package org.ffilmation.engine.core.sceneInitialization {
       public function zSortLoop(event:TimerEvent):void {
                         
          // Explore this plane
-         var count = event.target.currentCount-1
+         var count:int = event.target.currentCount-1
          this.duplicateSortArray = new Array
 				 this.setD(this.sortArray[count],this.sortArray[count].zIndex,true)
 	       
@@ -168,18 +178,22 @@ package org.ffilmation.engine.core.sceneInitialization {
          do {
          	
              var tempP:Array = new Array
-             for(var i:Number=0;i<this.duplicateSortArray.length;i++) {
+             var dl:int = this.duplicateSortArray.length
+             for(var i:int=0;i<dl;i++) {
              	  var found:Boolean=false
-             	  for(var k:Number=0;k<tempP.length;k++) {
+             	  var tl:int = tempP.length
+             	  for(var k:int=0;k<tl;k++) {
              	  	if(tempP[k].plane==this.duplicateSortArray[i].plane) {
              	  		 found = true
              	  		 if(tempP[k].zValue<this.duplicateSortArray[i].zValue) tempP[k].zValue=this.duplicateSortArray[i].zValue
              	  	}
                 }
-                if(!found) tempP.push(this.duplicateSortArray[i])
+                if(!found) tempP[tempP.length] = this.duplicateSortArray[i]
              }
              this.duplicateSortArray = new Array
-             for(i=0;i<tempP.length;i++) this.setD(tempP[i].plane,tempP[i].zValue)
+             
+             tl = tempP.length
+             for(i=0;i<tl;i++) this.setD(tempP[i].plane,tempP[i].zValue)
                  
          } while(tempP.length!=0)
 	       
@@ -197,43 +211,56 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 	      // Finish zSort and normalize zIndexes
 	      this.sortArray.sortOn("zIndex",Array.NUMERIC)
-	      for(var i:Number=0;i<this.sortArray.length;i++) this.sortArray[i].setZ(i+1)
+	      var sl:int = this.sortArray.length
+	      for(var i:int=0;i<sl;i++) (this.sortArray[i] as fPlane).setZ(i+1)
 
 	      // Generate sort areas for the scene
 	      var sortAreas:Array = new Array
-	      sortAreas.push(new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0))
-	      for(i=0;i<this.verticals.length;i++) {
+	      sortAreas[sortAreas.length] = (new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0))
+	      
+	      var vl:int = this.verticals.length 
+	      for(i=0;i<vl;i++) {
 	      	var w:fWall = this.verticals[i]
-	      	sortAreas.push(new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
+	      	sortAreas[sortAreas.length] = (new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
 	      }
-	      for(i=0;i<this.horizontals.length;i++) {
+	      
+	      var hl:int = this.horizontals.length
+	      for(i=0;i<hl;i++) {
 	      	w = this.horizontals[i]
-	      	sortAreas.push(new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
+	      	sortAreas[sortAreas.length] = (new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
 	      }
-	      for(i=0;i<this.scene.floors.length;i++) {
+	      
+	      var fl:int = this.scene.floors.length 
+	      for(i=0;i<fl;i++) {
 	      	var f:fFloor = this.scene.floors[i]
 	      	if(f.k!=0) {
-	      		sortAreas.push(new fSortArea(f.i,f.j,f.k,f.gWidth-1,f.gDepth-1,this.scene.gridHeight-f.k,f.zIndex))
-	      		sortAreas.push(new fSortArea(0,f.j,0,f.i-1,this.scene.gridDepth-f.j,this.scene.gridHeight,f.zIndex))
-	      		sortAreas.push(new fSortArea(f.i,f.j+f.gDepth,0,f.gWidth-1,this.scene.gridDepth-f.j-f.gDepth,this.scene.gridHeight,f.zIndex))
+	      		sortAreas[sortAreas.length] = (new fSortArea(f.i,f.j,f.k,f.gWidth-1,f.gDepth-1,this.scene.gridHeight-f.k,f.zIndex))
+	      		sortAreas[sortAreas.length] = (new fSortArea(0,f.j,0,f.i-1,this.scene.gridDepth-f.j,this.scene.gridHeight,f.zIndex))
+	      		sortAreas[sortAreas.length] = (new fSortArea(f.i,f.j+f.gDepth,0,f.gWidth-1,this.scene.gridDepth-f.j-f.gDepth,this.scene.gridHeight,f.zIndex))
 	      	}
 	      }
 
 	      // Split sortAreas per row, for faster lookups
 	      sortAreas.sortOn("zValue",Array.DESCENDING | Array.NUMERIC)
 	      this.scene.sortAreas = new Array
-	      for(i=0;i<this.scene.gridWidth;i++) {
+	      
+	      var sw:int = this.scene.gridWidth 
+	      for(i=0;i<sw;i++) {
 	      	var temp:Array = new Array
-	      	for(j=0;j<sortAreas.length;j++) {
+	      	var sal:int = sortAreas.length 
+	      	for(j=0;j<sal;j++) {
 	      		var s:fSortArea = sortAreas[j]
-	      		if(i>=s.i && i<=(s.i+s.width)) temp.push(s)
+	      		if(i>=s.i && i<=(s.i+s.width)) temp[temp.length] = s
 	      	}
 	      	this.scene.sortAreas[i] = temp
 	      }
 
 	      // Set depth of objects and characters and finish zSort
-				for(var j=0;j<this.scene.objects.length;j++) this.scene.objects[j].updateDepth()
-				for(j=0;j<this.scene.characters.length;j++) this.scene.characters[j].updateDepth()
+	      var ol:int = this.scene.objects.length
+				for(var j:int=0;j<ol;j++) (this.scene.objects[j] as fObject).updateDepth()
+				
+				var cl:int = this.scene.characters.length
+				for(j=0;j<cl;j++) (this.scene.characters[j] as fCharacter).updateDepth()
 				
 				// Dispose resources
 				this.scene = null

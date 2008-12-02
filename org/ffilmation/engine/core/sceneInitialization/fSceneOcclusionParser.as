@@ -27,7 +27,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		var obi:int = ob.x/scene.gridSize
 			   		var obj:int = ob.y/scene.gridSize
 			   		var height:int = ob.height/scene.levelSize
-			   		var rad:int = Math.ceil(ob.radius/scene.gridSize)
+			   		var rad:int = int((ob.radius/scene.gridSize)+0.5)
 			   		
 			   		var realPos:Point = fScene.translateCoords(ob.x,ob.y,ob.z)
 			   		
@@ -38,15 +38,15 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		tempSprite = null
 			   		clase = null
 			   		
-			   		var cnt:Number = 0
+			   		var cnt:int = 0
 			   		do {
 			   		
 			   			var some:Boolean = false
 			   			for(var i:int=-rad;i<=rad;i++) {
 			   				
-			   				  var row:Number = obi+i
-			   				  var col:Number = obj+i
-			   				  var z:Number = obz
+			   				  var row:int = obi+i
+			   				  var col:int = obj+i
+			   				  var z:int = obz
 									var inside:Boolean = true
 									
 									do {
@@ -60,7 +60,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 										if(cell) {
 											var candidate:Point = fScene.translateCoords(cell.x,cell.y,cell.z)
 											if(bounds.contains(candidate.x,candidate.y)) {
-			   								cell.elementsInFront.push(ob)
+			   								cell.elementsInFront[cell.elementsInFront.length] = ob
 			   								some = true
 											} else inside = false
 										}
@@ -85,7 +85,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		obj = ((wa.vertical)?(wa.y0):(wa.y))/scene.gridSize
 			   		height = wa.gHeight
 		   			
-		   			for(var j:Number=0;j<obz+height;j++) {
+		   			for(var j:int=0;j<obz+height;j++) {
 		   				
 			   			for(i=0;i<wa.size;i++) {
 			   				
@@ -100,7 +100,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   				  for(z = 0;z<obz+height;z++) {
 										try {
 											cell = scene.getCellAt(row,col,z)
-		   								cell.elementsInFront.push(wa)
+		   								cell.elementsInFront[cell.elementsInFront.length] = wa
 										} catch(e:Error) {}
 									}
 			   				  
@@ -128,7 +128,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   						for(j=obj-6-loops;j<obj+depth;j++) {
 												try {
 													cell = scene.getCellAt(i,j,obz-loops)
-		   										cell.elementsInFront.push(flo)
+		   										cell.elementsInFront[cell.elementsInFront.length] = flo
 												} catch(e:Error) {}
 			   						}
 			   					}

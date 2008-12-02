@@ -89,10 +89,18 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			      
 			   } else {
 			
-			      lightStatus.lUp = Math.max(light.y-light.size,element.y-1)
-			      lightStatus.lDown = Math.min(light.y+light.size,element.y+element.depth+1)   
-			      lightStatus.lLeft = Math.max(light.x-light.size,element.x-1)   
-			      lightStatus.lRight = Math.min(light.x+light.size,element.x+element.width+1)
+			      var n1:Number = light.y-light.size
+			      var n2:Number = element.y-1
+			      lightStatus.lUp = (n1>n2) ? n1 : n2
+			      n1 = light.y+light.size
+			      n2 = element.y+element.depth+1
+			      lightStatus.lDown = (n1<n2) ? n1 : n2
+			      n1 = light.x-light.size
+			      n2 = element.x-1
+			      lightStatus.lLeft = (n1>n2) ? n1 : n2 
+			      n1 = light.x+light.size
+			      n2 = element.x+element.width+1
+			      lightStatus.lRight = (n1<n2) ? n1 : n2
 			
 			   }
 			
@@ -108,7 +116,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				
 			   if(status.lightZ != light.z) {
 			      status.lightZ = light.z
-			      this.setLightDistance(light,Math.abs(light.z-this.element.z))
+			      var d:Number = light.z-this.element.z
+			      this.setLightDistance(light,(d>0)?d:-d)
 			   }    
 			
 			   // Move light
@@ -249,27 +258,46 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   }
 			
 				 var points:Array = fFlash9FloorRenderer.floorProjectionCache.points
-			   var pLeft:Number = Math.max(points[0].x,lightStatus.lLeft)
-			   var pUp:Number = Math.max(points[0].y,lightStatus.lUp)
-			   var pRight:Number = Math.min(points[2].x,lightStatus.lRight)
-			   var pDown:Number = Math.min(points[2].y,lightStatus.lDown)
+				 
+				 
+				 var n1:Number = points[0].x
+				 var n2:Number = lightStatus.lLeft
+			   var pLeft:Number = (n1>n2) ? n1 : n2
+			   n1 = points[0].y
+			   n2 = lightStatus.lUp
+			   var pUp:Number = (n1<n2) ? n1 : n2
+			   n1 = points[2].x
+			   n2 = lightStatus.lRight
+			   var pRight:Number = (n1<n2) ? n1 : n2
+			   n1 = points[2].y
+			   n2 = lightStatus.lDown
+			   var pDown:Number = (n1<n2) ? n1 : n2
 			   msk.graphics.moveTo(pLeft-this.element.x,pUp-this.element.y)
 				 msk.graphics.lineTo(pLeft-this.element.x,pDown-this.element.y)
 				 msk.graphics.lineTo(pRight-this.element.x,pDown-this.element.y)
 				 msk.graphics.lineTo(pRight-this.element.x,pUp-this.element.y)
 
-		
 				 // For each hole, draw light
 				 len = other.holes.length
 				 
 				 for(var h:int=0;h<len;h++) {
-				 	
+ 				 	
 				 		if(other.holes[h].open) {
 					 		points = fFlash9FloorRenderer.floorProjectionCache.holes[h]
-			        pLeft = Math.max(points[0].x,lightStatus.lLeft)
-			        pUp = Math.max(points[0].y,lightStatus.lUp)
-			        pRight = Math.min(points[2].x,lightStatus.lRight)
-			        pDown = Math.min(points[2].y,lightStatus.lDown)
+					 		
+				 			n1 = points[0].x
+				 			n2 = lightStatus.lLeft
+			   			pLeft = (n1>n2) ? n1 : n2
+			   			n1 = points[0].y
+			   			n2 = lightStatus.lUp
+			   			pUp = (n1<n2) ? n1 : n2
+			   			n1 = points[2].x
+			   			n2 = lightStatus.lRight
+			   			pRight = (n1<n2) ? n1 : n2
+			   			n1 = points[2].y
+			   			n2 = lightStatus.lDown
+			   			pDown = (n1<n2) ? n1 : n2
+					 		
 				    	msk.graphics.moveTo(pRight-this.element.x,pUp-this.element.y)
 				    	msk.graphics.lineTo(pRight-this.element.x,pDown-this.element.y)
 				    	msk.graphics.lineTo(pLeft-this.element.x,pDown-this.element.y)

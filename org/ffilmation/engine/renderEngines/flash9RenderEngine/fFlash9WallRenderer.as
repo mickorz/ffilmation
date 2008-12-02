@@ -105,7 +105,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			      
 			      // If distance to light changed, redraw masks
 			      if(status.lightZ != light.x) {
-			      	 this.setLightDistance(light,Math.abs(light.x-this.element.x))
+			      	
+			      	 var d:Number = light.x-this.element.x
+			      	 this.setLightDistance(light,(d>0)?d:-d)
 			         status.lightZ = light.x
 			      }
 			   }   
@@ -123,7 +125,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			
 			      // If distance to light changed, redraw masks
 			      if(status.lightZ != light.y) {
-			      	 this.setLightDistance(light,Math.abs(light.y-this.element.y))
+			      	
+			      	 var d:Number = light.y-this.element.y
+			      	 this.setLightDistance(light,(d>0)?d:-d)
 			         status.lightZ = light.y
 			      }
 			   

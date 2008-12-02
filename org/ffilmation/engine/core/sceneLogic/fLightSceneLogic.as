@@ -34,7 +34,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			   // Init
 			   var cell:fCell = light.cell
 			   var x:Number, y:Number,z:Number
-		     var nEl:Number = light.nElements
+		     var nEl:int = light.nElements
 				 var tempElements:Array
 
 				 try {
@@ -48,7 +48,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			   }
 
 		     // Hide light from elements no longer within range
-		     for(var i2:Number=0;i2<nEl;i2++) scene.renderEngine.lightOut(light.elementsV[i2].obj,light)
+		     for(var i2:int=0;i2<nEl;i2++) scene.renderEngine.lightOut(light.elementsV[i2].obj,light)
 
 			   if(cell==null) {
 			      // fLight outside grid
@@ -64,10 +64,10 @@ package org.ffilmation.engine.core.sceneLogic {
 			   }
 			   
 			   // Count elements close enough
-			   var nElements:Number
+			   var nElements:int
 	   	   var ele:fShadowedVisibilityInfo
 			   var shadowArray:Array
-			   var shLength:Number
+			   var shLength:int
 
 			   nEl = tempElements.length
 			   for(nElements=0;nElements<nEl && tempElements[nElements].distance<light.size;nElements++);
@@ -83,12 +83,12 @@ package org.ffilmation.engine.core.sceneLogic {
 			      shadowArray = ele.shadows
 			      shLength = shadowArray.length
 			      
-			      for(var var2:Number=0;var2<shLength && shadowArray[var2].distance<light.size;var2++);
+			      for(var var2:int=0;var2<shLength && shadowArray[var2].distance<light.size;var2++);
 			      tempElements[i2].withinRange = var2
 			   }
 
 				 // Characters			   
-			   var chLength:Number = scene.characters.length
+			   var chLength:int = scene.characters.length
 			   var character:fCharacter
 				 var cache:fCharacterShadowCache
 				 var el:fRenderableElement
@@ -125,7 +125,7 @@ package org.ffilmation.engine.core.sceneLogic {
 				   		 	  
 				   		 	  if(fEngine.characterShadows) { 
 				   		 	    
-				   		 	  	for(var i:Number=0;i<nElements;i++) {
+				   		 	  	for(var i:int=0;i<nElements;i++) {
 				   		 	  			el = tempElements[i].obj
                	  	
 				   	   	  			// Shadows of scene character upon other elements

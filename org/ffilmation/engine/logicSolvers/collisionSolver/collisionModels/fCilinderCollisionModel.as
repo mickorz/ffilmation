@@ -31,7 +31,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 				 this.topView = new Array
 				 for(var i:Number=0;i<360;i+=20) {
 				 		var angle:Number = i*Math.PI/180
-				 		this.topView.push(new Point(this._radius*Math.cos(angle),this._radius*Math.sin(angle)))
+				 		this.topView[this.topView.length] = new Point(this._radius*Math.cos(angle),this._radius*Math.sin(angle))
 				 }
 				 
 			}

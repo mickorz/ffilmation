@@ -56,7 +56,7 @@ package org.ffilmation.engine.helpers {
 			   				} catch(e:Error) {
 			   					shadow = clase
 			   				}
-				 				this._sprites.push(new fSpriteDefinition(parseInt(spr.@angle),clase,shadow))
+				 				this._sprites[this._sprites.length] = new fSpriteDefinition(parseInt(spr.@angle),clase,shadow)
 				 				
 				 		}
 								

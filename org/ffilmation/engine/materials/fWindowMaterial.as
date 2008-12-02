@@ -67,7 +67,7 @@ package org.ffilmation.engine.materials {
 			private function calcWindows(width:Number,height:Number) {
 
 				// Count how many windows fit in
-				var nWindows:Number = Math.floor(width/(this.wwidth+this.separation+this.framesize))
+				var nWindows:int = Math.floor(width/(this.wwidth+this.separation+this.framesize))
 				
 				// Calculate window vertical position
 				var range:Number = (height-this.wheight)/2
@@ -76,7 +76,7 @@ package org.ffilmation.engine.materials {
 				// Generate window array
 				this.windows = new Array()
 				for(var j:Number=1;j<=nWindows;j++) {
-					this.windows.push(new Rectangle(j*width/(nWindows+1)-this.wwidth/2,vPosition,this.wwidth,this.wheight))
+					this.windows[this.windows.length] = new Rectangle(j*width/(nWindows+1)-this.wwidth/2,vPosition,this.wwidth,this.wheight)
 				}
 				
 			}
@@ -220,7 +220,7 @@ package org.ffilmation.engine.materials {
 					// Push subdivisions in frame
 					for(var k:Number=0;k<this.geometryW;k++) {
 						for(var k2:Number=0;k2<this.geometryH;k2++) {
-							holes.push(new Rectangle(window.x+k*(this.framesize+this.hDivisionSize),window.y+k2*(this.framesize+this.vDivisionSize),this.hDivisionSize,this.vDivisionSize))
+							holes[holes.length] = new Rectangle(window.x+k*(this.framesize+this.hDivisionSize),window.y+k2*(this.framesize+this.vDivisionSize),this.hDivisionSize,this.vDivisionSize)
 						}
 					}	
 				

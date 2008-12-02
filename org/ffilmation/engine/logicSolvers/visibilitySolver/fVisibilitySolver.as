@@ -36,8 +36,8 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      floorc = scene.floors[w] 
 			      dist = floorc.distanceTo(x,y,z)
 			      if(dist<range) {
-			      	if(floorc.receiveLights) if(floorc.z<z) candidates.push(new fShadowedVisibilityInfo(floorc,dist))
-			      	if(floorc.castShadows) allElements.push(new fShadowedVisibilityInfo(floorc,dist))
+			      	if(floorc.receiveLights) if(floorc.z<z) candidates[candidates.length] = (new fShadowedVisibilityInfo(floorc,dist))
+			      	if(floorc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(floorc,dist))
 			      }
 			   }
 			
@@ -47,8 +47,8 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      wallc = scene.walls[w]
 			      dist = wallc.distanceTo(x,y,z)
 			      if(dist<range) {
-			      	if(wallc.receiveLights) if((wallc.vertical && wallc.x>x) || (!wallc.vertical && wallc.y<y)) candidates.push(new fShadowedVisibilityInfo(wallc,dist))
-					  	if(floorc.castShadows) allElements.push(new fShadowedVisibilityInfo(wallc,dist))
+			      	if(wallc.receiveLights) if((wallc.vertical && wallc.x>x) || (!wallc.vertical && wallc.y<y)) candidates[candidates.length] = (new fShadowedVisibilityInfo(wallc,dist))
+					  	if(floorc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(wallc,dist))
 					  }
 			   }
 			
@@ -59,8 +59,8 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      objc = scene.objects[w]
 			      dist = objc.distanceTo(x,y,z)
 			      if(dist<range) {
-			      	if(objc.receiveLights) candidates.push(new fShadowedVisibilityInfo(objc,dist))
-			      	if(withObjects) if(objc.castShadows) allElements.push(new fShadowedVisibilityInfo(objc,dist))
+			      	if(objc.receiveLights) candidates[candidates.length] = (new fShadowedVisibilityInfo(objc,dist))
+			      	if(withObjects) if(objc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(objc,dist))
 			      }
 			   }
 
@@ -94,7 +94,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      // If not covered, sort shadows by distance to coords and add candidate to result list
 			      if(!covered) { 
 			         candidate.shadows.sortOn("distance",Array.NUMERIC)
-			         rcell.push(candidate)
+			         rcell[rcell.length] = candidate
 			      }
 			
 			   }

@@ -184,8 +184,10 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function distanceTo(x:Number,y:Number,z:Number):Number {
 			
-				 return Math.min(mathUtils.distance3d(x,y,z,this.x,this.y,this.z),
-				 								 mathUtils.distance3d(x,y,z,this.x,this.y,this.top))
+				 var n1:Number = mathUtils.distance3d(x,y,z,this.x,this.y,this.z)
+				 var n2:Number = mathUtils.distance3d(x,y,z,this.x,this.y,this.top)
+				 
+				 return (n1<n2) ? n1 : n2
 			
 			}
 
@@ -219,8 +221,8 @@ package org.ffilmation.engine.elements {
 				if(isNaN(correctedAngle)) return
 				
 				// Update collision model
-				var newSprite:Number = Math.floor(correctedAngle*this.sprites.length)
-				this.collisionModel.orientation = this.sprites[newSprite].angle
+				var newSprite:int = int(correctedAngle*this.sprites.length)
+				this.collisionModel.orientation = (this.sprites[newSprite] as fSpriteDefinition).angle
 				
 				// Dispatch event so the render engine updates the screen
 				this.dispatchEvent(new Event(fObject.NEWORIENTATION))

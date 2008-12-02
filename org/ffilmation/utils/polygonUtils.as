@@ -9,13 +9,6 @@ package org.ffilmation.utils {
 	  */
 		public class polygonUtils {
 
-			// Constants
-			private static const MAXTEST:Number = 1
-			private static const NOSEGM:Number = 0 				  /* The line is rejected */
-			private static const SEGM:Number = 1 					  /* The line is visible (even partially) */
-			private static const CLIP:Number = 2 					  /* The line has been "clipped" */
-			private static const TWOBITS:Number = 0x100 		/* A flag to indicate a 2bit code. */
-			
 			// Temporary variables
 			private static var Cp_start:Point = null				/* The start point of the line */
 			private static var M_code:Number = 0
@@ -110,7 +103,8 @@ package org.ffilmation.utils {
 			    ret.min = dotProduct
 			    ret.max = dotProduct
 
-			    for (var i:int = 0; i < polygon.length; i++) {
+			    var pl:int = polygon.length
+			    for (var i:int = 0; i < pl; i++) {
 			        dotProduct = axis.dotProduct(new Vector(polygon[i].x,polygon[i].y))
 			        if (dotProduct < ret.min) {
 			            ret.min = dotProduct
@@ -161,7 +155,7 @@ package org.ffilmation.utils {
 			
 				polygonUtils.Cp_start = new Point(polygon[0].x,polygon[0].y)
 			
-				if (polygonUtils.clipPolygonStep1(viewport)!=polygonUtils.NOSEGM) {
+				if (polygonUtils.clipPolygonStep1(viewport)!=0) {
 					out[out.length] = polygonUtils.Cp_start;
 				}
 			
@@ -175,8 +169,8 @@ package org.ffilmation.utils {
 					j = polygonUtils.clipPolygonStep2(viewport)
 			
 					// If the line is visible, then store the computed point(s), and jump to the basic turning point test.
-					if(j & polygonUtils.SEGM) {
-						if (j & polygonUtils.CLIP) {
+					if(j & 1) {
+						if (j & 2) {
 							out[out.length] = polygonUtils.Cp_start;
 						}
 						out[out.length] = polygonUtils.Cp_end;
@@ -186,13 +180,13 @@ package org.ffilmation.utils {
 			
 						// Begin with a 2bit end point.
 			    	
-						if (polygonUtils.D_code & polygonUtils.TWOBITS) {
+						if (polygonUtils.D_code & 0x100) {
 			
-							if (!((polygonUtils.M_code& ~polygonUtils.TWOBITS) & (polygonUtils.D_code& ~polygonUtils.TWOBITS))) {
+							if (!((polygonUtils.M_code& ~0x100) & (polygonUtils.D_code& ~0x100))) {
 			    	
 								// If the start point is also a 2bit... Need some more information to make a decision! So do mid-point subdivision.
 			    	
-								if (polygonUtils.M_code & polygonUtils.TWOBITS) {
+								if (polygonUtils.M_code & 0x100) {
 			    	
 									j = 1;
 									Cp_t_start = polygonUtils.Cp_start
@@ -205,7 +199,7 @@ package org.ffilmation.utils {
 			    	
 									  A_code = polygonUtils.spaceCode(Cp_A_point,viewport)
 			    	
-									  if (A_code & polygonUtils.TWOBITS) {
+									  if (A_code & 0x100) {
 			    	
 											if (A_code == polygonUtils.D_code) {
 			    	
@@ -220,8 +214,8 @@ package org.ffilmation.utils {
 			    	
 										} else {
 			    	
-											if (A_code & polygonUtils.D_code) A_code = polygonUtils.M_code + polygonUtils.Tcc[A_code & ~polygonUtils.TWOBITS]
-											else A_code = polygonUtils.D_code + polygonUtils.Tcc[A_code & ~polygonUtils.TWOBITS]
+											if (A_code & polygonUtils.D_code) A_code = polygonUtils.M_code + polygonUtils.Tcc[A_code & ~0x100]
+											else A_code = polygonUtils.D_code + polygonUtils.Tcc[A_code & ~0x100]
 										  j = 0
 			    	
 										}
@@ -235,7 +229,7 @@ package org.ffilmation.utils {
 			
 								}
 			  	
-								out[out.length] = Clip_region[polygonUtils.Cra[A_code & ~polygonUtils.TWOBITS]]
+								out[out.length] = Clip_region[polygonUtils.Cra[A_code & ~0x100]]
 			    	
 							}
 			    	
@@ -243,11 +237,11 @@ package org.ffilmation.utils {
 			    	
 							// Here we have a 1bit end point.
 							
-							if (polygonUtils.M_code & polygonUtils.TWOBITS) {
+							if (polygonUtils.M_code & 0x100) {
 								if (!(polygonUtils.M_code & polygonUtils.D_code)) polygonUtils.D_code = polygonUtils.M_code + polygonUtils.Tcc[polygonUtils.D_code]
 							} else {
 								polygonUtils.D_code |= polygonUtils.M_code
-								if (polygonUtils.Tcc[polygonUtils.D_code] == 1) polygonUtils.D_code |= polygonUtils.TWOBITS
+								if (polygonUtils.Tcc[polygonUtils.D_code] == 1) polygonUtils.D_code |= 0x100
 							}
 			    	
 						}
@@ -256,8 +250,8 @@ package org.ffilmation.utils {
 			
 					// The basic turning point test...
 			
-					if (polygonUtils.D_code & polygonUtils.TWOBITS) {
-						out[out.length] = Clip_region[polygonUtils.Cra[polygonUtils.D_code & ~polygonUtils.TWOBITS]]
+					if (polygonUtils.D_code & 0x100) {
+						out[out.length] = Clip_region[polygonUtils.Cra[polygonUtils.D_code & ~0x100]]
 					}
 			
 					// Copy the current point as the next starting point.
@@ -281,8 +275,8 @@ package org.ffilmation.utils {
 			*/
 			private static function clipPolygonStep1(viewport:vport):int {
 				polygonUtils.M_code = polygonUtils.spaceCode(polygonUtils.Cp_start,viewport)
-				if(polygonUtils.M_code == 0)	return polygonUtils.SEGM
-				else return polygonUtils.NOSEGM
+				if(polygonUtils.M_code == 0)	return 1
+				else return 0
 			
 			}
 			
@@ -304,13 +298,13 @@ package org.ffilmation.utils {
 				polygonUtils.D_code = polygonUtils.spaceCode(polygonUtils.Cp_end,viewport)
 			
 				// Totally in ?
-				if(polygonUtils.M_code == 0 && polygonUtils.D_code == 0)	return polygonUtils.SEGM
+				if(polygonUtils.M_code == 0 && polygonUtils.D_code == 0)	return 1
 				
 				// Clip line
 				var ret:line = polygonUtils.clipLine(polygonUtils.Cp_start.x,polygonUtils.Cp_start.y,polygonUtils.Cp_end.x,polygonUtils.Cp_end.y,viewport)
 				
 				// Totally out ?
-				if(ret == null) return polygonUtils.NOSEGM
+				if(ret == null) return 0
 				
 				// Clipped line
 				polygonUtils.Cp_start.x = ret.x1
@@ -318,7 +312,7 @@ package org.ffilmation.utils {
 				polygonUtils.Cp_end.x = ret.x2
 				polygonUtils.Cp_end.y = ret.y2		
 			
-				return polygonUtils.SEGM | polygonUtils.CLIP
+				return 1 | 2
 			}
 			
 			
@@ -329,14 +323,14 @@ package org.ffilmation.utils {
 			private static function spaceCode(point_to_code:Point,viewport:vport):int {
 			
 				if (point_to_code.x < viewport.x_min) {
-					if (point_to_code.y < viewport.y_min) return (6 | polygonUtils.TWOBITS)
-					if (point_to_code.y > viewport.y_max) return (12 | polygonUtils.TWOBITS)
+					if (point_to_code.y < viewport.y_min) return (6 | 0x100)
+					if (point_to_code.y > viewport.y_max) return (12 | 0x100)
 					return (4);
 				}
 			
 				if (point_to_code.x > viewport.x_max) {
-					if (point_to_code.y < viewport.y_min) return (3 | polygonUtils.TWOBITS)
-					if (point_to_code.y > viewport.y_max) return (9 | polygonUtils.TWOBITS)
+					if (point_to_code.y < viewport.y_min) return (3 | 0x100)
+					if (point_to_code.y > viewport.y_max) return (9 | 0x100)
 					return (1);
 				}
 			

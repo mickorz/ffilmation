@@ -18,13 +18,13 @@ package org.ffilmation.engine.elements {
 		public class fOmniLight extends fLight {
 		
  		  /** @private */
- 		  public static var counter:Number = 0
+ 		  public static var counter:int = 0
 
 			/** 
 			* Numeric counter for fast Array lookups
 			* @private
 			*/
-			public var counter:Number
+			public var counter:int
 
 			/**
 			* Contructor

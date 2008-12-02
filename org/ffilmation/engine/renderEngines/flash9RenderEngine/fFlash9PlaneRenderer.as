@@ -838,7 +838,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						spr.mouseEnabled = false
 						spr.mouseChildren = false
 						
-						var size:Number = 1.5*Math.max(character.radius,character.height)
+						var size:Number = (character.radius>character.height) ? character.radius : character.height
+						size *= 1.5
 						movieClipUtils.circle(spr.graphics,0,0,size,50,0xFFFFFF,character.occlusion)
 						this.occlusionSpots[character.uniqueId] = spr
 					}

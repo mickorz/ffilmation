@@ -16,15 +16,15 @@ package org.ffilmation.engine.elements {
 			// Private properties
 			
 			/** @private */
-			public var gWidth:Number
+			public var gWidth:int
 			/** @private */
-			public var gDepth:Number
+			public var gDepth:int
 			/** @private */
-			public var i:Number
+			public var i:int
 			/** @private */
-			public var j:Number
+			public var j:int
 			/** @private */
-			public var k:Number
+			public var k:int
 			
 			// Public properties
 
@@ -46,8 +46,8 @@ package org.ffilmation.engine.elements {
 			function fFloor(defObj:XML,scene:fScene):void {
 			
 			   // Dimensions, parse size and snap to gride
-			   this.gWidth = Math.round(defObj.@width/scene.gridSize)
-			   this.gDepth = Math.round(defObj.@height/scene.gridSize)
+			   this.gWidth = int((defObj.@width/scene.gridSize)+0.5)
+			   this.gDepth = int((defObj.@height/scene.gridSize)+0.5)
 			   this.width = scene.gridSize*this.gWidth
 			   this.depth = scene.gridSize*this.gDepth
 			   
@@ -55,9 +55,9 @@ package org.ffilmation.engine.elements {
 				 super(defObj,scene,this.width,this.depth)
 			   
 			   // Specific coordinates
-			   this.i = Math.round(defObj.@x/scene.gridSize)
-			   this.j = Math.round(defObj.@y/scene.gridSize)
-			   this.k = Math.round(defObj.@z/scene.levelSize)
+			   this.i = int((defObj.@x/scene.gridSize)+0.5)
+			   this.j = int((defObj.@y/scene.gridSize)+0.5)
+			   this.k = int((defObj.@z/scene.levelSize)+0.5)
 			   this.x0 = this.x = this.i*scene.gridSize
 			   this.y0 = this.y = this.j*scene.gridSize
 			   this.top = this.z = this.k*scene.levelSize
@@ -104,7 +104,7 @@ package org.ffilmation.engine.elements {
 			public override function distanceTo(x:Number,y:Number,z:Number):Number {
 			
 				 // Easy case
-				 if(x>=this.x && x<=this.x+this.width && y>=this.y && y<=this.y+this.depth) return Math.abs(this.z-z)
+				 if(x>=this.x && x<=this.x+this.width && y>=this.y && y<=this.y+this.depth) return ((this.z-z)>0) ? (this.z-z) : -(this.z-z)
 				 
 				 
 				 if(y<this.y) {

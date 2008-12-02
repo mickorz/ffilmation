@@ -36,7 +36,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 		  	var node:fCell = start
 		  	node.g = 0
 		  	node.heuristic = criteria.getHeuristic(node)
-		  	open.push(node)
+		  	open[open.length] = node
 		  	
 		  	var solved:Boolean = false
 		  	var i:int = 0
@@ -54,7 +54,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 		  		open.sortOn("totalScore",Array.NUMERIC)
 		  		if (open.length <= 0) break
 		  		node = open.shift()
-		  		closed.push(node)
+		  		closed[closed.length] = node
 		  		
 		  		// Could it be true, are we there?
 		  		if (node == goal) {
@@ -65,7 +65,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 		  		// Add neighbours to search list
 		  		for each (var n:fCell in criteria.getAccessibleFrom(node)) {
 		  			if (open.indexOf(n)<0 && closed.indexOf(n)<0) {
-		  				open.push(n)
+		  				open[open.length] = n
 		  				n.parent = node
 		  				n.heuristic = criteria.getHeuristic(n)
 		  				n.g = node.g+n.cost
@@ -94,11 +94,11 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 		  		var dz:Number = origin.z-start.z
 		  		
 		  		// Start at the end...
-		  		solution.push(new fPoint3d(destiny.x, destiny.y, destiny.z))
+		  		solution[solution.length] = new fPoint3d(destiny.x, destiny.y, destiny.z)
 		  		// ...walk all the way to the start to record where we've been...
 		  		while (node.parent && node.parent!=start) {
 		  			node = node.parent
-		  			solution.push(new fPoint3d(node.x+dx, node.y+dy, node.z+dz))
+		  			solution[solution.length] = new fPoint3d(node.x+dx, node.y+dy, node.z+dz)
 		  		}
 		  		// Uncomment this if you want the initial position to be part of the path
 		  		//solution.push(new fPoint3d(origin.x, origin.y, origin.z))

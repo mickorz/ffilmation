@@ -27,9 +27,9 @@ package org.ffilmation.engine.core.sceneLogic {
 			public static function processNewCellCharacter(scene:fScene,character:fCharacter,forceReset:Boolean = false):void {
 			
 				 // Init
-				 var light:fOmniLight, elements:Array, nEl:Number, distL:Number, range:Number,x:Number, y:Number, z:Number
+				 var light:fOmniLight, elements:Array, nEl:int, distL:Number, range:Number,x:Number, y:Number, z:Number
 				 var cache:fCharacterShadowCache, oldCache:fCharacterShadowCache, elementsV:Array, el:fPlane
-				 var s:Number, len:Number,i:Number,i2:Number
+				 var s:Number, len:int,i:int,i2:int
 
 		 		 // Change depth of object
 		 		 if(character.cell!=null) character.setDepth(character.cell.zIndex)
@@ -157,9 +157,9 @@ package org.ffilmation.engine.core.sceneLogic {
 				 var newOccluding:Array = new Array
 				 try {
 				 	var newOccluding2:Array = character.cell.elementsInFront
-				  for(var n:Number=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding.push(newOccluding2[n])
+				  for(var n:Number=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding[newOccluding.length] = newOccluding2[n]
 				 	newOccluding2 = scene.translateToCell(character.x,character.y,character.top).elementsInFront
-				  for(n=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding.push(newOccluding2[n])
+				  for(n=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding[newOccluding.length] = newOccluding2[n]
 				 } catch(e:Error){}
 				 
 				 for(i=0;i<oldOccluding.length;i++) {
@@ -186,14 +186,14 @@ package org.ffilmation.engine.core.sceneLogic {
 			   
 			   if(scene.prof) scene.prof.begin("Render char:"+character.id, true )
 			   
-			   var light:fOmniLight, elements:Array, nEl:Number, len:Number, cache:fCharacterShadowCache 
+			   var light:fOmniLight, elements:Array, nEl:int, len:int, cache:fCharacterShadowCache 
 			   
 				 // Move character to its new position
 				 scene.renderEngine.updateCharacterPosition(character)
 
 			   // Render all lights and shadows
 			   len = character.vLights.length
-			   for(var i:Number=0;i<len;i++) {
+			   for(var i:int=0;i<len;i++) {
 			   
 					 	cache =  character.vLights[i]
 					 	if(!cache.light.removed && cache.withinRange) {

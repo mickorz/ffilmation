@@ -14,18 +14,18 @@ package org.ffilmation.engine.helpers {
 		public class fSortArea {
 
 			// Geometry
-			public var i:Number
-			public var j:Number
-			public var k:Number
-			public var width:Number
-			public var depth:Number
-			public var height:Number
+			public var i:int
+			public var j:int
+			public var k:int
+			public var width:int
+			public var depth:int
+			public var height:int
 			
 			// Value
-			public var zValue:Number
+			public var zValue:int
 
 			// Constructor
-			public function fSortArea(i:Number,j:Number,k:Number,width:Number,depth:Number,height:Number,zValue:Number):void {
+			public function fSortArea(i:int,j:int,k:int,width:int,depth:int,height:int,zValue:int):void {
 				
 			   this.i = i
 			   this.j = j
@@ -38,7 +38,7 @@ package org.ffilmation.engine.helpers {
 			}
 			
 			// Tests a coordinate against this area
-			public function isPointInside(i:Number,j:Number,k:Number):Boolean {
+			public function isPointInside(i:int,j:int,k:int):Boolean {
 				if(i<this.i || i>this.i+this.width) return false
 				if(j<this.j || j>this.j+this.depth) return false
 				if(k<this.k || k>this.k+this.height) return false

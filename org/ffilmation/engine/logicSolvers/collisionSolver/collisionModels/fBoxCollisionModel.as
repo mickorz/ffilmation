@@ -30,15 +30,15 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 				 
 				 // Precalc top view
 				 this.baseTopView = new Array
-		 		 this.baseTopView.push(new Point(this._width/2,-this._depth/2))
-		 		 this.baseTopView.push(new Point(this._width/2,this._depth/2))
-		 		 this.baseTopView.push(new Point(-this._width/2,this._depth/2))
-		 		 this.baseTopView.push(new Point(-this._width/2,-this._depth/2))
+		 		 this.baseTopView[this.baseTopView.length] = (new Point(this._width/2,-this._depth/2))
+		 		 this.baseTopView[this.baseTopView.length] = (new Point(this._width/2,this._depth/2))
+		 		 this.baseTopView[this.baseTopView.length] = (new Point(-this._width/2,this._depth/2))
+		 		 this.baseTopView[this.baseTopView.length] = (new Point(-this._width/2,-this._depth/2))
 				 this.topView = new Array
-		 		 this.topView.push(new Point(this._width/2,-this._depth/2))
-		 		 this.topView.push(new Point(this._width/2,this._depth/2))
-		 		 this.topView.push(new Point(-this._width/2,this._depth/2))
-		 		 this.topView.push(new Point(-this._width/2,-this._depth/2))
+		 		 this.topView[this.topView.length] = (new Point(this._width/2,-this._depth/2))
+		 		 this.topView[this.topView.length] = (new Point(this._width/2,this._depth/2))
+		 		 this.topView[this.topView.length] = (new Point(-this._width/2,this._depth/2))
+		 		 this.topView[this.topView.length] = (new Point(-this._width/2,-this._depth/2))
 				 
 			}
 

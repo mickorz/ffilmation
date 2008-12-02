@@ -28,14 +28,14 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		var obi:int = ob.x/scene.gridSize
 			   		var obj:int = ob.y/scene.gridSize
 			   		var height:int = ob.height/scene.levelSize
-			   		var rad:int = Math.ceil(ob.radius/scene.gridSize)
+			   		var rad:int = int((ob.radius/scene.gridSize)+0.5)
 			   		
 			   		for(var n:int=obj-rad;n<=obj+rad;n++) {
 			   			for(var i:int=obi-rad;i<(obi+rad);i++) {
 			   				for(var k:int=rz;k<=(rz+height);k++) {
 			   					try {
 			   						var cell:fCell = scene.getCellAt(i,n,k)
-			   						cell.walls.objects.push(ob)
+			   						cell.walls.objects[cell.walls.objects.length] = ob
 			   					} catch(e:Error) {
 			   						//trace("Warning: "+ob.id+" extends out of bounds.")
 			   					}

@@ -108,7 +108,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					next = this.scene.getCellAt(cell.i,cell.j-1,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
-						ret.push(next)
+						ret[ret.length] = next
 					}
 				}
 				// Down ?
@@ -116,7 +116,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					next = this.scene.getCellAt(cell.i,cell.j+1,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
-						ret.push(next)
+						ret[ret.length] = next
 					}
 				}
 				// Left ?
@@ -124,7 +124,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					next = this.scene.getCellAt(cell.i-1,cell.j,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
-						ret.push(next)
+						ret[ret.length] = next
 					}
 				}
 				// Right ?
@@ -132,7 +132,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					next = this.scene.getCellAt(cell.i+1,cell.j,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
-						ret.push(next)
+						ret[ret.length] = next
 					}
 				}
 				// Top ?
@@ -140,7 +140,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					next = this.scene.getCellAt(cell.i,cell.j,cell.k+1)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_GOING_UP
-						ret.push(next)
+						ret[ret.length] = next
 					}
 				}
 				// Bottom ?
@@ -148,7 +148,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					next = this.scene.getCellAt(cell.i,cell.j,cell.k-1)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_GOING_DOWN
-						ret.push(next)
+						ret[ret.length] = next
 					}
 				}
 
@@ -160,7 +160,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 						next = this.scene.getCellAt(cell.i+1,cell.j-1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
-							ret.push(next)
+							ret[ret.length] = next
 						}
 					}
 
@@ -169,7 +169,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 						next = this.scene.getCellAt(cell.i-1,cell.j-1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
-							ret.push(next)
+							ret[ret.length] = next
 						}
 					}
 			  	
@@ -178,7 +178,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 						next = this.scene.getCellAt(cell.i+1,cell.j+1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
-							ret.push(next)
+							ret[ret.length] = next
 						}
 					}
 
@@ -187,7 +187,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 						next = this.scene.getCellAt(cell.i-1,cell.j+1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
-							ret.push(next)
+							ret[ret.length] = next
 						}
 					}
 			  	

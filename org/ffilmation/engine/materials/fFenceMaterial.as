@@ -109,18 +109,18 @@ package org.ffilmation.engine.materials {
 			*/
 			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				
-				var nHoles:Number = Math.floor(width/(this.width+this.gap))
+				var nHoles:int = int(width/(this.width+this.gap))
 				var ret:Array = new Array
 				var offset:Number = width-(nHoles*this.width)-(nHoles-1)*this.gap
 				
 				// Base holes
-				for(var i:Number=0;i<nHoles;i++) ret.push(new Rectangle(offset+(this.width+this.gap)*i,0,this.gap,height))
+				for(var i:Number=0;i<nHoles;i++) ret[ret.length] = new Rectangle(offset+(this.width+this.gap)*i,0,this.gap,height)
 				
 				// Iregularity
 				if(this.irregular!=0) {
 					var n:Number = offset+this.gap
 					do {
-						ret.push(new Rectangle(n,0,this.width,Math.random()*this.irregular*height/100))
+						ret[ret.length] = new Rectangle(n,0,this.width,Math.random()*this.irregular*height/100)
 						n+=this.width+this.gap
 					} while(n<width-this.width)
 				}

@@ -95,7 +95,7 @@ package org.ffilmation.engine.elements {
 			* Numeric counter for fast Array lookups
 			* @private
 			*/
-			public var counter:Number
+			public var counter:int
 			
 			/** 
 			* Array of render cache. For each light in the scene, a list of elements that are shadowed by this character at its current position
@@ -268,14 +268,22 @@ package org.ffilmation.engine.elements {
 				// Retrieve new list of occupied cells
 				var theCell:fCell = this.scene.translateToCell(this.x,this.y,this.z)
 				var cells:Array = new Array
-				var cellRadius:Number = Math.ceil(this.radius / this.scene.gridSize)
-				for(var i:Number = Math.max(theCell.i-cellRadius,0);i<theCell.i+cellRadius;i++) {
-					for(var j:Number = Math.max(theCell.j-cellRadius, 0);j<theCell.j+cellRadius;j++) {
-						for(var k:Number = theCell.k;k<(this.top/this.scene.levelSize);k++) {
+				var cellRadius:int = int((this.radius / this.scene.gridSize)+0.5)
+				
+				// Loop ranges
+				var i1:int = theCell.i-cellRadius
+				if(i1<0) i1=0
+				var i2:int = theCell.i+cellRadius
+				var j1:int = theCell.j-cellRadius
+				if(j1<0) i1=0
+				var j2:int = theCell.j+cellRadius
+				var k2:Number = (this.top/this.scene.levelSize)
+				
+				for(var i:int = i1;i<i2;i++) {
+					for(var j:int = j1;j<j2;j++) {
+						for(var k:int = theCell.k;k<k2;k++) {
 							var newCell:fCell = this.scene.getCellAt(i,j,k)
-							if(newCell) {
-								cells.push(newCell)
-							}
+							if(newCell) cells[cells.length] = newCell
 						}
 					}
 				}
@@ -295,7 +303,7 @@ package org.ffilmation.engine.elements {
 				// Update new cells
 				this.occupiedCells = cells
 				forEach = function(item:*, index:int, array:Array) {
-						item.charactersOccupying.push(this)
+						item.charactersOccupying[item.charactersOccupying.length] = this
 				}
 				this.occupiedCells.forEach(forEach, this)
 			}

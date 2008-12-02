@@ -54,7 +54,7 @@ package org.ffilmation.engine.core {
 			public var _depth:Number = 0
 
 			/** @private */
-			public var depthOrder:Number
+			public var depthOrder:int
 
 			/** 
 			* <p><b>WARNING!!!: </b> This property only exists when the scene is being rendered and the graphic elements have been created. This

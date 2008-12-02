@@ -10,9 +10,7 @@ package org.ffilmation.utils {
 		
 			// Angle between two points
 			public static function getAngle(x1:Number, y1:Number, x2:Number, y2:Number, dist:Number=0):Number {
-			   var d:Number = dist || mathUtils.distance(x1,y1,x2,y2)
-			   var ret:Number = (Math.asin((y2-y1)/d))
-				 if(x1>=x2) ret = Math.PI-ret
+			   var ret:Number = Math.atan2(y2-y1,x2-x1)
 				 if(ret<0) ret += 2*Math.PI
 				 return ret*180/Math.PI
 			}

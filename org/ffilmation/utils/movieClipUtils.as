@@ -24,7 +24,7 @@ package org.ffilmation.utils {
 			   var interpolationMethod:String = "linearRGB"
 			   var focalPointRatio:Number = 0
 				 var matr:Matrix = new Matrix();
-  			 matr.createGradientBox(2*radius, 2*radius, 0 ,-radius, -radius);
+  			 matr.createGradientBox(radius+radius, radius+radius, 0 ,-radius, -radius);
 			  
 			   target.beginGradientFill(fillType, colors, alphas, ratios, matr, spreadMethod, interpolationMethod, focalPointRatio);
 			   target.drawCircle(x,y,radius)

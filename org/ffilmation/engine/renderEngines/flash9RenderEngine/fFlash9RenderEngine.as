@@ -289,7 +289,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 							if(el!=null && found.indexOf(el)<0 /*&& this.currentOccluding.indexOf(el)<0*/) {
 							
 									// Avoid repeated results
-									found.push(el)
+									found[found.length] = el
         	
 									// Get local coordinate
 									var p:Point = new Point(x,y)
@@ -306,13 +306,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 									else p = el.container.globalToLocal(p)
 									
 									// Push data
-									if(el is fFloor) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
+									if(el is fFloor) ret[ret.length] = (new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
 									if(el is fWall) {
 										var w:fWall = el as fWall
-										if(w.vertical) ret.push(new fCoordinateOccupant(w,w.x,w.y0+p.x,w.z+w.pixelHeight-p.y))
-										else ret.push(new fCoordinateOccupant(w,w.x0+p.x,w.y,w.z+w.pixelHeight-p.y))
+										if(w.vertical) ret[ret.length] = (new fCoordinateOccupant(w,w.x,w.y0+p.x,w.z+w.pixelHeight-p.y))
+										else ret[ret.length] = (new fCoordinateOccupant(w,w.x0+p.x,w.y,w.z+w.pixelHeight-p.y))
 									}
-									if(el is fObject) ret.push(new fCoordinateOccupant(el,el.x+p.x,el.y,el.z-p.y))
+									if(el is fObject) ret[ret.length] = (new fCoordinateOccupant(el,el.x+p.x,el.y,el.z-p.y))
 							}
 							
 					}

@@ -10,6 +10,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		import flash.geom.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
+		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.logicSolvers.projectionSolver.*
 		import org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers.*
 
@@ -99,7 +100,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				
 				var el:fObject = this.element as fObject
 				var correctedAngle:Number = el._orientation/360
-				var newSprite:Number = Math.floor(correctedAngle*el.sprites.length)
+				var newSprite:int = int(correctedAngle*el.sprites.length)
 				
 				if(this.currentSpriteIndex!=newSprite) {
 					
@@ -111,7 +112,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					} catch(e:Error) {
 						lastFrame = 1
 					}
-					var clase:Class = el.sprites[newSprite].sprite
+					var clase:Class = (el.sprites[newSprite] as fSpriteDefinition).sprite
 					this.currentSprite = objectPool.getInstanceOf(clase) as MovieClip
 					this.baseObj.addChild(this.currentSprite)
 					this.currentSprite.mouseEnabled = false
@@ -264,7 +265,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   ret.request = request
 			   ret.object = this.element as fObject
 
-				 this.allShadows.push(ret)
+				 this.allShadows[this.allShadows.length] = ret
 				 return ret
 
 			}

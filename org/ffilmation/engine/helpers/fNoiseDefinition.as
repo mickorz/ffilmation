@@ -97,7 +97,7 @@ package org.ffilmation.engine.helpers {
 			
 				// Generate offfset array
 				var offsets = new Array
-				for(var i:Number=0;i<this.octaves;i++) offsets.push(new Point(offx,offy))
+				for(var i:Number=0;i<this.octaves;i++) offsets[offsets.length] = new Point(offx,offy)
 				
 				// Draw
 				bmap.perlinNoise(this.baseX, this.baseY, this.octaves, this.seed, false, this.fractal, channels, false, offsets)
@@ -123,7 +123,7 @@ package org.ffilmation.engine.helpers {
 				
 				var bmap:BitmapData = new BitmapData(1,1)
 				var offsets = new Array
-				for(var i:Number=0;i<this.octaves;i++) offsets.push(new Point(x,y))
+				for(var i:Number=0;i<this.octaves;i++) offsets[offsets.length] = (new Point(x,y))
 
 				bmap.perlinNoise(this.baseX, this.baseY, this.octaves, this.seed, false, this.fractal, BitmapDataChannel.RED, false, offsets)
 				
