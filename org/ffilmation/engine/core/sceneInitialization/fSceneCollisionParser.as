@@ -31,7 +31,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		var rad:int = int((ob.radius/scene.gridSize)+0.5)
 			   		
 			   		for(var n:int=obj-rad;n<=obj+rad;n++) {
-			   			for(var i:int=obi-rad;i<(obi+rad);i++) {
+			   			for(var i:int=obi-rad;i<=(obi+rad);i++) {
 			   				for(var k:int=rz;k<=(rz+height);k++) {
 			   					try {
 			   						var cell:fCell = scene.getCellAt(i,n,k)

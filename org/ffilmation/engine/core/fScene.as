@@ -992,6 +992,7 @@ package org.ffilmation.engine.core {
 			// Returns the cell containing the given coordinates
 			/** @private */
 			public function translateToCell(x:Number,y:Number,z:Number):fCell {
+				 if(x<0 || y<0 || z<0) return null
 				 return this.getCellAt(x/this.gridSize,y/this.gridSize,z/this.levelSize)
 			}
 			

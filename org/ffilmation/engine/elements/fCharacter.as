@@ -200,8 +200,9 @@ package org.ffilmation.engine.elements {
 			   		// Check if element moved into a different cell
 			   		var cell:fCell = this.scene.translateToCell(this.x,this.y,this.z)
 			   		
+			   		
 			   		if(cell!=this.cell || this.cell == null) {
-				 		
+
 				 				// Check for XML events in cell we leave
 				 				if(this.cell!=null) {
 				 					var k:Number = this.cell.events.length
@@ -279,9 +280,9 @@ package org.ffilmation.engine.elements {
 				var j2:int = theCell.j+cellRadius
 				var k2:Number = (this.top/this.scene.levelSize)
 				
-				for(var i:int = i1;i<i2;i++) {
-					for(var j:int = j1;j<j2;j++) {
-						for(var k:int = theCell.k;k<k2;k++) {
+				for(var i:int = i1;i<=i2;i++) {
+					for(var j:int = j1;j<=j2;j++) {
+						for(var k:int = theCell.k;k<=k2;k++) {
 							var newCell:fCell = this.scene.getCellAt(i,j,k)
 							if(newCell) cells[cells.length] = newCell
 						}
