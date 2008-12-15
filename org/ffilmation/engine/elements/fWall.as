@@ -3,6 +3,8 @@
 package org.ffilmation.engine.elements {
 	
 		// Imports
+		import flash.geom.Point
+		
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
 
@@ -150,44 +152,20 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public override function distanceTo(x:Number,y:Number,z:Number):Number {
 			
+				 if(this.vertical) {
+				 	var d2d:Number = mathUtils.distancePointToSegment(new Point(this.x,this.y0),new Point(this.x,this.y1),new Point(x,y))
+				 } else {
+				 	d2d = mathUtils.distancePointToSegment(new Point(this.x0,this.y),new Point(this.x1,this.y),new Point(x,y))
+				 }
 				 if(z>this.top) {
-			
-				   if(this.vertical) {
-			  	    if(y<this.y0) return mathUtils.distance3d(x,y,z,this.x,this.y0,this.top)
-			      	if(y>this.y1) return mathUtils.distance3d(x,y,z,this.x,this.y1,this.top)
-			    	  return mathUtils.distance3d(x,y,z,this.x,y,this.top)
-			   	 } else {
-			        if(x<this.x0) return mathUtils.distance3d(x,y,z,this.x0,this.y,this.top)
-			        if(x>this.x1) return mathUtils.distance3d(x,y,z,this.x1,this.y,this.top)
-			        return mathUtils.distance3d(x,y,z,x,this.y,this.top)
-			     }
-			
+				   var dz:Number = z-this.top
 				 } else if(z<this.z) {
-			
-				   if(this.vertical) {
-							if(y<this.y0) return mathUtils.distance3d(x,y,z,this.x,this.y0,this.z)
-							if(y>this.y1) return mathUtils.distance3d(x,y,z,this.x,this.y1,this.z)
-			    	  return mathUtils.distance3d(x,y,z,this.x,y,this.z)
-			   	 } else {
-			        if(x<this.x0) return mathUtils.distance3d(x,y,z,this.x0,this.y,this.z)
-			        if(x>this.x1) return mathUtils.distance3d(x,y,z,this.x1,this.y,this.z)
-			        return mathUtils.distance3d(x,y,z,x,this.y,this.z)
-			     }
-			  
+				 	dz = this.z-z
 			   } else {
-			  
-				   if(this.vertical) {
-			  	    if(y<this.y0) return mathUtils.distance(x,y,this.x,this.y0)
-			      	if(y>this.y1) return mathUtils.distance(x,y,this.x,this.y1)
-			    	  return mathUtils.distance(x,y,this.x,y)
-			   	 } else {
-			        if(x<this.x0) return mathUtils.distance(x,y,this.x0,this.y)
-			        if(x>this.x1) return mathUtils.distance(x,y,this.x1,this.y)
-			        return mathUtils.distance(x,y,x,this.y)
-			     }
-			
+					dz = 0			  
 			   }
-			
+			   
+			   return Math.sqrt(dz*dz + d2d*d2d)
 			
 			}
 
