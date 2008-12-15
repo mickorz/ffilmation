@@ -52,14 +52,14 @@ package org.ffilmation.engine.core.sceneLogic {
 
 			   if(cell==null) {
 			      // fLight outside grid
-			      light.elementsV = fVisibilitySolver.calcVisiblesCoords(scene,light.x,light.y,light.z)
+			      light.elementsV = fVisibilitySolver.calcAffectedByLight(scene,light.x,light.y,light.z,light.size)
 			      tempElements = light.elementsV
 			      
 			   } 
 			   else {
 			      // fLight enters new cell
-			      if(!light.cell.visibleObjs || light.cell.visibleRange<light.size) scene.calcVisibles(light.cell,light.size)
-			      light.elementsV = light.cell.visibleObjs
+			      if(!light.cell.lightAffectedElements || light.cell.lightRange<light.size) scene.getAffectedByLight(light.cell,light.size)
+			      light.elementsV = light.cell.lightAffectedElements
 			      tempElements = light.elementsV
 			   }
 			   
