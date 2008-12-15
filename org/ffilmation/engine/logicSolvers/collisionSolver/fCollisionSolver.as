@@ -28,222 +28,247 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 		 		var testCell:fCell,testElement:fRenderableElement, confirm:fCollision
 		 		var primaryCandidates:Array = new Array
 		 		var secondaryCandidates:Array = new Array
-		 		var radius:Number = character.radius
+		 		var radius:Number = 1.5*character.radius
+				var i:int
+				var j:int
+				var l:int
+				var some:Boolean
+				var tz:Number
+				var gs:int = scene.gridSize
 		 		
 			 	// Test against floors
 			 	if(dz<0) {
+						
+					mx = character.x+radius
+					my = character.y+radius
+					for(ty = character.y-radius;ty<=my;ty+=gs) {
+						for(tx = character.x-radius;tx<=mx;tx+=gs) {
 					
-					try {
-						if(character.z>0) {
-							testCell = scene.translateToCell(character.x,character.y,character.z)
-							if(testCell.walls.top) primaryCandidates[primaryCandidates.length] = (testCell.walls.top)
-						} else {
-							character.z = 0
-							testCell = scene.translateToCell(character.x,character.y,0)
-							primaryCandidates[primaryCandidates.length] = (testCell.walls.bottom)
-						}
-					
-			 			if(testCell.walls.up) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
-			 			if(testCell.walls.down) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
-			 			if(testCell.walls.left) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
-			 			if(testCell.walls.right) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
-
-			 			var nchars:Number = testCell.charactersOccupying.length
-			 			for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.charactersOccupying[k])
+							try {
+								if(character.z>0) {
+									testCell = scene.translateToCell(tx,ty,character.z)
+									if(testCell.walls.top) primaryCandidates[primaryCandidates.length] = (testCell.walls.top)
+								} else {
+									character.z = 0
+									testCell = scene.translateToCell(tx,ty,0)
+									primaryCandidates[primaryCandidates.length] = (testCell.walls.bottom)
+								}
+								
+			 					if(testCell.walls.up) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
+			 					if(testCell.walls.down) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
+			 					if(testCell.walls.left) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
+			 					if(testCell.walls.right) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
+          			
+			 					var nchars:Number = testCell.charactersOccupying.length
+			 					for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.charactersOccupying[k])
+			 					
+			 					var nobjects:Number = testCell.walls.objects.length
+			 					for(var k:Number=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.objects[k])
+							} catch (e:Error) {
+							}
+			 				
+			 		
+			 			}
+			 		}
 			 			
-			 			var nobjects:Number = testCell.walls.objects.length
-			 			for(var k:Number=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.objects[k])
-			 			
-					} catch (e:Error) {
-						primaryCandidates = new Array
-		 				secondaryCandidates = new Array
-					}
         
 				}
 				
 				if(dz>0) {
 					
-					try {
-						testCell = scene.translateToCell(character.x,character.y,character.z+character.height)
-						if(testCell.walls.bottom) primaryCandidates[primaryCandidates.length] = (testCell.walls.bottom)	
+					mx = character.x+radius
+					my = character.y+radius
+					for(ty = character.y-radius;ty<=my;ty+=gs) {
+						for(tx = character.x-radius;tx<=mx;tx+=gs) {
+
+							try {
+								testCell = scene.translateToCell(tx,ty,character.z+character.height)
+								if(testCell.walls.bottom) primaryCandidates[primaryCandidates.length] = (testCell.walls.bottom)	
+			 					
+			 					if(testCell.walls.up) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
+			 					if(testCell.walls.down) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
+			 					if(testCell.walls.left) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
+			 					if(testCell.walls.right) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
+			 					
+			 					nchars = testCell.charactersOccupying.length
+			 					for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.charactersOccupying[k])
+			 					
+			 					nobjects = testCell.walls.objects.length
+			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.objects[k])
+							} catch (e:Error) {
+							}
+			 				
+			 			}
 			 			
-			 			if(testCell.walls.up) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
-			 			if(testCell.walls.down) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
-			 			if(testCell.walls.left) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
-			 			if(testCell.walls.right) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
-			 			
-			 			nchars = testCell.charactersOccupying.length
-			 			for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.charactersOccupying[k])
-			 			
-			 		  nobjects = testCell.walls.objects.length
-			 		  for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.objects[k])
-        
-					} catch (e:Error) {
-					}
+			 		}
 					
 				}
 				
-				var l:Number
-				l = primaryCandidates.length
-				var some:Boolean = false
-				for(var j:Number=0;j<l;j++) {
-					testElement = primaryCandidates[j]
-					confirm = fCollisionSolver.testPrimaryCollision(character,testElement,dx,dy,dz)
-		  	  if(confirm!=null) {
-		  	  	
-		  	  	if(testElement.solid) {
-		  	  		some = true
- 							character.z = confirm.z
- 							character.top = character.z+character.height
-	 						character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
-	 					} else {
-	 						character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,testElement))
-	 					}
-		 			}
-					
-				}
-        
-				// If no primary fCollisions were confirmed, test secondary
-				if(!some) {
-					
-					// Test secondary fCollisions
-				  l = secondaryCandidates.length
-					for(j=0;j<l;j++) {
-						testElement = secondaryCandidates[j]
-						confirm = fCollisionSolver.testSecondaryCollision(character,testElement,dx,dy,dz)
-		  	  	if(confirm!=null && confirm.z>=0) {
-		  	  		
-			  	  	if(testElement.solid) {
- 								character.z = confirm.z
- 								character.top = character.z+character.height
- 								character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
- 							} else {
- 								character.dispatchEvent(new fWalkoverEvent(fCharacter.WALKOVER,testElement))
- 							}
- 								
- 						}
-					}
-					
-				}
-				
-				// Retrieve list of possible walls. Separate between primary and secondary
-				primaryCandidates = new Array
-				secondaryCandidates = new Array
-				var tz:Number
 				
 				if(dx<0) {
 					
-					try {
-						for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
-							testCell = scene.translateToCell(character.x-radius,character.y,tz)
-							if(testCell.walls.right) primaryCandidates[primaryCandidates.length] = (testCell.walls.right)
+					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+						
+						var my:int = character.y+radius
+						for(var ty:int = character.y-radius;ty<=my;ty+=gs) {
+						
+							try {
+								testCell = scene.translateToCell(character.x-radius,ty,tz)
+								if(testCell.walls.right) primaryCandidates[primaryCandidates.length] = (testCell.walls.right)
+            		
+			 					nchars = testCell.charactersOccupying.length
+			 					for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
+			 					
+			 					nobjects = testCell.walls.objects.length
+			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
+          			
+								if(testCell.walls.up && testCell.walls.up.y>(character.y-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
+								if(testCell.walls.down && testCell.walls.down.y<(character.y+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
+								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
+								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+							} catch (e:Error) {
+								
+								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
 
-			 				nchars = testCell.charactersOccupying.length
-			 				for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
-			 				
-			 				nobjects = testCell.walls.objects.length
-			 				for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
-          		
-							if(testCell.walls.up && testCell.walls.up.y>(character.y-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
-							if(testCell.walls.down && testCell.walls.down.y<(character.y+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
-							if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
-							if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+								var xcell:Number = ((character.x-radius)/gs)
+								var ycell:Number = (ty/gs)
+								if(xcell<0) xcell = -1
+								if(ycell<0) ycell = -1
+								
+								var ntx:int = gs*(int(xcell)+1)
+								var nty:int = gs*(int(ycell))
+								var gh:int = scene.height
+								primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={ntx} y={nty} size={gs} height={gh} z={0} direction={"vertical"} />,scene))
+							}	
+							
 						}
-					} catch (e:Error) {
-						// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
-						var gs:int = scene.gridSize
-						var tx:int = int(character.x/gs)*gs
-						var ty:int = int(character.y/gs)*gs
-						var gh:int = scene.height
-						primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={tx} y={ty} size={gs} height={gh} z={0} direction={"vertical"} />,scene))
-					}	
+					}
 					
         
 				}
         
 				if(dx>0) {
 					
-					try {
-						for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
-							testCell = scene.translateToCell(character.x+radius,character.y,tz)
-							if(testCell.walls.left) primaryCandidates[primaryCandidates.length] = (testCell.walls.left)
+					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
 
-			 				nchars = testCell.charactersOccupying.length
-			 				for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
-          		
-			 				nobjects = testCell.walls.objects.length
-			 				for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
-          		
-							if(testCell.walls.up && testCell.walls.up.y>(character.y-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
-							if(testCell.walls.down && testCell.walls.down.y<(character.y+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
-							if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
-							if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+						my = character.y+radius
+						for(ty = character.y-radius;ty<=my;ty+=gs) {
+
+							try {
+								testCell = scene.translateToCell(character.x+radius,ty,tz)
+								if(testCell.walls.left) primaryCandidates[primaryCandidates.length] = (testCell.walls.left)
+            		
+			 					nchars = testCell.charactersOccupying.length
+			 					for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
+          			
+			 					nobjects = testCell.walls.objects.length
+			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
+          			
+								if(testCell.walls.up && testCell.walls.up.y>(character.y-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
+								if(testCell.walls.down && testCell.walls.down.y<(character.y+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
+								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
+								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+							
+							} catch (e:Error) {
+
+								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
+
+								xcell = ((character.x+radius)/gs)
+								ycell = (ty/gs)
+								if(xcell<0) xcell = -1
+								if(ycell<0) ycell = -1
+								
+								ntx = gs*(int(xcell))
+								nty = gs*(int(ycell))
+								gh = scene.height
+								primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={ntx} y={nty} size={gs} height={gh} z={0} direction={"vertical"} />,scene))
+							}
+							
 						}
-					} catch (e:Error) {
-						// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
-						gs = scene.gridSize
-						tx = (int(character.x/gs)+1)*gs
-						ty = int(character.y/gs)*gs
-						gh = scene.height
-						primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={tx} y={ty} size={gs} height={gh} z={0} direction={"vertical"} />,scene))
+						
 					}
         
 				}
         
 				if(dy<0) {
 					
-					try {
-						for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
-							testCell = scene.translateToCell(character.x,character.y-radius,tz)
-							if(testCell.walls.down) primaryCandidates[primaryCandidates.length] = (testCell.walls.down)
+					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+						
+						var mx:int = character.x+radius
+						for(var tx:int = character.x-radius;tx<=mx;tx+=gs) {
+							
+							try {
+								testCell = scene.translateToCell(tx,character.y-radius,tz)
+								if(testCell.walls.down) primaryCandidates[primaryCandidates.length] = (testCell.walls.down)
+            		
+			 					nchars = testCell.charactersOccupying.length
+			 					for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
+         	  		
+			 					nobjects = testCell.walls.objects.length
+			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
+          			
+								if(testCell.walls.left && testCell.walls.left.x>(character.x-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
+								if(testCell.walls.right && testCell.walls.right.x<(character.x+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
+								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
+								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+							} catch (e:Error) {
 
-			 				nchars = testCell.charactersOccupying.length
-			 				for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
-         		
-			 				nobjects = testCell.walls.objects.length
-			 				for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
-          		
-							if(testCell.walls.left && testCell.walls.left.x>(character.x-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
-							if(testCell.walls.right && testCell.walls.right.x<(character.x+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
-							if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
-							if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
+
+								xcell = (tx/gs)
+								ycell = ((character.y-radius)/gs)
+								if(xcell<0) xcell = -1
+								if(ycell<0) ycell = -1
+								
+								ntx = gs*(int(xcell))
+								nty = gs*(int(ycell+1))
+
+								gh = scene.height
+								primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={ntx} y={nty} size={gs} height={gh} z={0} direction={"horizontal"} />,scene))
+							}
+							
 						}
-					} catch (e:Error) {
-						// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
-						gs = scene.gridSize
-						tx = int(character.x/gs)*gs
-						ty = int(character.y/gs)*gs
-						gh = scene.height
-						primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={tx} y={ty} size={gs} height={gh} z={0} direction={"horizontal"} />,scene))
 					}
 				
 				}
         
 				if(dy>0) {
 					
-					try {
-						for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
-							testCell = scene.translateToCell(character.x,character.y+radius,tz)
-							if(testCell.walls.up) primaryCandidates[primaryCandidates.length] = (testCell.walls.up)
-            	
-			 				nchars = testCell.charactersOccupying.length
-			 				for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
-            	
-			 		  	nobjects = testCell.walls.objects.length
-			 		  	for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
-            	
-							if(testCell.walls.left && testCell.walls.left.x>(character.x-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
-							if(testCell.walls.right && testCell.walls.right.x<(character.x+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
-							if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
-							if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+						
+						mx = character.x+radius
+						for(tx=character.x-radius;tx<=mx;tx+=gs) {
+						
+							try {
+								testCell = scene.translateToCell(tx,character.y+radius,tz)
+								if(testCell.walls.up) primaryCandidates[primaryCandidates.length] = (testCell.walls.up)
+          			
+			 					nchars = testCell.charactersOccupying.length
+			 					for(k=0;k<nchars;k++) if(testCell.charactersOccupying[k]!=character && testCell.charactersOccupying[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.charactersOccupying[k])
+          			
+			 					nobjects = testCell.walls.objects.length
+			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
+          			
+								if(testCell.walls.left && testCell.walls.left.x>(character.x-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
+								if(testCell.walls.right && testCell.walls.right.x<(character.x+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
+								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
+								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
+							} catch (e:Error) {
+
+								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
+
+								xcell = (tx/gs)
+								ycell = ((character.y+radius)/gs)
+								if(xcell<0) xcell = -1
+								if(ycell<0) ycell = -1
+								
+								ntx = gs*(int(xcell))
+								nty = gs*(int(ycell))
+								gh = scene.height
+								primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={ntx} y={nty} size={gs} height={gh} z={0} direction={"horizontal"} />,scene))
+							}
+							
 						}
-					} catch (e:Error) {
-						// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
-						gs = scene.gridSize
-						tx = int(character.x/gs)*gs
-						ty = (int(character.y/gs)+1)*gs
-						gh = scene.height
-						primaryCandidates[primaryCandidates.length] = (new fWall(<wall x={tx} y={ty} size={gs} height={gh} z={0} direction={"horizontal"} />,scene))
 					}
         
 				}
@@ -252,19 +277,35 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				var temp:Array = new Array
 				l = primaryCandidates.length
 				for(j=0;j<l;j++) if(temp.indexOf(primaryCandidates[j])<0) temp[temp.length] = primaryCandidates[j]
-				primaryCandidates = temp
-				l = primaryCandidates.length
+				
+				// Sort primary by distance to object
+				l = temp.length
+				primaryCandidates = []
+				var cx:Number = character.x
+				var cy:Number = character.y
+				var cz:Number = character.z
+				for(j=0;j<l;j++) {
+					var cc:fCollisionCandidate = new fCollisionCandidate()
+					cc.element = temp[j]
+					cc.distance = temp[j].distanceTo(cx,cy,cz)
+					primaryCandidates[primaryCandidates.length] = cc
+				}
+				primaryCandidates.sortOn("distance",Array.NUMERIC)
 				
 				// Test primary fCollisions
 				some = false
 				for(j=0;j<l;j++) {
 					
-					testElement = primaryCandidates[j]
+					testElement = primaryCandidates[j].element
 					confirm = fCollisionSolver.testPrimaryCollision(character,testElement,dx,dy,dz)
 		  	  if(confirm!=null) {
 		  	  	
 		  	  	if(testElement.solid) {
 		  	  		some = true
+							if(confirm.z>=0) {
+								character.z = confirm.z
+ 								character.top = character.z+character.height		  	  		
+ 							}
 	 						if(confirm.x>=0) character.x = confirm.x
 	 						if(confirm.y>=0) character.y = confirm.y
 
@@ -296,6 +337,10 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 		  		  	
 		  	  		if(testElement.solid) {
 		  	  			some = true
+								if(confirm.z>=0) {
+									character.z = confirm.z
+ 									character.top = character.z+character.height		  	  		
+ 								}
 	 							if(confirm.x>=0) character.x = confirm.x
 	 							if(confirm.y>=0) character.y = confirm.y
 	 							character.dispatchEvent(new fCollideEvent(fCharacter.COLLIDE,testElement))
@@ -433,6 +478,35 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				
 				if(obj.z>floor.z || obj.top<floor.z) return null
 				
+				// Test 4 edges
+				if(obj.x>(floor.x+floor.width)) {
+					var ny0:Number = floor.y-obj.y
+					var ny1:Number = floor.y+floor.depth-obj.y
+					var col:fPoint3d = obj.collisionModel.testSegment(floor.x+floor.width-obj.x,ny0,0,floor.x+floor.width-obj.x,ny1,0)
+					if(!col) return null
+				}
+
+				if(obj.x<floor.x) {
+					ny0 = floor.y-obj.y
+					ny1 = floor.y+floor.depth-obj.y
+					col = obj.collisionModel.testSegment(floor.x-obj.x,ny0,0,floor.x-obj.x,ny1,0)
+					if(!col) return null
+				}
+
+				if(obj.y>(floor.y+floor.depth)) {
+					var nx0:Number = floor.x-obj.x
+					var nx1:Number = floor.x+floor.width-obj.x
+					col = obj.collisionModel.testSegment(nx0,floor.y+floor.depth-obj.y,0,nx1,floor.y+floor.depth-obj.y,0)
+					if(!col) return null
+				}
+
+				if(obj.y<floor.y) {
+					nx0 = floor.x-obj.x
+					nx1 = floor.x+floor.width-obj.x
+					col = obj.collisionModel.testSegment(nx0,floor.y-obj.y,0,nx1,floor.y-obj.y,0)
+					if(!col) return null
+				}
+
 				var x:Number, y:Number
 				x = obj.x
 				y = obj.y
@@ -442,7 +516,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				
 					 	if(floor.holes[h].open) {
 						 	var hole:fPlaneBounds = floor.holes[h].bounds
-						 	if(hole.width>=(2*obj.radius) && hole.height>=obj.height && hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
+						 	if(hole.width>=(2*obj.radius) && hole.height>=(2*obj.radius) && hole.x<=x && (hole.x+hole.width)>=x && hole.y<=y && (hole.y+hole.height)>=y) {
 							 		return null
 						 	}
 			 			}  	
@@ -460,14 +534,18 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			*/
 			private static function testWallPrimaryCollision(obj:fObject,wall:fWall,dx:Number,dy:Number,dz:Number):fCollision {
 				
+				if(obj.z>wall.top || obj.top<wall.z) return null
+				
 				var x:Number, y:Number, z:Number, z2:Number
 				var any:Boolean
 				var radius:Number = obj.radius
 
 				if(wall.vertical) {
 					
-					if(dx>0 && (obj.x>wall.x || ((obj.x+radius)<wall.x)) ) return null
-					if(dx<0 && (obj.x<wall.x || ((obj.x-radius)>wall.x)) ) return null
+					var ny0:Number = wall.y0-obj.y
+					var ny1:Number = wall.y1-obj.y
+					var col:fPoint3d = obj.collisionModel.testSegment(wall.x-obj.x,ny0,0,wall.x-obj.x,ny1,0)
+					if(!col) return null
 					
 					y = obj.y
 					z = obj.z
@@ -488,7 +566,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					
 					// There was a fCollision 
 					if(!any) {
-						if(dx>0) return new fCollision(wall.x-radius-0.01,-1,-1)
+						
+						if(obj.x<wall.x) return new fCollision(wall.x-radius-0.01,-1,-1)
 						else return new fCollision(wall.x+radius+0.01,-1,-1)
 					}
 	
@@ -496,9 +575,11 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 			  } else {
 			  	
-					if(dy>0 && (obj.y>wall.y || ((obj.y+radius)<wall.y)) ) return null
-					if(dy<0 && (obj.y<wall.y || ((obj.y-radius)>wall.y)) ) return null
-					
+					var nx0:Number = wall.x0-obj.x
+					var nx1:Number = wall.x1-obj.x
+					col = obj.collisionModel.testSegment(nx0,wall.y-obj.y,0,nx1,wall.y-obj.y,0)
+					if(!col) return null
+
 					x = obj.x
 					z = obj.z
 					z2 = obj.top
@@ -518,7 +599,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					
 					// There was a fCollision 
 					if(!any) {
-						if(dy>0) return new fCollision(-1,wall.y-radius-0.01,-1)
+						if(obj.y<wall.y) return new fCollision(-1,wall.y-radius-0.01,-1)
 						else return new fCollision(-1,wall.y+radius+0.01,-1)
 					}
 
@@ -631,8 +712,10 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 				if(wall.vertical) {
 					
-					// Are we inside the wall ? Then we must be in a hole
-					if( ((obj.x+obj.radius)<wall.x) || ((obj.x-radius)>wall.x) ) return null
+					var ny0:Number = wall.y0-obj.y
+					var ny1:Number = wall.y1-obj.y
+					var col:fPoint3d = obj.collisionModel.testSegment(wall.x-obj.x,ny0,0,wall.x-obj.x,ny1,0)
+					if(!col) return null
 					
 					y = obj.y
 					x = obj.x
@@ -661,12 +744,19 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.01
 						return ret
 						
-					} else return null
+					} else {
+						if(obj.y<wall.y0) return new fCollision(-1,wall.y0-radius-0.01,-1)
+						else if(obj.y1>wall.y1) return new fCollision(-1,wall.y1+radius-0.01,-1)
+						else return null
+					}
 
 			  } else {
 			  	
 					// Are we inside the wall ? Then we must be in a hole
-					if( ((obj.y+radius)<wall.y) || ((obj.y-radius)>wall.y) ) return null
+					var nx0:Number = wall.x0-obj.x
+					var nx1:Number = wall.x1-obj.x
+					col = obj.collisionModel.testSegment(nx0,wall.y-obj.y,0,nx1,wall.y-obj.y,0)
+					if(!col) return null
 					
 					y = obj.y
 					x = obj.x
@@ -695,7 +785,11 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.01
 						return ret
 						
-					} else return null
+					} else {
+						if(obj.x<wall.x0) return new fCollision(wall.x0-radius-0.01,-1,-1)
+						else if(obj.x1>wall.x1) return new fCollision(wall.x1+radius-0.01,-1,-1)
+						else return null
+					}
 
 			  }
 				

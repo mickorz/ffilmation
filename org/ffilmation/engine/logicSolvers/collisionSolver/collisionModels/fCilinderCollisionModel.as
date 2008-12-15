@@ -87,7 +87,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 		  }
 		  
 			/** 
-			* Test if given line intersects with this collision model, and return the point of intersection if any
+			* Test if given segment intersects with this collision model, and return the point of intersection if any
 			*
 			* @param x1: Origin point
 			* @param y1: Origin point
@@ -99,14 +99,25 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 			* @return Intersection coordinate, or null if there wasn't any
 			*
 			*/
-		  public function testLine(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d {
+		  public function testSegment(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d {
 		  	
 		  	
-		  	var r:lineCircleIntersectionResult = mathUtils.lineIntersectCircle(new Point(x1,y1),new Point(x2,y2),new Point(0,0),this._radius)
-		  	if(r.intersects==false || !r.enter) return null
+		  	var r:lineCircleIntersectionResult = mathUtils.segmentIntersectCircle(new Point(x1,y1),new Point(x2,y2),new Point(0,0),this._radius)
+		  	if(r.intersects==false) return null
 		  	else {
-		  		var inter1:Point = mathUtils.linesIntersect(x1,z1,x2,z2,r.enter.x,0,r.enter.x,this._height)
-		  		if(inter1) return new fPoint3d(r.enter.x,r.enter.y,inter1.y)
+		  		
+		  		if(r.inside) {
+		  			if(x1==x2) inter1 = mathUtils.linesIntersect(-1,z1,-2,z2,0,0,0,this._height)
+		  			else inter1 = mathUtils.linesIntersect(x1,z1,x2,z2,x1,0,x2,this._height)
+		  		} else if(r.enter) {
+		  			if(x1==x2) var inter1:Point = mathUtils.linesIntersect(-1,z1,-2,z2,r.enter.x,0,r.enter.x,this._height)
+		  			else inter1 = mathUtils.linesIntersect(x1,z1,x2,z2,r.enter.x,0,r.enter.x,this._height)
+		  			if(inter1) return new fPoint3d(r.enter.x,r.enter.y,inter1.y)
+		  		} else {
+		  			if(x1==x2) inter1 = mathUtils.linesIntersect(-1,z1,-2,z2,r.exit.x,0,r.exit.x,this._height)
+		  			else inter1 = mathUtils.linesIntersect(x1,z1,x2,z2,r.exit.x,0,r.exit.x,this._height)
+		  			if(inter1) return new fPoint3d(r.exit.x,r.exit.y,inter1.y)
+		  		}
 		  	}
 		  	return null
 

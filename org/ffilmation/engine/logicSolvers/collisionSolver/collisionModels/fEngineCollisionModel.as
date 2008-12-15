@@ -51,7 +51,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 		  function testPoint(x:Number,y:Number,z:Number):Boolean;
 
 			/** 
-			* Test if given line intersects with this collision model, and return the point of intersection if any
+			* Test if given segment intersects with this collision model, and return the point of intersection if any
 			*
 			* @param x1: Origin point
 			* @param y1: Origin point
@@ -63,7 +63,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 			* @return Intersection coordinate, or null if there wasn't any
 			*
 			*/
-		  function testLine(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d;
+		  function testSegment(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d;
 		  
 		  /**
 		  * Returns an array of points defining the polygon that represents this model from a "top view", ignoring the size along z-axis

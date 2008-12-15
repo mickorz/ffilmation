@@ -141,7 +141,7 @@ package org.ffilmation.engine.logicSolvers.lineOfSightSolver {
 				if(ele is fObject) {
 					var o:fObject = ele as fObject
 					// Notice that collision models always work with local coordinates, therefore all coordinates must be translated
-					var test:fPoint3d = o.collisionModel.testLine(fromx-o.x,fromy-o.y,fromz-o.z,tox-o.x,toy-o.y,toz-o.z)
+					var test:fPoint3d = o.collisionModel.testSegment(fromx-o.x,fromy-o.y,fromz-o.z,tox-o.x,toy-o.y,toz-o.z)
 					if(test) return new fCoordinateOccupant(ele,test.x+o.x,test.y+o.y,test.z+o.z)
 				}
 				

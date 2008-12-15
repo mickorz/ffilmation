@@ -14,7 +14,54 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 
 
 			/**
-			* Get visible elements from given coordinates, sorted by distance. For each element visible, elements casting shadows into it are
+			* Calculates elements visible given coordinates, sorted by distance.
+			*
+			* @param scene The scene we are calculating for
+			* @param x X coordinate from where we are "looking"
+			* @param y Y coordinate from where we are "looking"
+			* @param z Z coordinate from where we are "looking"
+			* @param range Elements further away than scene distance are not taken into account. This optimizes the process
+			*
+			* @return An Array of fVisibilityInfo objects
+			*/
+			public static function calcVisibles(scene:fScene,x:Number,y:Number,z:Number,range:Number=Infinity):Array {
+			
+			   // Init
+			   var rcell:Array = new Array, candidates:Array = new Array, allElements:Array = new Array, floorc:fFloor, dist:Number, w:Number, len:Number, wallc:fWall, objc:fObject
+
+			   // Add floors
+			   len = scene.floors.length
+			   for(w=0;w<len;w++) {
+			      floorc = scene.floors[w] 
+			      dist = floorc.distanceTo(x,y,z)
+			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(floorc,dist)
+			   }
+			
+			   // Add walls
+			   len = scene.walls.length
+			   for(w=0;w<len;w++) {
+			      wallc = scene.walls[w]
+			      dist = wallc.distanceTo(x,y,z)
+			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(wallc,dist)
+			   }
+			
+				 // Add objects
+				 len = scene.objects.length
+			   for(w=0;w<len;w++) {
+			      objc = scene.objects[w]
+			      dist = objc.distanceTo(x,y,z)
+			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(objc,dist)
+			   }
+
+			   // Sort results by distance to coords 
+	       candidates.sortOn("distance",Array.NUMERIC)	
+			   return candidates      
+			
+			}
+
+
+			/**
+			* Calculates elements affected by lights at given coordinates, sorted by distance. For each element visible, elements casting shadows into it are
 			* also returned
 			*
 			* @param scene The scene we are calculating for
@@ -25,7 +72,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			*
 			* @return An Array of fShadowedVisibilityInfo objects
 			*/
-			public static function calcVisiblesCoords(scene:fScene,x:Number,y:Number,z:Number,range:Number=Infinity):Array {
+			public static function calcAffectedByLight(scene:fScene,x:Number,y:Number,z:Number,range:Number=Infinity):Array {
 			
 			   // Init
 			   var rcell:Array = new Array, candidates:Array = new Array, allElements:Array = new Array, floorc:fFloor, dist:Number, w:Number, len:Number, wallc:fWall, objc:fObject

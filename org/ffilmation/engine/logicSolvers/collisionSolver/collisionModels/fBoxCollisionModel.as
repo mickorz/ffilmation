@@ -119,7 +119,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 		  }
 		  
 			/** 
-			* Test if given line intersects with this collision model, and return the point of intersection if any
+			* Test if given segment intersects with this collision model, and return the point of intersection if any
 			*
 			* @param x1: Origin point
 			* @param y1: Origin point
@@ -131,7 +131,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver.collisionModels {
 			* @return Intersection coordinate, or null if there wasn't any
 			*
 			*/
-		  public function testLine(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d {
+		  public function testSegment(x1:Number,y1:Number,z1:Number,x2:Number,y2:Number,z2:Number):fPoint3d {
 
 				// Test all segments and find collison closest to origin point
 				var lastPoint:Point = null
