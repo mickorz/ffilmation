@@ -56,16 +56,27 @@ package org.ffilmation.engine.datatypes {
 				public var walls:fCellWalls
 				
 				/**
-				* The cell caches an array of visible elements. This array contains a list of all walls and floors "visible"
+				* The cell caches an array of elements affected by lights. This array contains a list of all walls and floors "affected"
 				* from this cells' center point, along with coverage info. This speeds up light and shadow calculations, as only
 				* the fist time a cell is activated the algorythm builds the visibility info
 				*/
-				public var visibleObjs:Array
+				public var lightAffectedElements:Array
 				
+				/**
+				* The max distance from which the light info has been calculated
+				*/
+				public var lightRange:Number = 0
+
+				/**
+				* The cell caches an array of elements sorted by distance to this cell
+				*/
+				public var visibleElements:Array
+
 				/**
 				* The max distance from which the visibility info has been calculated
 				*/
 				public var visibleRange:Number = 0
+
 
 				/**
 				* This is the character Shadow cache for this cell
@@ -117,9 +128,13 @@ package org.ffilmation.engine.datatypes {
 				*/
 				public function dispose():void {
 					this.walls.dispose()
-					if(this.visibleObjs) {
-						for(var i:Number=0;i<this.visibleObjs.length;i++) delete this.visibleObjs[i]
-						this.visibleObjs = null
+					if(this.lightAffectedElements) {
+						for(var i:Number=0;i<this.lightAffectedElements.length;i++) delete this.lightAffectedElements[i]
+						this.lightAffectedElements = null
+					}
+					if(this.visibleElements) {
+						for(i=0;i<this.visibleElements.length;i++) delete this.visibleElements[i]
+						this.visibleElements = null
 					}
 					if(this.characterShadowCache) {
 						for(i=0;i<this.characterShadowCache.length;i++) delete this.characterShadowCache[i]
