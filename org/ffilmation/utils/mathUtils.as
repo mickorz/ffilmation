@@ -35,12 +35,53 @@ package org.ffilmation.utils {
 			}
 			
 			/**
-			* Finds out if a line an a circle intersect and if so, return the intersection points<br>
+			* Distance between a Point and a segment
+			* source: http://www.codeguru.com/forum/showthread.php?t=194400
+			*/
+			public static function distancePointToSegment(SegA:Point,SegB:Point,point:Point):Number {
+				
+				var ax:Number = SegA.x
+				var ay:Number = SegA.y
+				var bx:Number = SegB.x
+				var by:Number = SegB.y
+				var cx:Number = point.x
+				var cy:Number = point.y
+
+				var r_numerator:Number = (cx-ax)*(bx-ax) + (cy-ay)*(by-ay)
+				var r_denomenator:Number = (bx-ax)*(bx-ax) + (by-ay)*(by-ay)
+				var r:Number = r_numerator / r_denomenator
+				
+				var px:Number = ax + r*(bx-ax)
+				var py:Number = ay + r*(by-ay)
+				     
+				var s:Number =  ((ay-cy)*(bx-ax)-(ax-cx)*(by-ay) ) / r_denomenator
+				
+				if ( (r >= 0) && (r <= 1) ) {
+					if(s<0) return -s*Math.sqrt(r_denomenator)
+					return s*Math.sqrt(r_denomenator)
+				}
+				else {
+				
+					var dist1:Number = (cx-ax)*(cx-ax) + (cy-ay)*(cy-ay)
+					var dist2:Number = (cx-bx)*(cx-bx) + (cy-by)*(cy-by)
+					if (dist1 < dist2) {
+						return Math.sqrt(dist1)
+					}	else {
+						return Math.sqrt(dist2)
+					}
+			
+				}
+				
+
+			}
+
+			/**
+			* Finds out if a segment an a circle intersect and if so, return the intersection points<br>
 			* source: http://keith-hair.net/blog/2008/08/05/line-to-circle-intersection-data/#more-23
 			* @return An lineCircleIntersectionResult with the results of the calculation
 			* 
 			**/
-			public static function lineIntersectCircle(A : Point, B : Point, C : Point, r : Number ):lineCircleIntersectionResult {
+			public static function segmentIntersectCircle(A : Point, B : Point, C : Point, r : Number ):lineCircleIntersectionResult {
 				
 				var result:lineCircleIntersectionResult = new lineCircleIntersectionResult()
 				result.inside = false
