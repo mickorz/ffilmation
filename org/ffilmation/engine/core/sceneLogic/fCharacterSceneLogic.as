@@ -31,8 +31,6 @@ package org.ffilmation.engine.core.sceneLogic {
 				 var cache:fCharacterShadowCache, oldCache:fCharacterShadowCache, elementsV:Array, el:fPlane
 				 var s:Number, len:int,i:int,i2:int
 
-		 		 // Change depth of object
-		 		 if(character.cell!=null) character.setDepth(character.cell.zIndex)
 		 		 
 			   // Count lights close enough
 			   for(i2=0;i2<scene.lights.length;i2++) {
@@ -83,10 +81,10 @@ package org.ffilmation.engine.core.sceneLogic {
 				   		    if(fEngine.characterShadows) {
                   
 							    	// Add visibles from foot
-							    	if(!character.cell.visibleObjs || character.cell.visibleRange<range) {
-							    		scene.calcVisibles(character.cell,range)
+							    	if(!character.cell.lightAffectedElements || character.cell.lightRange<range) {
+							    		scene.getAffectedByLight(character.cell,range)
 							    	}
-			            	elementsV = character.cell.visibleObjs
+			            	elementsV = character.cell.lightAffectedElements
 				   		    	nEl = elementsV.length
 				   		    	for(i=0;i<nEl && elementsV[i].distance<range;i++) {
                   	
@@ -102,10 +100,10 @@ package org.ffilmation.engine.core.sceneLogic {
 							    	// Add visibles from top
 							    	try {
 							    		var topCell:fCell = scene.translateToCell(character.x,character.y,character.top)
-							    		if(!topCell.visibleObjs  || topCell.visibleRange<range) {
-							    			scene.calcVisibles(topCell,range)
+							    		if(!topCell.lightAffectedElements  || topCell.lightRange<range) {
+							    			scene.getAffectedByLight(topCell,range)
 							    		}
-			            		elementsV = topCell.visibleObjs
+			            		elementsV = topCell.lightAffectedElements
 				   		    		nEl = elementsV.length
 				   		    		for(i=0;i<nEl && elementsV[i].distance<range;i++) {
                   		

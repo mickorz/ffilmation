@@ -285,7 +285,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				var cy:Number = character.y
 				var cz:Number = character.z
 				for(j=0;j<l;j++) {
-					var cc:fCollisionCandidate = new fCollisionCandidate()
+					var cc:fCollisionCandidate = objectPool.getInstanceOf(fCollisionCandidate) as fCollisionCandidate
 					cc.element = temp[j]
 					cc.distance = temp[j].distanceTo(cx,cy,cz)
 					primaryCandidates[primaryCandidates.length] = cc
@@ -298,6 +298,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					
 					testElement = primaryCandidates[j].element
 					confirm = fCollisionSolver.testPrimaryCollision(character,testElement,dx,dy,dz)
+					objectPool.returnInstance(primaryCandidates[j])
 		  	  if(confirm!=null) {
 		  	  	
 		  	  	if(testElement.solid) {

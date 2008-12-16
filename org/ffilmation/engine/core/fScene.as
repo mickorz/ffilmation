@@ -57,6 +57,8 @@ package org.ffilmation.engine.core {
 		  /** @private */
 			public var renderEngine:fEngineRenderEngine					// The render engine
 		  /** @private */
+			public var renderManager:fSceneRenderManager				// The render manager
+		  /** @private */
 		  public var engine:fEngine
 		 	/** @private */
 			public var _orig_container:Sprite  		  						// Backup reference
@@ -84,8 +86,6 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 		  public var grid:Array                 						  // The grid
-		  /** @private */
-			public var depthSortArr:Array									  		// Array of elements for depth sorting
 			/** @private */
 			public var sortAreas:Array													// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
 																													// It is used to find the proper zIndex for a cell
@@ -239,7 +239,6 @@ package org.ffilmation.engine.core {
  			   this.viewHeight = height
 			
 			   // Internal arrays
-			   this.depthSortArr = new Array          
 			   this.floors = new Array          
 			   this.walls = new Array           
 			   this.objects = new Array         
@@ -256,6 +255,10 @@ package org.ffilmation.engine.core {
 			   // Render engine
 			   this.renderEngine = renderer || (new fFlash9RenderEngine(this,container))
 			   this.renderEngine.setViewportSize(width,height)
+			   
+			   // The render manager decides which elements are inside the viewport and which elements are not
+			   this.renderManager = new fSceneRenderManager(this)
+			   this.renderManager.setViewportSize(width,height)
 			   
 			   // Start xml retrieve process
 			   this.initializer = new fSceneInitializer(this,retriever)
@@ -351,6 +354,7 @@ package org.ffilmation.engine.core {
 					this.currentCamera = camera
 					this.currentCamera.addEventListener(fElement.MOVE,this.cameraMoveListener,false,0,true)
 					this.currentCamera.addEventListener(fElement.NEWCELL,this.cameraNewCellListener,false,0,true)
+					if(this.IAmBeingRendered) this.renderManager.processNewCellCamera(camera)
 					this.followCamera(this.currentCamera)
 			}
 			
@@ -473,6 +477,7 @@ package org.ffilmation.engine.core {
 					// Create
 					var definitionObject:XML = <character id={idchar} definition={def} x={x} y={y} z={z} />
 			   	var nCharacter:fCharacter = new fCharacter(definitionObject,this)
+			   	nCharacter.cell = c
 			   	
 			   	// Events
 				 	nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell,false,0,true)			   
@@ -482,8 +487,10 @@ package org.ffilmation.engine.core {
 			   	this.characters.push(nCharacter)
 			   	this.everything.push(nCharacter)
 			   	this.all[nCharacter.id] = nCharacter
-					if(this.IAmBeingRendered) this.addElementToRenderEngine(nCharacter)
-					nCharacter.updateDepth()
+					if(this.IAmBeingRendered) {
+						this.addElementToRenderEngine(nCharacter)
+						this.renderManager.processNewCellCharacter(nCharacter)
+					}
 
 					//Return
 					if(this.IAmBeingRendered) this.render()
@@ -710,27 +717,34 @@ package org.ffilmation.engine.core {
 				
 				 if(this.IAmBeingRendered) return
 		   	 
+
+			   // Init render manager
+			   this.renderManager.initialize()
+
 			   // Init render engine
 			   this.renderEngine.initialize()
 			   
 			   // Init render for all elements
-			   for(var j:int=0;j<this.floors.length;j++) addElementToRenderEngine(this.floors[j])
-			   for(j=0;j<this.walls.length;j++) addElementToRenderEngine(this.walls[j])
-			   for(j=0;j<this.objects.length;j++) addElementToRenderEngine(this.objects[j])
-			   for(j=0;j<this.characters.length;j++) addElementToRenderEngine(this.characters[j])
+			   for(var j:int=0;j<this.floors.length;j++) this.addElementToRenderEngine(this.floors[j])
+			   for(j=0;j<this.walls.length;j++) this.addElementToRenderEngine(this.walls[j])
+			   for(j=0;j<this.objects.length;j++) this.addElementToRenderEngine(this.objects[j])
+			   for(j=0;j<this.characters.length;j++) this.addElementToRenderEngine(this.characters[j])
 			   for(j=0;j<this.bullets.length;j++) {
-			   	addElementToRenderEngine(this.bullets[j])
+			   	this.addElementToRenderEngine(this.bullets[j])
 			   	this.bullets[j].customData.bulletRenderer.init()
 			   }
 		   	 
+				 this.renderManager.depthSort()
+
 			   // Set flag
 			   this.IAmBeingRendered = true
 
-		   	 // Now sprites can be sorted
-			   this.depthSort()
-
 		   	 // Render scene
 		   	 this.render()
+
+				 // Update camera if any
+				 if(this.currentCamera) this.renderManager.processNewCellCamera(this.currentCamera)
+
 			   
 			}
 
@@ -756,10 +770,16 @@ package org.ffilmation.engine.core {
 				 element.flashClip = this.renderEngine.getAssetFor(element)
 				 
 				 // Listen to show and hide events
-				 element.addEventListener(fRenderableElement.SHOW,this.showListener,false,0,true)
-				 element.addEventListener(fRenderableElement.HIDE,this.hideListener,false,0,true)
+				 element.addEventListener(fRenderableElement.SHOW,this.renderManager.showListener,false,0,true)
+				 element.addEventListener(fRenderableElement.HIDE,this.renderManager.hideListener,false,0,true)
 				 element.addEventListener(fRenderableElement.ENABLE,this.enableListener,false,0,true)
 				 element.addEventListener(fRenderableElement.DISABLE,this.disableListener,false,0,true)
+				 
+				 if(element._visible) {
+				 	this.renderManager.addToDepthSort(element)
+				 	this.renderEngine.showElement(element)
+				 }
+				 
 				 
 				 // Elements default to Mouse-disabled
 				 element.disableMouseEvents()
@@ -771,26 +791,17 @@ package org.ffilmation.engine.core {
 			*/
 			private function removeElementFromRenderEngine(element:fRenderableElement) {
 			
+				 this.renderManager.removedItem(element)
 				 this.renderEngine.stopRenderFor(element)
 	  	 	 element.container = null
 	  	 	 element.flashClip = null
 				 
 				 // Stop listening to show and hide events
-				 element.removeEventListener(fRenderableElement.SHOW,this.showListener)
-				 element.removeEventListener(fRenderableElement.HIDE,this.hideListener)
+				 element.removeEventListener(fRenderableElement.SHOW,this.renderManager.showListener)
+				 element.removeEventListener(fRenderableElement.HIDE,this.renderManager.hideListener)
 				 element.removeEventListener(fRenderableElement.ENABLE,this.enableListener)
 				 element.removeEventListener(fRenderableElement.DISABLE,this.disableListener)
 				 
-			}
-
-			// Listens to elements made visible
-			private function showListener(evt:Event):void {
-			   if(this.IAmBeingRendered) this.renderEngine.showElement(evt.target as fRenderableElement)
-			}
-			
-			// Listens to elements made invisible
-			private function hideListener(evt:Event):void {
-			   if(this.IAmBeingRendered) this.renderEngine.hideElement(evt.target as fRenderableElement)
 			}
 
 			// Listens to elements made enabled
@@ -811,6 +822,9 @@ package org.ffilmation.engine.core {
 		   	 
 			   // Stop render engine
 			   this.renderEngine.dispose()
+			   
+			   // Stop render manager
+			   this.renderManager.dispose()
 			   
 			   // Set flag
 			   this.IAmBeingRendered = false
@@ -845,7 +859,10 @@ package org.ffilmation.engine.core {
 
 				if(this.IAmBeingRendered) {
 					if(evt.target is fOmniLight) fLightSceneLogic.processNewCellOmniLight(this,evt.target as fOmniLight)
-					if(evt.target is fCharacter) fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
+					if(evt.target is fCharacter) {
+						this.renderManager.processNewCellCharacter(evt.target as fCharacter)
+						fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
+					}
 					if(evt.target is fBullet) fBulletSceneLogic.processNewCellBullet(this,evt.target as fBullet)
 				}
 				
@@ -885,6 +902,7 @@ package org.ffilmation.engine.core {
 			// Listens cameras changing cells.
 			private function cameraNewCellListener(evt:Event):void {
 					var camera:fCamera = evt.target as fCamera
+					if(this.IAmBeingRendered) this.renderManager.processNewCellCamera(camera)
 			}
 
 			// Adjusts visualization to camera position
@@ -900,17 +918,6 @@ package org.ffilmation.engine.core {
 
 			// INTERNAL METHODS RELATED TO DEPTHSORT
 
-			// Depth sorting
-			/** @private */
-			public function addToDepthSort(item:fRenderableElement):void {				
-
-				if(this.depthSortArr.indexOf(item)<0) {
-				 	this.depthSortArr.push(item)
-			   	item.addEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener,false,0,true)
-			  }
-			
-			}
-
 			// Returns a normalized zSort value for a cell in the grid. Bigger values display in front of lower values
 			/** @private */
 			public function computeZIndex(i:Number,j:Number,k:Number):Number {
@@ -918,47 +925,6 @@ package org.ffilmation.engine.core {
 				 var od:int = this.gridDepth
 				 var oh:int = this.gridHeight
 			   return ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
-			}
-
-			/** @private */
-			public function removeFromDepthSort(item:fRenderableElement):void {				
-
-				 this.depthSortArr.splice(this.depthSortArr.indexOf(item),1)
-			   item.removeEventListener(fRenderableElement.DEPTHCHANGE,this.depthChangeListener)
-			
-			}
-
-			// Listens to renderableitems changing its depth
-			/** @private */
-			public function depthChangeListener(evt:Event):void {
-				
-				//Element
-				if(!this.IAmBeingRendered) return
-				
-				var el:fRenderableElement = evt.target as fRenderableElement
-				var oldD:int = el.depthOrder
-				this.depthSortArr.sortOn("_depth", Array.NUMERIC);
-				var newD:int = this.depthSortArr.indexOf(el)
-				if(newD!=oldD) {
-					el.depthOrder = newD
-					this.container.setChildIndex(el.container, newD)
-				}
-				
-			}
-			
-		  // Initial depth sorting
-			private function depthSort():void {
-				
-				var ar:Array = this.depthSortArr
-				ar.sortOn("_depth", Array.NUMERIC);
-    		var i:int = ar.length;
-    		var p:Sprite = this.container
-    		
-    		while(i--) {
-        	p.setChildIndex(ar[i].container, i)
-        	ar[i].depthOrder = i
-        }
-				
 			}
 
 
@@ -1087,14 +1053,22 @@ package org.ffilmation.engine.core {
       }         
 
 
-			// Get visible elements from given cell, sorted by distance
+			// Get elements affected by lights from given cell, sorted by distance
 			/** @private */
-			public function calcVisibles(cell:fCell,range:Number=Infinity):void {
-			   var r:Array = fVisibilitySolver.calcVisiblesCoords(this,cell.x,cell.y,cell.z,range)
-			   cell.visibleObjs = r
-			   cell.visibleRange = range
+			public function getAffectedByLight(cell:fCell,range:Number=Infinity):void {
+			   var r:Array = fVisibilitySolver.calcAffectedByLight(this,cell.x,cell.y,cell.z,range)
+			   cell.lightAffectedElements = r
+			   cell.lightRange = range
 			}
 			
+			// Get elements visible from given cell, sorted by distance
+			public function getVisibles(cell:fCell,range:Number=Infinity):void {
+			   var r:Array = fVisibilitySolver.calcVisibles(this,cell.x,cell.y,cell.z,range)
+			   cell.visibleElements = r
+			   cell.visibleRange = range
+			}
+
+
 			/**
 			* @private
 			* This method frees all resources allocated by this scene. Always clean unused scene objects:
@@ -1104,9 +1078,7 @@ package org.ffilmation.engine.core {
 				
 		  	// Free properties
 		  	this.engine = null
-				for(var i:Number=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
-				this.depthSortArr = null
-				for(i=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
+				for(var i:int=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
 				this.sortAreas = null
 				if(this.currentCamera) this.currentCamera.dispose()
 				this.currentCamera = null
@@ -1118,6 +1090,11 @@ package org.ffilmation.engine.core {
 				
 				// Free render engine
 				this.renderEngine.dispose()
+				
+				// Free render manager
+				this.renderManager.dispose()
+				this.renderManager = null
+				
 				if(this._orig_container.parent) this._orig_container.parent.removeChild(this._orig_container)
 				this._orig_container = null
 				this.container = null

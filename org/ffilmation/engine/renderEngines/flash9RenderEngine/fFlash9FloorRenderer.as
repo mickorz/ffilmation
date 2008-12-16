@@ -148,7 +148,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 							this.rEngine.returnObjectShadow(a[j])
 			 	 			delete a[j]
 						 } catch (e:Error) {
-						  trace("Floor reset error: "+e)	
+						  //trace("Floor reset error: "+e)	
 						 }
 					}
 					delete fFlash9FloorRenderer.objectProjectionCache[i]
@@ -395,13 +395,18 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			  	 var lClip:Sprite = this.lightClips[light.uniqueId]
 			   	 this.lightC.removeChild(lClip)
 			   }
-			   
+
 			   // Hide shadows
 				 if(fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]) {
 				 		var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
-				 		try {
-				 			for(var i in cache) cache[i].parent.parent.removeChild(cache[i].parent)
-				 		} catch(e:Error) {	}			   
+				 		for(var i in cache) {
+							try {				 		
+			 	 				var clip:Sprite = cache[i].shadow
+			 	 				if(clip.parent.parent) clip.parent.parent.removeChild(clip.parent)
+			 	 				this.rEngine.returnObjectShadow(cache[i])
+			 	 				delete cache[i]
+				 			} catch(e:Error) {	}	
+				 		}		   
 				 }
 			   
 		 		 this.undoCache(true)

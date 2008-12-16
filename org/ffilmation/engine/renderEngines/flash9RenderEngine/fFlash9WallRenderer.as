@@ -375,10 +375,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		var cache:Dictionary = fFlash9WallRenderer.objectRenderCache[this.element.uniqueId+"_"+light.uniqueId]
 				 		for(var i in cache) {
 				 			try {
-				 				cache[i].parent.removeChild(cache[i])
-				 			} catch(e:Error) {
-				 			
-				 			}
+							 	var clip:Sprite = cache[i].shadow
+							 	clip.parent.removeChild(clip)
+								this.rEngine.returnObjectShadow(cache[i])
+								delete cache[i]
+				 			} catch(e:Error) {}
 				 		}			   
 				 }
 				 

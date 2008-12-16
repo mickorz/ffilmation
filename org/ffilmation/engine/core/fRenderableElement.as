@@ -154,9 +154,6 @@ package org.ffilmation.engine.core {
 				 temp = defObj.@solid
 			   if(temp.length()==1) this.solid = (temp.toString()=="true")
 			   
-			   // Add to all elements
-				 if(!noDepthSort) scene.addToDepthSort(this)
-
 			}
 
 			/**
@@ -179,8 +176,7 @@ package org.ffilmation.engine.core {
 			public function show():void {
 				 if(!this._visible) {
 				 		this._visible = true
-				 		this.scene.addToDepthSort(this)
-	 				 	dispatchEvent(new Event(fRenderableElement.SHOW))
+				 		dispatchEvent(new Event(fRenderableElement.SHOW))
 				 }
 			}
 			
@@ -190,7 +186,6 @@ package org.ffilmation.engine.core {
 			public function hide():void {
 				 if(this._visible) {
 				 		this._visible = false
-				 		this.scene.removeFromDepthSort(this)
 				 		dispatchEvent(new Event(fRenderableElement.HIDE))
 				 }
 			}

@@ -47,13 +47,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.containerToPaint = libraryMovieClip
 				 if(libraryMovieClip is MovieClip) this.flashClip = (libraryMovieClip as MovieClip)
 				 this.container = spriteToShowHide
+				 
+				 // The container comes attached from the engine only so we can store the reference to the parent
 				 this.containerParent = this.container.parent
+				 this.containerParent.removeChild(this.container)
 				 
 				 // Move asset to appropiate position
 				 this.place()
-				 
-				 // Is it hidden at origin ?
-				 if(!this.element._visible) this.hide()
 				 
 			}
 

@@ -167,12 +167,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // New cache
 				 if(this.finalBitmapData) this.finalBitmapData.dispose()
  			   this.baseContainer.transform.matrix = new Matrix()
-			   this.finalBitmapData = new BitmapData(this.baseContainer.width,this.baseContainer.height,true,0x00000000)
+			   this.finalBitmapData = new BitmapData(this.scrollR.width,Math.abs(this.scrollR.height),true,0x00000000)
 			   
 				 // Draw
 				 var oMatrix:Matrix = new Matrix()
 				 var p:fPlane = this.element as fPlane
-   			 if(p is fWall) oMatrix.translate(0, this.baseContainer.height)
+   			 if(p is fWall) oMatrix.translate(0, -this.scrollR.height)
 				 this.finalBitmapData.draw(this.baseContainer,oMatrix)
 				 
 				 // Display
@@ -545,7 +545,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   lay.addChild(shd)
 			   this.lightShadows[light.uniqueId] = shd
 			   shd.blendMode = BlendMode.ERASE
-
 			
 			}
 			
