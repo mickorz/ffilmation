@@ -1,4 +1,4 @@
-package org.ffilmation.utils {
+package org.ffilmation.utils  {
 
 		// Imports
 		import flash.geom.Point
