@@ -524,8 +524,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				}				
 
 				// Return fCollision point
-				if(dz>0) return new fCollision(-1,-1,floor.z-obj.height-0.01)
-				else return new fCollision(-1,-1,floor.z+0.01)
+				if(dz>0) return new fCollision(-1,-1,floor.z-obj.height-0.1)
+				else return new fCollision(-1,-1,floor.z+0.1)
 				
 			}
 
@@ -568,8 +568,17 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					// There was a fCollision 
 					if(!any) {
 						
-						if(obj.x<wall.x) return new fCollision(wall.x-radius-0.01,-1,-1)
-						else return new fCollision(wall.x+radius+0.01,-1,-1)
+						if((obj.y+obj.radius)>wall.y1) {
+							if(obj.x<wall.x) return new fCollision(wall.x-radius-0.1,obj.y+2,-1)
+							else return new fCollision(wall.x+radius+0.1,obj.y+2,-1)
+						} else if((obj.y-obj.radius)<wall.y0) {
+							if(obj.x<wall.x) return new fCollision(wall.x-radius-0.1,obj.y-2,-1)
+							else return new fCollision(wall.x+radius+0.1,obj.y-2,-1)
+						} else {
+							if(obj.x<wall.x) return new fCollision(wall.x-radius-0.1,-1,-1)
+							else return new fCollision(wall.x+radius+0.1,-1,-1)
+						}
+						
 					}
 	
 					return null
@@ -600,8 +609,18 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					
 					// There was a fCollision 
 					if(!any) {
-						if(obj.y<wall.y) return new fCollision(-1,wall.y-radius-0.01,-1)
-						else return new fCollision(-1,wall.y+radius+0.01,-1)
+						
+						if((obj.x+obj.radius)>wall.x1) {
+							if(obj.y<wall.y) return new fCollision(obj.x+2,wall.y-radius-0.1,-1)
+							else return new fCollision(obj.x+2,wall.y+radius+0.1,-1)
+						} else if((obj.x-obj.radius)<wall.x0) {
+							if(obj.y<wall.y) return new fCollision(obj.x-2,wall.y-radius-0.1,-1)
+							else return new fCollision(obj.x-2,wall.y+radius+0.1,-1)
+						} else {
+							if(obj.y<wall.y) return new fCollision(-1,wall.y-radius-0.1,-1)
+							else return new fCollision(-1,wall.y+radius+0.1,-1)
+						}
+						
 					}
 
 					return null
@@ -739,16 +758,22 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(any) {
 						
 						ret = new fCollision(-1,-1,-1)
-						if(dy<0 && ((y-radius)<hole.y0)) ret.y = hole.y0+radius+0.01
-						if(dy>0 && ((y+radius)>hole.y1)) ret.y = hole.y1-radius-0.01
-						if(dz<0 && obj.z<=hole.z) ret.z = hole.z+0.01
-						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.01
+						if(dy<0 && ((y-radius)<hole.y0)) ret.y = hole.y0+radius+0.1
+						if(dy>0 && ((y+radius)>hole.y1)) ret.y = hole.y1-radius-0.1
+						if(dz<0 && obj.z<=hole.z) ret.z = hole.z+0.1
+						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.1
 						return ret
 						
 					} else {
-						if(obj.y<wall.y0) return new fCollision(-1,wall.y0-radius-0.01,-1)
-						else if(obj.y1>wall.y1) return new fCollision(-1,wall.y1+radius-0.01,-1)
-						else return null
+						if(obj.y<wall.y0) {
+							if((obj.x+obj.radius)>wall.x) return new fCollision(obj.x+2,wall.y0-radius-0.1,-1)
+							else if((obj.x-obj.radius)<wall.x) return new fCollision(obj.x-2,wall.y0-radius-0.1,-1)
+							else return new fCollision(-1,wall.y0-radius-0.1,-1)
+						} else if(obj.y1>wall.y1) {
+							if((obj.x+obj.radius)>wall.x) return new fCollision(obj.x+2,wall.y1+radius-0.1,-1)
+							else if((obj.x-obj.radius)<wall.x) return new fCollision(obj.x-2,wall.y1+radius-0.1,-1)
+							else return new fCollision(-1,wall.y1+radius-0.1,-1)
+						} else return null
 					}
 
 			  } else {
@@ -780,16 +805,22 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(any) {
 						
 						ret = new fCollision(-1,-1,-1)
-						if(dx<0 && ((x-radius)<hole.x0)) ret.x = hole.x0+radius+0.01
-						if(dx>0 && ((x+radius)>hole.x1)) ret.x = hole.x1-radius-0.01
-						if(dz<0 && obj.z<=hole.z) ret.z = hole.z+0.01
-						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.01
+						if(dx<0 && ((x-radius)<hole.x0)) ret.x = hole.x0+radius+0.1
+						if(dx>0 && ((x+radius)>hole.x1)) ret.x = hole.x1-radius-0.1
+						if(dz<0 && obj.z<=hole.z) ret.z = hole.z+0.1
+						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.1
 						return ret
 						
 					} else {
-						if(obj.x<wall.x0) return new fCollision(wall.x0-radius-0.01,-1,-1)
-						else if(obj.x1>wall.x1) return new fCollision(wall.x1+radius-0.01,-1,-1)
-						else return null
+						if(obj.x<wall.x0) {
+							if((obj.y+obj.radius)>wall.y) return new fCollision(wall.x0-radius-0.1,obj.y+2,-1)
+							else if((obj.y-obj.radius)<wall.y) return new fCollision(wall.x0-radius-0.1,obj.y-2,-1)
+							else return new fCollision(wall.x0-radius-0.1,-1,-1)
+						} else if(obj.x1>wall.x1) {
+							if((obj.y+obj.radius)>wall.y) return new fCollision(wall.x1+radius-0.1,obj.y+2,-1)
+							else if((obj.y-obj.radius)<wall.y) return new fCollision(wall.x1+radius-0.1,obj.y-2,-1)
+							else return new fCollision(wall.x1+radius-0.1,-1,-1)
+						} else return null
 					}
 
 			  }
@@ -837,8 +868,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			  	
 			  }
 
-				if(obj.z<other.top && obj.top>other.z && (obj.z-dz)>other.top) return new fCollision(-1,-1,other.top+0.01)
-				if(obj.top>other.z && obj.z<other.z && (obj.top-dz)<other.z) return new fCollision(-1,-1,other.z-0.01)
+				if(obj.z<other.top && obj.top>other.z && (obj.z-dz)>other.top) return new fCollision(-1,-1,other.top+0.1)
+				if(obj.top>other.z && obj.z<other.z && (obj.top-dz)<other.z) return new fCollision(-1,-1,other.z-0.1)
 
 				return null
 
