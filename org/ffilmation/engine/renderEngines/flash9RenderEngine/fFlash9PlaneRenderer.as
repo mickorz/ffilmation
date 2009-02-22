@@ -331,15 +331,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			
 			 	 // Diffuse
 			 	 var p:fPlane = evt.target as fPlane
-			 	 var nDiffuse = p.material.getDiffuse(element,evt.width,evt.height,true)
- 			   var d:Sprite = nDiffuse as Sprite
- 			   d.mouseEnabled = false
- 			   d.mouseChildren = false
- 			   this.baseContainer.addChild(nDiffuse)
- 			   this.baseContainer.swapChildren(this.diffuse,nDiffuse)
- 			   this.baseContainer.removeChild(this.diffuse)
- 			   
- 			   //this.diffuse = this.containerToPaint = nDiffuse
+			 	 var d:DisplayObject = p.material.getDiffuse(element,evt.width,evt.height,true)
+ 			   var nDiffuseData:BitmapData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
+				 var oMatrix:Matrix = this.planeDeform.clone()
+				 oMatrix.translate(0,-Math.round(p.bounds2d.y))
+				 nDiffuseData.draw(d,oMatrix)
+
+ 			   this.diffuse.bitmapData = nDiffuseData
+ 			   this.diffuseData.dispose()
+ 			   this.diffuseData = nDiffuseData
  			   
  			   // Holes
 	   		 this.processHoles(p)
@@ -673,6 +673,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 					  // Gradient setup
 					  var radius:Number = this.lightStatuses[light.uniqueId].localScale*light.size
+						if(fEngine.bumpMapping && light.bump && this.bumpMap) radius *= 0.85
+				 		
 					  var colors:Array = [light.hexcolor, light.hexcolor]
 				    var fillType:String = GradientType.RADIAL
 				    var alphas:Array = [light.intensity/100, 0]
@@ -694,48 +696,19 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.clipPolygon.draw(lClip.graphics)
 				 lClip.graphics.endFill()
 				 
-				 // Update bumpmap
-				 if(light.size!=Infinity) {
-         
-				 	if(fEngine.bumpMapping && light.bump) {
-				 		
+			 	 // Update bumpmap
+				 if(fEngine.bumpMapping && light.bump) {
+				 	
 				 		if(this.firstBump) {
-			 	 		   this.iniBump()
-			 	 		   this.firstBump = false
+			 	 	   	this.iniBump()
+			 	 	   	this.firstBump = false
 				 		}
 				 		
-/*				 		if(this.bumpMap!=null) {
-				 			var r = lClip.getBounds(lClip.stage)
-				 			var lw:Number = Math.round(r.width/2)
-				 			var lh:Number = Math.round(r.height/2)
-				 			
-				 			// Snap to pixels so bumpmap doesn't flicker
-				 			var pos:Point = new Point(lx,ly)
-				 			var f:Point = lClip.parent.localToGlobal(pos)
-				 			f.x = Math.round(f.x)
-				 			f.y = Math.round(f.y)
-				 			pos = lClip.parent.globalToLocal(f)
-				 			lClip.x = pos.x
-				 			lClip.y = pos.y
-             	
-				 			// Apply bump map
-				 			pos = this.tMatrixB.deltaTransformPoint(pos)
-				 			var p:Point = new Point(lw-pos.x,lh-pos.y)
-				 			p.x = p.x
-				 			p.y = p.y-this.tMatrix.ty
-				 			displacer.mapBitmap = this.bumpMap.outputData
-				 			displacer.mapPoint = p
-				 			lClip.filters = [displacer]
-				 		} else {
-				 			lClip.filters = null
-				 	  }*/
-				 	} else {
-				 		
-				 		lClip.filters = null
-				 		
-				 	}
-				 	
-				 }
+		 		 		if(this.bumpMap!=null) {
+				 			if(lClip.filters.length==0) lClip.filters = [this.displacer]
+				 		} else lClip.filters = null
+				 
+				 } else lClip.filters = null
 
 			}
 
@@ -955,31 +928,30 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			   // Bump map ?
 	       try {
-
-				 		var ptt:DisplayObject = (this.element as fPlane).material.getBump(this.element,this.container.width,this.container.height,true)
-						
-						this.bumpMapData = new BitmapData(this.container.width,this.container.height)
-						this.tMatrix = this.container.transform.matrix.clone()
-//						this.tMatrix.concat(this.spriteToDraw.transform.matrix)
-						this.tMatrixB = this.tMatrix.clone()
-				 		var bnds = this.container.getBounds(this.container.parent)
-						this.tMatrix.ty = Math.round(-bnds.top)
+	       	
+	       	  var element:fPlane = this.element as fPlane
+			 		  var ptt:DisplayObject = element.material.getBump(element,this.origWidth,this.origHeight,true)
+						this.bumpMapData = new BitmapData(element.bounds2d.width,element.bounds2d.height)
+						this.tMatrix = this.planeDeform.clone()
+						this.tMatrix.translate(0,-Math.round(element.bounds2d.y))
 						this.bumpMapData.draw(ptt,this.tMatrix)
 						
 				 		this.bumpMap = new BumpMap(this.bumpMapData)
-				 		this.displacer = new DisplacementMapFilter();
-				 		this.displacer.componentX = BumpMap.COMPONENT_X;
-				 		this.displacer.componentY = BumpMap.COMPONENT_Y;
-				 		this.displacer.mode =	DisplacementMapFilterMode.COLOR
+				 		this.displacer = new DisplacementMapFilter()
+				 		this.displacer.componentX = BumpMap.COMPONENT_X
+				 		this.displacer.componentY = BumpMap.COMPONENT_Y
+				 		this.displacer.mode =	DisplacementMapFilterMode.IGNORE
 				 		this.displacer.alpha =	0
-				 		this.displacer.scaleX = -180;
-				 		this.displacer.scaleY = -180;
+				 		this.displacer.scaleX = 100;
+				 		this.displacer.scaleY = 100;
+				 		this.displacer.mapBitmap = this.bumpMap.outputData
 				 		
 //				 		var r:Bitmap = new Bitmap(this.bumpMap.outputData)
 //				 		var r:Bitmap = new Bitmap(this.bumpMapData)
-//				 		this.container.parent.addChild(r)
+//				 		this.container.addChild(r)
 
 				 } catch (e:Error) {
+
 				 		this.bumpMapData = null
 				 		this.bumpMap = null
 				 		this.displacer = null
