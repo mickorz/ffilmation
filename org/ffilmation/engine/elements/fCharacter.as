@@ -191,7 +191,7 @@ package org.ffilmation.engine.elements {
  		 		 		var height:Number = this.height
          		
 			   		this.top = this.z+height
-         		
+			   		
 				 		// Check for collisions against other fRenderableElements.
 				 		// collisionSolver.solveCharacterCollisions() tests a character's collisions at its current position, generates collision events (if any)
 						// and moves the character into a valid position if necessary.

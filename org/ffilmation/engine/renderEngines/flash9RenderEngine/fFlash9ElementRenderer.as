@@ -3,6 +3,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		// Imports
 		import flash.events.*
 		import flash.display.*
+		import flash.geom.*
 
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
@@ -23,7 +24,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public var scene:fScene			
 
 			/** The container for the element */
-			public var container:MovieClip
+			public var container:fElementContainer
 
 			/** The graphic asset for this element */
 			public var flashClip:MovieClip
@@ -36,7 +37,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			// Constructor
 			/** @private */
-			function fFlash9ElementRenderer(rEngine:fFlash9RenderEngine,element:fRenderableElement,libraryMovieClip:DisplayObject,spriteToShowHide:MovieClip):void {
+			function fFlash9ElementRenderer(rEngine:fFlash9RenderEngine,element:fRenderableElement,libraryMovieClip:DisplayObject,spriteToShowHide:fElementContainer):void {
 				
 				 // Pointer to element
 				 this.element = element
@@ -61,6 +62,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* Place asset its proper position
 			*/
 			public function place():void {
+
+			   // Place in position
+			   var coords:Point = fScene.translateCoords(this.element.x,this.element.y,this.element.z)
+			   this.container.x = coords.x
+			   this.container.y = coords.y
+			   
 			}
 
 			/**
@@ -207,8 +214,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public function disposeRenderer():void {
 
 				// Remove dependencies
-				delete this.container.fElementId
-				delete this.container.fElement
 				this.containerToPaint = null
 				fFlash9RenderEngine.recursiveDelete(this.container)
 				this.container = null

@@ -86,6 +86,20 @@ package org.ffilmation.engine.materials {
 				return []
 			}
 
+			/** 
+			* Retrieves an array of contours that define the shape of this material. Every contours is an Array of Points
+			*
+			* @param element The element( wall or floor ) where the holes will be applied
+			* @param width: Requested width
+			* @param height: Requested height
+			*
+			* @return An array of arrays of points, one for each contour. Positions and sizes are relative to material origin of coordinates
+			*
+			*/
+			public function getContours(element:fRenderableElement,width:Number,height:Number):Array {
+				return [ [new Point(0,0),new Point(width,0),new Point(width,height),new Point(0,height)] ]
+			}
+
 			/**
 			* Retrieves the graphic element that is to be used to block a given hole when it is closed
 			*

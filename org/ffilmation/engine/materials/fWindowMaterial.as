@@ -37,7 +37,6 @@ package org.ffilmation.engine.materials {
 			public function fWindowMaterial(definition:fMaterialDefinition):void {
 				this.definition = definition
 				
-				
 				// Retrieve window data
 				this.wwidth = new Number(this.definition.xmlData.width)
 				this.wheight = new Number(this.definition.xmlData.height)
@@ -101,7 +100,7 @@ package org.ffilmation.engine.materials {
 				this.calcWindows(width,height)
 
 				// Draw base
-				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base)
+				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base,element.scene)
 				var base:BitmapData = new BitmapData(width,height,true,0x000000)
 				base.draw(tile.getDiffuse(element,width,height))
 				
@@ -130,7 +129,7 @@ package org.ffilmation.engine.materials {
 				// Draw frame, if any
 				var framesize:Number = new Number(this.definition.xmlData.framesize)
 				if(framesize>0 && this.definition.xmlData.frame) {
-					tile = fMaterial.getMaterial(this.definition.xmlData.frame)
+					tile = fMaterial.getMaterial(this.definition.xmlData.frame,element.scene)
 					var base2:BitmapData = new BitmapData(width,height,true,0x000000)
 					base2.draw(tile.getDiffuse(element,width,height))
 					
@@ -196,6 +195,21 @@ package org.ffilmation.engine.materials {
 			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				return null
 			}
+
+			/** 
+			* Retrieves an array of contours that define the shape of this material. Every contours is an Array of Points
+			*
+			* @param element The element( wall or floor ) where the holes will be applied
+			* @param width: Requested width
+			* @param height: Requested height
+			*
+			* @return An array of arrays of points, one for each contour. Positions and sizes are relative to material origin of coordinates
+			*
+			*/
+			public function getContours(element:fRenderableElement,width:Number,height:Number):Array {
+				return [ [new Point(0,0),new Point(width,0),new Point(width,height),new Point(0,height)] ]
+			}
+
 
 			/** 
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions

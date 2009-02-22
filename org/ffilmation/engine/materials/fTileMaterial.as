@@ -47,8 +47,7 @@ package org.ffilmation.engine.materials {
 			*/
 			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
-				var ret:Sprite = new Sprite
-				var temp:Sprite = new Sprite
+				var temp:Shape = new Shape
 				
 				var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
 				var image:BitmapData = new clase(0,0) as BitmapData
@@ -65,12 +64,8 @@ package org.ffilmation.engine.materials {
 				temp.graphics.drawRect(0,0,width,height)
 				temp.graphics.endFill()
 
-			  var msk:BitmapData = new BitmapData(width,height,true,0x000000)
-				msk.draw(temp)
-				image.dispose()
-				ret.addChild(new Bitmap(msk,"auto",true))
-
-				return ret
+			  return temp
+			  
 			}
 
 			/** 
@@ -107,6 +102,20 @@ package org.ffilmation.engine.materials {
 			*/
 			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				return []
+			}
+
+			/** 
+			* Retrieves an array of contours that define the shape of this material. Every contours is an Array of Points
+			*
+			* @param element The element( wall or floor ) where the holes will be applied
+			* @param width: Requested width
+			* @param height: Requested height
+			*
+			* @return An array of arrays of points, one for each contour. Positions and sizes are relative to material origin of coordinates
+			*
+			*/
+			public function getContours(element:fRenderableElement,width:Number,height:Number):Array {
+				return [ [new Point(0,0),new Point(width,0),new Point(width,height),new Point(0,height)] ]
 			}
 
 			/**

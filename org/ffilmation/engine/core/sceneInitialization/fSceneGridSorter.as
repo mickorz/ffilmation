@@ -133,6 +133,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 	      	if(f.k!=0) {
 	      		f.setZ(this.scene.computeZIndex(f.i,f.j+f.gDepth-1,f.k))
       			this.sortArray[this.sortArray.length] = f
+      		} else {
+      			f.setZ(-this.scene.floors.length+i)
       		}
 	      }
 	      this.sortArray.sortOn("zIndex",Array.NUMERIC | Array.DESCENDING)

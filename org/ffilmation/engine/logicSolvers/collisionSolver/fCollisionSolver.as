@@ -28,13 +28,15 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 		 		var testCell:fCell,testElement:fRenderableElement, confirm:fCollision
 		 		var primaryCandidates:Array = new Array
 		 		var secondaryCandidates:Array = new Array
-		 		var radius:Number = 1.5*character.radius
+		 		var radius:Number = character.radius+scene.gridSize
+		 		var realRadius:Number = character.radius
 				var i:int
 				var j:int
 				var l:int
 				var some:Boolean
 				var tz:Number
 				var gs:int = scene.gridSize
+				var charz:Number = Math.max(character.z,0)
 		 		
 			 	// Test against floors
 			 	if(dz<0) {
@@ -49,7 +51,6 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 									testCell = scene.translateToCell(tx,ty,character.z)
 									if(testCell.walls.top) primaryCandidates[primaryCandidates.length] = (testCell.walls.top)
 								} else {
-									character.z = 0
 									testCell = scene.translateToCell(tx,ty,0)
 									primaryCandidates[primaryCandidates.length] = (testCell.walls.bottom)
 								}
@@ -107,13 +108,13 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				
 				if(dx<0) {
 					
-					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+					for(tz=charz;tz<=character.top;tz+=scene.levelSize) {
 						
-						var my:int = character.y+radius
-						for(var ty:int = character.y-radius;ty<=my;ty+=gs) {
+						var my:Number = character.y+radius
+						for(var ty:Number = character.y-radius;ty<=my;ty+=gs) {
 						
 							try {
-								testCell = scene.translateToCell(character.x-radius,ty,tz)
+								testCell = scene.translateToCell(character.x-realRadius,ty,tz)
 								if(testCell.walls.right) primaryCandidates[primaryCandidates.length] = (testCell.walls.right)
             		
 			 					nchars = testCell.charactersOccupying.length
@@ -122,15 +123,15 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			 					nobjects = testCell.walls.objects.length
 			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
           			
-								if(testCell.walls.up && testCell.walls.up.y>(character.y-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
-								if(testCell.walls.down && testCell.walls.down.y<(character.y+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
+								if(testCell.walls.up && testCell.walls.up.y>(character.y-realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
+								if(testCell.walls.down && testCell.walls.down.y<(character.y+realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
 								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
 								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
 							} catch (e:Error) {
 								
 								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
 
-								var xcell:Number = ((character.x-radius)/gs)
+								var xcell:Number = ((character.x-realRadius)/gs)
 								var ycell:Number = (ty/gs)
 								if(xcell<0) xcell = -1
 								if(ycell<0) ycell = -1
@@ -149,13 +150,13 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
         
 				if(dx>0) {
 					
-					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+					for(tz=charz;tz<=character.top;tz+=scene.levelSize) {
 
 						my = character.y+radius
 						for(ty = character.y-radius;ty<=my;ty+=gs) {
 
 							try {
-								testCell = scene.translateToCell(character.x+radius,ty,tz)
+								testCell = scene.translateToCell(character.x+realRadius,ty,tz)
 								if(testCell.walls.left) primaryCandidates[primaryCandidates.length] = (testCell.walls.left)
             		
 			 					nchars = testCell.charactersOccupying.length
@@ -164,8 +165,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			 					nobjects = testCell.walls.objects.length
 			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
           			
-								if(testCell.walls.up && testCell.walls.up.y>(character.y-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
-								if(testCell.walls.down && testCell.walls.down.y<(character.y+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
+								if(testCell.walls.up && testCell.walls.up.y>(character.y-realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.up)
+								if(testCell.walls.down && testCell.walls.down.y<(character.y+realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.down)
 								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
 								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
 							
@@ -173,7 +174,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
 
-								xcell = ((character.x+radius)/gs)
+								xcell = ((character.x+realRadius)/gs)
 								ycell = (ty/gs)
 								if(xcell<0) xcell = -1
 								if(ycell<0) ycell = -1
@@ -192,13 +193,13 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
         
 				if(dy<0) {
 					
-					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+					for(tz=charz;tz<=character.top;tz+=scene.levelSize) {
 						
-						var mx:int = character.x+radius
-						for(var tx:int = character.x-radius;tx<=mx;tx+=gs) {
+						var mx:Number = character.x+radius
+						for(var tx:Number = character.x-radius;tx<=mx;tx+=gs) {
 							
 							try {
-								testCell = scene.translateToCell(tx,character.y-radius,tz)
+								testCell = scene.translateToCell(tx,character.y-realRadius,tz)
 								if(testCell.walls.down) primaryCandidates[primaryCandidates.length] = (testCell.walls.down)
             		
 			 					nchars = testCell.charactersOccupying.length
@@ -207,8 +208,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			 					nobjects = testCell.walls.objects.length
 			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
           			
-								if(testCell.walls.left && testCell.walls.left.x>(character.x-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
-								if(testCell.walls.right && testCell.walls.right.x<(character.x+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
+								if(testCell.walls.left && testCell.walls.left.x>(character.x-realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
+								if(testCell.walls.right && testCell.walls.right.x<(character.x+realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
 								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
 								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
 							} catch (e:Error) {
@@ -216,7 +217,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
 
 								xcell = (tx/gs)
-								ycell = ((character.y-radius)/gs)
+								ycell = ((character.y-realRadius)/gs)
 								if(xcell<0) xcell = -1
 								if(ycell<0) ycell = -1
 								
@@ -234,13 +235,13 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
         
 				if(dy>0) {
 					
-					for(tz=character.z;tz<=character.top;tz+=scene.levelSize) {
+					for(tz=charz;tz<=character.top;tz+=scene.levelSize) {
 						
 						mx = character.x+radius
 						for(tx=character.x-radius;tx<=mx;tx+=gs) {
 						
 							try {
-								testCell = scene.translateToCell(tx,character.y+radius,tz)
+								testCell = scene.translateToCell(tx,character.y+realRadius,tz)
 								if(testCell.walls.up) primaryCandidates[primaryCandidates.length] = (testCell.walls.up)
           			
 			 					nchars = testCell.charactersOccupying.length
@@ -249,8 +250,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			 					nobjects = testCell.walls.objects.length
 			 					for(k=0;k<nobjects;k++) if(testCell.walls.objects[k]._visible) primaryCandidates[primaryCandidates.length] = (testCell.walls.objects[k])
           			
-								if(testCell.walls.left && testCell.walls.left.x>(character.x-radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
-								if(testCell.walls.right && testCell.walls.right.x<(character.x+radius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
+								if(testCell.walls.left && testCell.walls.left.x>(character.x-realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.left)
+								if(testCell.walls.right && testCell.walls.right.x<(character.x+realRadius)) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.right)
 								if(testCell.walls.top && testCell.walls.top.z<character.top) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.top)
 								if(testCell.walls.bottom && testCell.walls.bottom.z>character.z) secondaryCandidates[secondaryCandidates.length] = (testCell.walls.bottom)
 							} catch (e:Error) {
@@ -258,7 +259,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 								// This means we went outside scene limits and found a null cell. We return a false wall to simulate a collision
 
 								xcell = (tx/gs)
-								ycell = ((character.y+radius)/gs)
+								ycell = ((character.y+realRadius)/gs)
 								if(xcell<0) xcell = -1
 								if(ycell<0) ycell = -1
 								
@@ -276,7 +277,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				// Make primary unique
 				var temp:Array = new Array
 				l = primaryCandidates.length
-				for(j=0;j<l;j++) if(temp.indexOf(primaryCandidates[j])<0) temp[temp.length] = primaryCandidates[j]
+				for(j=0;j<l;j++) if(primaryCandidates[j]._visible && temp.indexOf(primaryCandidates[j])<0) temp[temp.length] = primaryCandidates[j]
 				
 				// Sort primary by distance to object
 				l = temp.length
@@ -325,7 +326,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					// Make secondary unique
 					temp = new Array
 					l = secondaryCandidates.length
-					for(j=0;j<l;j++) if(temp.indexOf(secondaryCandidates[j])<0) temp[temp.length] = secondaryCandidates[j]
+					for(j=0;j<l;j++) if(secondaryCandidates[j]._visible && temp.indexOf(secondaryCandidates[j])<0) temp[temp.length] = secondaryCandidates[j]
 					secondaryCandidates = temp
 					l = secondaryCandidates.length
         
@@ -377,6 +378,9 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 				if(!floor.solid) return false
 				
+				// Inside polygon ?
+				if(!floor.shapePolygon.isPointInside(x-floor.x,y-floor.y)) return false
+				
 				// Loop through holes and see if point is inside one
 				for(var h:int=0;h<floor.holes.length;h++) {
 				
@@ -400,8 +404,12 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 				if(!wall.solid) return false
 				
-				// Loop through holes and see if point is inside one
 				if(wall.vertical) {
+					
+					// Inside polygon ?
+					if(!wall.shapePolygon.isPointInside(y-wall.y0,z-wall.z)) return false
+
+					// Loop through holes and see if point is inside one	
 					for(var h:int=0;h<wall.holes.length;h++) {
 					
 						 	if(wall.holes[h].open) {
@@ -412,6 +420,11 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			 				}	  	
 					}				
 			  } else {
+					
+					// Inside polygon ?
+					if(!wall.shapePolygon.isPointInside(x-wall.x0,z-wall.z)) return false
+
+					// Loop through holes and see if point is inside one
 					for(h=0;h<wall.holes.length;h++) {
 					
 						 	if(wall.holes[h].open) {
@@ -477,7 +490,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			*/
 			private static function testFloorPrimaryCollision(obj:fObject,floor:fFloor,dx:Number,dy:Number,dz:Number):fCollision {
 				
-				if(obj.z>floor.z || obj.top<floor.z) return null
+				if(obj.z>=floor.z || obj.top<=floor.z) return null
 				
 				// Test 4 edges
 				if(obj.x>(floor.x+floor.width)) {
@@ -522,10 +535,10 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 						 	}
 			 			}  	
 				}				
-
+				
 				// Return fCollision point
-				if(dz>0) return new fCollision(-1,-1,floor.z-obj.height-0.1)
-				else return new fCollision(-1,-1,floor.z+0.1)
+				if(dz>0) return new fCollision(-1,-1,floor.z-obj.height)
+				else return new fCollision(-1,-1,floor.z)
 				
 			}
 
@@ -535,7 +548,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			*/
 			private static function testWallPrimaryCollision(obj:fObject,wall:fWall,dx:Number,dy:Number,dz:Number):fCollision {
 				
-				if(obj.z>wall.top || obj.top<wall.z) return null
+				if(obj.z>=wall.top || obj.top<=wall.z) return null
 				
 				var x:Number, y:Number, z:Number, z2:Number
 				var any:Boolean
@@ -569,14 +582,14 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(!any) {
 						
 						if((obj.y+obj.radius)>wall.y1) {
-							if(obj.x<wall.x) return new fCollision(wall.x-radius-0.1,obj.y+2,-1)
-							else return new fCollision(wall.x+radius+0.1,obj.y+2,-1)
+							if(obj.x<wall.x) return new fCollision(wall.x-radius,obj.y+2,-1)
+							else return new fCollision(wall.x+radius,obj.y+2,-1)
 						} else if((obj.y-obj.radius)<wall.y0) {
-							if(obj.x<wall.x) return new fCollision(wall.x-radius-0.1,obj.y-2,-1)
-							else return new fCollision(wall.x+radius+0.1,obj.y-2,-1)
+							if(obj.x<wall.x) return new fCollision(wall.x-radius,obj.y-2,-1)
+							else return new fCollision(wall.x+radius,obj.y-2,-1)
 						} else {
-							if(obj.x<wall.x) return new fCollision(wall.x-radius-0.1,-1,-1)
-							else return new fCollision(wall.x+radius+0.1,-1,-1)
+							if(obj.x<wall.x) return new fCollision(wall.x-radius,-1,-1)
+							else return new fCollision(wall.x+radius,-1,-1)
 						}
 						
 					}
@@ -611,14 +624,14 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(!any) {
 						
 						if((obj.x+obj.radius)>wall.x1) {
-							if(obj.y<wall.y) return new fCollision(obj.x+2,wall.y-radius-0.1,-1)
-							else return new fCollision(obj.x+2,wall.y+radius+0.1,-1)
+							if(obj.y<wall.y) return new fCollision(obj.x+2,wall.y-radius,-1)
+							else return new fCollision(obj.x+2,wall.y+radius,-1)
 						} else if((obj.x-obj.radius)<wall.x0) {
-							if(obj.y<wall.y) return new fCollision(obj.x-2,wall.y-radius-0.1,-1)
-							else return new fCollision(obj.x-2,wall.y+radius+0.1,-1)
+							if(obj.y<wall.y) return new fCollision(obj.x-2,wall.y-radius,-1)
+							else return new fCollision(obj.x-2,wall.y+radius,-1)
 						} else {
-							if(obj.y<wall.y) return new fCollision(-1,wall.y-radius-0.1,-1)
-							else return new fCollision(-1,wall.y+radius+0.1,-1)
+							if(obj.y<wall.y) return new fCollision(-1,wall.y-radius,-1)
+							else return new fCollision(-1,wall.y+radius,-1)
 						}
 						
 					}
@@ -637,7 +650,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			private static function testObjectPrimaryCollision(obj:fObject,other:fObject,dx:Number,dy:Number,dz:Number):fCollision {
 				
 				// Simple case. This works now, but it wouldn't with sphere collision models, for example
-				if(other.top<obj.z || other.z>obj.top) return null
+				if(other.top<=obj.z || other.z>=obj.top) return null
 
 				// The generic implementation of other test works with any collisionModel
 				// But as cilinders allow a more efficient detection, I've programmed specific
@@ -739,7 +752,6 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					
 					y = obj.y
 					x = obj.x
-					z = (obj.z+obj.top)/2
 
 					// Loop through holes find which one are we inside of
 					any = false
@@ -747,7 +759,7 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					
 						 	if(wall.holes[h].open) {
 							 	var hole:fPlaneBounds = wall.holes[h].bounds
-							 	if(hole.width>=(2*obj.radius) && hole.height>=obj.height && hole.z<=z && hole.top>=z && hole.y0<=y && hole.y1>=y) {
+							 	if(hole.width>=(2*obj.radius) && hole.height>=obj.height && hole.z<=obj.z && hole.top>=obj.top && hole.y0<=y && hole.y1>=y) {
 							 		any = true
 							 	} 
 							}
@@ -758,21 +770,21 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(any) {
 						
 						ret = new fCollision(-1,-1,-1)
-						if(dy<0 && ((y-radius)<hole.y0)) ret.y = hole.y0+radius+0.1
-						if(dy>0 && ((y+radius)>hole.y1)) ret.y = hole.y1-radius-0.1
-						if(dz<0 && obj.z<=hole.z) ret.z = hole.z+0.1
-						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.1
+						if(dy<0 && ((y-radius)<hole.y0)) ret.y = hole.y0+radius
+						if(dy>0 && ((y+radius)>hole.y1)) ret.y = hole.y1-radius
+						if(dz<0 && obj.z<=hole.z) ret.z = hole.z
+						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight
 						return ret
 						
 					} else {
 						if(obj.y<wall.y0) {
-							if((obj.x+obj.radius)>wall.x) return new fCollision(obj.x+2,wall.y0-radius-0.1,-1)
-							else if((obj.x-obj.radius)<wall.x) return new fCollision(obj.x-2,wall.y0-radius-0.1,-1)
-							else return new fCollision(-1,wall.y0-radius-0.1,-1)
+							if((obj.x+obj.radius)>wall.x) return new fCollision(obj.x+2,wall.y0-radius,-1)
+							else if((obj.x-obj.radius)<wall.x) return new fCollision(obj.x-2,wall.y0-radius,-1)
+							else return new fCollision(-1,wall.y0-radius,-1)
 						} else if(obj.y1>wall.y1) {
-							if((obj.x+obj.radius)>wall.x) return new fCollision(obj.x+2,wall.y1+radius-0.1,-1)
-							else if((obj.x-obj.radius)<wall.x) return new fCollision(obj.x-2,wall.y1+radius-0.1,-1)
-							else return new fCollision(-1,wall.y1+radius-0.1,-1)
+							if((obj.x+obj.radius)>wall.x) return new fCollision(obj.x+2,wall.y1+radius,-1)
+							else if((obj.x-obj.radius)<wall.x) return new fCollision(obj.x-2,wall.y1+radius,-1)
+							else return new fCollision(-1,wall.y1+radius,-1)
 						} else return null
 					}
 
@@ -805,21 +817,21 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(any) {
 						
 						ret = new fCollision(-1,-1,-1)
-						if(dx<0 && ((x-radius)<hole.x0)) ret.x = hole.x0+radius+0.1
-						if(dx>0 && ((x+radius)>hole.x1)) ret.x = hole.x1-radius-0.1
-						if(dz<0 && obj.z<=hole.z) ret.z = hole.z+0.1
-						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight-0.1
+						if(dx<0 && ((x-radius)<hole.x0)) ret.x = hole.x0+radius
+						if(dx>0 && ((x+radius)>hole.x1)) ret.x = hole.x1-radius
+						if(dz<0 && obj.z<=hole.z) ret.z = hole.z
+						if(dz>0 && obj.top>=hole.top) ret.z = hole.top-oheight
 						return ret
 						
 					} else {
 						if(obj.x<wall.x0) {
-							if((obj.y+obj.radius)>wall.y) return new fCollision(wall.x0-radius-0.1,obj.y+2,-1)
-							else if((obj.y-obj.radius)<wall.y) return new fCollision(wall.x0-radius-0.1,obj.y-2,-1)
-							else return new fCollision(wall.x0-radius-0.1,-1,-1)
+							if((obj.y+obj.radius)>wall.y) return new fCollision(wall.x0-radius,obj.y+2,-1)
+							else if((obj.y-obj.radius)<wall.y) return new fCollision(wall.x0-radius,obj.y-2,-1)
+							else return new fCollision(wall.x0-radius,-1,-1)
 						} else if(obj.x1>wall.x1) {
-							if((obj.y+obj.radius)>wall.y) return new fCollision(wall.x1+radius-0.1,obj.y+2,-1)
-							else if((obj.y-obj.radius)<wall.y) return new fCollision(wall.x1+radius-0.1,obj.y-2,-1)
-							else return new fCollision(wall.x1+radius-0.1,-1,-1)
+							if((obj.y+obj.radius)>wall.y) return new fCollision(wall.x1+radius,obj.y+2,-1)
+							else if((obj.y-obj.radius)<wall.y) return new fCollision(wall.x1+radius,obj.y-2,-1)
+							else return new fCollision(wall.x1+radius,-1,-1)
 						} else return null
 					}
 
@@ -868,8 +880,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 			  	
 			  }
 
-				if(obj.z<other.top && obj.top>other.z && (obj.z-dz)>other.top) return new fCollision(-1,-1,other.top+0.1)
-				if(obj.top>other.z && obj.z<other.z && (obj.top-dz)<other.z) return new fCollision(-1,-1,other.z-0.1)
+				if(obj.z<other.top && obj.top>other.z && (obj.z-dz)>other.top) return new fCollision(-1,-1,other.top)
+				if(obj.top>other.z && obj.z<other.z && (obj.top-dz)<other.z) return new fCollision(-1,-1,other.z)
 
 				return null
 

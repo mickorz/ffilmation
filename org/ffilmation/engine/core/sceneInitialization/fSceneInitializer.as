@@ -154,7 +154,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function initialization_Part4(event:TimerEvent):void {
 			
 				this.myTimer.removeEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part4)
-			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,95,fScene.LOADINGDESCRIPTION,100,"Calculating collision and occlusion grid."))
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,90,fScene.LOADINGDESCRIPTION,100,"Calculating collision and occlusion grid."))
 				
 				fSceneCollisionParser.calculate(this.scene)
 				fSceneOcclusionParser.calculate(this.scene)
@@ -200,6 +200,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 					trace("Scene contains an invalid controller definition. "+e)
 	   		}
 		   	
+			  this.scene.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,95,fScene.LOADINGDESCRIPTION,100,"Rendering..."))
+
 		   	// Next step
 		   	this.myTimer = new Timer(200, 1)
         this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.initialization_Complete,false,0,true)

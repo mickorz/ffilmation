@@ -4,6 +4,8 @@ package org.ffilmation.engine.core {
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.events.*
 	  
+		import org.ffilmation.utils.polygons.*
+
 		/**
 		* <p>fPlanes are the 2d surfaces that provide the main structure for any scene. Once created, planes can't be altered
 		* as the render engine relies heavily on precalculations that depend on the structure of the scene.</p>
@@ -44,6 +46,12 @@ package org.ffilmation.engine.core {
 			
 			// Private properties
 
+			/**
+			* @private
+			* This polygon represents 2D shape of the plane. For each plane the irrelevant axis is not taken into account
+			*/
+			public var shapePolygon:fPolygon
+
 			/** @private */
 			public var zIndex:Number
 			
@@ -62,6 +70,7 @@ package org.ffilmation.engine.core {
 				 this.planeHeight = height
 				 
 				 // Prepare material & holes
+ 			   this.shapePolygon = new fPolygon()
 		 		 this.holes = []	
 				 if(defObj.@src.length()==1) this.assignMaterial(defObj.@src)
 
@@ -74,6 +83,8 @@ package org.ffilmation.engine.core {
 			*/
 			public function assignMaterial(id:String):void {
 				 this.material = fMaterial.getMaterial(id,this.scene)
+				 var contours:Array = this.material.getContours(this,this.planeWidth,this.planeHeight)
+				 this.shapePolygon.contours = contours
 				 this.holes = this.material.getHoles(this,this.planeWidth,this.planeHeight)
 				 this.dispatchEvent(new fNewMaterialEvent(fPlane.NEWMATERIAL,id,this.planeWidth,this.planeHeight))
 			}

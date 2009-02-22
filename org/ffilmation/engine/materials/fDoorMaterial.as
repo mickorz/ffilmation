@@ -66,7 +66,7 @@ package org.ffilmation.engine.materials {
 				this.realPosition = (this.dwidth/2)+(width-this.dwidth)*(0.5+(this.position/200))
 
 				// Draw base
-				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base)
+				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base,element.scene)
 				var base:BitmapData = new BitmapData(width,height,true,0x000000)
 				base.draw(tile.getDiffuse(element,width,height))
 				
@@ -85,7 +85,7 @@ package org.ffilmation.engine.materials {
 				// Draw frame, if any
 				var framesize:Number = new Number(this.definition.xmlData.framesize)
 				if(framesize>0 && this.definition.xmlData.frame) {
-					tile = fMaterial.getMaterial(this.definition.xmlData.frame)
+					tile = fMaterial.getMaterial(this.definition.xmlData.frame,element.scene)
 					var base2:BitmapData = new BitmapData(width,height,true,0x000000)
 					base2.draw(tile.getDiffuse(element,width,height))
 					
@@ -155,6 +155,20 @@ package org.ffilmation.engine.materials {
 				return [ new Rectangle(this.realPosition-this.dwidth/2,height-this.dheight,this.dwidth,this.dheight)]
 			}
 
+			/** 
+			* Retrieves an array of contours that define the shape of this material. Every contours is an Array of Points
+			*
+			* @param element The element( wall or floor ) where the holes will be applied
+			* @param width: Requested width
+			* @param height: Requested height
+			*
+			* @return An array of arrays of points, one for each contour. Positions and sizes are relative to material origin of coordinates
+			*
+			*/
+			public function getContours(element:fRenderableElement,width:Number,height:Number):Array {
+				return [ [new Point(0,0),new Point(width,0),new Point(width,height),new Point(0,height)] ]
+			}
+
 			/**
 			* Retrieves the graphic element that is to be used to block a given hole when it is closed
 			*
@@ -166,7 +180,7 @@ package org.ffilmation.engine.materials {
 				if(index!=0) return null
 				
 				var ret:MovieClip = new MovieClip
-				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.door)
+				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.door,element.scene)
 				var door:BitmapData = new BitmapData(this.dwidth,this.dheight,true,0x000000)
 				door.draw(tile.getDiffuse(element,this.dwidth,this.dheight))
 				ret.addChild(new Bitmap(door,"auto",true))

@@ -1,6 +1,8 @@
 package org.ffilmation.engine.elements {
 	
 		// Imports
+		import flash.geom.*
+		
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
 
@@ -66,6 +68,10 @@ package org.ffilmation.engine.elements {
 			   
 			   // Bounds
 			   this.bounds = new fPlaneBounds(this)
+			   var c1:Point = fScene.translateCoords(this.width,0,0)
+			   var c2:Point = fScene.translateCoords(this.width,this.depth,0)
+			   var c3:Point = fScene.translateCoords(0,this.depth,0)
+			   this.bounds2d = new Rectangle(0,c1.y,c2.x,c3.y-c1.y)
 			   
 			}
 
@@ -106,25 +112,21 @@ package org.ffilmation.engine.elements {
 				 // Easy case
 				 if(x>=this.x && x<=this.x+this.width && y>=this.y && y<=this.y+this.depth) return ((this.z-z)>0) ? (this.z-z) : -(this.z-z)
 				 
-				 
+				 var d2d:Number
 				 if(y<this.y) {
-				 	
-				 		if(x<this.x) return mathUtils.distance3d(x,y,z,this.x,this.y,this.z)
-				 		if(x>this.x+this.width) return mathUtils.distance3d(x,y,z,this.x+this.width,this.y,this.z)
-				 	  return mathUtils.distance(y,z,this.y,this.z)
-				 	
+				 	  d2d = mathUtils.distancePointToSegment(new Point(this.x,this.y),new Point(this.x+width,this.y),new Point(x,y))
 				 }
-				 if(y>(this.y+this.depth)) {
+				 else if(y>(this.y+this.depth)) {
+				 	  d2d = mathUtils.distancePointToSegment(new Point(this.x,this.y+this.depth),new Point(this.x+width,this.y+this.depth),new Point(x,y))
+				 } else {
 				 	
-				 		if(x<this.x) return mathUtils.distance3d(x,y,z,this.x,this.y+this.depth,this.z)
-				 		if(x>this.x+this.width) return mathUtils.distance3d(x,y,z,this.x+this.width,this.y+this.depth,this.z)
-				 	  return mathUtils.distance(y,z,this.y+this.depth,this.z)
-				 	
+				 		if(x<this.x) d2d = mathUtils.distancePointToSegment(new Point(this.x,this.y),new Point(this.x,this.y+this.depth),new Point(x,y))
+				 		else if(x>this.x+this.width) d2d = mathUtils.distancePointToSegment(new Point(this.x+this.width,this.y),new Point(this.x+this.width,this.y+this.depth),new Point(x,y))
+				 	  else d2d = 0
 				 }
-				 
-		 		 if(x<this.x) return mathUtils.distance(x,z,this.x,this.z)
-				 return mathUtils.distance(x,z,this.x+this.width,this.z)
 
+				 var dz:Number = z-this.z
+			   return Math.sqrt(dz*dz + d2d*d2d)
 			
 			}
 

@@ -478,6 +478,7 @@ package org.ffilmation.engine.core {
 					var definitionObject:XML = <character id={idchar} definition={def} x={x} y={y} z={z} />
 			   	var nCharacter:fCharacter = new fCharacter(definitionObject,this)
 			   	nCharacter.cell = c
+			   	nCharacter.setDepth(c.zIndex)
 			   	
 			   	// Events
 				 	nCharacter.addEventListener(fElement.NEWCELL,this.processNewCell,false,0,true)			   
@@ -490,10 +491,10 @@ package org.ffilmation.engine.core {
 					if(this.IAmBeingRendered) {
 						this.addElementToRenderEngine(nCharacter)
 						this.renderManager.processNewCellCharacter(nCharacter)
+						this.render()
 					}
 
 					//Return
-					if(this.IAmBeingRendered) this.render()
 					return nCharacter
 			}
 
@@ -547,10 +548,12 @@ package org.ffilmation.engine.core {
 				var b:fBullet
 				if(this.bulletPool.length>0) {
 					b = this.bulletPool.pop()
+					b.moveTo(x,y,z)
 					b.show()
 				}
 				else {
 					b = new fBullet(this)
+					b.moveTo(x,y,z)
 					if(this.IAmBeingRendered) this.addElementToRenderEngine(b)
 				}
 				
@@ -717,13 +720,12 @@ package org.ffilmation.engine.core {
 				
 				 if(this.IAmBeingRendered) return
 		   	 
-
-			   // Init render manager
-			   this.renderManager.initialize()
-
 			   // Init render engine
 			   this.renderEngine.initialize()
 			   
+			   // Init render manager
+			   this.renderManager.initialize()
+
 			   // Init render for all elements
 			   for(var j:int=0;j<this.floors.length;j++) this.addElementToRenderEngine(this.floors[j])
 			   for(j=0;j<this.walls.length;j++) this.addElementToRenderEngine(this.walls[j])
@@ -734,8 +736,6 @@ package org.ffilmation.engine.core {
 			   	this.bullets[j].customData.bulletRenderer.init()
 			   }
 		   	 
-				 this.renderManager.depthSort()
-
 			   // Set flag
 			   this.IAmBeingRendered = true
 
@@ -775,11 +775,8 @@ package org.ffilmation.engine.core {
 				 element.addEventListener(fRenderableElement.ENABLE,this.enableListener,false,0,true)
 				 element.addEventListener(fRenderableElement.DISABLE,this.disableListener,false,0,true)
 				 
-				 if(element._visible) {
-				 	this.renderManager.addToDepthSort(element)
-				 	this.renderEngine.showElement(element)
-				 }
-				 
+				 // Add to render manager
+				 this.renderManager.addedItem(element)
 				 
 				 // Elements default to Mouse-disabled
 				 element.disableMouseEvents()
@@ -787,12 +784,16 @@ package org.ffilmation.engine.core {
 			}
 
 			/**
-			* This method removes an element from the renderEngine poll
+			* This method removes an element from the renderEngine pool
 			*/
 			private function removeElementFromRenderEngine(element:fRenderableElement) {
 			
 				 this.renderManager.removedItem(element)
 				 this.renderEngine.stopRenderFor(element)
+				 if(element.container) {
+				 	element.container.fElementId = null
+				 	element.container.fElement = null
+				 }
 	  	 	 element.container = null
 	  	 	 element.flashClip = null
 				 
@@ -820,6 +821,23 @@ package org.ffilmation.engine.core {
 			*/
 			public function stopRendering():void {
 		   	 
+			   // Stop render for all elements
+			   for(var j:int=0;j<this.floors.length;j++) this.removeElementFromRenderEngine(this.floors[j])
+			   for(j=0;j<this.walls.length;j++) this.removeElementFromRenderEngine(this.walls[j])
+			   for(j=0;j<this.objects.length;j++) this.removeElementFromRenderEngine(this.objects[j])
+			   for(j=0;j<this.characters.length;j++) this.removeElementFromRenderEngine(this.characters[j])
+			   for(j=0;j<this.bullets.length;j++) {
+			   	this.bullets[j].customData.bulletRenderer.clear()
+			   	this.removeElementFromRenderEngine(this.bullets[j])
+			   }
+			   
+		  	 // Free bullet pool as the assets are no longer valid
+		  	 for(j=0;j<this.bulletPool.length;j++) {
+		  	 	 this.bulletPool[j].dispose()
+		  	 	 delete this.bulletPool[j]
+		  	 }
+			   this.bulletPool = new Array
+
 			   // Stop render engine
 			   this.renderEngine.dispose()
 			   
@@ -860,10 +878,14 @@ package org.ffilmation.engine.core {
 				if(this.IAmBeingRendered) {
 					if(evt.target is fOmniLight) fLightSceneLogic.processNewCellOmniLight(this,evt.target as fOmniLight)
 					if(evt.target is fCharacter) {
-						this.renderManager.processNewCellCharacter(evt.target as fCharacter)
-						fCharacterSceneLogic.processNewCellCharacter(this,evt.target as fCharacter)
+						var c:fCharacter = evt.target as fCharacter
+						this.renderManager.processNewCellCharacter(c)
+						fCharacterSceneLogic.processNewCellCharacter(this,c)
 					}
-					if(evt.target is fBullet) fBulletSceneLogic.processNewCellBullet(this,evt.target as fBullet)
+					if(evt.target is fBullet) {
+						var b:fBullet = evt.target as fBullet
+						this.renderManager.processNewCellBullet(b)
+					}
 				}
 				
 			}
@@ -902,6 +924,7 @@ package org.ffilmation.engine.core {
 			// Listens cameras changing cells.
 			private function cameraNewCellListener(evt:Event):void {
 					var camera:fCamera = evt.target as fCamera
+					this.renderEngine.setCameraPosition(camera)
 					if(this.IAmBeingRendered) this.renderManager.processNewCellCamera(camera)
 			}
 
@@ -1123,10 +1146,6 @@ package org.ffilmation.engine.core {
 		  	for(i=0;i<this.bullets.length;i++) {
 		  		this.bullets[i].dispose()
 		  		delete this.bullets[i]
-		  	}
-		  	for(i=0;i<this.bulletPool.length;i++) {
-		  		this.bulletPool[i].dispose()
-		  		delete this.bulletPool[i]
 		  	}
 				for(var n in this.all) delete this.all[n]
 				

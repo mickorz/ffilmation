@@ -40,7 +40,7 @@ package org.ffilmation.engine.core {
 			* Unique ID. This is automatically assigned and used internally in hashTables and such
 			* @private
 			*/
-			public var uniqueId:Number
+			public var uniqueId:int
 
 			/** 
 			* X coordinate fot this element

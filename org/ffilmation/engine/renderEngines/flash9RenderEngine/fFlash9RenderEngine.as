@@ -63,7 +63,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				/**
 				* This method initializes the render engine for an element in the scene.
 				*/
-				public function initRenderFor(element:fRenderableElement):MovieClip {
+				public function initRenderFor(element:fRenderableElement):fElementContainer {
 					
 					var renderer:fFlash9ElementRenderer = this.createRendererFor(element)
 					element.customData.flash9Renderer.renderGlobalLight(this.scene.environmentLight)
@@ -77,12 +77,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				public function stopRenderFor(element:fRenderableElement):void {
 					
 		  	 	// Delete renderer
+		  	 	element.customData.flash9Renderer = null
 		  	 	this.renderers[element.uniqueId].dispose() 
 		  	 	delete this.renderers[element.uniqueId]
-		  	 	element.customData.flash9Renderer = null
 		  	 	
 		  	 	// Free graphics
 		  	 	fFlash9RenderEngine.recursiveDelete(element.container)
+		  	 	objectPool.returnInstance(element.container)
 		  	 	
 				}
 
@@ -279,8 +280,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 							// Search for element containing this DisplayObject
 							var el:fRenderableElement = null
 							while(el==null && obj!=this.container && obj!=null) {
-								if(obj is MovieClip) {
-									 var m:MovieClip = obj as MovieClip
+								if(obj is fElementContainer) {
+									 var m:fElementContainer = obj as fElementContainer
 									 if(m.fElement) el = m.fElement
 								}
 								obj = obj.parent
@@ -294,25 +295,29 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 									// Get local coordinate
 									var p:Point = new Point(x,y)
 									if(el is fPlane) {
+										
 										var r:fFlash9PlaneRenderer = (el.customData.flash9Renderer as fFlash9PlaneRenderer)
-										if(r.baseContainer.stage)	{
-											p = r.baseContainer.globalToLocal(p)
-											if(el is fWall) p.y += (el as fWall).pixelHeight
+										p = r.deformedSimpleShadowsLayer.globalToLocal(p)
+										
+										if(r.scrollR.containsPoint(p)) {
+											
+											// Push data
+											if(el is fFloor) ret[ret.length] = (new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
+											if(el is fWall) {
+												var w:fWall = el as fWall
+												if(w.vertical) ret[ret.length] = (new fCoordinateOccupant(w,w.x,w.y0+p.x,w.z-p.y))
+												else ret[ret.length] = (new fCoordinateOccupant(w,w.x0+p.x,w.y,w.z-p.y))
+											}
+											
 										}
-										else {
-											p = r.finalBitmap.globalToLocal(p)
-										}
+										
 									}
-									else p = el.container.globalToLocal(p)
 									
-									// Push data
-									if(el is fFloor) ret[ret.length] = (new fCoordinateOccupant(el,el.x+p.x,el.y+p.y,el.z))
-									if(el is fWall) {
-										var w:fWall = el as fWall
-										if(w.vertical) ret[ret.length] = (new fCoordinateOccupant(w,w.x,w.y0+p.x,w.z+w.pixelHeight-p.y))
-										else ret[ret.length] = (new fCoordinateOccupant(w,w.x0+p.x,w.y,w.z+w.pixelHeight-p.y))
+									if(el is fObject) {
+										p = el.container.globalToLocal(p)
+										ret[ret.length] = (new fCoordinateOccupant(el,el.x+p.x,el.y,el.z-p.y))
 									}
-									if(el is fObject) ret[ret.length] = (new fCoordinateOccupant(el,el.x+p.x,el.y,el.z-p.y))
+									
 							}
 							
 					}
@@ -338,9 +343,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					// Delete resources
 					for(var i in this.renderers) {
 		  	 		this.renderers[i].element.customData.flash9Renderer = null						
-		  	 		this.renderers[i].element.container = null						
-		  	 		this.renderers[i].element.flashClip = null						
 		  	 		this.renderers[i].dispose()
+		  	 		if(this.renderers[i].element) {
+		  	 			fFlash9RenderEngine.recursiveDelete(this.renderers[i].element.container)
+		  	 			objectPool.returnInstance(this.renderers[i].element.container)
+		  	 		}
 						delete this.renderers[i]
 					}
 					this.renderers = new Array
@@ -396,8 +403,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					
 					//Create renderer if it doesn't exist
 					if(!this.renderers[element.uniqueId]) {
-				 		
-				 		var spr:MovieClip = objectPool.getInstanceOf(MovieClip) as MovieClip
+
+				 		var spr:fElementContainer = objectPool.getInstanceOf(fElementContainer) as fElementContainer
 		   	 		this.container.addChild(spr)			   
 
 						if(element is fFloor) element.customData.flash9Renderer = new fFlash9FloorRenderer(this,spr,element as fFloor)
@@ -418,18 +425,20 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				public static function recursiveDelete(d:DisplayObjectContainer):void {
 					
 						if(!d) return
-						
 						if(d.numChildren!=0) do {
 							var c:DisplayObject = d.getChildAt(0)
 							if(c!=null) {
 								c.cacheAsBitmap = false
 								if(c is DisplayObjectContainer) fFlash9RenderEngine.recursiveDelete(c as DisplayObjectContainer)
-								if(c is MovieClip) c.stop()
+								if(c is MovieClip) (c as MovieClip).stop()
 								if(c is Bitmap) (c as Bitmap).bitmapData.dispose()
 								if(c is Shape) (c as Shape).graphics.clear()
 								d.removeChild(c)
 							}
 						} while(d.numChildren!=0 && c!=null)
+						
+						if(d is Sprite) (d as Sprite).graphics.clear()
+						
 					
 				}				
 

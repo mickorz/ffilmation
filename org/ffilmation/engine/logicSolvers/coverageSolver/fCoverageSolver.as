@@ -124,7 +124,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			
 			      if(from.x<=x) {
 			
-			         if(from.x<to.x) return fCoverage.NOT_SHADOWED
+			         if(from.x<=to.x) return fCoverage.NOT_SHADOWED
 			
 			         if(from.top<z) {
 			   				  var dz:Number = 1+(from.top-to.z)/(z-from.top)
@@ -152,9 +152,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			
 			      } else {
 			
-			         if(from.x>(to.x+to.width)) {
-			         	return fCoverage.NOT_SHADOWED
-			         }
+			         if(from.x>=(to.x+to.width)) return fCoverage.NOT_SHADOWED
 			
 			         if(from.top<z) {
 			   				  dz = 1+(from.top-to.z)/(z-from.top)
@@ -193,7 +191,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			   
 			      if(from.y<y) {
 			
-			         if(from.y<to.y) return fCoverage.NOT_SHADOWED
+			         if(from.y<=to.y) return fCoverage.NOT_SHADOWED
 			
 			         if(from.top<z) {
 			   				  dz = 1+(from.top-to.z)/(z-from.top)
@@ -221,7 +219,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			
 			      } else {
 			
-			         if(from.y>(to.y+to.depth)) return fCoverage.NOT_SHADOWED
+			         if(from.y>=(to.y+to.depth)) return fCoverage.NOT_SHADOWED
 			
 			         if(from.top<z) {
 			   				 dz = 1+(from.top-to.z)/(z-from.top)
@@ -268,7 +266,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			   if(from.x>(to.x+to.width) && x<from.x) return fCoverage.NOT_SHADOWED
 				 
 				 // Get projection
-				 var poly1:Array = fProjectionSolver.calculateProjection(x,y,z,from,to.z)
+				 var poly1:Array = fProjectionSolver.calculateProjection(x,y,z,from,to.z).contours[0]
 				 if(poly1==null) return fCoverage.NOT_SHADOWED
 				 
 				 // Check Collision
@@ -406,6 +404,8 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			*/
 			private static function calculateCoverageWallHorizontalWall(from:Object,to:fWall,x:Number,y:Number,z:Number):Number {
 			
+				 if(from.top<=to.z) return fCoverage.NOT_SHADOWED
+
 			   var dz:Number = 1+(from.top-to.z)/(z-from.top)
 			
 			   if(from.vertical) {               
@@ -458,6 +458,8 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			*/
 			private static function calculateCoverageWallVerticalWall(from:Object,to:fWall,x:Number,y:Number,z:Number):Number {
 			
+				 if(from.top<=to.z) return fCoverage.NOT_SHADOWED
+
 			   var dz:Number = 1+(from.top-to.z)/(z-from.top)
 			
 			   if(from.vertical) {               
@@ -516,7 +518,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			   if(from.y>to.y && y<from.y) return fCoverage.NOT_SHADOWED
 
 				 // Get projection polygon
-				 var poly1:Array = fProjectionSolver.calculateProjection(x,y,z,from,to.z)
+				 var poly1:Array = fProjectionSolver.calculateProjection(x,y,z,from,to.z).contours[0]
 				 if(poly1==null) return fCoverage.NOT_SHADOWED
 				 
 				 // Check fCollision
@@ -540,7 +542,7 @@ package org.ffilmation.engine.logicSolvers.coverageSolver {
 			   if(from.x>to.x && y<from.x) return fCoverage.NOT_SHADOWED
 				 
 				 // Get projection polygon
-				 var poly1:Array = fProjectionSolver.calculateProjection(x,y,z,from,to.z)
+				 var poly1:Array = fProjectionSolver.calculateProjection(x,y,z,from,to.z).contours[0]
 				 if(poly1==null) return fCoverage.NOT_SHADOWED
 				 
 				 // Check fCollision

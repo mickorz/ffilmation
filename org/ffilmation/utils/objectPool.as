@@ -81,7 +81,13 @@ package org.ffilmation.utils {
 					s.graphics.clear()
 				}
 
+				if(object is Shape) {
+					var sh:Shape = object as Shape
+					sh.graphics.clear()
+				}
+
 				if(object is DisplayObject) {
+					
 					var d:DisplayObject = object as DisplayObject
 					d.x = 0
 					d.y = 0
@@ -98,14 +104,11 @@ package org.ffilmation.utils {
 					d.transform.matrix = new Matrix()
 					d.transform.colorTransform = new ColorTransform()
 					
-					
 				}
-
 
 				// Retrieve list of available objects for this class
 				if(!objectPool.classInstances[c]) objectPool.classInstances[c] = new Array
 				var instances:Array = objectPool.classInstances[c]
-				
 				instances.push(object)
 
 			}

@@ -3,6 +3,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 		// Imports
 		import flash.geom.Point
 		import org.ffilmation.engine.elements.fFloor
+
+		import org.ffilmation.utils.polygons.*
 		
 		/**
 		* @private
@@ -16,7 +18,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 			public var y:Number
 			public var z:Number
 			public var fl:fFloor
-			public var points:Array
+			public var points:fPolygon
 			public var holes:Array
 
 

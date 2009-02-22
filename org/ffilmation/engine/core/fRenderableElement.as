@@ -1,6 +1,9 @@
 package org.ffilmation.engine.core {
 	
 		// Imports
+		import org.ffilmation.utils.*
+
+		import flash.geom.*
 		import flash.events.*
 		import flash.display.*
 
@@ -50,31 +53,24 @@ package org.ffilmation.engine.core {
 			*/
 			public var flashClip:MovieClip
 
-			/** @private */
-			public var _depth:Number = 0
-
-			/** @private */
-			public var depthOrder:int
-
 			/** 
 			* <p><b>WARNING!!!: </b> This property only exists when the scene is being rendered and the graphic elements have been created. This
 			* happens when you call fEngine.showScene(). Trying to access this property before the scene is shown ( to attach a Mouse Event for example )
 			* will throw an error.</p>
 			*
-			* <p>The container is the base MovieClip that contains everything. If you want to add Mouse Events to your elements, use this
+			* <p>The container is the base DisplayObject that contains everything. If you want to add Mouse Events to your elements, use this
 			* property. Camera occlusion will be applied: this means that if this element was occluded to show the camera position,
 			* its events are disabled as well so you can click on items behind this element.</p>
 			*
-			* <p>The container is defined as MovieClip because MovieClips are "dynamic" and properties can be created into them.
-			* The container for each element will have two properties:</p>
+			* <p>The container for each element will have two properties:</p>
 			* <p>
 			* <b>fElementId</b>: The ID for this element<br>
 			* <b>fElement</b>: A pointer to the fElement this MovieClip represents<br>
 			* </p>
 			* <p>These properties will be useful when programming MouseEvents. Using them, you will be able to access the class from an Event
-			* listener attached to the MovieClip
+			* listener attached to the container
 			*/
-			public var container:MovieClip
+			public var container:fElementContainer
 
 			/** @private */
 			public var _visible = true
@@ -88,6 +84,25 @@ package org.ffilmation.engine.core {
 			public var y1:Number
 			/** @private */
 			public var top:Number
+						
+			// These properties are used by the renderManager
+			/////////////////////////////////////////////////
+			
+			/** @private */
+			public var _depth:Number = 0
+
+			/** @private */
+			public var depthOrder:int
+			
+			/** @private */
+			public var isVisibleNow:Boolean = false
+
+			/** @private */
+			public var willBeVisible:Boolean = false
+			
+			/** @private */
+			public var bounds2d:Rectangle = new Rectangle()
+			
 
 			// Events
 			/** @private */
@@ -231,7 +246,44 @@ package org.ffilmation.engine.core {
 				 this.dispatchEvent(new Event(fRenderableElement.DEPTHCHANGE))
 				
 		  }
+			
+			/**
+			* Return the 2D distance from this element to any world coordinate
+			*/
+			public function distance2d(x:Number,y:Number,z:Number):Number {
+				var p2d:Point = fScene.translateCoords(x,y,z)
+				return this.distance2dScreen(p2d.x,p2d.y)
+			}
 
+			/**
+			* Return the 2D distance from this element to any screen coordinate
+			*/
+			public function distance2dScreen(x:Number,y:Number):Number {
+
+				var bounds:Rectangle = this.bounds2d
+				var pos2D:Point = new Point(x,y)
+				var dist:Number = Infinity
+				var origin:Point = fScene.translateCoords(this.x,this.y,this.z)
+				
+				if(bounds.contains(pos2D.x-origin.x,pos2D.y-origin.y)) return 0
+				
+				var corner1:Point = new Point(origin.x+bounds.x,origin.y+bounds.y)
+				var corner2:Point = new Point(origin.x+bounds.x,origin.y+bounds.y+bounds.height)
+				var corner3:Point = new Point(origin.x+bounds.x+bounds.width,origin.y+bounds.y+bounds.height)
+				var corner4:Point = new Point(origin.x+bounds.x+bounds.width,origin.y+bounds.y)
+				
+				var d:Number = mathUtils.distancePointToSegment(corner1,corner2,pos2D)
+				if(d<dist) dist = d
+				d = mathUtils.distancePointToSegment(corner2,corner3,pos2D)
+				if(d<dist) dist = d
+				d = mathUtils.distancePointToSegment(corner3,corner4,pos2D)
+				if(d<dist) dist = d
+				d = mathUtils.distancePointToSegment(corner4,corner1,pos2D)
+				if(d<dist) dist = d
+				
+				return dist
+
+			}
 
 			/** @private */
 			public function disposeRenderable():void {

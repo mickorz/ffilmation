@@ -44,7 +44,7 @@ package org.ffilmation.engine.interfaces {
 
 			/** 
 			* Retrieves an array of holes (if any) of this material. These holes will be used to render proper lights and calculate collisions
-			* and bullet impatcs
+			* and bullet impacts
 			*
 			* @param element The element( wall or floor ) where the holes will be applied
 			* @param width: Requested width
@@ -55,6 +55,18 @@ package org.ffilmation.engine.interfaces {
 			*/
 			function getHoles(element:fRenderableElement,width:Number,height:Number):Array;
 			
+			/** 
+			* Retrieves an array of contours that define the shape of this material. Every contours is an Array of Points
+			*
+			* @param element The element( wall or floor ) where the holes will be applied
+			* @param width: Requested width
+			* @param height: Requested height
+			*
+			* @return An array of arrays of points, one for each contour. Positions and sizes are relative to material origin of coordinates
+			*
+			*/
+			function getContours(element:fRenderableElement,width:Number,height:Number):Array;
+
 			/**
 			* Retrieves the graphic element that is to be used to block a given hole when it is closed
 			*

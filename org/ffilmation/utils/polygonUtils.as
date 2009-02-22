@@ -133,6 +133,12 @@ package org.ffilmation.utils {
 			
 				if(nin==0) return []
 				
+				// Make sure poly is closed
+				if(!polygon[nin-1].equals(polygon[0])) {
+					polygon[nin] = polygon[0]
+					nin++
+				}
+				
 				// Viewport
 			
 				var Clip_region:Array = [

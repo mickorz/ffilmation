@@ -30,7 +30,7 @@ package org.ffilmation.demos.mynameisponcho {
 		public var vy:Number
 		public var currentPath:Array
 		public var lastDistance:Number
-		public var stuck:Number
+		public var stuck:Number = 0
 		
 		// Constructor
 		public function ponchoMouseController():void { 
@@ -118,13 +118,18 @@ package org.ffilmation.demos.mynameisponcho {
 					var d:Number=mathUtils.distance3d(this.character.x,this.character.y,this.character.z,this.dx,this.dy,this.dz)
 					
 					// Are we stuck ?
-					if(Math.abs(d-this.lastDistance)<1) this.stuck++
-					else this.stuck=0
+					if(Math.abs(d-this.lastDistance)<2 || d>this.lastDistance) {
+						this.stuck+=3
+					} else {
+						this.stuck--
+					}
 					
-					if(d<10 || this.stuck>10) {
+					if(d<this.character.radius || this.stuck>60) {
 						  if(this.currentPath && this.currentPath.length>0) this.walkTo(this.currentPath.shift())
 							else this.stopWalking()
+							this.stuck = 0
 					}
+					
 					this.lastDistance = d
 			}
 
@@ -136,13 +141,17 @@ package org.ffilmation.demos.mynameisponcho {
 				// The character is smart enought to climb small walls
 				if(evt.victim is fWall) {
 					var w:fWall = evt.victim as fWall
-					if(w.top<(this.character.z+20)) this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+10,w.top+0.1))
+					//trace(this.character.z+" "+w.top)
+					if(w.top<=(this.character.z+20)) {
+						trace("Climb")
+						this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+10,w.top))
+					}
 				}
 				
 				// Don't walk down floors
 				if(evt.victim is fFloor) {
 					var f:fFloor = evt.victim as fFloor
-					this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,f.top+0.1)
+					this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,f.top)
 				}
 		}
 

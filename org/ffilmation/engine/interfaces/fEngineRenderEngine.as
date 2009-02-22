@@ -32,7 +32,7 @@ package org.ffilmation.engine.interfaces {
 				*
 				* @see org.ffilmation.engine.core.fRenderableElement#container
 				*/
-				function initRenderFor(element:fRenderableElement):MovieClip;
+				function initRenderFor(element:fRenderableElement):fElementContainer;
 
 				/**
 				* This method removes an element from the render engine

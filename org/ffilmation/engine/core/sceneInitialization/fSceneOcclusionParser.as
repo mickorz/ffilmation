@@ -30,13 +30,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		var rad:int = int((ob.radius/scene.gridSize)+0.5)
 			   		
 			   		var realPos:Point = fScene.translateCoords(ob.x,ob.y,ob.z)
-			   		
-			   		// I need to load the symbol from the library to know its size. I will be destroyed immediately
-			   		var clase:Class = ob.sprites[0].sprite as Class
-						var tempSprite:MovieClip = new clase() as MovieClip
-			   		var bounds:Rectangle = new Rectangle(realPos.x-(tempSprite.width/2),realPos.y-tempSprite.height,tempSprite.width,tempSprite.height)
-			   		tempSprite = null
-			   		clase = null
+			   		var bounds:Rectangle = ob.bounds2d.clone()
+			   		bounds.x += realPos.x
+			   		bounds.y += realPos.y
 			   		
 			   		var cnt:int = 0
 			   		do {

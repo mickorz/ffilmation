@@ -24,15 +24,6 @@ package org.ffilmation.engine.core.sceneLogic {
 		public class fBulletSceneLogic {	
 
 			
-			// Process New cell for Bullets
-			public static function processNewCellBullet(scene:fScene,bullet:fBullet):void {
-			
-		 		 // If it goes outside the scene, destroy it
-		 		 if(bullet.cell==null) scene.removeBullet(bullet)
-		 		 else bullet.setDepth(bullet.cell.zIndex)
-		 		 
-		 	}
-
 			// Main render method for bullets
 			public static function renderBullet(scene:fScene,bullet:fBullet):void {
 
@@ -85,7 +76,7 @@ package org.ffilmation.engine.core.sceneLogic {
 		 		var ricochet:MovieClip = evt.target as MovieClip
 		 		if(ricochet.currentFrame==ricochet.totalFrames) {
 		 			ricochet.removeEventListener(Event.ENTER_FRAME,fBulletSceneLogic.waitForRicochet)
-		 			var m:MovieClip = ricochet.parent as MovieClip
+		 			var m:fElementContainer = ricochet.parent as fElementContainer
 		 			var bullet:fBullet = m.fElement as fBullet
 		 			ricochet.parent.removeChild(ricochet)
 		 			objectPool.returnInstance(ricochet)

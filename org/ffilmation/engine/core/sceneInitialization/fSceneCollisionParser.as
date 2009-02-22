@@ -28,7 +28,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		var obi:int = ob.x/scene.gridSize
 			   		var obj:int = ob.y/scene.gridSize
 			   		var height:int = ob.height/scene.levelSize
-			   		var rad:int = int((ob.radius/scene.gridSize)+0.5)
+			   		var rad:int = 1+int((ob.radius/scene.gridSize))
 			   		
 			   		for(var n:int=obj-rad;n<=obj+rad;n++) {
 			   			for(var i:int=obi-rad;i<=(obi+rad);i++) {
@@ -52,10 +52,10 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   		for(i=fl.i;i<(fl.i+fl.gWidth);i++) {
 			   			for(k=fl.j;k<(fl.j+fl.gDepth);k++) {
 			   				cell = scene.getCellAt(i,k,rz)
-			   				cell.walls.bottom = fl
+			   				if(cell) cell.walls.bottom = fl
 			   				if(rz>0) {
 			   					cell = scene.getCellAt(i,k,rz-1)
-			   					cell.walls.top = fl
+			   					if(cell) cell.walls.top = fl
 			   				}
 			   		  }
 			   		}
@@ -70,29 +70,22 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   			for(i=wl.j;i<(wl.j+wl.size);i++) {
 			   				for(k=rz;k<(rz+height);k++) {
 			   					
-			   					try {
-			   						cell = scene.getCellAt(wl.i,i,k)
-			   						cell.walls.left = wl
-			   					} catch(e:Error) {
-			   				  }
+		   						cell = scene.getCellAt(wl.i,i,k)
+		   						if(cell) cell.walls.left = wl
 			   					if(wl.i>0) {
 			   						cell = scene.getCellAt(wl.i-1,i,k)
-			   						cell.walls.right = wl
+			   						if(cell) cell.walls.right = wl
 			   					}
 			   				}
 			   			}
 			   		} else {
 			   			for(i=wl.i;i<(wl.i+wl.size);i++) {
 			   				for(k=rz;k<(rz+height);k++) {
-			   					try {
-			   						cell = scene.getCellAt(i,wl.j,k)
-			   						cell.walls.up = wl
-			   					} catch(e:Error) {
-			   				  }
-
+		   						cell = scene.getCellAt(i,wl.j,k)
+		   						if(cell) cell.walls.up = wl
 			   					if(wl.j>0) {
 			   						cell = scene.getCellAt(i,wl.j-1,k)
-			   						cell.walls.down = wl
+			   						if(cell) cell.walls.down = wl
 			   					}
 			   				}
 			   			}

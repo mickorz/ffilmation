@@ -89,7 +89,7 @@ package org.ffilmation.engine.core {
 				 				fMaterial.currentSceneMaterials[id] = mat
 				 		
 				 		} catch (e:Error) {
-				 				throw new Error("The scene does not contain a valid material definition that matches definition id '"+id+"'")
+			 				throw new Error("The scene does not contain a valid material definition that matches definition id '"+id+"'")
 				 		}
 				 		
 				 		
@@ -124,6 +124,25 @@ package org.ffilmation.engine.core {
 				r.addChild(s)
 				if(fromPlane && element is fWall) s.y = -height
 				return r
+			}
+
+			/** @private */
+			public function getContours(element:fRenderableElement,width:Number,height:Number):Array {
+				
+				var t:Array = this.cls.getContours(element,width,height)
+				
+				// Adjust wall coordinates
+				if(element is fWall) {
+					var el:fWall = element as fWall
+					for(var i:int=0;i<t.length;i++) {
+						var c:Array = t[i]
+						for(var j:int=0;j<c.length;j++) {
+							c[j].y = el.pixelHeight-c[j].y
+						}
+					}	
+				}
+				
+				return t
 			}
 
 			/** @private */

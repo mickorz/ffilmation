@@ -2,6 +2,8 @@
 package org.ffilmation.engine.logicSolvers.visibilitySolver {
 	
 		// Imports
+		import flash.geom.*
+		
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.logicSolvers.coverageSolver.*
@@ -27,13 +29,14 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			public static function calcVisibles(scene:fScene,x:Number,y:Number,z:Number,range:Number=Infinity):Array {
 			
 			   // Init
-			   var rcell:Array = new Array, candidates:Array = new Array, allElements:Array = new Array, floorc:fFloor, dist:Number, w:Number, len:Number, wallc:fWall, objc:fObject
-
+			   var rcell:Array = new Array, candidates:Array = new Array, floorc:fFloor, dist:Number, w:int, len:int, wallc:fWall, objc:fObject
+			   var p2d:Point = fScene.translateCoords(x,y,z)
+			   
 			   // Add floors
 			   len = scene.floors.length
 			   for(w=0;w<len;w++) {
 			      floorc = scene.floors[w] 
-			      dist = floorc.distanceTo(x,y,z)
+			      dist = floorc.distance2dScreen(p2d.x,p2d.y)
 			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(floorc,dist)
 			   }
 			
@@ -41,7 +44,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			   len = scene.walls.length
 			   for(w=0;w<len;w++) {
 			      wallc = scene.walls[w]
-			      dist = wallc.distanceTo(x,y,z)
+			      dist = wallc.distance2dScreen(p2d.x,p2d.y)
 			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(wallc,dist)
 			   }
 			
@@ -49,7 +52,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 				 len = scene.objects.length
 			   for(w=0;w<len;w++) {
 			      objc = scene.objects[w]
-			      dist = objc.distanceTo(x,y,z)
+			      dist = objc.distance2dScreen(p2d.x,p2d.y)
 			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(objc,dist)
 			   }
 

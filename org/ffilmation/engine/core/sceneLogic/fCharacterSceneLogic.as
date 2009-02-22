@@ -81,9 +81,7 @@ package org.ffilmation.engine.core.sceneLogic {
 				   		    if(fEngine.characterShadows) {
                   
 							    	// Add visibles from foot
-							    	if(!character.cell.lightAffectedElements || character.cell.lightRange<range) {
-							    		scene.getAffectedByLight(character.cell,range)
-							    	}
+							    	if(!character.cell.lightAffectedElements || character.cell.lightRange<range) scene.getAffectedByLight(character.cell,range)
 			            	elementsV = character.cell.lightAffectedElements
 				   		    	nEl = elementsV.length
 				   		    	for(i=0;i<nEl && elementsV[i].distance<range;i++) {
@@ -100,9 +98,7 @@ package org.ffilmation.engine.core.sceneLogic {
 							    	// Add visibles from top
 							    	try {
 							    		var topCell:fCell = scene.translateToCell(character.x,character.y,character.top)
-							    		if(!topCell.lightAffectedElements  || topCell.lightRange<range) {
-							    			scene.getAffectedByLight(topCell,range)
-							    		}
+							    		if(!topCell.lightAffectedElements  || topCell.lightRange<range) scene.getAffectedByLight(topCell,range)
 			            		elementsV = topCell.lightAffectedElements
 				   		    		nEl = elementsV.length
 				   		    		for(i=0;i<nEl && elementsV[i].distance<range;i++) {

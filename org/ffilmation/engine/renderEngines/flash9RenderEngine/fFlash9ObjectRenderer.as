@@ -1,4 +1,4 @@
-// Basic renderable element class
+﻿// Basic renderable element class
 
 package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	
@@ -21,7 +21,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		public class fFlash9ObjectRenderer extends fFlash9ElementRenderer {
 			
 			// Private properties
-	    private var baseObj:MovieClip
+	    private var baseObj:Sprite
 			private var lights:Array
 			private var glight:fGlobalLight
 			private var allShadows:Array
@@ -41,10 +41,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			
 			// Constructor
 			/** @private */
-			function fFlash9ObjectRenderer(rEngine:fFlash9RenderEngine,container:MovieClip,element:fObject):void {
+			function fFlash9ObjectRenderer(rEngine:fFlash9RenderEngine,container:fElementContainer,element:fObject):void {
 				
 				 // Attach base clip
-				 this.baseObj = objectPool.getInstanceOf(MovieClip) as MovieClip
+				 this.baseObj = objectPool.getInstanceOf(Sprite) as Sprite
 				 container.addChild(this.baseObj)
 				 this.baseObj.mouseEnabled = false
 		     
@@ -79,18 +79,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	 // Draw initial sprite
 				 this.rotationListener(new Event("Dummy"))
 				 
-			}
-
-			/**
-			* Place asset its proper position
-			*/
-			public override function place():void {
-
-			   // Place in position
-			   var coords:Point = fScene.translateCoords(this.element.x,this.element.y,this.element.z)
-			   this.container.x = coords.x
-			   this.container.y = coords.y
-			   
 			}
 			
 			/**
@@ -207,7 +195,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					if(this.eraseShadows && this.allShadows[i].clip.stage) {
 						var p:fRenderableElement = this.allShadows[i].request
 				 		if(p is fPlane) {
-				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {}
 				 		}				
 				 	}
 				 }
@@ -223,7 +211,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					if(this.eraseShadows && this.allShadows[i].clip.stage) {
 						var p:fRenderableElement = this.allShadows[i].request
 				 		if(p is fPlane) {
-				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {}
 				 		}				
 				 	}
 				 }
@@ -335,7 +323,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 		// Create new value 
 				 		var ret = new fObjectProjection()
-				 		ret.polygon = fProjectionSolver.calculateProjection(x,y,z,this.element,floorz)
+				 		ret.polygon = fProjectionSolver.calculateProjection(x,y,z,this.element,floorz).contours[0]
 				 		ret.origin = new Point((ret.polygon[0].x+ret.polygon[1].x)/2,(ret.polygon[0].y+ret.polygon[1].y)/2)
 				 		ret.end = new Point((ret.polygon[2].x+ret.polygon[3].x)/2,(ret.polygon[2].y+ret.polygon[3].y)/2)
 				 		ret.size = Point.distance(ret.origin,ret.end)
@@ -502,6 +490,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.currentSprite = null
 				if(this.projectionCache) this.projectionCache.dispose()
 				this.projectionCache = null
+				this.shadowObj = null
+				this.flashClip = null
 			  if(this.allShadows) for(i=0;i<this.allShadows.length;i++) {
 				 	this.allShadows[i].dispose()
 				 	delete this.allShadows[i]

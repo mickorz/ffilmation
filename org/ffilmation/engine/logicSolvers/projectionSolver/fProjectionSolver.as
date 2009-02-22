@@ -7,6 +7,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
 
+		import org.ffilmation.utils.polygons.*
+
 		/** 
 		* This class calculates projections from one element into other elements. The results are used mainly to render shadows but can
 		* also be applied to visibility calculations.
@@ -18,127 +20,204 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			* This method calculates the projection of any element into an imaginary plane at a given Z
 			* @return An Array of Points
 			*/
-			public static function calculateProjection(originx:Number,originy:Number,originz:Number,element:fRenderableElement,destinyZ:Number):Array {
+			public static function calculateProjection(originx:Number,originy:Number,originz:Number,element:fRenderableElement,destinyZ:Number):fPolygon {
 				
-				if(element is fFloor) return fProjectionSolver.calculateFloorProjection(originx,originy,originz,(element as fFloor).bounds,destinyZ)
-				if(element is fWall) return fProjectionSolver.calculateWallProjection(originx,originy,originz,(element as fWall).bounds,destinyZ,element.scene)
+				if(element is fFloor) return fProjectionSolver.calculateFloorProjection(originx,originy,originz,(element as fFloor),destinyZ)
+				if(element is fWall) return fProjectionSolver.calculateWallProjection(originx,originy,originz,(element as fWall),destinyZ,element.scene)
 				if(element is fObject) return fProjectionSolver.calculateObjectProjection(originx,originy,originz,element as fObject,destinyZ)
 				return null
 					
 			}
 
+			// PROJECTIONS INTO FLOORS
+			//////////////////////////
+			
 			/** 
 			* This method calculates the projection of a floor into an imaginary plane at a given Z
-			* @return An Array of Points
+			* @return An Polygon
 			*/
-			public static function calculateFloorProjection(x:Number,y:Number,z:Number,floor:fPlaneBounds,destinyZ:Number):Array {
+			public static function calculateFloorProjection(x:Number,y:Number,z:Number,floor:fFloor,destinyZ:Number):fPolygon {
 
-			   var dz:Number = 1+(floor.z-destinyZ)/(z-floor.z)
+				 // Simplest test
+				 if(floor.z>=z) return new fPolygon()
 			
-			   var pUp:Number = y+(floor.y-y)*dz-1
-			   var pDown:Number = y+(floor.y+floor.depth-y)*dz+1
-			   var pLeft:Number = x+(floor.x-x)*dz-1
-			   var pRight:Number = x+(floor.x+floor.width-x)*dz+1
+				 // Project all points in all contours in Polygon
+				 var ret:Array = []
+				 var contours:Array = floor.shapePolygon.contours
+				 for(var i:int=0;i<contours.length;i++) {
+						var contour:Array = contours[i]
+						ret[ret.length] = fProjectionSolver.projectFloorPointsIntoFloor(contour,x,y,z,destinyZ,floor.x,floor.y,floor.z)
+				 }
+				 
+				 // Project all holes
+				 var retHoles:Array = []
+				 var holes:Array = floor.holes
+				 for(i=0;i<holes.length;i++) {
+						var bounds:fPlaneBounds = holes[i].bounds
+						contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
+						retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoFloor(contour,x,y,z,destinyZ,0,0,floor.z)
+				 }
+
+ 				 // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours = ret
+			   p.holes = retHoles
+			   return p
 			   
-			   var ret:Array = new Array
-			   ret[ret.length] = (new Point(pLeft,pUp))
-			   ret[ret.length] = (new Point(pRight,pUp))
-			   ret[ret.length] = (new Point(pRight,pDown))
-			   ret[ret.length] = (new Point(pLeft,pDown))
-
-			   // Projection must be closed
-			   ret[ret.length] = (ret[0])
-			   return ret
-
 			}
+			
+			// Project array of points into this floor
+			private static function projectFloorPointsIntoFloor(points:Array,x:Number,y:Number,z:Number,destinyZ:Number,offx:Number,offy:Number,offz:Number):Array {
+				
+ 			   var dz:Number = 1+(offz-destinyZ)/(z-offz)
+
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx+points[j].x
+						var py:Number = offy+points[j].y
+						var pz:Number = offz
+						
+						// Project point
+			   	  var pLeft:Number = x+(px-x)*dz
+			   	  var pUp:Number = y+(py-y)*dz
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+				
+			}
+
 
 			/** 
 			* This method calculates the projection of a wall into an imaginary plane at a given Z
-			* @return An Array of Points
+			* @return A polygon
 			*/
-			public static function calculateWallProjection(x:Number,y:Number,z:Number,wall:fPlaneBounds,destinyZ:Number,scene:fScene):Array {
+			public static function calculateWallProjection(x:Number,y:Number,z:Number,wall:fWall,destinyZ:Number,scene:fScene):fPolygon {
 
 				 // Simplest test
-				 if(wall.z>=z) return []
+				 if(wall.z>=z) return new fPolygon()
 				 
 				 var ret:Array = []
+				 var retHoles:Array = []
+				 var contours:Array = wall.shapePolygon.contours
 				 			
 			   if(wall.vertical) {
 			
-						if(wall.x==x) x++
+						if(wall.x==x) return new fPolygon()
 						
-						if(wall.top<z) {
-								var dz:Number = 1+(wall.top-destinyZ)/(z-wall.top)
-			      		var pLeft:Number = x+(wall.x-x)*dz
-			      }
-			      else {
-			      		if(wall.x<x) pLeft = 0
-			      		if(wall.x>x) pLeft = scene.width
+						// Project all points in all contours in Polygon
+						for(var i:int=0;i<contours.length;i++) {
+							var contour:Array = contours[i]
+							ret[ret.length] = fProjectionSolver.projectVerticalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x,wall.y0,wall.z,scene)
 						}
-			
-			      var pUp:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y0,pLeft,1,pLeft,-1).y-1
-			     	ret[ret.length] = (new Point(pLeft, pUp))
-			     
-			      var pDown:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y1,pLeft,1,pLeft,-1).y+1
-			     	ret[ret.length] = (new Point(pLeft,pDown))
-			
-						if(wall.z>destinyZ) {
-					 			var dzb:Number = 1+(wall.z-destinyZ)/(z-wall.z)
-							  var pRight:Number = x+(wall.x-x)*dzb
-			      		pUp = mathUtils.linesIntersect(x,y,wall.x,wall.y0,pRight,1,pRight,-1).y-1
-			      		pDown = mathUtils.linesIntersect(x,y,wall.x,wall.y1,pRight,1,pRight,-1).y+1
-			      		ret[ret.length] = (new Point(pRight,pDown))
-			      		ret[ret.length] = (new Point(pRight,pUp))
-			      } else {
-			      		ret[ret.length] = (new Point(wall.x+1,wall.y1-1))
-			      		ret[ret.length] = (new Point(wall.x+1,wall.y0-1))
+						
+						// Project all holes in Polygon
+						var holes:Array = wall.holes
+				 		for(i=0;i<holes.length;i++) {
+							var bounds:fPlaneBounds = holes[i].bounds
+							contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
+							retHoles[retHoles.length] = fProjectionSolver.projectVerticalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x,0,0,scene)
 						}
-			
 			
 			   } else {
 			   	
-						if(wall.y==y) y++
+						if(wall.y==y) return new fPolygon()
 			
-						if(wall.top<z) {
-				   	   dz = 1+(wall.top-destinyZ)/(z-wall.top)
-						   pUp = y+(wall.y-y)*dz
-			      } 
-			      else {
-			      	 if(wall.y<y) pUp = 0
-			      	 if(wall.y>y) pUp = scene.depth
-					  }
-					  
-			      pLeft = mathUtils.linesIntersect(x,y,wall.x0,wall.y,1,pUp,-1,pUp).x+1
-			      ret[ret.length] = (new Point(pLeft, pUp))
-			
-						if(wall.z>destinyZ) {
-							 dzb = 1+(wall.z-destinyZ)/(z-wall.z)
-							 pDown = y+(wall.y-y)*dzb
-			      	 pLeft = mathUtils.linesIntersect(x,y,wall.x0,wall.y,1,pDown,-1,pDown).x-1
-			         pRight = mathUtils.linesIntersect(x,y,wall.x1,wall.y,1,pDown,-1,pDown).x+1
-						   ret[ret.length] = (new Point(pLeft,pDown))
-			         ret[ret.length] = (new Point(pRight,pDown))
-						} else {
-			         ret[ret.length] = (new Point(wall.x0+1,wall.y-1))
-				       ret[ret.length] = (new Point(wall.x1+1,wall.y-1))
-			      }
-			
-			      pRight = mathUtils.linesIntersect(x,y,wall.x1,wall.y,1,pUp,-1,pUp).x+1
-			      ret[ret.length] = (new Point(pRight,pUp))
-			
+						// Project all points in all contours in Polygon
+						for(i=0;i<contours.length;i++) {
+							contour = contours[i]
+							ret[ret.length] = fProjectionSolver.projectHorizontalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x0,wall.y,wall.z,scene)
+						}
+
+						// Project all holes in Polygon
+						holes = wall.holes
+				 		for(i=0;i<holes.length;i++) {
+							bounds = holes[i].bounds
+							contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
+							retHoles[retHoles.length] = fProjectionSolver.projectHorizontalPointsIntoFloor(contour,x,y,z,destinyZ,0,wall.y,0,scene)
+						}
+
 			   }
 			   
-			   // Projection must be closed
-			   ret[ret.length] = (ret[0])
-			   return ret
+			   // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours = ret
+			   p.holes = retHoles
+			   return p
 			
+			}
+
+			private static function projectVerticalPointsIntoFloor(points:Array,x:Number,y:Number,z:Number,destinyZ:Number,offx:Number,offy:Number,offz:Number,scene:fScene):Array {
+
+					var retContour:Array = []
+					
+					for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx
+						var py:Number = offy+points[j].x
+						var pz:Number = offz+points[j].y
+						if(pz<destinyZ) pz = destinyZ
+						
+						// Project point
+						if(pz<z) {
+								var dz:Number = 1+(pz-destinyZ)/(z-pz)
+			    			var pLeft:Number = x+(px-x)*dz
+			    	}
+			    	else {
+			    			if(px<x) pLeft = 0
+			    			if(px>x) pLeft = scene.width
+						}
+			      
+		     		var pUp:Number = mathUtils.linesIntersect(x,y,px,py,pLeft,1,pLeft,-1).y
+			    	retContour[retContour.length] = (new Point(pLeft, pUp))
+
+					}
+					
+					return retContour
+
+			}
+
+			private static function projectHorizontalPointsIntoFloor(points:Array,x:Number,y:Number,z:Number,destinyZ:Number,offx:Number,offy:Number,offz:Number,scene:fScene):Array {
+
+					var retContour:Array = []
+					
+					for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx+points[j].x
+						var py:Number = offy
+						var pz:Number = offz+points[j].y
+						if(pz<destinyZ) pz = destinyZ
+						
+						// Project point
+						if(pz<z) {
+								var dz:Number = 1+(pz-destinyZ)/(z-pz)
+								var pUp:Number = y+(py-y)*dz
+			    	}
+			    	else {
+			    			if(py<y) pUp = 0
+			    			if(py>y) pUp = scene.depth
+						}
+			      
+		     		var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,pUp,-1,pUp).x
+			    	retContour[retContour.length] = (new Point(pLeft, pUp))
+
+					}
+												
+					return retContour
+
 			}
 
 			/** 
 			* This method calculates the projection of an object into an imaginary plane at a given Z
 			* @return An Array of Points
 			*/
-			public static function calculateObjectProjection(x:Number,y:Number,z:Number,obj:fObject,destinyZ:Number):Array {
+			public static function calculateObjectProjection(x:Number,y:Number,z:Number,obj:fObject,destinyZ:Number):fPolygon {
 
 				 var zbase:Number = obj.z
 				 var ztop:Number = obj.top
@@ -186,277 +265,340 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 
 			   // Projection must be closed
 			   ret[ret.length] = (ret[0])
-			   return ret
+
+
+			   // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours[0] = ret
+			   return p
 			   
 			}
 
+
+			// PROJECTIONS INTO WALLS
+			//////////////////////////
+
+
 			/** 
 			* This method calculates the projection of a floor into an horizontal wall
-			* @return An Array of Points
+			* @return A polygon
 			*/
-			public static function calculateFloorProjectionIntoHorizontalWall(target:fWall,x:Number,y:Number,z:Number,wall:fPlaneBounds):Array {
+			public static function calculateFloorProjectionIntoHorizontalWall(target:fWall,x:Number,y:Number,z:Number,floor:fFloor):fPolygon {
 			   
+				 // Project all points in all contours in Polygon
 				 var ret:Array = []
+				 var contours:Array = floor.shapePolygon.contours
+				 for(var i:int=0;i<contours.length;i++) {
+						var contour:Array = contours[i]
+						ret[ret.length] = fProjectionSolver.projectFloorPointsIntoHorizontalWall(contour,x,y,z,target.y,floor.x,floor.y,floor.z)
+				 }
 				 
-			   try {
-			   	
-			   		var shadowHeight:Number = mathUtils.linesIntersect(y,z,wall.y,wall.z,target.y,1,target.y,-1).y
-			   		var shadowLeft:Number = mathUtils.linesIntersect(x,z,wall.x,wall.z,1,shadowHeight,-1,shadowHeight).x    
-			   		var shadowRight:Number = mathUtils.linesIntersect(x,z,wall.x+wall.width,wall.z,1,shadowHeight,-1,shadowHeight).x    
-			   		
-			   		// Floor level 
-			   		var floorfLevel:Number = 0
-			   		var dz:Number = 1+(wall.z-target.z)/(z-wall.z)
-			 	 		var pDown:Number = y+(wall.y+wall.depth-y)*dz
-			   		
-			   		if(target.y>pDown) {
-			   		
-			   		   floorfLevel = mathUtils.linesIntersect(y,z,wall.y+wall.depth,wall.z,target.y,1,target.y,-1).y
-			   		   var shadowFLeft:Number = mathUtils.linesIntersect(x,z,wall.x,wall.z,1,floorfLevel,-1,floorfLevel).x    
-			   		   var shadowFRight:Number = mathUtils.linesIntersect(x,z,wall.x+wall.width,wall.z,1,floorfLevel,-1,floorfLevel).x    
-			   		
-			   		   ret[ret.length] = new Point((shadowFRight-target.x0),-floorfLevel+target.z)
-			   		   ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight+target.z)         
-			   		   ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight+target.z)         
-			   		   ret[ret.length] = new Point((shadowFLeft-target.x0),-floorfLevel+target.z)
-			   		
-			   		} else {
-			   		   
-				 		   var pLeft:Number = x+(wall.x-x)*dz
-				 		   var pRight:Number = x+(wall.x+wall.width-x)*dz
-			   		   ret[ret.length] = new Point((pRight-target.x0),0)
-			   		   ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight+target.z)         
-			   		   ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight+target.z) 
-			   		   ret[ret.length] = new Point((pLeft-target.x0),0)
-			   		
-			   		}
+				 // Project all holes
+				 var retHoles:Array = []
+				 var holes:Array = floor.holes
+				 for(i=0;i<holes.length;i++) {
+						var bounds:fPlaneBounds = holes[i].bounds
+						contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
+						retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoHorizontalWall(contour,x,y,z,target.y,0,0,floor.z)
+				 }
+
+ 				 // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours = ret
+			   p.holes = retHoles
+			   return p
 			   
-			   } catch(e:Error) {
-			   	
-			   		ret = new Array
-			   }
-			
-				 return ret   
-			
+			}
+				 
+			private static function projectFloorPointsIntoHorizontalWall(points:Array,x:Number,y:Number,z:Number,destinyY:Number,offx:Number,offy:Number,offz:Number):Array {
+
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx+points[j].x
+						var py:Number = offy+points[j].y
+						var pz:Number = offz
+						if(py>y) py=y-1
+						
+						// Project point
+			   	  var pUp:Number = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1).y
+			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY).x
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+
 			}
 			
 			/** 
 			* This method calculates the projection of a floor into a vertical wall
 			* @return An Array of Points
 			*/
-			public static function calculateFloorProjectionIntoVerticalWall(target:fWall,x:Number,y:Number,z:Number,wall:fPlaneBounds):Array {
+			public static function calculateFloorProjectionIntoVerticalWall(target:fWall,x:Number,y:Number,z:Number,floor:fFloor):fPolygon {
 			
+				 // Project all points in all contours in Polygon
 				 var ret:Array = []
-			
-			   try {
-
-			   		var shadowHeight:Number = mathUtils.linesIntersect(x,z,wall.x+wall.width,wall.z,target.x,1,target.x,-1).y
-			   		var shadowUp:Number = mathUtils.linesIntersect(y,z,wall.y,wall.z,1,shadowHeight,-1,shadowHeight).x    
-			   		var shadowDown:Number = mathUtils.linesIntersect(y,z,wall.y+wall.depth,wall.z,1,shadowHeight,-1,shadowHeight).x    
-			   		
-			   		// Floor level 
-			   		var floorfLevel:Number = 0
-			   		var dz:Number = 1+(wall.z-target.z)/(z-wall.z)
-			 	 		var pLeft:Number = x+(wall.x-x)*dz
-			   		
-			   		if(target.x<pLeft) {
-			   		
-			   		   floorfLevel = mathUtils.linesIntersect(x,z,wall.x,wall.z,target.x,1,target.x,-1).y
-			   		   var shadowFUp:Number = mathUtils.linesIntersect(y,z,wall.y,wall.z,1,floorfLevel,-1,floorfLevel).x
-			   		   var shadowFDown:Number = mathUtils.linesIntersect(y,z,wall.y+wall.depth,wall.z,1,floorfLevel,-1,floorfLevel).x
-			   		
-			   		   ret[ret.length] = new Point((shadowFDown-target.y0),-floorfLevel+target.z)
-			   		   ret[ret.length] = new Point((shadowDown-target.y0),-shadowHeight+target.z)         
-			   		   ret[ret.length] = new Point((shadowUp-target.y0),-shadowHeight+target.z)         
-			   		   ret[ret.length] = new Point((shadowFUp-target.y0),-floorfLevel+target.z)
-			   		
-			   		 } else {
-			   		
-			   			 var pUp:Number = y+(wall.y-y)*dz
-			   			 var pDown:Number = y+(wall.y+wall.depth-y)*dz
-			   		   ret[ret.length] = new Point((pDown-target.y0),0)
-			   		   ret[ret.length] = new Point((shadowDown-target.y0),-shadowHeight+target.z)         
-			   		   ret[ret.length] = new Point((shadowUp-target.y0),-shadowHeight+target.z)
-			   		   ret[ret.length] = new Point((pUp-target.y0),0)
-			   		
-			   		 }
-
-				 } catch(e:Error) {
-				 	
-				 			ret = new Array
-				 			
+				 var contours:Array = floor.shapePolygon.contours
+				 for(var i:int=0;i<contours.length;i++) {
+						var contour:Array = contours[i]
+						ret[ret.length] = fProjectionSolver.projectFloorPointsIntoVerticalWall(contour,x,y,z,target.x,floor.x,floor.y,floor.z)
 				 }
-			   
-			   return ret
+				 
+				 // Project all holes
+				 var retHoles:Array = []
+				 var holes:Array = floor.holes
+				 for(i=0;i<holes.length;i++) {
+						var bounds:fPlaneBounds = holes[i].bounds
+						contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
+						retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoVerticalWall(contour,x,y,z,target.x,0,0,floor.z)
+				 }
+
+ 				 // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours = ret
+			   p.holes = retHoles
+			   return p
 			   
 			}
+
+			private static function projectFloorPointsIntoVerticalWall(points:Array,x:Number,y:Number,z:Number,destinyX:Number,offx:Number,offy:Number,offz:Number):Array {
+
+				 
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx+points[j].x
+						var py:Number = offy+points[j].y
+						var pz:Number = offz
+						if(px<x) px=x+1
+						if(px>destinyX) px = destinyX-1
+						
+						// Project point
+			   	  var pUp:Number = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1).y
+			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1).y
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+
+			}
+
 
 			/** 
 			* This method calculates the projection of a wall into an horizontal wall
 			* @return An Array of Points
 			*/
-			public static function calculateWallProjectionIntoHorizontalWall(target:fWall,x:Number,y:Number,z:Number,wall:fPlaneBounds):Array {
+			public static function calculateWallProjectionIntoHorizontalWall(target:fWall,x:Number,y:Number,z:Number,wall:fWall):fPolygon {
 			
 				 var ret:Array = []
-			
+				 var retHoles:Array = []
+				 var contours:Array = wall.shapePolygon.contours
+				 			
 			   if(wall.vertical) {
 			
-			     if(wall.x<x) {
+						if(wall.x==x) return new fPolygon()
+						
+						// Project all points in all contours in Polygon
+						for(var i:int=0;i<contours.length;i++) {
+							var contour:Array = contours[i]
+							ret[ret.length] = fProjectionSolver.projectVerticalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x,wall.y0,wall.z)
+						}
+						
+						// Project all holes in Polygon
+						var holes:Array = wall.holes
+				 		for(i=0;i<holes.length;i++) {
+							var bounds:fPlaneBounds = holes[i].bounds
+							contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
+							retHoles[retHoles.length] = fProjectionSolver.projectVerticalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x,0,0)
+						}
 			
-			        if(y>wall.y1) {
-			        	var n1:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x0,target.y,target.x1,target.y).x
-			        	var n2:Number = target.x0
-			        	var shadowLeft:Number = (n1>n2) ? n1 : n2
-			        }	
-			        else shadowLeft = target.x0
+			   } else {
+			   	
+						if(wall.y==y) return new fPolygon()
 			
-			        var shadowRight:Number = mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x0,target.y,target.x1,target.y).x
-							// Top of shadow
-			        var shadowHeight1:Number = mathUtils.linesIntersect(x,z,wall.x,wall.top,shadowRight,1,shadowRight,-1).y
-			        var shadowHeight2:Number = mathUtils.linesIntersect(x,z,wall.x,wall.top,shadowLeft,1,shadowLeft,-1).y
-							// Bottom of shadow
-			        var shadowHeight3:Number = mathUtils.linesIntersect(x,z,wall.x,wall.z,shadowRight,1,shadowRight,-1).y
-			        var shadowHeight4:Number = mathUtils.linesIntersect(x,z,wall.x,wall.z,shadowLeft,1,shadowLeft,-1).y
-			
-			        ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight3+target.z)
-			        ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight1+target.z)
-			        ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight2+target.z)        
-			        ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight4+target.z)
-			
-			     } else if(wall.x>x) {
-			        
-			        if(y>wall.y1) {
-			        	n1 = mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x0,target.y,target.x1,target.y).x
-			        	n2 = target.x1
-			        	shadowRight = (n1<n2) ? n1 : n2
-			        }
-			        else shadowRight = target.x1
-			
-			        shadowLeft = mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x0,target.y,target.x1,target.y).x    
-							// Top of shadow
-			        shadowHeight1 = mathUtils.linesIntersect(x,z,wall.x,wall.top,shadowLeft,1,shadowLeft,-1).y
-			        shadowHeight2 = mathUtils.linesIntersect(x,z,wall.x,wall.top,shadowRight,1,shadowRight,-1).y
-							// Bottom of shadow
-			        shadowHeight3 = mathUtils.linesIntersect(x,z,wall.x,wall.z,shadowLeft,1,shadowLeft,-1).y
-			        shadowHeight4 = mathUtils.linesIntersect(x,z,wall.x,wall.z,shadowRight,1,shadowRight,-1).y
-			
-			        ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight4+target.z)
-			        ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight2+target.z)         
-			        ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight1+target.z)
-			        ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight3+target.z)
-			     
-			     }
-			
-			   } else if(wall.y!=y) {
-			
-			      n1 = target.top
-			      n2 = mathUtils.linesIntersect(y,z,wall.y,wall.top,target.y,1,target.y,-1).y
-			      shadowHeight1 = (n1<n2) ? n1 : n2
-			      n1 = target.z
-			      n2 = mathUtils.linesIntersect(y,z,wall.y,wall.z,target.y,1,target.y,-1).y
-			      shadowHeight2 = (n1>n2) ? n1 : n2
-			      n1 = mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x0,target.y,target.x1,target.y).x
-			      n2 = target.x0
-			      shadowLeft = (n1>n2) ? n1 : n2
-			      n1 = mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x0,target.y,target.x1,target.y).x
-			      n2 = target.x1
-			      shadowRight = (n1<n2) ? n1 : n2
-			      
-			      ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight2+target.z)
-			      ret[ret.length] = new Point((shadowRight-target.x0),-shadowHeight1+target.z)         
-			      ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight1+target.z)         
-			      ret[ret.length] = new Point((shadowLeft-target.x0),-shadowHeight2+target.z)
-			      
+						// Project all points in all contours in Polygon
+						for(i=0;i<contours.length;i++) {
+							contour = contours[i]
+							ret[ret.length] = fProjectionSolver.projectHorizontalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x0,wall.y,wall.z)
+						}
+
+						// Project all holes in Polygon
+						holes = wall.holes
+				 		for(i=0;i<holes.length;i++) {
+							bounds = holes[i].bounds
+							contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
+							retHoles[retHoles.length] = fProjectionSolver.projectHorizontalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,0,wall.y,0)
+						}
+
 			   }
-			
-				 // Projection must be closed
-			   ret[ret.length] = new Point(ret[0].x,ret[0].y)
 			   
-				 return ret
+			   // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours = ret
+			   p.holes = retHoles
+			   return p
 			
 			}
+
+			private static function projectHorizontalWallPointsIntoHorizontalWall(points:Array,x:Number,y:Number,z:Number,destinyY:Number,offx:Number,offy:Number,offz:Number):Array {
+
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx+points[j].x
+						var py:Number = offy
+						var pz:Number = offz+points[j].y
+						if(py>y) py=y-1
+						
+						// Project point
+			   	  var pUp:Number = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1).y
+			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY).x
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+
+			}
+
+			private static function projectVerticalWallPointsIntoHorizontalWall(points:Array,x:Number,y:Number,z:Number,destinyY:Number,offx:Number,offy:Number,offz:Number):Array {
+
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx
+						var py:Number = offy+points[j].x
+						var pz:Number = offz+points[j].y
+						if(py>y) py=y-1
+						
+						// Project point
+			   	  var pUp:Number = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1).y
+			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY).x
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+
+			}
+
 
 			/** 
 			* This method calculates the projection of a wall into a vertical wall
 			* @return An Array of Points
 			*/
-			public static function calculateWallProjectionIntoVerticalWall(target:fWall,x:Number,y:Number,z:Number,wall:fPlaneBounds):Array {
+			public static function calculateWallProjectionIntoVerticalWall(target:fWall,x:Number,y:Number,z:Number,wall:fWall):fPolygon {
 			   
 				 var ret:Array = []
+				 var retHoles:Array = []
+				 var contours:Array = wall.shapePolygon.contours
+				 			
+			   if(wall.vertical) {
 			
-			   if(!wall.vertical) {
+						if(wall.x==x) return new fPolygon()
+						
+						// Project all points in all contours in Polygon
+						for(var i:int=0;i<contours.length;i++) {
+							var contour:Array = contours[i]
+							ret[ret.length] = fProjectionSolver.projectVerticalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x,wall.y0,wall.z)
+						}
+						
+						// Project all holes in Polygon
+						var holes:Array = wall.holes
+				 		for(i=0;i<holes.length;i++) {
+							var bounds:fPlaneBounds = holes[i].bounds
+							contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
+							retHoles[retHoles.length] = fProjectionSolver.projectVerticalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x,0,0)
+						}
 			
-			     if(wall.y<y) {
+			   } else {
+			   	
+						if(wall.y==y) return new fPolygon()
 			
-			         if(x<wall.x0) {
-			         	var n1:Number = mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x,target.y0,target.x,target.y1).y
-			         	var n2:Number = target.y0
-			         	var shadowLeft:Number =(n1>n2) ? n1 : n2
-			         } else shadowLeft = target.y0
-			         
-			         var shadowRight:Number = mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x,target.y0,target.x,target.y1).y
-							 // Top of shadow
-			         var shadowHeight2:Number = mathUtils.linesIntersect(y,z,wall.y,wall.top,shadowLeft,1,shadowLeft,-1).y
-			         var shadowHeight1:Number = mathUtils.linesIntersect(y,z,wall.y,wall.top,shadowRight,1,shadowRight,-1).y
-							 // Bottom of shadow
-			         var shadowHeight4:Number = mathUtils.linesIntersect(y,z,wall.y,wall.z,shadowLeft,1,shadowLeft,-1).y
-			         var shadowHeight3:Number = mathUtils.linesIntersect(y,z,wall.y,wall.z,shadowRight,1,shadowRight,-1).y
-			         
-			         ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight3+target.z)
-			         ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight1+target.z)
-			         ret[ret.length] = new Point((shadowLeft-target.y0),-shadowHeight2+target.z)        
-			         ret[ret.length] = new Point((shadowLeft-target.y0),-shadowHeight4+target.z)
-			         
-			     } else if(wall.y>y) {
-			        
-			         if(x<wall.x0) {
-			         	n1 = mathUtils.linesIntersect(x,y,wall.x0,wall.y,target.x,target.y0,target.x,target.y1).y
-			         	n2 = target.y1
-			         	shadowRight = (n1<n2) ? n1 : n2
-			         }
-			         else shadowRight = target.y1
-			         
-			         shadowLeft = mathUtils.linesIntersect(x,y,wall.x1,wall.y,target.x,target.y0,target.x,target.y1).y    
-							 // Top of shadow
-			         shadowHeight1 = mathUtils.linesIntersect(y,z,wall.y,wall.top,shadowLeft,1,shadowLeft,-1).y
-			         shadowHeight2 = mathUtils.linesIntersect(y,z,wall.y,wall.top,shadowRight,1,shadowRight,-1).y
-							 // Bottom of shadow
-			         shadowHeight3 = mathUtils.linesIntersect(y,z,wall.y,wall.z,shadowLeft,1,shadowLeft,-1).y
-			         shadowHeight4 = mathUtils.linesIntersect(y,z,wall.y,wall.z,shadowRight,1,shadowRight,-1).y
-			         
-			         ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight4+target.z)
-			         ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight2+target.z)         
-			         ret[ret.length] = new Point((shadowLeft-target.y0),-shadowHeight1+target.z)
-			         ret[ret.length] = new Point((shadowLeft-target.y0),-shadowHeight3+target.z)
-			         
-			     }
-			
-			   } else if(wall.x!=x) {
-			
-			      n1 = target.top
-			      n2 = mathUtils.linesIntersect(x,z,wall.x,wall.top,target.x,1,target.x,-1).y
-			      shadowHeight1 = (n1<n2) ? n1 : n2
-			      n1 = target.z
-			      n2 = mathUtils.linesIntersect(x,z,wall.x,wall.z,target.x,1,target.x,-1).y
-			      shadowHeight2 = (n1>n2) ? n1 : n2
-			      n1 = mathUtils.linesIntersect(x,y,wall.x,wall.y0,target.x,target.y0,target.x,target.y1).y
-			      n2 = target.y0
-			      shadowLeft = (n1>n2) ? n1 : n2
-			      n1 = mathUtils.linesIntersect(x,y,wall.x,wall.y1,target.x,target.y0,target.x,target.y1).y
-			      n2 = target.y1
-			      shadowRight = (n1<n2) ? n1 : n2
-			
-			      ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight2+target.z)
-			      ret[ret.length] = new Point((shadowRight-target.y0),-shadowHeight1+target.z)         
-			      ret[ret.length] = new Point((shadowLeft-target.y0),-shadowHeight1+target.z)
-			      ret[ret.length] = new Point((shadowLeft-target.y0),-shadowHeight2+target.z)
-			
+						// Project all points in all contours in Polygon
+						for(i=0;i<contours.length;i++) {
+							contour = contours[i]
+							ret[ret.length] = fProjectionSolver.projectHorizontalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x0,wall.y,wall.z)
+						}
+
+						// Project all holes in Polygon
+						holes = wall.holes
+				 		for(i=0;i<holes.length;i++) {
+							bounds = holes[i].bounds
+							if(bounds.x0<target.x) {
+								contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
+								retHoles[retHoles.length] = fProjectionSolver.projectHorizontalWallPointsIntoVerticalWall(contour,x,y,z,target.x,0,wall.y,0)
+							}
+						}
+
 			   }
-			
-				 // Projection must be closed
-			   ret[ret.length] = new Point(ret[0].x,ret[0].y)
-				 return ret
+			   
+			   // Polygon
+			   var p:fPolygon = new fPolygon()
+			   p.contours = ret
+			   p.holes = retHoles
+			   return p
 				 
+			}
+
+			private static function projectHorizontalWallPointsIntoVerticalWall(points:Array,x:Number,y:Number,z:Number,destinyX:Number,offx:Number,offy:Number,offz:Number):Array {
+
+				 
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx+points[j].x
+						var py:Number = offy
+						var pz:Number = offz+points[j].y
+						if(px<x) px = x+1
+						if(px>destinyX) px = destinyX-1
+						
+						// Project point
+			   	  var pUp:Number = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1).y
+			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1).y
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+
+			}
+
+			private static function projectVerticalWallPointsIntoVerticalWall(points:Array,x:Number,y:Number,z:Number,destinyX:Number,offx:Number,offy:Number,offz:Number):Array {
+
+				 
+				 var retContour:Array = []
+				 for(var j:int=0;j<points.length;j++) {
+						
+						// Point in space
+						var px:Number = offx
+						var py:Number = offy+points[j].x
+						var pz:Number = offz+points[j].y
+						if(px<x) px=x+1
+						if(px>destinyX) px = destinyX-1
+						
+						// Project point
+			   	  var pUp:Number = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1).y
+			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1).y
+			   
+			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+
+				 }
+					
+				 return retContour	
+
 			}
 
 

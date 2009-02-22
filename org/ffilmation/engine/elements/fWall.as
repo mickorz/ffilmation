@@ -3,7 +3,7 @@
 package org.ffilmation.engine.elements {
 	
 		// Imports
-		import flash.geom.Point
+		import flash.geom.*
 		
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
@@ -58,11 +58,11 @@ package org.ffilmation.engine.elements {
 			function fWall(defObj:XML,scene:fScene):void {
 				
 				 // Vertical ?
-			   this.vertical = (defObj.@direction=="vertical")   					 // Orientation
+			   this.vertical = (defObj.@direction=="vertical")   					  // Orientation
 			   this.horizontal = !this.vertical   					 							 
 			   
 			   // Dimensions, parse size and snap to gride
-			   this.size = int((defObj.@size/scene.gridSize)+0.5)  			 // Size ( in cells )
+			   this.size = int((defObj.@size/scene.gridSize)+0.5)  			 		// Size ( in cells )
 			   this.pixelSize = this.size*scene.gridSize+1
 			   this.gHeight = int((defObj.@height/scene.levelSize)+0.5)
 			   this.height = this.pixelHeight = scene.levelSize*this.gHeight
@@ -71,7 +71,7 @@ package org.ffilmation.engine.elements {
 				 super(defObj,scene,this.pixelSize,this.pixelHeight)
 
 			   // Specific coordinates
-			   this.i = int(this.x/scene.gridSize)                  // Grid coordinates
+			   this.i = int(this.x/scene.gridSize)                  				// Grid coordinates
 			   this.j = int(this.y/scene.gridSize)
 			   this.x0 = this.x1 = this.i*scene.gridSize
 			   this.y0 = this.y1 = this.j*scene.gridSize
@@ -79,7 +79,7 @@ package org.ffilmation.engine.elements {
 			   this.z = scene.levelSize*this.k
 			   this.top = this.z + this.height
 
-			   if(this.vertical) {                                         // Position
+			   if(this.vertical) {                                          // Position
 			      this.x = scene.gridSize*this.i
 			      this.y = scene.gridSize*(this.j+(this.size/2))
 			      this.y1 = scene.gridSize*(this.j+this.size)
@@ -92,10 +92,22 @@ package org.ffilmation.engine.elements {
 				 // Bounds
 			   this.bounds = new fPlaneBounds(this)
 
+			   if(this.vertical) {
+			   		var c1:Point = fScene.translateCoords(0,this.pixelSize,0)
+			   		var c2:Point = fScene.translateCoords(0,0,this.pixelHeight)
+			   		this.bounds2d = new Rectangle(0,c2.y,c1.x,c1.y-c2.y)
+			   } else {
+			   		c1 = fScene.translateCoords(this.pixelSize,0,this.pixelHeight)
+			   		this.bounds2d = new Rectangle(0,c1.y,c1.x,-c1.y)
+			   }
+
+
 			}
 			
 			// Methods
 		
+
+
 			// Is this wall in front of other plane ? Note that a false return value doesn not imply the opposite: None of the planes
 			// may be in front of each other
 			/** @private */

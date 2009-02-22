@@ -32,7 +32,7 @@ package org.ffilmation.engine.bulletRenderers {
 
 			//MovieClip definition for object ricochets
 			private var objectRicochetDefinition:String
-
+			
 			/**
 			* Constructor for the "Line" bullet renderer class
 			* @param color Line color
@@ -69,7 +69,7 @@ package org.ffilmation.engine.bulletRenderers {
 
 		  /** @private */
 			public function clear(bullet:fBullet):void {
-		  	bullet.container.graphics.clear()
+	  		bullet.container.graphics.clear()
 			}
 			
 		  /** @private */

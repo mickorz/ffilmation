@@ -31,7 +31,6 @@
 			public function fPerlinMaterial(definition:fMaterialDefinition):void {
 
 				this.definition = definition
-				
 
 				this.materialLayers = new Array
 				this.materialNoises = new Array
@@ -69,8 +68,8 @@
 			*/
 			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
-				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
+				var tDatas:Array = new Array
 
 				// Draw base
 				temp.addChild(this.baseMaterial.getDiffuse(element,width,height))
@@ -90,17 +89,19 @@
 					}
 					layer.copyChannel(msk,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
 					msk.dispose()
-					
+					tDatas[tDatas.length] = layer
 					temp.addChild(new Bitmap(layer))
 					
 				}
 				
 				// Merge layers
 			  msk = new BitmapData(width,height)
-				msk.draw(temp)				
-				ret.addChild(new Bitmap(msk))
-				
-				return ret
+				msk.draw(temp)
+				for(i=0;i<tDatas.length;i++) {
+					tDatas[i].dispose()
+					tDatas[i] = null
+				}
+				return new Bitmap(msk)
 			}
 
 			/** 
@@ -163,6 +164,20 @@
 			*/
 			public function getHoles(element:fRenderableElement,width:Number,height:Number):Array {
 				return []
+			}
+
+			/** 
+			* Retrieves an array of contours that define the shape of this material. Every contours is an Array of Points
+			*
+			* @param element The element( wall or floor ) where the holes will be applied
+			* @param width: Requested width
+			* @param height: Requested height
+			*
+			* @return An array of arrays of points, one for each contour. Positions and sizes are relative to material origin of coordinates
+			*
+			*/
+			public function getContours(element:fRenderableElement,width:Number,height:Number):Array {
+				return [ [new Point(0,0),new Point(width,0),new Point(width,height),new Point(0,height)] ]
 			}
 
 			/**

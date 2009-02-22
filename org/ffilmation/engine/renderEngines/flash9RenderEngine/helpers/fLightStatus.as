@@ -1,6 +1,9 @@
 package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 	
 		// Imports
+		import flash.geom.Point
+
+		import org.ffilmation.utils.polygons.*
 		import org.ffilmation.engine.core.*
 
 		/**
@@ -15,12 +18,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 			
 			public var created:Boolean
 			public var lightZ:Number
+			public var localPos:Point = new Point()
+			public var localScale:Number
 			
-			public var lUp:Number
-			public var lDown:Number
-			public var lLeft:Number
-			public var lRight:Number
-
 			// Constructor
 			function fLightStatus(element:fPlane,light:fLight):void {
 			
@@ -31,11 +31,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 			   // Status
 			   this.created = false              // Indicates if all containers have already been created
 			   this.lightZ = 0                	 // Light's last z position
-			
-			   this.lUp = 0                   	 // Light range ( used in optimizations )
-			   this.lDown = 0
-			   this.lLeft = 0
-			   this.lRight = 0
 			
 			}
 

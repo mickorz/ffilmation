@@ -4,7 +4,8 @@ package org.ffilmation.engine.elements {
 	
 		// Imports
 		import flash.events.*
-		import flash.utils.getDefinitionByName;
+		import flash.display.*
+		import flash.geom.*
 		
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
@@ -168,13 +169,20 @@ package org.ffilmation.engine.elements {
 		     // Define shadowRange
 		     this.shadowRange = this.height*fObject.MAXSHADOW*fEngine.DEFORMATION
 
-		     // Define bounds
+		     // Define bounds. I need to load the symbol from the library to know its size. I will be destroyed immediately
 			   this.top = this.z+this.height
 				 this.x0 = this.x-this.radius
 				 this.x1 = this.x+this.radius
 				 this.y0 = this.y-this.radius
 				 this.y1 = this.y+this.radius
-
+				 
+				 var clase:Class = this.sprites[0].sprite as Class
+				 var tempSprite:MovieClip = objectPool.getInstanceOf(clase) as MovieClip
+				 var w:Number = tempSprite.width
+				 var h:Number = tempSprite.height
+			   var bounds:Rectangle = new Rectangle(-w/2,-h,w,h)
+				 objectPool.returnInstance(tempSprite)
+				
 			 	 // Initial orientation
 			 	 if(defObj.@orientation.length()>0) this.orientation = new Number(defObj.@orientation[0])
 			 	 else this.orientation = 0

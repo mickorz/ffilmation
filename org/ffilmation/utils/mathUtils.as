@@ -51,9 +51,6 @@ package org.ffilmation.utils  {
 				var r_denomenator:Number = (bx-ax)*(bx-ax) + (by-ay)*(by-ay)
 				var r:Number = r_numerator / r_denomenator
 				
-				var px:Number = ax + r*(bx-ax)
-				var py:Number = ay + r*(by-ay)
-				     
 				var s:Number =  ((ay-cy)*(bx-ax)-(ax-cx)*(by-ay) ) / r_denomenator
 				
 				if ( (r >= 0) && (r <= 1) ) {
@@ -109,13 +106,13 @@ package org.ffilmation.utils  {
 						}
 					} else {
 						if (0 <= u2 && u2 <= 1) {
-							result.enter=Point.interpolate (A, B, 1 - u2)
+							result.enter = Point.interpolate (A, B, 1 - u2)
 						}
 						if (0 <= u1 && u1 <= 1) {
-							result.exit=Point.interpolate (A, B, 1 - u1)
+							result.exit = Point.interpolate (A, B, 1 - u1)
 						}
 						result.intersects = true;
-						if (result.exit != null && result.enter != null && result.exit.equals (result.enter)) {
+						if (result.exit != null && result.enter != null && result.exit.equals(result.enter)) {
 							result.tangent = true;
 						}
 					}

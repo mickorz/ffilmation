@@ -14,31 +14,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		import org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers.*
 
 		/**
-		* This class renders an fBullet. Note that this simply wll create and move an empty Sprite. Bullets use custom renderes that draw
-		* into this empy Sprite
+		* This class renders an fBullet. Note that this simply will create and move an empty Sprite. Bullets use custom renderes that draw
+		* into this empty Sprite
 		* @private
 		*/
 		public class fFlash9BulletRenderer extends fFlash9ElementRenderer {
 			
-			// Private properties
-	    private var baseObj:MovieClip
-			private var lights:Array
-			private var glight:fGlobalLight
-			private var allShadows:Array
-			private var currentSprite:MovieClip
-			private var currentSpriteIndex:Number
-			private var occlusionCount:Number = 0
-			public var simpleShadows:Boolean = false
-			
-			// Protected properties
-			protected var projectionCache:fObjectProjectionCache
-			
-			/** @private */
-	    public var shadowObj:Class
-			
 			// Constructor
 			/** @private */
-			function fFlash9BulletRenderer(rEngine:fFlash9RenderEngine,container:MovieClip,element:fBullet):void {
+			function fFlash9BulletRenderer(rEngine:fFlash9RenderEngine,container:fElementContainer,element:fBullet):void {
 				
 				 // Previous
 				 super(rEngine,element,container,container)

@@ -65,13 +65,13 @@ package org.ffilmation.engine.core {
 			 /**
 		   * Just in case you want to display it
 			 */
-			 public static const VERSION:String = "1.3.2"
+			 public static const VERSION:String = "1.3.3"
 
 			 /**
 		   * This constant is used everywhere to apply perspective correction to all heights
 		   * @private
 			 */
-			 public static const DEFORMATION:Number = 0.79
+			 public static const DEFORMATION:Number = 0.7906
 		   
 		   /** @private */
 		   public static var stage:Stage
@@ -104,6 +104,12 @@ package org.ffilmation.engine.core {
 
 			 // Static properties that define graphic options
 			 
+			 /**
+			 * This property defines the amount of blurring applied to the any plane shadow's edges. Has some performance cost
+			 */
+			 public static var softShadows:int = 2
+
+
 			 /**
 			 * This property enables/disables shadow projection of objects
 			 */

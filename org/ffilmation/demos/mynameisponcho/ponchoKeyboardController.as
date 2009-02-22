@@ -276,9 +276,9 @@ package org.ffilmation.demos.mynameisponcho {
 				// The character is smart enought to climb small walls
  				if(evt.victim is fWall) {
  					var w:fWall = evt.victim as fWall
- 					if(w.top<(this.character.z+20)) {
+ 					if(w.top<=(this.character.z+20)) {
  						this.vz = 4 //This is kind of eye-balling it
-						if(w.top<(this.character.z+11)) this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+11,w.top+0.1))
+						if(w.top<(this.character.z+10)) this.character.moveTo(this.character.x+this.vx,this.character.y+this.vy,Math.min(this.character.z+10,w.top))
 					}
  				}			
 			
@@ -294,8 +294,6 @@ package org.ffilmation.demos.mynameisponcho {
 					}
 					this.jumping = false
 				}
-				
-				
 				
 		}
 

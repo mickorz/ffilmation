@@ -182,13 +182,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			    
 				    // Shadow from statics
 				    for(var i3:Number=0;i3<withinRange;i3++) {
-				    	try {
-				    		if(others[i3].obj._visible) {
-				    			scene.renderEngine.renderShadow(el,light,others[i3].obj)
-				    		}
-				    	} catch(e:Error) {
-				    		trace(e)
-				    	}
+				    		if(others[i3].obj._visible) scene.renderEngine.renderShadow(el,light,others[i3].obj)
 				    }
 
 	    			if(scene.prof) scene.prof.end( "Element: "+el.id)	
