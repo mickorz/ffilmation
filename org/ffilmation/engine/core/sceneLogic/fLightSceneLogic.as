@@ -196,7 +196,7 @@ package org.ffilmation.engine.core.sceneLogic {
          len = light.vCharacters.length
 			   for(idChar=0;idChar<len;idChar++) {
 			   	  cache = light.vCharacters[idChar]
-			   	  if(cache.withinRange) {
+			   	  if(cache && cache.withinRange) {
 			   	  	character = cache.character
 			   	  	elements = cache.elements
 			    		if(scene.prof) scene.prof.begin( "Character: "+character.id)

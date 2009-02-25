@@ -103,9 +103,7 @@ package org.ffilmation.engine.core {
 			// Constructor
 			/** @private */
 			function fMaterial(id:String):void {
-
 				 this.id = id
-				
 			}
 
 			/** @private */

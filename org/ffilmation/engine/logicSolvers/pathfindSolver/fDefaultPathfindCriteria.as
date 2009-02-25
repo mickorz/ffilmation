@@ -104,7 +104,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 				var next:fCell
 				
 				// Up ?
-				if(!cell.walls.up || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.up)) {
+				if(!cell.walls.up || !cell.walls.up._visible || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.up)) {
 					next = this.scene.getCellAt(cell.i,cell.j-1,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
@@ -112,7 +112,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 				}
 				// Down ?
-				if(!cell.walls.down || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.down)) {
+				if(!cell.walls.down || !cell.walls.down._visible || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.down)) {
 					next = this.scene.getCellAt(cell.i,cell.j+1,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
@@ -120,7 +120,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 				}
 				// Left ?
-				if(!cell.walls.left || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.left)) {
+				if(!cell.walls.left || !cell.walls.left._visible || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.left)) {
 					next = this.scene.getCellAt(cell.i-1,cell.j,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
@@ -128,7 +128,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 				}
 				// Right ?
-				if(!cell.walls.right || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.right)) {
+				if(!cell.walls.right || !cell.walls.right._visible || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.right)) {
 					next = this.scene.getCellAt(cell.i+1,cell.j,cell.k)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_ORTHOGONAL
@@ -136,7 +136,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 				}
 				// Top ?
-				if(!cell.walls.top || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.top)) {
+				if(!cell.walls.top || !cell.walls.top._visible || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.top)) {
 					next = this.scene.getCellAt(cell.i,cell.j,cell.k+1)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_GOING_UP
@@ -144,7 +144,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 				}
 				// Bottom ?
-				if(!cell.walls.bottom || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.bottom)) {
+				if(!cell.walls.bottom || !cell.walls.bottom._visible || !fCollisionSolver.testPointCollision(cell.x,cell.y,cell.z,cell.walls.bottom)) {
 					next = this.scene.getCellAt(cell.i,cell.j,cell.k-1)
 					if(next) {
 						next.cost = fDefaultPathfindCriteria.COST_GOING_DOWN
@@ -156,7 +156,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 			  if(this.withDiagonals) {
 			  	
 					// Up Right ?
-					if(!cell.walls.right && !cell.walls.up) {
+					if((!cell.walls.right || !cell.walls.right._visible)&& (!cell.walls.up || !cell.walls.up._visible)) {
 						next = this.scene.getCellAt(cell.i+1,cell.j-1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
@@ -165,7 +165,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 
 					// Up Left ?
-					if(!cell.walls.left && !cell.walls.up) {
+					if((!cell.walls.left || !cell.walls.left._visible) && (!cell.walls.up || !cell.walls.up._visible)) {
 						next = this.scene.getCellAt(cell.i-1,cell.j-1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
@@ -174,7 +174,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 			  	
 					// Down Right ?
-					if(!cell.walls.right && !cell.walls.down) {
+					if((!cell.walls.right || !cell.walls.right._visible) && (!cell.walls.down || !cell.walls.down._visible)) {
 						next = this.scene.getCellAt(cell.i+1,cell.j+1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL
@@ -183,7 +183,7 @@ package org.ffilmation.engine.logicSolvers.pathfindSolver {
 					}
 
 					// Down Left ?
-					if(!cell.walls.left && !cell.walls.down) {
+					if((!cell.walls.left || !cell.walls.left._visible) && (!cell.walls.down || !cell.walls.down._visible)) {
 						next = this.scene.getCellAt(cell.i-1,cell.j+1,cell.k)
 						if(next) {
 							next.cost = fDefaultPathfindCriteria.COST_DIAGONAL

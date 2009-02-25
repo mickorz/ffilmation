@@ -53,9 +53,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 var retHoles:Array = []
 				 var holes:Array = floor.holes
 				 for(i=0;i<holes.length;i++) {
-						var bounds:fPlaneBounds = holes[i].bounds
-						contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
-						retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoFloor(contour,x,y,z,destinyZ,0,0,floor.z)
+				 	  //if(holes[i].open) {
+							var bounds:fPlaneBounds = holes[i].bounds
+							contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
+							retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoFloor(contour,x,y,z,destinyZ,0,0,floor.z)
+					  //}
 				 }
 
  				 // Polygon
@@ -118,9 +120,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						// Project all holes in Polygon
 						var holes:Array = wall.holes
 				 		for(i=0;i<holes.length;i++) {
-							var bounds:fPlaneBounds = holes[i].bounds
-							contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
-							retHoles[retHoles.length] = fProjectionSolver.projectVerticalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x,0,0,scene)
+				 	  	//if(holes[i].open) {
+								var bounds:fPlaneBounds = holes[i].bounds
+								contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
+								retHoles[retHoles.length] = fProjectionSolver.projectVerticalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x,0,0,scene)
+							//}
 						}
 			
 			   } else {
@@ -136,9 +140,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						// Project all holes in Polygon
 						holes = wall.holes
 				 		for(i=0;i<holes.length;i++) {
-							bounds = holes[i].bounds
-							contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
-							retHoles[retHoles.length] = fProjectionSolver.projectHorizontalPointsIntoFloor(contour,x,y,z,destinyZ,0,wall.y,0,scene)
+					 	  //if(holes[i].open) {
+								bounds = holes[i].bounds
+								contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
+								retHoles[retHoles.length] = fProjectionSolver.projectHorizontalPointsIntoFloor(contour,x,y,z,destinyZ,0,wall.y,0,scene)
+							//}
 						}
 
 			   }
@@ -297,9 +303,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 var retHoles:Array = []
 				 var holes:Array = floor.holes
 				 for(i=0;i<holes.length;i++) {
-						var bounds:fPlaneBounds = holes[i].bounds
-						contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
-						retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoHorizontalWall(contour,x,y,z,target.y,0,0,floor.z)
+				 	  //if(holes[i].open) {
+							var bounds:fPlaneBounds = holes[i].bounds
+							contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
+							retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoHorizontalWall(contour,x,y,z,target.y,0,0,floor.z)
+						//}
 				 }
 
  				 // Polygon
@@ -351,9 +359,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 var retHoles:Array = []
 				 var holes:Array = floor.holes
 				 for(i=0;i<holes.length;i++) {
-						var bounds:fPlaneBounds = holes[i].bounds
-						contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
-						retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoVerticalWall(contour,x,y,z,target.x,0,0,floor.z)
+				 	  //if(holes[i].open) {
+							var bounds:fPlaneBounds = holes[i].bounds
+							contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
+							retHoles[retHoles.length] = fProjectionSolver.projectFloorPointsIntoVerticalWall(contour,x,y,z,target.x,0,0,floor.z)
+						//}
 				 }
 
  				 // Polygon
@@ -413,9 +423,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						// Project all holes in Polygon
 						var holes:Array = wall.holes
 				 		for(i=0;i<holes.length;i++) {
-							var bounds:fPlaneBounds = holes[i].bounds
-							contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
-							retHoles[retHoles.length] = fProjectionSolver.projectVerticalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x,0,0)
+					 	  //if(holes[i].open) {
+								var bounds:fPlaneBounds = holes[i].bounds
+								contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
+								retHoles[retHoles.length] = fProjectionSolver.projectVerticalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x,0,0)
+							//}
 						}
 			
 			   } else {
@@ -431,9 +443,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						// Project all holes in Polygon
 						holes = wall.holes
 				 		for(i=0;i<holes.length;i++) {
-							bounds = holes[i].bounds
-							contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
-							retHoles[retHoles.length] = fProjectionSolver.projectHorizontalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,0,wall.y,0)
+					 	  //if(holes[i].open) {
+								bounds = holes[i].bounds
+								contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
+								retHoles[retHoles.length] = fProjectionSolver.projectHorizontalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,0,wall.y,0)
+							//}
 						}
 
 			   }
@@ -516,9 +530,11 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						// Project all holes in Polygon
 						var holes:Array = wall.holes
 				 		for(i=0;i<holes.length;i++) {
-							var bounds:fPlaneBounds = holes[i].bounds
-							contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
-							retHoles[retHoles.length] = fProjectionSolver.projectVerticalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x,0,0)
+					 	  //if(holes[i].open) {
+			 					var bounds:fPlaneBounds = holes[i].bounds
+								contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
+								retHoles[retHoles.length] = fProjectionSolver.projectVerticalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x,0,0)
+							//}
 						}
 			
 			   } else {
@@ -534,11 +550,13 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						// Project all holes in Polygon
 						holes = wall.holes
 				 		for(i=0;i<holes.length;i++) {
-							bounds = holes[i].bounds
-							if(bounds.x0<target.x) {
-								contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
-								retHoles[retHoles.length] = fProjectionSolver.projectHorizontalWallPointsIntoVerticalWall(contour,x,y,z,target.x,0,wall.y,0)
-							}
+					 	  //if(holes[i].open) {
+								bounds = holes[i].bounds
+								if(bounds.x0<target.x) {
+									contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
+									retHoles[retHoles.length] = fProjectionSolver.projectHorizontalWallPointsIntoVerticalWall(contour,x,y,z,target.x,0,wall.y,0)
+								}
+							//}
 						}
 
 			   }

@@ -605,8 +605,6 @@ package org.ffilmation.engine.core {
 				
 			}
 
-
-
 			/**
 			* This method translates scene 3D coordinates to 2D coordinates relative to the Sprite containing the scene
 			* 
@@ -753,7 +751,7 @@ package org.ffilmation.engine.core {
 			// INTERNAL METHODS RELATED TO RENDER
 
 			/**
-			* This method adds an element to the renderEngine poll
+			* This method adds an element to the renderEngine pool
 			*/
 			private function addElementToRenderEngine(element:fRenderableElement) {
 			
@@ -1085,6 +1083,7 @@ package org.ffilmation.engine.core {
 			}
 			
 			// Get elements visible from given cell, sorted by distance
+			/** @private */
 			public function getVisibles(cell:fCell,range:Number=Infinity):void {
 			   var r:Array = fVisibilitySolver.calcVisibles(this,cell.x,cell.y,cell.z,range)
 			   cell.visibleElements = r

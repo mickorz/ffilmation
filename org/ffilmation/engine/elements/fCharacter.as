@@ -246,10 +246,19 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public function disposeCharacter():void {
 
+				for(var j:int=0;j<this.scene.lights.length;j++) {
+					var light:fLight = this.scene.lights[j]
+					if(light) light.vCharacters[this.counter] = null
+				}
+				
 				for(var i in this.vLights) delete this.vLights[i]
 				for(i=0;i<this.currentOccluding.length;i++) delete this.currentOccluding[i]
 				this.currentOccluding = null
 				this.vLights = null
+
+				// Clear out the old cells
+				this.clearOccupiedCells()
+
 				this.disposeObject()
 				
 			}
@@ -290,6 +299,18 @@ package org.ffilmation.engine.elements {
 				}
 				
 				// Clear out the old cells
+				this.clearOccupiedCells()
+				
+				// Update new cells
+				this.occupiedCells = cells
+				var forEach:Function = function(item:*, index:int, array:Array) {
+						item.charactersOccupying[item.charactersOccupying.length] = this
+				}
+				this.occupiedCells.forEach(forEach, this)
+			}
+			
+			private function clearOccupiedCells():void {
+				
 				var filter:Function = function(item:*, index:int, array:Array) {
 						if(item == this) {
 							return false
@@ -300,14 +321,10 @@ package org.ffilmation.engine.elements {
 						item.charactersOccupying.filter(filter,this)
 				}
 				this.occupiedCells.forEach(forEach, this)
-				
-				// Update new cells
-				this.occupiedCells = cells
-				forEach = function(item:*, index:int, array:Array) {
-						item.charactersOccupying[item.charactersOccupying.length] = this
-				}
-				this.occupiedCells.forEach(forEach, this)
+				this.occupiedCells = null
+
 			}
+			
 		
 	}	
 		

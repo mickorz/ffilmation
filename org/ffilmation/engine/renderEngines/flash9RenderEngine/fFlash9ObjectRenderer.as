@@ -110,9 +110,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					// Update shadow model
 			    if(!this.simpleShadows) {
 
-							var l:Number = this.allShadows.length
+							var l:int = this.allShadows.length
 				  		var shadowClase:Class = el.sprites[newSprite].shadow
-							for(var i:Number=0;i<l;i++) {
+							for(var i:int=0;i<l;i++) {
 								
 							  var info:fObjectShadow = this.allShadows[i]
 								var n:MovieClip = objectPool.getInstanceOf(shadowClase) as MovieClip
@@ -133,13 +133,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 							// Update shadows
 							l = this.allShadows.length
 							for(i=0;i<l;i++) {
-								if(this.allShadows[i].clip.stage) {
 									
-									var p:fRenderableElement = this.allShadows[i].request
-							 		if(p is fPlane) {
-							 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
-							 		}				
-							 	}
+								var p:fRenderableElement = this.allShadows[i].request
+							 	if(p.container.stage && p is fPlane) {
+							 		try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {trace(e)}
+							 	}				
 							}
 				  }
 				
@@ -189,12 +187,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* This method will redraw this object's shadows when it is shown
 			*/
 			private function showListener(evt:Event):void {
-				 var l:Number = this.allShadows.length
-				 for(var i:Number=0;i<l;i++) {
+				 var l:int = this.allShadows.length
+				 for(var i:int=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = true
-					if(this.eraseShadows && this.allShadows[i].clip.stage) {
+					if(this.eraseShadows) {
 						var p:fRenderableElement = this.allShadows[i].request
-				 		if(p is fPlane) {
+						if(p.container.stage && p is fPlane) {
 				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {}
 				 		}				
 				 	}
@@ -205,12 +203,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* This method will erase this object's shadows when it is hidden
 			*/
 			private function hideListener(evt:Event):void {
-				 var l:Number = this.allShadows.length
-				 for(var i:Number=0;i<l;i++) {
+				 var l:int = this.allShadows.length
+				 for(var i:int=0;i<l;i++) {
 				 	this.allShadows[i].clip.visible = false
-					if(this.eraseShadows && this.allShadows[i].clip.stage) {
+					if(this.eraseShadows) {
 						var p:fRenderableElement = this.allShadows[i].request
-				 		if(p is fPlane) {
+						if(p.container.stage && p is fPlane) {
 				 			try { p.customData.flash9Renderer.undoCache(true) } catch(e:Error) {}
 				 		}				
 				 	}

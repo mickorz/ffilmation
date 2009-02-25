@@ -102,7 +102,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   }   
 			   
 			   // Move light
-			   this.setLightCoordinates(light,fScene.translateCoords(0,light.y-this.element.y0,this.element.z-light.z))
+			   this.setLightCoordinates(light,fScene.translateCoords(0,light.y-this.element.y0,-(this.element.z-light.z)))
 			
 			}
 			
@@ -124,7 +124,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   }
 			   
 	   	   // Move light
-			   this.setLightCoordinates(light,fScene.translateCoords(light.x-this.element.x0,0,this.element.z-light.z))
+			   this.setLightCoordinates(light,fScene.translateCoords(light.x-this.element.x0,0,-(this.element.z-light.z)))
 			
 			}
 
@@ -206,7 +206,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 							this.rEngine.returnObjectShadow(a[j])
 							delete a[j]
 						 } catch(e:Error) {
-						  trace("Wall reset error: "+e)	
+						  //trace("Wall reset error: "+e)	
 						 }
 					}
 					delete fFlash9WallRenderer.objectRenderCache[i]
@@ -311,10 +311,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		 		 // Project to 2d renderer coordinates
 				 if(element.vertical) {
 					  var points:fPolygon = fProjectionSolver.calculateFloorProjectionIntoVerticalWall(element,light.x,light.y,light.z,other)
-					  ret = this.applyVerticalIsometry(points)
+					  ret = this.applyVerticalIsometry(points,other)
 				 } else {
 				 		points = fProjectionSolver.calculateFloorProjectionIntoHorizontalWall(element,light.x,light.y,light.z,other)
-					  ret = this.applyHorizontalIsometry(points)
+					  ret = this.applyHorizontalIsometry(points,other)
 				 }
 			
 				 return ret
@@ -332,10 +332,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		 		 // Project to 2d renderer coordinates
 				 if(element.vertical) {
 					  var points:fPolygon = fProjectionSolver.calculateWallProjectionIntoVerticalWall(element,light.x,light.y,light.z,other)
-					  ret = this.applyVerticalIsometry(points)
+					  ret = this.applyVerticalIsometry(points,other)
 				 } else {
 				 		points = fProjectionSolver.calculateWallProjectionIntoHorizontalWall(element,light.x,light.y,light.z,other)
-					  ret = this.applyHorizontalIsometry(points)
+					  ret = this.applyHorizontalIsometry(points,other)
 				 }
 			
 				 return ret
@@ -345,7 +345,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Applies vertical isometric projection to a given Polygon
 			*/
-			private function applyVerticalIsometry(poly:fPolygon):fPolygon {
+			private function applyVerticalIsometry(poly:fPolygon,origin:fPlane):fPolygon {
 
 				 var ret:fPolygon = new fPolygon()
 				 
@@ -370,16 +370,20 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var holes:Array = poly.holes
 				 for(k=0;k<holes.length;k++) {
 				 	
-				 		// Clip against this wall
-				 		cont = polygonUtils.clipPolygon(holes[k],this.vp)
-				 		rcont = new Array
+				 		if(origin.holes[k].open) {
 
-				 		// Project to 2d renderer coordinates
-				 		for(i=0;i<cont.length;i++) {
-				 			 c = cont[i]
-				 			 rcont[rcont.length] = fScene.translateCoords(0,c.x-this.element.y0,c.y-this.element.z)
+					 		// Clip against this wall
+					 		cont = polygonUtils.clipPolygon(holes[k],this.vp)
+					 		rcont = new Array
+
+					 		// Project to 2d renderer coordinates
+					 		for(i=0;i<cont.length;i++) {
+				 				 c = cont[i]
+				 				 rcont[rcont.length] = fScene.translateCoords(0,c.x-this.element.y0,c.y-this.element.z)
+				 			}
+				 			ret.holes[k] = rcont
+				 		
 				 		}
-				 		ret.holes[k] = rcont
 				 
 				 }
 				 
@@ -391,7 +395,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Applies horizontal isometric projection to a given Polygon
 			*/
-			private function applyHorizontalIsometry(poly:fPolygon):fPolygon {
+			private function applyHorizontalIsometry(poly:fPolygon,origin:fPlane):fPolygon {
 
 				 var ret:fPolygon = new fPolygon()
 				 
@@ -416,16 +420,20 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var holes:Array = poly.holes
 				 for(k=0;k<holes.length;k++) {
 				 	
-				 		// Clip against this wall
-				 		cont = polygonUtils.clipPolygon(holes[k],this.vp)
-				 		rcont = new Array
+				 		if(origin.holes[k].open) {
 
-				 		// Project to 2d renderer coordinates
-				 		for(i=0;i<cont.length;i++) {
-				 			 c = cont[i]
-				 			 rcont[rcont.length] = fScene.translateCoords(c.x-this.element.x0,0,c.y-this.element.z)
+					 		// Clip against this wall
+					 		cont = polygonUtils.clipPolygon(holes[k],this.vp)
+					 		rcont = new Array
+
+					 		// Project to 2d renderer coordinates
+					 		for(i=0;i<cont.length;i++) {
+				 				 c = cont[i]
+				 				 rcont[rcont.length] = fScene.translateCoords(c.x-this.element.x0,0,c.y-this.element.z)
+				 			}
+				 			ret.holes[k] = rcont
+				 		
 				 		}
-				 		ret.holes[k] = rcont
 				 
 				 }
 				 

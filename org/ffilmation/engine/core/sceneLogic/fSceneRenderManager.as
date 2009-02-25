@@ -295,7 +295,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			    z = 0
 			   }
 					
-				 if(!ele.isVisibleNow && ele.distance2d(x,y,z)<this.range) {
+				 if(!ele.isVisibleNow && ele._visible && ele.distance2d(x,y,z)<this.range) {
 			   		
 			   		this.renderEngine.showElement(ele)
 			   		this.addToDepthSort(ele)

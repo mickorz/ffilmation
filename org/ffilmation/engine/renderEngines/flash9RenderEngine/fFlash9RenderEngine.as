@@ -158,7 +158,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					element.customData.flash9Renderer.lightReset(light)
 				}
 
-
 				/**
 				* This is the renderStart call.
 				*/

@@ -212,13 +212,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					var o:fCharacter = other as fCharacter
 			   	
 			 	 	var cache:Dictionary = fFlash9FloorRenderer.objectProjectionCache[this.element.uniqueId+"_"+light.uniqueId]
-			 	 	var sh:fObjectShadow = cache[other.uniqueId]
-			 	 	if(sh) {
-			 	 		var clip:Sprite = sh.shadow
-			 	 		if(clip && clip.parent && clip.parent.parent) clip.parent.parent.removeChild(clip.parent)
-	 	 		 	 	this.rEngine.returnObjectShadow(sh)
-	 	 		 	}
-			 	 	delete cache[other.uniqueId]
+			 	 	if(cache) {
+			 	 		var sh:fObjectShadow = cache[other.uniqueId]
+			 	 		if(sh) {
+			 	 			var clip:Sprite = sh.shadow
+			 	 			if(clip && clip.parent && clip.parent.parent) clip.parent.parent.removeChild(clip.parent)
+	 	 		 	 		this.rEngine.returnObjectShadow(sh)
+	 	 		 		}
+			 	 		delete cache[other.uniqueId]
+			 	 	}
 
 			}
 
@@ -256,7 +258,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   }
 			
 				 // Deform
-				 var ret:fPolygon = this.applyIsometry(fFlash9FloorRenderer.floorProjectionCache.points)
+				 var ret:fPolygon = this.applyIsometry(fFlash9FloorRenderer.floorProjectionCache.points,other)
 				 
 				 return ret
 
@@ -284,7 +286,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 }
 				 
 				 // Deform
-				 var ret:fPolygon = this.applyIsometry(cache.points)
+				 var ret:fPolygon = this.applyIsometry(cache.points,wall)
 				 
 				 return ret
 				 
@@ -293,7 +295,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Applies isometric projection to a given Polygon
 			*/
-			private function applyIsometry(poly:fPolygon):fPolygon {
+			private function applyIsometry(poly:fPolygon,origin:fPlane):fPolygon {
 				
 				 var ret:fPolygon = new fPolygon()
 				 
@@ -318,16 +320,20 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 var holes:Array = poly.holes
 				 for(k=0;k<holes.length;k++) {
 				 	
-				 		// Clip against this Floor
-				 		cont = polygonUtils.clipPolygon(holes[k],this.vp)
-				 		rcont = new Array
+				 		if(origin.holes[k].open) {
+				 			
+				 			// Clip against this Floor
+				 			cont = polygonUtils.clipPolygon(holes[k],this.vp)
+				 			rcont = new Array
 
-				 		// Project to 2d renderer coordinates
-				 		for(i=0;i<cont.length;i++) {
-				 			 c = cont[i]
-				 			 rcont[rcont.length] = fScene.translateCoords(c.x-this.element.x,c.y-this.element.y,0)
+				 			// Project to 2d renderer coordinates
+				 			for(i=0;i<cont.length;i++) {
+				 			 	c = cont[i]
+				 			 	rcont[rcont.length] = fScene.translateCoords(c.x-this.element.x,c.y-this.element.y,0)
+				 			}
+				 			ret.holes[k] = rcont
+
 				 		}
-				 		ret.holes[k] = rcont
 				 
 				 }
 				 

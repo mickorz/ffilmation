@@ -189,6 +189,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Holes
 			   this.processHoles(element)
 				 this.canBeSmoothed = (element.shapePolygon.contours.length==1 && element.holes.length==0)
+				 this.element.addEventListener(fRenderableElement.SHOW,this.redrawShadowsOnShowHide,false,0,true)
+				 this.element.addEventListener(fRenderableElement.HIDE,this.redrawShadowsOnShowHide,false,0,true)
 			   
 			   // Cache as Bitmap with Timer cache
 			   // The cache is disabled while the Plane is being modified and a timer is set to re-enable it
@@ -275,6 +277,30 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			// REACT TO CHANGES IN SCENE
 			////////////////////////////
 
+			/**
+			* Renders element visible
+			*/
+			public override function show():void {
+ 				 this.doCache()
+			   this.containerParent.addChild(this.container)
+			}
+			
+			/**
+			* Renders element invisible
+			*/
+			public override function hide():void {
+				 this.undoCache()
+			   this.containerParent.removeChild(this.container)
+			}
+
+			// This redraws shadows when the plane shows/hides
+			private function redrawShadowsOnShowHide(e:Event=null):void {
+				 for(var j:int=0;j<this.scene.lights.length;j++) {
+					var light:fLight = this.scene.lights[j]
+					if(light && !light.removed && this.element.distanceTo(light.x,light.y,light.z)<light.size) light.render()
+				 }
+			}
+			
 
 			/** 
 			* Sets global light
@@ -390,7 +416,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			   this.anyClosedHole = false
 			   for(var i:Number=0;i<element.holes.length;i++) {
-			   		var hole:fHole = element.holes[i]
+			   		 var hole:fHole = element.holes[i]
    					 hole.addEventListener(fHole.OPEN,this.openHole,false,0,true)
 				 		 hole.addEventListener(fHole.CLOSE,this.closeHole,false,0,true)
 				 		 if(hole.block) {
@@ -479,13 +505,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* Redraws all lights when a hole has been opened/closed
 			*/
 			private function redrawLights():void {
-				  
 					this.redrawHoles()
 					this.renderGlobalLight(this.element.scene.environmentLight)
-					for(var i:Number=0;i<this.element.scene.lights.length;i++) {
-						var l:fLight = this.element.scene.lights[i]
-						if(l) l.render()
-					}
+					this.redrawShadowsOnShowHide()
 			}
 
 			/**
@@ -689,11 +711,26 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
   			    matr.translate(localPos.x,localPos.y)
 			      lClip.graphics.beginGradientFill(fillType, colors, alphas, ratios, matr, spreadMethod, interpolationMethod, focalPointRatio);
 			   	
+				 		// Find and apply minimun drawing area
+				 		var minimumArea = new vport()
+         		minimumArea.x_min = localPos.x-radius
+         		minimumArea.x_max = localPos.x+radius
+         		minimumArea.y_min = localPos.y-radius
+         		minimumArea.y_max = localPos.y+radius		
+				 		
+			  		var polygonToDraw:fPolygon = new fPolygon()
+				 		var contours:Array = this.clipPolygon.contours
+				 		for(var k:int=0;k<contours.length;k++) polygonToDraw.contours[k] = polygonUtils.clipPolygon(contours[k],minimumArea)
+				 		var holes:Array = this.clipPolygon.holes
+				 		for(k=0;k<holes.length;k++) polygonToDraw.holes[k] = polygonUtils.clipPolygon(holes[k],minimumArea)
+	
+
 			   } else {
 			  		lClip.graphics.beginFill(light.hexcolor,light.intensity/100)
+			  		polygonToDraw = this.clipPolygon
 				 }
 
-				 this.clipPolygon.draw(lClip.graphics)
+				 polygonToDraw.draw(lClip.graphics)
 				 lClip.graphics.endFill()
 				 
 			 	 // Update bumpmap
@@ -962,6 +999,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			public function disposePlaneRenderer():void {
 
+
+				this.element.removeEventListener(fRenderableElement.SHOW,this.redrawShadowsOnShowHide)
+				this.element.removeEventListener(fRenderableElement.HIDE,this.redrawShadowsOnShowHide)
+
 				this.undoCache()
         this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
        	this.cacheTimer.stop()
@@ -1020,10 +1061,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.lightClips = null
 				for(var j in this.lightStatuses) {
 					var light:fLight =this.lightStatuses[j].light
-		 		  light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
-		 		  light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
-		 		  light.removeEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange)
-					delete this.lightStatuses[j]
+					if(light) {
+		 		  	light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
+		 		  	light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
+		 		  	light.removeEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange)
+						delete this.lightStatuses[j]
+					}
 				}
 				this.lightStatuses = null
 

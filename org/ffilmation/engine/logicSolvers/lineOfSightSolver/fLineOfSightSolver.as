@@ -52,23 +52,23 @@ package org.ffilmation.engine.logicSolvers.lineOfSightSolver {
 					var cell:fCell = scene.translateToCell(cx,cy,cz)
 					if(cell && cell!=last) {
 						
-						if(cell.walls.top && candidates.indexOf(cell.walls.top)<0) candidates[candidates.length] = (cell.walls.top)
-						if(cell.walls.bottom && candidates.indexOf(cell.walls.bottom)<0) candidates[candidates.length] = (cell.walls.bottom)
-						if(cell.walls.up && candidates.indexOf(cell.walls.up)<0) candidates[candidates.length] = (cell.walls.up)
-						if(cell.walls.down && candidates.indexOf(cell.walls.down)<0) candidates[candidates.length] = (cell.walls.down)
-						if(cell.walls.left && candidates.indexOf(cell.walls.left)<0) candidates[candidates.length] = (cell.walls.left)
-						if(cell.walls.right && candidates.indexOf(cell.walls.right)<0) candidates[candidates.length] = (cell.walls.right)
+						if(cell.walls.top && cell.walls.top._visible && candidates.indexOf(cell.walls.top)<0) candidates[candidates.length] = (cell.walls.top)
+						if(cell.walls.bottom && cell.walls.bottom._visible && candidates.indexOf(cell.walls.bottom)<0) candidates[candidates.length] = (cell.walls.bottom)
+						if(cell.walls.up && cell.walls.up._visible && candidates.indexOf(cell.walls.up)<0) candidates[candidates.length] = (cell.walls.up)
+						if(cell.walls.down && cell.walls.down._visible && candidates.indexOf(cell.walls.down)<0) candidates[candidates.length] = (cell.walls.down)
+						if(cell.walls.left && cell.walls.left._visible && candidates.indexOf(cell.walls.left)<0) candidates[candidates.length] = (cell.walls.left)
+						if(cell.walls.right && cell.walls.right._visible && candidates.indexOf(cell.walls.right)<0) candidates[candidates.length] = (cell.walls.right)
 						
 						var n:Number=cell.walls.objects.length
 						for(var i:Number=0;i<n;i++) {
 							var o:fObject = cell.walls.objects[i]
-							if(candidates.indexOf(o)<0) candidates[candidates.length] = (o)
+							if(o && o._visible && candidates.indexOf(o)<0) candidates[candidates.length] = (o)
 						}
 						
 						n = cell.charactersOccupying.length
 						for(i=0;i<n;i++) {
 							var c:fCharacter = cell.charactersOccupying[i]
-							if(candidates.indexOf(c)<0) candidates[candidates.length] = (c)
+							if(c && c._visible && candidates.indexOf(c)<0) candidates[candidates.length] = (c)
 						}
 						
 					}

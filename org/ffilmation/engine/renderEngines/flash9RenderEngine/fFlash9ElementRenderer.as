@@ -33,7 +33,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public var containerToPaint:DisplayObject
 
 			/** Storing this allows us to show/hide the element */
-			private var containerParent:DisplayObjectContainer
+			public var containerParent:DisplayObjectContainer
 
 			// Constructor
 			/** @private */

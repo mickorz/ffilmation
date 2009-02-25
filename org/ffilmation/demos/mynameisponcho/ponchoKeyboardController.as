@@ -144,6 +144,16 @@ package org.ffilmation.demos.mynameisponcho {
 	  private function shotListener(evt:fShotEvent):void {
 	  	evt.bullet.removeEventListener(fBullet.SHOT,this.shotListener)
 	  	this.ricochetS.play()
+	  	
+	  	// Kill other characters
+	  	if(evt.element is fCharacter) {
+	  		var c:fCharacter = evt.element as fCharacter
+	  		if(c!=this.character) c.scene.removeCharacter(c)
+	  	}
+	  	/*if(evt.element is fWall) {
+	  		evt.element.hide()
+			}*/
+
 	  }
 
 		public function shoot():void {

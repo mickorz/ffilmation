@@ -9,7 +9,8 @@ Scenes use less memory.
 I have tried to optimize the render process as much as possible, reducing the amount of layers, blendmodes and transformation matrixes. Given the amount of hours invested the result is quite dissappointing: In my tests I see an improvement of nothing to 10%, but I'm unsure about the real impact in other people's applications.
 The container property for fRenderableElements is no longer a generic MovieClip. Instead, a new fElementContainer class is used. Properties are the same.
 Lots of collision tweaks. I hope it works better for everybody now.
-You don't collide against hidden elements.
+Hidden elements are properly handled, you don't collide against them, they don't project shadows and they bullets don't impact on them.
+Fixed lots of bugs related to showing/hiding and removing characters
 Optimized the Fence material ( does anyone but me use it ? )
 You can soften shadows using the fEngine.softShadows property
 More robust projection and lighting system, also a first step towards having irregular wall shapes.
