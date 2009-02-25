@@ -14,6 +14,7 @@ Fixed lots of bugs related to showing/hiding and removing characters
 Optimized the Fence material ( does anyone but me use it ? )
 You can soften shadows using the fEngine.softShadows property
 More robust projection and lighting system, also a first step towards having irregular wall shapes.
+Bumpmap performance has been dramatically improved. Still not for the average machine out there, but getting there.
 
 1.3.2:
 

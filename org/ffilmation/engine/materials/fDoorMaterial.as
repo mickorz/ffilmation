@@ -136,7 +136,87 @@ package org.ffilmation.engine.materials {
 			*
 			*/
 			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
-				return null
+				var ret:Sprite = new Sprite
+				var temp:Sprite = new Sprite
+
+				this.realPosition = (this.dwidth/2)+(width-this.dwidth)*(0.5+(this.position/200))
+
+				// Draw base
+				var tile:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base,element.scene)
+				var base:BitmapData = new BitmapData(width,height,true,0x000000)
+				var tb:DisplayObject = tile.getBump(element,width,height)
+				
+				if(tb) {
+					base.draw(tb)
+				
+					temp.graphics.beginBitmapFill(base,null,true,true)
+					temp.graphics.moveTo(0,0)
+					temp.graphics.lineTo(width,0)
+					temp.graphics.lineTo(width,height)
+					temp.graphics.lineTo(this.realPosition+this.dwidth/2,height)
+					temp.graphics.lineTo(this.realPosition+this.dwidth/2,height-this.dheight)
+					temp.graphics.lineTo(this.realPosition-this.dwidth/2,height-this.dheight)
+					temp.graphics.lineTo(this.realPosition-this.dwidth/2,height)
+					temp.graphics.lineTo(0,height)
+					temp.graphics.lineTo(0,0)
+					temp.graphics.endFill()				
+				}
+				
+				// Draw frame, if any
+				var temp2:Sprite = new Sprite
+				var framesize:Number = new Number(this.definition.xmlData.framesize)
+				if(framesize>0 && this.definition.xmlData.frame) {
+					tile = fMaterial.getMaterial(this.definition.xmlData.frame,element.scene)
+					var base2:BitmapData = new BitmapData(width,height,true,0x000000)
+					
+					tb = tile.getBump(element,width,height)
+					if(tb) {
+					
+						base2.draw(tb)
+					
+						temp2.graphics.beginBitmapFill(base2,null,true,true)
+						temp2.graphics.moveTo(this.realPosition+this.dwidth/2,height)
+						temp2.graphics.lineTo(this.realPosition+this.dwidth/2,height-this.dheight)
+						temp2.graphics.lineTo(this.realPosition-this.dwidth/2,height-this.dheight)
+						temp2.graphics.lineTo(this.realPosition-this.dwidth/2,height)
+						temp2.graphics.lineTo(this.realPosition-this.dwidth/2-framesize,height)
+						temp2.graphics.lineTo(this.realPosition-this.dwidth/2-framesize,height-this.dheight-framesize)
+						temp2.graphics.lineTo(this.realPosition+this.dwidth/2+framesize,height-this.dheight-framesize)
+						temp2.graphics.lineTo(this.realPosition+this.dwidth/2+framesize,height)
+						temp2.graphics.lineTo(this.realPosition+this.dwidth/2,height)
+						temp2.graphics.endFill()
+					
+					}
+					
+				}
+				
+				// Draw door
+				tile = fMaterial.getMaterial(this.definition.xmlData.door,element.scene)
+				tb = tile.getBump(element,this.dwidth,this.dheight)
+				if(tb) {
+					var door:BitmapData = new BitmapData(this.dwidth,this.dheight,true,0x000000)
+					door.draw(tb)
+					temp2.graphics.beginBitmapFill(door,null,true,true)
+					temp2.graphics.moveTo(this.realPosition+this.dwidth/2,height)
+					temp2.graphics.lineTo(this.realPosition+this.dwidth/2,height-this.dheight)
+					temp2.graphics.lineTo(this.realPosition-this.dwidth/2,height-this.dheight)
+					temp2.graphics.lineTo(this.realPosition-this.dwidth/2,height)
+					temp2.graphics.endFill()
+				}
+
+
+				// Merge layers
+			  var msk:BitmapData = new BitmapData(width,height,true,0x000000)
+				if(temp) msk.draw(temp)
+				if(temp2) msk.draw(temp2)
+				
+				ret.addChild(new Bitmap(msk,"auto",true))
+
+				if(base) base.dispose()
+				if(base2) base2.dispose()
+				if(door) door.dispose()
+				return ret
+				
 			}
 
 			/** 

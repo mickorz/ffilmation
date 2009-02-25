@@ -695,6 +695,16 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 					  // Gradient setup
 					  var radius:Number = this.lightStatuses[light.uniqueId].localScale*light.size
+					  
+					  if(this.element is fFloor) {
+					  	var rh:Number = radius
+					  	var rv:Number = radius/1.8
+					  }
+					  else if(this.element is fWall) {
+					  	rh = radius/1.1
+					  	rv = radius/1.1
+					  }
+
 						if(fEngine.bumpMapping && light.bump && this.bumpMap) radius *= 0.85
 				 		
 					  var colors:Array = [light.hexcolor, light.hexcolor]
@@ -713,21 +723,26 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   	
 				 		// Find and apply minimun drawing area
 				 		var minimumArea = new vport()
-         		minimumArea.x_min = localPos.x-radius
-         		minimumArea.x_max = localPos.x+radius
-         		minimumArea.y_min = localPos.y-radius
-         		minimumArea.y_max = localPos.y+radius		
-				 		
+         		minimumArea.x_min = Math.round(localPos.x-rh)
+         		minimumArea.x_max = Math.round(localPos.x+rh)
+         		minimumArea.y_min = Math.round(localPos.y-rv)
+         		minimumArea.y_max = Math.round(localPos.y+rv)
+  					if(fEngine.bumpMapping && light.bump) {
+  						if(minimumArea.x_min<this.element.bounds2d.x) minimumArea.x_min = this.element.bounds2d.x
+  						if(minimumArea.y_min<this.element.bounds2d.y) minimumArea.y_min = this.element.bounds2d.y
+  					}
+
 			  		var polygonToDraw:fPolygon = new fPolygon()
 				 		var contours:Array = this.clipPolygon.contours
 				 		for(var k:int=0;k<contours.length;k++) polygonToDraw.contours[k] = polygonUtils.clipPolygon(contours[k],minimumArea)
 				 		var holes:Array = this.clipPolygon.holes
 				 		for(k=0;k<holes.length;k++) polygonToDraw.holes[k] = polygonUtils.clipPolygon(holes[k],minimumArea)
-	
 
 			   } else {
+
 			  		lClip.graphics.beginFill(light.hexcolor,light.intensity/100)
 			  		polygonToDraw = this.clipPolygon
+			  		
 				 }
 
 				 polygonToDraw.draw(lClip.graphics)
@@ -742,7 +757,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		}
 				 		
 		 		 		if(this.bumpMap!=null) {
-				 			if(lClip.filters.length==0) lClip.filters = [this.displacer]
+				  		if(light.size!=Infinity) {
+				  			var refPoint:Point = new Point(this.element.bounds2d.x-minimumArea.x_min,this.element.bounds2d.y-minimumArea.y_min)
+			  			} else refPoint = new Point(0,0)
+			  			//trace(lClip.y+" "+this.element.bounds2d+" "+refPoint+" "+minimumArea.y_min)
+				 			this.displacer.mapPoint = refPoint
+				 			lClip.filters = [this.displacer]
 				 		} else lClip.filters = null
 				 
 				 } else lClip.filters = null
@@ -979,8 +999,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		this.displacer.componentY = BumpMap.COMPONENT_Y
 				 		this.displacer.mode =	DisplacementMapFilterMode.IGNORE
 				 		this.displacer.alpha =	0
-				 		this.displacer.scaleX = 100;
-				 		this.displacer.scaleY = 100;
+				 		this.displacer.scaleX = 120;
+				 		this.displacer.scaleY = 120;
 				 		this.displacer.mapBitmap = this.bumpMap.outputData
 				 		
 //				 		var r:Bitmap = new Bitmap(this.bumpMap.outputData)

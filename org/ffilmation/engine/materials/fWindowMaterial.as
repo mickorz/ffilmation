@@ -193,7 +193,10 @@ package org.ffilmation.engine.materials {
 			*
 			*/
 			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
-				return null
+				
+				var base:fMaterial = fMaterial.getMaterial(this.definition.xmlData.base,element.scene)
+				return base.getBump(element,width,height)
+				
 			}
 
 			/** 
