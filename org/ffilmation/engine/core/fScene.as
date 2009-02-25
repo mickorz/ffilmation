@@ -268,7 +268,10 @@ package org.ffilmation.engine.core {
 
 			}
 			
-			/** Starts initialization process */
+			/** 
+			* Starts initialization process
+			* @private
+			*/
 			public function initialize():void {
 			   this.initializer.start()
 			}
