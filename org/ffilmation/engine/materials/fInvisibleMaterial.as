@@ -10,27 +10,19 @@ package org.ffilmation.engine.materials {
 		import org.ffilmation.engine.helpers.*
 		
 		/**
-		* This is is a default material applied to planes without material assigned
-		*
-		* <p>It displays a black box with silver borders</p>
+		* This material renders planes invisible. Invisible planes are solid, you collide against them, they block bullets, etc.
 		* @private
 		*/
-		public class fDefaultMaterial implements fEngineMaterial {
-			
-			// Private vars
-			private var definition:fMaterialDefinition	// Definition data
+		public class fInvisibleMaterial implements fEngineMaterial {
 			
 			// Constructor
-			public function fDefaultMaterial(definition:fMaterialDefinition):void {
-				this.definition = definition
+			public function fInvisibleMaterial(definition:fMaterialDefinition):void {
 			}
 			
 			/**
 			* Frees all allocated resources for this material. It is called when the scene is destroyed and we want to free as much RAM as possible
 			*/
 			public function dispose():void {
-				this.definition = null
-				
 			}
 
 			/** 
@@ -45,15 +37,7 @@ package org.ffilmation.engine.materials {
 			*
 			*/
 			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
-				
-				var ret:Sprite = new Sprite
-				
-				ret.graphics.lineStyle(2,0xdddddd,1)
-				ret.graphics.beginFill(0x000000,1)
-				ret.graphics.drawRect(0,0,width,height)
-				ret.graphics.endFill()
-
-				return ret
+				return null
 			}
 
 			/** 

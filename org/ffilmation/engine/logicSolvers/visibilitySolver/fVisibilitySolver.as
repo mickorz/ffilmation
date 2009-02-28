@@ -98,7 +98,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      dist = wallc.distanceTo(x,y,z)
 			      if(dist<range) {
 			      	if(wallc.receiveLights) if((wallc.vertical && wallc.x>x) || (!wallc.vertical && wallc.y<y)) candidates[candidates.length] = (new fShadowedVisibilityInfo(wallc,dist))
-					  	if(floorc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(wallc,dist))
+					  	if(wallc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(wallc,dist))
 					  }
 			   }
 			

@@ -87,6 +87,12 @@ package org.ffilmation.engine.core {
 				 this.shapePolygon.contours = contours
 				 this.holes = this.material.getHoles(this,this.planeWidth,this.planeHeight)
 				 this.dispatchEvent(new fNewMaterialEvent(fPlane.NEWMATERIAL,id,this.planeWidth,this.planeHeight))
+				 
+				 // Handle invisible
+				 if(id.toLowerCase()=="invisible") {
+				 		this.castShadows = this.receiveShadows = this.receiveLights = false
+				 }
+				 
 			}
 
 			// Planes don't move

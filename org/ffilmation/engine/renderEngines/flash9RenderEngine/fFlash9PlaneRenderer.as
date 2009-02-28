@@ -112,19 +112,24 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
  			   // Retrieve diffuse map
  			   var d:DisplayObject = element.material.getDiffuse(element,width,height,true)
- 			   this.diffuseData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
-				 var oMatrix:Matrix = this.planeDeform.clone()
-				 oMatrix.translate(0,-Math.round(element.bounds2d.y))
-				 this.diffuseData.draw(d,oMatrix)
- 			   this.diffuse = new Bitmap(this.diffuseData,"never",true)
- 			   this.diffuse.y = Math.round(element.bounds2d.y)
+ 			   if(d) {
+ 			   	 this.diffuseData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
+				 	 var oMatrix:Matrix = this.planeDeform.clone()
+				 	 oMatrix.translate(0,-Math.round(element.bounds2d.y))
+				 	 this.diffuseData.draw(d,oMatrix)
+ 			   	 this.diffuse = new Bitmap(this.diffuseData,"never",true)
+ 			   	 this.diffuse.y = Math.round(element.bounds2d.y)
+ 			   } else {
+				 	 this.diffuseData = null
+ 			   	 this.diffuse = new Bitmap()
+ 			   }
 
 				 // Previous
 				 super(rEngine,element,null,spriteToShowHide)
 
 				 // Properties
-			   this.origWidth = d.width
-			   this.origHeight = d.height
+			   this.origWidth = width
+			   this.origHeight = height
 			   this.spriteToDraw = spriteToDraw
 
 				 // This is the Sprite where all light layers are generated.
@@ -290,7 +295,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function hide():void {
 				 this.undoCache()
-			   this.containerParent.removeChild(this.container)
+			   try { this.containerParent.removeChild(this.container) } catch(e:Error) {}
 			}
 
 			// This redraws shadows when the plane shows/hides
@@ -358,14 +363,18 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	 // Diffuse
 			 	 var p:fPlane = evt.target as fPlane
 			 	 var d:DisplayObject = p.material.getDiffuse(element,evt.width,evt.height,true)
- 			   var nDiffuseData:BitmapData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
-				 var oMatrix:Matrix = this.planeDeform.clone()
-				 oMatrix.translate(0,-Math.round(p.bounds2d.y))
-				 nDiffuseData.draw(d,oMatrix)
-
- 			   this.diffuse.bitmapData = nDiffuseData
- 			   this.diffuseData.dispose()
- 			   this.diffuseData = nDiffuseData
+			 	 if(d) {
+ 			   	 var nDiffuseData:BitmapData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
+				 	 var oMatrix:Matrix = this.planeDeform.clone()
+				 	 oMatrix.translate(0,-Math.round(p.bounds2d.y))
+				 	 nDiffuseData.draw(d,oMatrix)
+	 			   this.diffuse.bitmapData = nDiffuseData
+ 				   this.diffuseData.dispose()
+ 			   	 this.diffuseData = nDiffuseData
+				 } else {
+ 			   	 this.diffuse.bitmapData = new BitmapData(1,1,true,0)
+ 			   	 this.diffuseData = null
+				 }
  			   
  			   // Holes
 	   		 this.processHoles(p)

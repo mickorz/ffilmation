@@ -67,10 +67,15 @@ package org.ffilmation.engine.core {
 				 		// Make sure this material has a definition in the scene. If it doesn't, throw an error
 				 		try {
          		
+				 				// Special materials
 				 				if(id=="default") {
 				 					mat.definition = null
 				 					mat.type = "default"
 				 					mat.cls = new fDefaultMaterial(mat.definition)
+				 				} else if(id.toLowerCase()=="invisible") {
+				 					mat.definition = null
+				 					mat.type = "invisible"
+				 					mat.cls = new fInvisibleMaterial(mat.definition)
 				 				} else {
 				 					mat.definition = fMaterial.currentScene.resourceManager.getMaterialDefinition(id)
 				 					mat.type = mat.definition.type
@@ -109,6 +114,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function getDiffuse(element:fRenderableElement,width:Number,height,fromPlane:Boolean = false):DisplayObject {
 				var s:DisplayObject = this.cls.getDiffuse(element,width,height)
+				if(!s) return null
 				var r:Sprite = new Sprite()
 				r.addChild(s)
 				if(fromPlane && element is fWall) s.y = -height
@@ -118,6 +124,7 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function getBump(element:fRenderableElement,width:Number,height:Number,fromPlane:Boolean = false):DisplayObject {
 				var s:DisplayObject = this.cls.getBump(element,width,height)
+				if(!s) return null
 				var r:Sprite = new Sprite()
 				r.addChild(s)
 				if(fromPlane && element is fWall) s.y = -height

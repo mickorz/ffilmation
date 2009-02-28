@@ -1055,8 +1055,8 @@ package org.ffilmation.engine.core {
 				 var xx:Number = x*fEngine.DEFORMATION
 				 var yy:Number = y*fEngine.DEFORMATION
 				 var zz:Number = z*fEngine.DEFORMATION
-				 var xCart:Number = (xx+yy)*0.8944261217100129			//Math.cos(0.46365)
-				 var yCart:Number = zz+(xx-yy)*0.4472157340733723  	//Math.sin(0.46365)
+				 var xCart:Number = (xx+yy)*0.8944271909999159			//Math.cos(0.4636476090008061)
+				 var yCart:Number = zz+(xx-yy)*0.4472135954999579  	//Math.sin(0.4636476090008061)
 
 				 return new Point(xCart,-yCart) 
 
@@ -1066,8 +1066,8 @@ package org.ffilmation.engine.core {
       public static function translateCoordsInverse(x:Number,y:Number):Point {   
          
          //rotate the coordinates
-         var yCart:Number = (x/0.8944261217100129+(y)/0.4472157340733723)/2
-         var xCart:Number = (-1*(y)/0.4472157340733723+x/0.8944261217100129)/2         
+         var yCart:Number = (x/0.8944271909999159+(y)/0.4472135954999579)/2
+         var xCart:Number = (-1*(y)/0.4472135954999579+x/0.8944271909999159)/2         
          
          //scale the coordinates
          xCart = xCart/fEngine.DEFORMATION

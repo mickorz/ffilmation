@@ -15,6 +15,7 @@ Optimized the Fence material ( does anyone but me use it ? )
 You can soften shadows using the fEngine.softShadows property
 More robust projection and lighting system, also a first step towards having irregular wall shapes.
 Bumpmap performance has been dramatically improved. Still not for the average machine out there, but getting there.
+Added an "invisible" material that can be used to have invisible planes that are still solid in terms of collision and bullet impacts. Simply use src="invisible" in you plane definition.
 
 1.3.2:
 

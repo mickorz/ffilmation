@@ -26,8 +26,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			private static var floorProjectionCache:fFloorProjectionCache = new fFloorProjectionCache()
 			private static var wallProjectionCache:Dictionary = new Dictionary(true)
 			private static var objectProjectionCache:Dictionary = new Dictionary(true)
-			public static var matrix:Matrix = new Matrix(0.7071075439453125,-0.35355377197265625,0.7071075439453125,0.35355377197265625,0,0)
-			
+			//public static var matrix:Matrix = new Matrix(0.7071075439453125,-0.35355377197265625,0.7071075439453125,0.35355377197265625,0,0)
+			public static var matrix:Matrix = new Matrix(0.5253219888177297,-0.4254517622670592,0.8509035245341184,0.26266099440886487,0,0)
 			public var vp:vport
 			
 			// Constructor
@@ -39,7 +39,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   
 				 // Set specific wall dimensions
 			   this.scrollR = new Rectangle(0, 0, element.width, element.depth)
-				 this.planeDeform = fFlash9FloorRenderer.matrix
+				 this.planeDeform = new Matrix() //fFlash9FloorRenderer.matrix
+				 this.planeDeform.rotate(-45*Math.PI/180)
+				 this.planeDeform.scale(1,0.5)
 				 
 			   // Previous
 				 super(rEngine,element,element.width,element.depth,destination,container)
