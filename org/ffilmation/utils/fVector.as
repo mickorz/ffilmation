@@ -2,10 +2,10 @@ package org.ffilmation.utils {
 
 
 		/** 
-		* A 2d Vector class
+		* A 2d fVector class
 		* @private
 	  */
-		public class Vector	{
+		public class fVector	{
 
 				/** 
 				* X component
@@ -20,7 +20,7 @@ package org.ffilmation.utils {
 		    /**
 		    * Constructor for this class
 		    */
-		    public function Vector(vx:Number,vy:Number) {
+		    public function fVector(vx:Number,vy:Number) {
 			    x = vx;
 			    y = vy;
 		    }
@@ -38,7 +38,7 @@ package org.ffilmation.utils {
 		     * @param The second vector vector.
 		     * @return  returns the dot product of this instance and 'V'.
 		    **/
-		    public function dotProduct(V:Vector):Number {
+		    public function dotProduct(V:fVector):Number {
 			    return (x*V.x)+(y*V.y)
 		    }
 		
@@ -54,12 +54,12 @@ package org.ffilmation.utils {
 		
 		    /**
 		     * Returns the unit vector of this instance.
-		     * @return A new Vector object populated with this instance's unit vector.
+		     * @return A new fVector object populated with this instance's unit vector.
 		    **/
-		    public function unitVector():Vector  {
-			    var unit:Vector
+		    public function unitfVector():fVector  {
+			    var unit:fVector
 			    var norm:Number = this.norm()
-		      unit = new Vector(x,y)
+		      unit = new fVector(x,y)
 			    unit.x /= norm;
 			    unit.y /= norm;
 			    return unit;
@@ -80,7 +80,7 @@ package org.ffilmation.utils {
 		     * @param Another vector
 		     * @return the angle between this instance and the parameter
 		    **/
-		    public function angleVector(V:Vector):Number  {
+		    public function anglefVector(V:fVector):Number  {
 			    return this.dotProduct(V)/(this.norm()*V.norm());
 		    }
 		
@@ -89,8 +89,8 @@ package org.ffilmation.utils {
 		     * Defines perpendicular direction vector of this instance.
 		     * @return A perpendicular direction vector of this instance.
 		    **/
-		    public function getPerpendicular():Vector  {
-		        return new Vector(-y,x)
+		    public function getPerpendicular():fVector  {
+		        return new fVector(-y,x)
 		    }
 		
 		}

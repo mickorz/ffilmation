@@ -119,9 +119,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 	 this.diffuseData.draw(d,oMatrix)
  			   	 this.diffuse = new Bitmap(this.diffuseData,"never",true)
  			   	 this.diffuse.y = Math.round(element.bounds2d.y)
+ 			   	 spriteToShowHide.visible = true
  			   } else {
 				 	 this.diffuseData = null
  			   	 this.diffuse = new Bitmap()
+ 			   	 spriteToShowHide.visible = false
  			   }
 
 				 // Previous
@@ -371,9 +373,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	 			   this.diffuse.bitmapData = nDiffuseData
  				   this.diffuseData.dispose()
  			   	 this.diffuseData = nDiffuseData
+ 			   	 this.container.visible = true
 				 } else {
  			   	 this.diffuse.bitmapData = new BitmapData(1,1,true,0)
  			   	 this.diffuseData = null
+ 			   	 this.container.visible = false
 				 }
  			   
  			   // Holes

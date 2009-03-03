@@ -125,15 +125,18 @@ package org.ffilmation.engine.core.sceneInitialization {
 				    this.loadedFiles.push(basePath)
 				 
 				 		// Retrieve media files
-				 		for(var i:Number=0;i<xmlObj.child("media").length();i++) {
-				 			var relativePath:String = xmlObj.child("media")[i].@src
+				 		var temp:XMLList = xmlObj.child("media")
+				 		for(var i:Number=0;i<temp.length();i++) {
+				 			var relativePath:String = temp[i].@src
 				 			var absolulePath:String = fSceneResourceManager.mergePaths(basePath,relativePath)
 				 			if(this.mediaSrcs.indexOf(absolulePath)<0) this.mediaSrcs.push(absolulePath)
 				 		}
 							
 				 		// Retrieve Object definitions
 				 		var defs:XMLList = xmlObj.child("objectDefinition")
-				 		for(i=0;i<defs.length();i++) this.objectDefinitions[defs[i].@name] = new fObjectDefinition(defs[i].copy(),basePath)
+				 		for(i=0;i<defs.length();i++) {
+				 			this.objectDefinitions[defs[i].@name] = new fObjectDefinition(defs[i].copy(),basePath)
+				 		}
 				 		
 				 		// Retrieve Material definitions
 				 		defs = xmlObj.child("materialDefinition")

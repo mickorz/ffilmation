@@ -1,4 +1,4 @@
-// Character class
+﻿// Character class
 package org.ffilmation.engine.logicSolvers.projectionSolver {
 	
 		// Imports
@@ -231,7 +231,7 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 var height:Number = obj.height
 				 
 				 // Get 2D vector from point to object
-				 var vec:Vector = new Vector(obj.x-x,obj.y-y)
+				 var vec:fVector = new fVector(obj.x-x,obj.y-y)
 				 vec.normalize()
 				 
 				 var dist:Number = mathUtils.distance(x,y,obj.x,obj.y)
@@ -257,7 +257,7 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 var origin:Point = new Point(obj.x+vec.x*projSizeI,obj.y+vec.y*projSizeI)
 				 
 				 // Get perpendicular vector
-				 var perp:Vector = vec.getPerpendicular() 
+				 var perp:fVector = vec.getPerpendicular() 
          
 				 // Get first 2 points
 				 var p1:Point = new Point(origin.x+r*perp.x,origin.y+r*perp.y)

@@ -1,4 +1,4 @@
-package org.ffilmation.utils {
+﻿package org.ffilmation.utils {
 
 		// Imports
 		import flash.geom.Point
@@ -37,17 +37,17 @@ package org.ffilmation.utils {
 			    var pALength:int = polygonA.length, pBLength:int = polygonB.length, edgesA:Array = new Array(),edgesB:Array = new Array()
 
 			    for(var i:int=1;i<pALength;i++) {
-			    	edgesA[int(i-1)] = new Vector(polygonA[i].x-polygonA[int(i-1)].x,polygonA[i].y-polygonA[int(i-1)].y)
+			    	edgesA[int(i-1)] = new fVector(polygonA[i].x-polygonA[int(i-1)].x,polygonA[i].y-polygonA[int(i-1)].y)
 			    }
-			    edgesA[int(i-1)] = new Vector(polygonA[i-1].x-polygonA[0].x,polygonA[i-1].y-polygonA[0].y)
+			    edgesA[int(i-1)] = new fVector(polygonA[i-1].x-polygonA[0].x,polygonA[i-1].y-polygonA[0].y)
 			    
 			    for(i=1;i<pBLength;i++) {
-			    	edgesB[int(i-1)] = new Vector(polygonB[i].x-polygonB[int(i-1)].x,polygonB[i].y-polygonB[int(i-1)].y)
+			    	edgesB[int(i-1)] = new fVector(polygonB[i].x-polygonB[int(i-1)].x,polygonB[i].y-polygonB[int(i-1)].y)
 			    }
-			    edgesB[int(i-1)] = new Vector(polygonB[i-1].x-polygonB[0].x,polygonB[i-1].y-polygonB[0].y)
+			    edgesB[int(i-1)] = new fVector(polygonB[i-1].x-polygonB[0].x,polygonB[i-1].y-polygonB[0].y)
 
-			    var edgeCountA:int = edgesA.length, edgeCountB:int = edgesB.length, edge:Vector, result:Boolean = true, total:int = edgeCountA + edgeCountB
-	        var axis:Vector, boundA:polygonProjection, boundB:polygonProjection
+			    var edgeCountA:int = edgesA.length, edgeCountB:int = edgesB.length, edge:fVector, result:Boolean = true, total:int = edgeCountA + edgeCountB
+	        var axis:fVector, boundA:polygonProjection, boundB:polygonProjection
 
 			    // Loop through all the edges of both polygons
 			    for (var edgeIndex:int = 0; edgeIndex < total; edgeIndex++) {
@@ -94,18 +94,18 @@ package org.ffilmation.utils {
 			* Calculate the projection of a polygon on an axis
 			* and returns it as a [min, max] interval
 			*/
-			private static function ProjectPolygon(axis:Vector,polygon:Array):polygonProjection {
+			private static function ProjectPolygon(axis:fVector,polygon:Array):polygonProjection {
 				
 			    var ret:polygonProjection = new polygonProjection()
 
 			    // To project a point on an axis use the dot product
-			    var dotProduct:Number = axis.dotProduct(new Vector(polygon[0].x,polygon[0].y))
+			    var dotProduct:Number = axis.dotProduct(new fVector(polygon[0].x,polygon[0].y))
 			    ret.min = dotProduct
 			    ret.max = dotProduct
 
 			    var pl:int = polygon.length
 			    for (var i:int = 0; i < pl; i++) {
-			        dotProduct = axis.dotProduct(new Vector(polygon[i].x,polygon[i].y))
+			        dotProduct = axis.dotProduct(new fVector(polygon[i].x,polygon[i].y))
 			        if (dotProduct < ret.min) {
 			            ret.min = dotProduct
 			        } else {

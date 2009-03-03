@@ -1,4 +1,4 @@
-package org.ffilmation.engine.renderEngines.flash9RenderEngine {
+﻿package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	
 		// Imports
 		import flash.events.*
@@ -430,7 +430,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 								c.cacheAsBitmap = false
 								if(c is DisplayObjectContainer) fFlash9RenderEngine.recursiveDelete(c as DisplayObjectContainer)
 								if(c is MovieClip) (c as MovieClip).stop()
-								if(c is Bitmap) (c as Bitmap).bitmapData.dispose()
+								if(c is Bitmap) {
+									var b:Bitmap = c as Bitmap
+									if(b.bitmapData) b.bitmapData.dispose()
+								}
 								if(c is Shape) (c as Shape).graphics.clear()
 								d.removeChild(c)
 							}

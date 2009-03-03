@@ -5,6 +5,7 @@ FFilmation: AS3 isometric engine. Version history:
 
 This is also a performance and bugfixing release.
 
+Tested with Flash CS4.
 Scenes use less memory.
 I have tried to optimize the render process as much as possible, reducing the amount of layers, blendmodes and transformation matrixes. Given the amount of hours invested the result is quite dissappointing: In my tests I see an improvement of nothing to 10%, but I'm unsure about the real impact in other people's applications.
 The container property for fRenderableElements is no longer a generic MovieClip. Instead, a new fElementContainer class is used. Properties are the same.

@@ -32,12 +32,12 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 var tempObj:XMLList = xmlObj.body.child("box")
 			   while(tempObj.length()>0) {
 			   	 var box:XML = tempObj[0]
-			   	 if(box.@src1.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side1")+'" src="'+(box.@src1)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="horizontal"/>')
-			   	 if(box.@src2.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side2")+'" src="'+(box.@src2)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(parseInt(box.@x)+parseInt(box.@sizex))+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
-			   	 if(box.@src3.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side3")+'" src="'+(box.@src3)+'" size="'+(box.@sizex)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(parseInt(box.@y)+parseInt(box.@sizey))+'" z="'+(box.@z)+'" direction="horizontal"/>')
-			   	 if(box.@src4.length()>0) xmlObj.body.appendChild('<wall id="'+(box.@id+"_side4")+'" src="'+(box.@src4)+'" size="'+(box.@sizey)+'" height="'+(box.@sizez)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(box.@z)+'" direction="vertical"/>')
-			   	 if(box.@src5.length()>0) xmlObj.body.appendChild('<floor id="'+(box.@id+"_side5")+'" src="'+(box.@src5)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z)+parseInt(box.@sizez))+'"/>')
-			   	 if(box.@src6.length()>0) xmlObj.body.appendChild('<floor id="'+(box.@id+"_side6")+'" src="'+(box.@src6)+'" width="'+(box.@sizex)+'" height="'+(box.@sizey)+'" x="'+(box.@x)+'" y="'+(box.@y)+'" z="'+(parseInt(box.@z))+'"/>')
+			   	 if(box.@src1.length()>0) xmlObj.body.appendChild(<wall id={box.@id+"_side1"} src={box.@src1} size={box.@sizex} height={box.@sizez} x={box.@x} y={box.@y} z={box.@z} direction="horizontal"/>)
+			   	 if(box.@src2.length()>0) xmlObj.body.appendChild(<wall id={box.@id+"_side2"} src={box.@src2} size={box.@sizey} height={box.@sizez} x={parseInt(box.@x)+parseInt(box.@sizex)} y={box.@y} z={box.@z} direction="vertical"/>)
+			   	 if(box.@src3.length()>0) xmlObj.body.appendChild(<wall id={box.@id+"_side3"} src={box.@src3} size={box.@sizex} height={box.@sizez} x={box.@x} y={parseInt(box.@y)+parseInt(box.@sizey)} z={box.@z} direction="horizontal"/>)
+			   	 if(box.@src4.length()>0) xmlObj.body.appendChild(<wall id={box.@id+"_side4"} src={box.@src4} size={box.@sizey} height={box.@sizez} x={box.@x} y={box.@y} z={box.@z} direction="vertical"/>)
+			   	 if(box.@src5.length()>0) xmlObj.body.appendChild(<floor id={box.@id+"_side5"} src={box.@src5} width={box.@sizex} height={box.@sizey} x={box.@x} y={box.@y} z={parseInt(box.@z)+parseInt(box.@sizez)}/>)
+			   	 if(box.@src6.length()>0) xmlObj.body.appendChild(<floor id={box.@id+"_side6"} src={box.@src6} width={box.@sizex} height={box.@sizey} x={box.@x} y={box.@y} z={parseInt(box.@z)}/>)
 			   	 delete tempObj[0]
 				 }
 
@@ -69,7 +69,6 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   scene.top += scene.levelSize*10
 			   scene.gridHeight = int((scene.top/scene.levelSize)+0.5)
 			   scene.height = scene.gridHeight*scene.levelSize
-
 
 			}
 			

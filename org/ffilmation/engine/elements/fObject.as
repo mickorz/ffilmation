@@ -126,7 +126,7 @@ package org.ffilmation.engine.elements {
 				
 				 // Previous
 				 super(defObj,scene)
-
+				 
 				 // Make sure this object has a definition in the scene. If it doesn't, throw an error
 			 	 this.definitionID = defObj.@definition
 				 this.definition = this.scene.resourceManager.getObjectDefinition(this.definitionID)
