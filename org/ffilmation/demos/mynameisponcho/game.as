@@ -3,6 +3,8 @@
 	// Imports
 	import flash.display.*
 	import flash.events.*
+	import flash.system.System
+	
 	import org.ffilmation.engine.core.*
 	import org.ffilmation.engine.events.*
 	import org.ffilmation.utils.*
@@ -31,9 +33,8 @@
 		public var engine:fEngine	
 		public var scene:fScene
 		public var hero:fEngineElementController
+		public var camera:fCamera
 		public var controllerType = game.MOUSE
-		public var allScenes:Object
-		public var cameras:Object
 		public var path:String
 		public var destination:XML
 		public var money:Number = 0
@@ -52,8 +53,6 @@
 				this.timeline = this
 				this.container = new Sprite()
 				filmationTest.addChild(this.container)
-				this.allScenes = new Object
-				this.cameras = new Object
 
 			  // Force controller classes to be included in the compiled SWF. I know there must be a nicer way to achieve this...
 			  var c1:org.ffilmation.demos.mynameisponcho.controllers.forest
@@ -95,26 +94,17 @@
 		public function loadTransitionDone():void {
 
 				// Scene already loaded or not ?
-				if(this.allScenes[this.path]) {
-					this.scene = this.allScenes[this.path]
-					if(controllerType == game.MOUSE) this.hero = new ponchoMouseController()
-					else this.hero = new ponchoKeyboardController()
-					this.timeline.gotoAndPlay("Play")
-					this.showScene()
-				} else {
-					this.timeline.stage.quality = "high"
-					this.allScenes[this.path] = this.scene = this.engine.createScene(new fSceneLoader(path),1000,650,null,this.prof)
-					this.scene.addEventListener(fScene.LOADPROGRESS, this.loadProgressHandler)
-					this.scene.addEventListener(fScene.LOADCOMPLETE, this.loadCompleteHandler)
-				}
+				this.timeline.stage.quality = "high"
+				this.scene = this.engine.createScene(new fSceneLoader(path),1000,650,null,this.prof)
+				this.scene.addEventListener(fScene.LOADPROGRESS, this.loadProgressHandler,false,0,true)
+				this.scene.addEventListener(fScene.LOADCOMPLETE, this.loadCompleteHandler,false,0,true)
 			
 		}
 	
 		// This allows me to animate transitions in the timeline. Call me oldschool, but I like the timeline
 		public function playTransitionDone():void {
-					// Activate
-					this.activateScene()
-					
+				// Activate
+				this.activateScene()
 		}
 
 
@@ -124,11 +114,13 @@
 	
 		public function loadCompleteHandler(evt:fProcessEvent):void {
 
+				this.scene.removeEventListener(fScene.LOADPROGRESS, this.loadProgressHandler)
+				this.scene.removeEventListener(fScene.LOADCOMPLETE, this.loadCompleteHandler)
 				this.timeline.stage.quality = "low"
 
 				// Create camera
-				this.cameras[this.path] = this.scene.createCamera()
-				this.scene.setCamera(this.cameras[this.path])
+				this.camera = this.scene.createCamera()
+				this.scene.setCamera(this.camera)
 
 				// Create controller
 				if(controllerType == game.MOUSE) this.hero = new ponchoMouseController()
@@ -136,8 +128,8 @@
 				if(this.scene.all["Poncho"]) var poncho:fCharacter =  this.scene.all["Poncho"]
 			  else poncho = this.scene.createCharacter("Poncho","FFCharacters_poncho",200,200,0)
 			  poncho.occlusion = 60
-				poncho.addEventListener(fCharacter.EVENT_IN, this.INlistener)
-				poncho.addEventListener(fCharacter.WALKOVER, this.walkOverListener)
+				poncho.addEventListener(fCharacter.EVENT_IN, this.INlistener,false,0,true)
+				poncho.addEventListener(fCharacter.WALKOVER, this.walkOverListener,false,0,true)
 				
 				// Scene must be shown before its graphic assets can be accessed
 				this.showScene()
@@ -154,14 +146,16 @@
 				this.scene.all["Poncho"].moveTo(new Number(destination.enterx),new Number(destination.entery),new Number(destination.enterz))
 				this.scene.all["Poncho"].orientation = new Number(destination.enterOrientation)
 			}
-			
  
  			// Place camera on hero
-			this.cameras[this.path].moveTo(this.scene.all["Poncho"].x,this.scene.all["Poncho"].y,this.scene.all["Poncho"].top-30)
+			this.camera.moveTo(this.scene.all["Poncho"].x,this.scene.all["Poncho"].y,this.scene.all["Poncho"].top-30)
     	this.timeline.cRollover.visible = false
 
 			// This creates the graphics
+			var mem:String = Number( System.totalMemory / 1024 / 1024 ).toFixed( 2 ) + 'Mb'
+			if(this.engine.current) this.engine.destroyScene(this.engine.current)
 			this.engine.showScene(this.scene)
+			mem = Number( System.totalMemory / 1024 / 1024 ).toFixed( 2 ) + 'Mb'
 			
 			// Doors will be open when clicked
 			for(var p:Number=0;p<this.scene.walls.length;p++) {
@@ -170,9 +164,9 @@
 				for(var h:Number=0;h<w.holes.length;h++) {
 					var hole:fHole = w.holes[h]
 					if(hole.block) {
-						hole.block.addEventListener(MouseEvent.ROLL_OVER,this.rolloverDoor)
-						hole.block.addEventListener(MouseEvent.ROLL_OUT,this.rolloutDoor)
-						hole.block.addEventListener(MouseEvent.CLICK,this.clickDoor)
+						hole.block.addEventListener(MouseEvent.ROLL_OVER,this.rolloverDoor,false,0,true)
+						hole.block.addEventListener(MouseEvent.ROLL_OUT,this.rolloutDoor,false,0,true)
+						hole.block.addEventListener(MouseEvent.CLICK,this.clickDoor,false,0,true)
 						hole.block.buttonMode = true
 						hole.block.ref = hole
 					}
@@ -185,13 +179,13 @@
 				var obj:fObject = this.scene.objects[i]
 				if(obj.definitionID=="MNIP_MoneyBag") {
 					obj.enableMouseEvents()
-					obj.container.addEventListener(MouseEvent.ROLL_OVER,this.rolloverBag)
-					obj.container.addEventListener(MouseEvent.ROLL_OUT,this.rolloutAny)
+					obj.container.addEventListener(MouseEvent.ROLL_OVER,this.rolloverBag,false,0,true)
+					obj.container.addEventListener(MouseEvent.ROLL_OUT,this.rolloutAny,false,0,true)
 				}
 				if(obj.definitionID=="MNIP_Info") {
 					obj.enableMouseEvents()
-					obj.container.addEventListener(MouseEvent.ROLL_OVER,this.rolloverInfo)
-					obj.container.addEventListener(MouseEvent.ROLL_OUT,this.rolloutAny)
+					obj.container.addEventListener(MouseEvent.ROLL_OVER,this.rolloverInfo,false,0,true)
+					obj.container.addEventListener(MouseEvent.ROLL_OUT,this.rolloutAny,false,0,true)
 				}
 			}
 			
@@ -206,8 +200,7 @@
 			
 			// Start control loop		
 			this.timeline.addEventListener('enterFrame', this.control)
-			
-			this.cameras[this.path].follow(this.scene.all["Poncho"],5)
+			this.camera.follow(this.scene.all["Poncho"],5)
 
 		}	
 

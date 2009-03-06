@@ -393,11 +393,11 @@ package org.ffilmation.engine.core.sceneLogic {
 			
 			// Frees resources
 			public function dispose():void {			
-				for(var i:int=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
+				if(this.depthSortArr) for(var i:int=0;i<this.depthSortArr.length;i++) delete this.depthSortArr[i]
 				this.depthSortArr = null
-				for(i=0;i<this.elementsV.length;i++) delete this.elementsV[i]
+				if(this.elementsV) for(i=0;i<this.elementsV.length;i++) delete this.elementsV[i]
 				this.elementsV = null
-				for(i=0;i<this.charactersV.length;i++) delete this.charactersV[i]
+				if(this.charactersV) for(i=0;i<this.charactersV.length;i++) delete this.charactersV[i]
 				this.charactersV = null
 				this.cell = null
 			}

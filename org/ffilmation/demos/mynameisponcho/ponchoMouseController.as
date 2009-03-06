@@ -52,9 +52,9 @@ package org.ffilmation.demos.mynameisponcho {
 
 		// Implements interface
 		public function enable():void {
-			this.character.scene.container.addEventListener(MouseEvent.CLICK, this.clic)
-			fEngine.stage.addEventListener('enterFrame', this.control)
-			this.character.addEventListener(fCharacter.COLLIDE, this.collision)
+			this.character.scene.container.addEventListener(MouseEvent.CLICK, this.clic,false,0,true)
+			fEngine.stage.addEventListener('enterFrame', this.control,false,0,true)
+			this.character.addEventListener(fCharacter.COLLIDE, this.collision,false,0,true)
 			this.walking = false
 
 		}

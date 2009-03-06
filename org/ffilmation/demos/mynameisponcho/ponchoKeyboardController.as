@@ -73,11 +73,11 @@ package org.ffilmation.demos.mynameisponcho {
 		// Implements interface
 		public function enable():void {
 			this.keysDown = new Object()
-			fEngine.stage.addEventListener(KeyboardEvent.KEY_DOWN, this.keyPressed)
-			fEngine.stage.addEventListener(KeyboardEvent.KEY_UP, this.keyReleased)
-			fEngine.stage.addEventListener('enterFrame', this.control)
-			this.character.addEventListener(fCharacter.COLLIDE, this.collision)
-			this.character.scene.container.addEventListener(MouseEvent.MOUSE_DOWN, this.clic)
+			fEngine.stage.addEventListener(KeyboardEvent.KEY_DOWN, this.keyPressed,false,0,true)
+			fEngine.stage.addEventListener(KeyboardEvent.KEY_UP, this.keyReleased,false,0,true)
+			fEngine.stage.addEventListener('enterFrame', this.control,false,0,true)
+			this.character.addEventListener(fCharacter.COLLIDE, this.collision,false,0,true)
+			this.character.scene.container.addEventListener(MouseEvent.MOUSE_DOWN, this.clic,false,0,true)
 		}
 
 		// Implements interface
@@ -126,7 +126,7 @@ package org.ffilmation.demos.mynameisponcho {
 																														 ponchoKeyboardController.bulletSpeed*dx,ponchoKeyboardController.bulletSpeed*dy,ponchoKeyboardController.bulletSpeed*dz,
 																														 this.bulletRenderer)		
 																														 
-						b.addEventListener(fBullet.SHOT,this.shotListener)																								 
+						b.addEventListener(fBullet.SHOT,this.shotListener,false,0,true)																								 
 						
 						// Shoot animation
 						this.shoot()						

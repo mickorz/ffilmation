@@ -8,6 +8,7 @@ package org.ffilmation.engine.core {
 		import flash.display.*
 		import flash.geom.Rectangle
 
+		import org.ffilmation.utils.*
 		import org.ffilmation.profiler.*
 		import org.ffilmation.engine.interfaces.*
 		
@@ -146,7 +147,9 @@ package org.ffilmation.engine.core {
 			 // Private
 		   public var container:Sprite    		// Main moviecontainer
 		   private var scenes:Array           // List of scenes
-		   private var current: fScene				// fScene currently displayed
+		   
+		   /** Scene being currently displayed */
+		   public var current: fScene				
 		   
 		   /** @private */
 		   public static var context:LoaderContext = new LoaderContext(false,ApplicationDomain.currentDomain)
@@ -323,6 +326,7 @@ package org.ffilmation.engine.core {
 			 		this.hideScene(sc)
 			 		sc.dispose()
 			 		this.scenes.splice(this.scenes.indexOf(sc),1)
+ 					objectPool.flush()
 			 }
 
 			 /**
@@ -353,6 +357,8 @@ package org.ffilmation.engine.core {
 		   * Hiding an scene does not disable it.<br>
 		   * If you hide an scene all the Sprites and graphic resources are destroyed, and so are Mouse Events attached to them. You will need
 		   * to reset the events if the scene is shown again.
+		   *
+		   * <p><b>IMPORTANT!</b>: Hidden scenes still consume memory. If you want to free all resources allocated by scenes that will no longer be used, use the fEngine.destroy() method.</p>
 		   *
 		   * @param sc The fScene you want to hide
 		   * @param destroyRender Pass false if you don't want the rendering to be destroyed when you hide the scene. By doing this, the graphics are already available when the scene is shown again

@@ -3,7 +3,9 @@ package org.ffilmation.utils {
 		// Imports
 		import flash.display.*
 		import flash.utils.*
+		import flash.net.*
 		import flash.geom.*
+		import flash.system.*
 		
 		/** 
 		* <p>Object pooling is the process of storing objects in a pool when they are not in use so as to avoid the
@@ -124,8 +126,27 @@ package org.ffilmation.utils {
 				else {
 					for(var i in objectPool.classInstances) objectPool.classInstances[i] = null
 				}
+				
+				objectPool.garbageCollect()
 
 			}
+
+			/**
+			* Explicitly invokes the garbage collector
+			* @private
+			*/
+			public static function garbageCollect():void {
+				try	{
+    	    var hlcp:LocalConnection = new LocalConnection()
+    	    var hlcs:LocalConnection = new LocalConnection()
+    	    hlcp.connect('name')
+    	    hlcs.connect('name')
+    	  }	catch (e:Error)	{
+					System.gc()
+					System.gc()
+				}
+			}
+
 			
 		}
 
