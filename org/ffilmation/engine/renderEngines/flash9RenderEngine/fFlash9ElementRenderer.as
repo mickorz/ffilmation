@@ -65,8 +65,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			   // Place in position
 			   var coords:Point = fScene.translateCoords(this.element.x,this.element.y,this.element.z)
-			   this.container.x = coords.x
-			   this.container.y = coords.y
+			   this.container.x = Math.floor(coords.x)
+			   this.container.y = Math.floor(coords.y)
 			   
 			}
 

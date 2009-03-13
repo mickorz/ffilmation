@@ -86,7 +86,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		for(var k:int=0;k<contours.length;k++) {
 				 			var c:Array = contours[k]
 				 			var projectedShape:Array = new Array
-				 			for(var k2:int=0;k2<c.length;k2++) 	projectedShape[k2] = fScene.translateCoords(c[k2].x,c[k2].y,0)
+				 			for(var k2:int=0;k2<c.length;k2++) 	projectedShape[k2] = fScene.translateCoords(-0.5+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.5+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2,0)
 				 			this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 		}
 				 		
@@ -97,14 +97,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 			for(k=0;k<contours.length;k++) {
 				 				c = contours[k]
 				 				projectedShape = new Array
-				 				for(k2=0;k2<c.length;k2++) projectedShape[k2] = fScene.translateCoords(0,c[k2].x,c[k2].y)
+				 				for(k2=0;k2<c.length;k2++) projectedShape[k2] = fScene.translateCoords(0,-0.5+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.5+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
 				 				this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 			}
 				 	  } else {
 				 			for(k=0;k<contours.length;k++) {
 				 				c = contours[k]
 				 				projectedShape = new Array
-				 				for(k2=0;k2<c.length;k2++) projectedShape[k2] = fScene.translateCoords(c[k2].x,0,c[k2].y)
+				 				for(k2=0;k2<c.length;k2++) projectedShape[k2] = fScene.translateCoords(-0.5+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,0,-0.5+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
 				 				this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 			}
 				 	  }
@@ -116,7 +116,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
  			   	 this.diffuseData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
 				 	 var oMatrix:Matrix = this.planeDeform.clone()
 				 	 oMatrix.translate(0,-Math.round(element.bounds2d.y))
-				 	 this.diffuseData.draw(d,oMatrix)
+				 	 this.diffuseData.draw(d,oMatrix,null,null,null,true)
  			   	 this.diffuse = new Bitmap(this.diffuseData,"never",true)
  			   	 this.diffuse.y = Math.round(element.bounds2d.y)
  			   	 spriteToShowHide.visible = true
@@ -238,7 +238,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Draw
 				 var oMatrix:Matrix = new Matrix()
 				 oMatrix.translate(0,-this.diffuse.y)
-				 this.finalBitmapData.draw(this.baseContainer, oMatrix )
+				 this.finalBitmapData.draw(this.baseContainer, oMatrix,null,null,null,true )
 				 
 				 // Display
 				 this.finalBitmap.bitmapData = this.finalBitmapData

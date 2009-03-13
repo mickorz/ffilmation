@@ -15,8 +15,10 @@ Fixed lots of bugs related to showing/hiding and removing characters
 Optimized the Fence material ( does anyone but me use it ? )
 You can soften shadows using the fEngine.softShadows property
 More robust projection and lighting system, also a first step towards having irregular wall shapes.
-Bumpmap performance has been dramatically improved. Still not for the average machine out there, but getting there.
+Bumpmap performance has been dramatically improved. Still not for the average machine, but getting there.
 Added an "invisible" material that can be used to have invisible planes that are still solid in terms of collision and bullet impacts. Simply use src="invisible" in you plane definition.
+Added the fEngine.RENDER_FINETUNE_1 and fEngine.RENDER_FINETUNE_2 constants. Use these constants to fine Tune projections until you see no seams between textures. Unfortunately as these seams are a result of pixel-rounding imperfections of the flash render engine, it will depend on your's scene's plane sizes and can't be solved generically. So it will be a matter of tryind different values until it looks good for you.
+
 
 1.3.2:
 

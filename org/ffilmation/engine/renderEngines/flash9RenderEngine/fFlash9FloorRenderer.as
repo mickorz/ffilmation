@@ -41,7 +41,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   this.scrollR = new Rectangle(0, 0, element.width, element.depth)
 				 this.planeDeform = new Matrix() //fFlash9FloorRenderer.matrix
 				 this.planeDeform.rotate(-45*Math.PI/180)
-				 this.planeDeform.scale(1,0.5)
+				 this.planeDeform.scale(1.0015,0.501)
 				 
 			   // Previous
 				 super(rEngine,element,element.width,element.depth,destination,container)

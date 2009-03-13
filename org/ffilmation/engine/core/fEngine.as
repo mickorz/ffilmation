@@ -74,6 +74,23 @@ package org.ffilmation.engine.core {
 			 */
 			 public static const DEFORMATION:Number = 0.7906
 		   
+			 /**
+		   * Use these constants to fine Tune projections until you see no seams between textures. Unfortunately as these seams are a result
+		   * of pixel-rounding imperfections of the flash render engine, it will depend on your's scene's plane sizes and can't be solved generically.
+		   * So it will be a matter of tryind different values until it looks good for you.
+		   * <p>Set as 1 for settings</p>
+			 */
+			 public static const RENDER_FINETUNE_1:Number = 1.0025
+
+			 /**
+		   * Use these constants to fine Tune projections until you see no seams between textures. Unfortunately as these seams are a result
+		   * of pixel-rounding imperfections of the flash render engine, it will depend on your's scene's plane sizes and can't be solved generically.
+		   * So it will be a matter of tryind different values until it looks good for you
+		   * <p>Set as 0 for settings</p>
+			 */
+			 public static const RENDER_FINETUNE_2:Number = 0.0001
+
+
 		   /** @private */
 		   public static var stage:Stage
 
