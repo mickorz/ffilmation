@@ -86,6 +86,7 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 		  public var grid:Array                 						  // The grid
+		  public var allUsedCells:Array                 			
 			/** @private */
 			public var sortAreas:Array													// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
 																													// It is used to find the proper zIndex for a cell
@@ -294,7 +295,7 @@ package org.ffilmation.engine.core {
 				if(this.controller) this.controller.enable()
 				
 				// Enable controllers for all elements in the scene
-				for(var i:Number=0;i<this.everything.length;i++) if(this.everything[i].controller!=null) this.everything[i].controller.enable()
+				for(var i:int=0;i<this.everything.length;i++) if(this.everything[i].controller!=null) this.everything[i].controller.enable()
 				for(i=0;i<this.bullets.length;i++) this.bullets[i].enable()
 				
 			}
@@ -314,7 +315,7 @@ package org.ffilmation.engine.core {
 				if(this.controller) this.controller.disable()
 				
 				// Disable  controllers for all elements in the scene
-				for(var i:Number=0;i<this.everything.length;i++) if(this.everything[i].controller!=null) this.everything[i].controller.disable()
+				for(var i:int=0;i<this.everything.length;i++) if(this.everything[i].controller!=null) this.everything[i].controller.disable()
 				for(i=0;i<this.bullets.length;i++) this.bullets[i].disable()
 				
 			}
@@ -707,7 +708,8 @@ package org.ffilmation.engine.core {
 			   this.environmentLight.render()
 
 			   // Render dynamic lights
-			   for(var i:Number=0;i<this.lights.length;i++) this.lights[i].render()
+			   var ll:int = this.lights.length
+			   for(var i:int=0;i<ll;i++) this.lights[i].render()
 
 			}
 			
@@ -728,11 +730,16 @@ package org.ffilmation.engine.core {
 			   this.renderManager.initialize()
 
 			   // Init render for all elements
-			   for(var j:int=0;j<this.floors.length;j++) this.addElementToRenderEngine(this.floors[j])
-			   for(j=0;j<this.walls.length;j++) this.addElementToRenderEngine(this.walls[j])
-			   for(j=0;j<this.objects.length;j++) this.addElementToRenderEngine(this.objects[j])
-			   for(j=0;j<this.characters.length;j++) this.addElementToRenderEngine(this.characters[j])
-			   for(j=0;j<this.bullets.length;j++) {
+			   var jl:int = this.floors.length
+			   for(var j:int=0;j<jl;j++) this.addElementToRenderEngine(this.floors[j])
+			   jl = this.walls.length
+			   for(j=0;j<jl;j++) this.addElementToRenderEngine(this.walls[j])
+			   jl = this.objects.length
+			   for(j=0;j<jl;j++) this.addElementToRenderEngine(this.objects[j])
+			   jl = this.characters.length
+			   for(j=0;j<jl;j++) this.addElementToRenderEngine(this.characters[j])
+			   jl = this.bullets.length
+			   for(j=0;j<jl;j++) {
 			   	this.addElementToRenderEngine(this.bullets[j])
 			   	this.bullets[j].customData.bulletRenderer.init()
 			   }
@@ -823,24 +830,30 @@ package org.ffilmation.engine.core {
 			public function stopRendering():void {
 		   	 
 			   // Stop render for all elements
-			   for(var j:int=0;j<this.floors.length;j++) this.removeElementFromRenderEngine(this.floors[j])
-			   for(j=0;j<this.walls.length;j++) this.removeElementFromRenderEngine(this.walls[j])
-			   for(j=0;j<this.objects.length;j++) this.removeElementFromRenderEngine(this.objects[j])
-			   for(j=0;j<this.characters.length;j++) this.removeElementFromRenderEngine(this.characters[j])
-			   for(j=0;j<this.bullets.length;j++) {
+			   var jl:int = jl
+			   for(var j:int=0;j<jl;j++) this.removeElementFromRenderEngine(this.floors[j])
+			   jl = this.walls.length
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.walls[j])
+			   jl = this.objects.length
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.objects[j])
+			   jl = this.characters.length
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.characters[j])
+			   jl = this.bullets.length
+			   for(j=0;j<jl;j++) {
 			   	this.bullets[j].customData.bulletRenderer.clear()
 			   	this.removeElementFromRenderEngine(this.bullets[j])
 			   }
 			   
 		  	 // Free bullet pool as the assets are no longer valid
-		  	 for(j=0;j<this.bulletPool.length;j++) {
+		  	 jl = this.bulletPool.length
+		  	 for(j=0;j<jl;j++) {
 		  	 	 this.bulletPool[j].dispose()
 		  	 	 delete this.bulletPool[j]
 		  	 }
 			   this.bulletPool = new Array
 
 			   // Stop render engine
-			   this.renderEngine.dispose()
+				 this.renderEngine.dispose()
 			   
 			   // Stop render manager
 			   this.renderManager.dispose()
@@ -910,8 +923,10 @@ package org.ffilmation.engine.core {
 			/** @private */
 		  public function resetShadows():void {
 		  	this.renderEngine.resetShadows()
-		  	for(i=0;i<this.characters.length;i++) fCharacterSceneLogic.processNewCellCharacter(this,this.characters[i],true)
-		  	for(var i:Number=0;i<this.lights.length;i++) fLightSceneLogic.processNewCellOmniLight(this,this.lights[i],true)
+		  	var cl:int = this.characters.length 
+		  	for(i=0;i<cl;i++) fCharacterSceneLogic.processNewCellCharacter(this,this.characters[i],true)
+		  	cl = this.lights.length
+		  	for(var i:int=0;i<cl;i++) fLightSceneLogic.processNewCellOmniLight(this,this.lights[i],true)
 		  }
 			
 			// INTERNAL METHODS RELATED TO CAMERA MANAGEMENT
@@ -960,21 +975,11 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function resetGrid():void {
 
-				for(var i:int=0;i<this.gridWidth;i++) {  
-					for(var j:int=0;j<=this.gridDepth;j++) {  
-		      	 for(var k:int=0;k<=this.gridHeight;k++) {  
-			
-			         try {
-			         		this.grid[i][j][k].characterShadowCache = new Array
-			         		delete this.grid[i][j][k].visibleObjs
-			         } catch (e:Error) {
-			         	
-			         }
-			   
-			       }
-		
-			    } 
-			  }
+				var l:int = this.allUsedCells.length
+				for(var i:int=0;i<l;i++) {
+					this.allUsedCells[i].characterShadowCache = new Array
+					delete this.allUsedCells[i].visibleObjs
+				}
 				
 			}
 
@@ -1040,6 +1045,8 @@ package org.ffilmation.engine.core {
 			    cell.y = (this.gridSize>>1)+(this.gridSize*j)
 			    cell.z = (this.levelSize>>1)+(this.levelSize*k)
 					arr[k] = cell
+					
+					this.allUsedCells[this.allUsedCells.length] = cell
 
 				}
 				
@@ -1125,35 +1132,40 @@ package org.ffilmation.engine.core {
 				this.container = null
 
 				// Free elements
-		  	for(i=0;i<this.floors.length;i++) {
+				var il:int = this.floors.length 
+		  	for(i=0;i<il;i++) {
 		  		this.floors[i].dispose()
 		  		delete this.floors[i]
 		  	}
-		  	for(i=0;i<this.walls.length;i++) {
+		  	il = this.walls.length
+		  	for(i=0;i<il;i++) {
 		  		this.walls[i].dispose()
 		  		delete this.walls[i]
 		  	}
-		  	for(i=0;i<this.objects.length;i++) {
+		  	il = this.objects.length
+		  	for(i=0;i<il;i++) {
 		  		this.objects[i].dispose()
 		  		delete this.objects[i]
 		  	}
-		  	for(i=0;i<this.characters.length;i++) {
+		  	il = this.characters.length
+		  	for(i=0;i<il;i++) {
 		  		this.characters[i].dispose()
 		  		delete this.characters[i]
 		  	}
-		  	for(i=0;i<this.lights.length;i++) {
+		  	il = this.lights.length
+		  	for(i=0;i<il;i++) {
 		  		this.lights[i].dispose()
 		  		delete this.lights[i]
 		  	}
-		  	for(i=0;i<this.bullets.length;i++) {
+		  	il = this.bullets.length
+		  	for(i=0;i<il;i++) {
 		  		this.bullets[i].dispose()
 		  		delete this.bullets[i]
 		  	}
 				for(var n in this.all) delete this.all[n]
-				
+
 				// Free grid
 				this.freeGrid()
-				this.grid = null
 				
 			}
 
@@ -1161,18 +1173,12 @@ package org.ffilmation.engine.core {
 			* This method frees memory used by the grid in this scene
 			*/
 			private function freeGrid():void {
-				for(var i:int=0;i<this.gridWidth;i++) {  
-					for(var j:int=0;j<this.gridDepth;j++) {  
-		      	 for(var k:int=0;k<this.gridHeight;k++) {  
-			         try {
-			         		this.grid[i][j][k].dispose()
-			         		delete this.grid[i][j][k]
-			         } catch (e:Error) {
-			         	
-			         }
-			       }
-			    } 
-			  }
+				
+				var l:int = this.allUsedCells.length
+				for(var i:int=0;i<l;i++) this.allUsedCells[i].dispose()
+				this.grid = null
+				this.allUsedCells = null
+			  
 			}
 
 

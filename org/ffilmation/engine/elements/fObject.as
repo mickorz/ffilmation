@@ -180,7 +180,7 @@ package org.ffilmation.engine.elements {
 				 var tempSprite:MovieClip = objectPool.getInstanceOf(clase) as MovieClip
 				 var w:Number = tempSprite.width
 				 var h:Number = tempSprite.height
-			   var bounds:Rectangle = new Rectangle(-w/2,-h,w,h)
+			   this.bounds2d = new Rectangle(-w/2,-h,w,h)
 				 objectPool.returnInstance(tempSprite)
 				
 			 	 // Initial orientation

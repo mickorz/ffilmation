@@ -212,9 +212,11 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function disposeLight():void {
 
-				for(var i:Number=0;i<this.elementsV.length;i++) this.elementsV[i] = null
+				var l:int = this.elementsV.length
+				for(var i:Number=0;i<l;i++) this.elementsV[i] = null
 				this.elementsV = null
-				for(i=0;i<this.vCharacters.length;i++) this.vCharacters[i] = null
+				l = this.vCharacters.length
+				for(i=0;i<l;i++) this.vCharacters[i] = null
 				this.vCharacters = null
 				this.lightColor = null
 				this.color = null

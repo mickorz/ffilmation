@@ -80,7 +80,7 @@ package org.ffilmation.engine.core {
 		   * So it will be a matter of tryind different values until it looks good for you.
 		   * <p>Set as 1 for settings</p>
 			 */
-			 public static const RENDER_FINETUNE_1:Number = 1.0025
+			 public static const RENDER_FINETUNE_1:Number = 1.00025
 
 			 /**
 		   * Use these constants to fine Tune projections until you see no seams between textures. Unfortunately as these seams are a result
@@ -340,10 +340,12 @@ package org.ffilmation.engine.core {
 		   * @param sc The fScene you want to destroy
 			 */
 			 public function destroyScene(sc:fScene):void {
+			 	  var e:Number = getTimer()
 			 		this.hideScene(sc)
 			 		sc.dispose()
 			 		this.scenes.splice(this.scenes.indexOf(sc),1)
  					objectPool.flush()
+ 					trace("Destroy took "+(getTimer()-e)/1000+" seconds")
 			 }
 
 			 /**
@@ -354,6 +356,7 @@ package org.ffilmation.engine.core {
 		   * @param sc The fScene you want to activate
 		   */
 			 public function showScene(sc:fScene):void {
+			 	 var e:Number = getTimer()
 			 	
 			 	  if(this.current==sc) return
 			 	  
@@ -366,6 +369,8 @@ package org.ffilmation.engine.core {
 		 	  	this.current.startRendering()
 		 	  	this.current.enable()
 			 	  this.container.addChild(sc.container)
+
+ 					trace("Show took "+(getTimer()-e)/1000+" seconds")
 
 			 }
 
@@ -382,11 +387,13 @@ package org.ffilmation.engine.core {
 		   */
 			 public function hideScene(sc:fScene,destroyRender:Boolean=true):void {
 			 	
+			 	  var e:Number = getTimer()
 			 	  if(this.current==sc) {
 			 	  	if(destroyRender) this.current.stopRendering()
 			 	  	this.container.removeChild(this.current.container)
 			 	    this.current = null
 			 	  }
+			 	  trace("Hide took "+(getTimer()-e)/1000+" seconds")
 
 			 }
 			 

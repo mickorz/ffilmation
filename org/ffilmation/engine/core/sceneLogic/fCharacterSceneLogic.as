@@ -31,9 +31,9 @@ package org.ffilmation.engine.core.sceneLogic {
 				 var cache:fCharacterShadowCache, oldCache:fCharacterShadowCache, elementsV:Array, el:fPlane
 				 var s:Number, len:int,i:int,i2:int
 
-		 		 
 			   // Count lights close enough
-			   for(i2=0;i2<scene.lights.length;i2++) {
+			   var ll:int = scene.lights.length
+			   for(i2=0;i2<ll;i2++) {
 			   	
 			   		light = scene.lights[i2]
 			   		
@@ -151,19 +151,22 @@ package org.ffilmation.engine.core.sceneLogic {
 				 var newOccluding:Array = new Array
 				 try {
 				 	var newOccluding2:Array = character.cell.elementsInFront
-				  for(var n:Number=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding[newOccluding.length] = newOccluding2[n]
+				 	var nol:int = newOccluding2.length
+				  for(var n:int=0;n<nol;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding[newOccluding.length] = newOccluding2[n]
 				 	newOccluding2 = scene.translateToCell(character.x,character.y,character.top).elementsInFront
-				  for(n=0;n<newOccluding2.length;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding[newOccluding.length] = newOccluding2[n]
+				 	nol = newOccluding2.length
+				  for(n=0;n<nol;n++) if(newOccluding.indexOf(newOccluding2[n])<0) newOccluding[newOccluding.length] = newOccluding2[n]
 				 } catch(e:Error){}
 				 
-				 for(i=0;i<oldOccluding.length;i++) {
+				 var ool:int = oldOccluding.length
+				 for(i=0;i<ool;i++) {
 				 		// Disable occlusions no longer needed
 				 		if(newOccluding.indexOf(oldOccluding[i])<0) scene.renderEngine.stopOcclusion(oldOccluding[i],character)
 				 }
 				 
 				 if(character.occlusion>=100) return
-				 
- 				 for(i=0;i<newOccluding.length;i++) {
+				 nol = newOccluding.length
+ 				 for(i=0;i<nol;i++) {
 						// Enable new occlusions				 	
 				 		if(oldOccluding.indexOf(newOccluding[i])<0) scene.renderEngine.startOcclusion(newOccluding[i],character)
 				 }
@@ -227,7 +230,8 @@ package org.ffilmation.engine.core.sceneLogic {
 				 if(character.currentOccluding.length>0) {
 				 	
 				 	 if(scene.prof) scene.prof.begin("Occlusion")
- 				 	 for(i=0;i<character.currentOccluding.length;i++) scene.renderEngine.updateOcclusion(character.currentOccluding[i],character)
+				 	 var ocl:int = character.currentOccluding.length 
+ 				 	 for(i=0;i<ocl;i++) scene.renderEngine.updateOcclusion(character.currentOccluding[i],character)
 				 	 if(scene.prof) scene.prof.end("Occlusion")
 				 	 
 				 }

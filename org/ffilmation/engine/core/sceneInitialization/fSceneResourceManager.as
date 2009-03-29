@@ -37,7 +37,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 base = base.substr(0,base.lastIndexOf("/"))
 				 var p1:Array = base.split("/")
 				 var p2:Array = path.split("/")
-				 for(var i:Number=0;i<p2.length;i++) {
+				 for(var i:int=0;i<p2.length;i++) {
 				 		if(p2[i]==".") {}
 				 		else if(p2[i]=="..") {
 				 			if(p1.length>0) p1.pop()

@@ -351,14 +351,16 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 // Contours
 				 var contours:Array = poly.contours
-				 for(var k:int=0;k<contours.length;k++) {
+				 var cl:int = contours.length
+				 for(var k:int=0;k<cl;k++) {
 				 	
 				 		// Clip against this wall
 				 		var cont:Array = polygonUtils.clipPolygon(contours[k],this.vp)
 				 		var rcont:Array = new Array
 
 				 		// Project to 2d renderer coordinates
-				 		for(var i:int=0;i<cont.length;i++) {
+				 		var cntl:int = cont.length
+				 		for(var i:int=0;i<cntl;i++) {
 				 			 var c:Point = cont[i]
 				 			 rcont[rcont.length] = fScene.translateCoords(0,c.x-this.element.y0,c.y-this.element.z)
 				 		}
@@ -368,7 +370,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 // Holes
 				 var holes:Array = poly.holes
-				 for(k=0;k<holes.length;k++) {
+				 var hl:int = holes.length 
+				 for(k=0;k<hl;k++) {
 				 	
 				 		if(origin.holes[k].open) {
 
@@ -377,7 +380,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					 		rcont = new Array
 
 					 		// Project to 2d renderer coordinates
-					 		for(i=0;i<cont.length;i++) {
+					 		cntl = cont.length
+					 		for(i=0;i<cntl;i++) {
 				 				 c = cont[i]
 				 				 rcont[rcont.length] = fScene.translateCoords(0,c.x-this.element.y0,c.y-this.element.z)
 				 			}
@@ -401,14 +405,16 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 // Contours
 				 var contours:Array = poly.contours
-				 for(var k:int=0;k<contours.length;k++) {
+				 var cl:int = contours.length
+				 for(var k:int=0;k<cl;k++) {
 				 	
 				 		// Clip against this wall
 				 		var cont:Array = polygonUtils.clipPolygon(contours[k],this.vp)
 				 		var rcont:Array = new Array
 
 				 		// Project to 2d renderer coordinates
-				 		for(var i:int=0;i<cont.length;i++) {
+				 		var cntl:int = cont.length
+				 		for(var i:int=0;i<cntl;i++) {
 				 			 var c:Point = cont[i]
 				 			 rcont[rcont.length] = fScene.translateCoords(c.x-this.element.x0,0,c.y-this.element.z)
 				 		}
@@ -418,7 +424,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 				 // Holes
 				 var holes:Array = poly.holes
-				 for(k=0;k<holes.length;k++) {
+				 var hl:int = holes.length 
+				 for(k=0;k<hl;k++) {
 				 	
 				 		if(origin.holes[k].open) {
 
@@ -427,7 +434,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					 		rcont = new Array
 
 					 		// Project to 2d renderer coordinates
-					 		for(i=0;i<cont.length;i++) {
+					 		cntl = cont.length
+					 		for(i=0;i<cntl;i++) {
 				 				 c = cont[i]
 				 				 rcont[rcont.length] = fScene.translateCoords(c.x-this.element.x0,0,c.y-this.element.z)
 				 			}

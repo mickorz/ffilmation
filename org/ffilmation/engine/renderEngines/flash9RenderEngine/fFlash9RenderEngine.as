@@ -272,7 +272,8 @@
 					var ret:Array = new Array
 					var found:Array = new Array
 					
-					for(var i:Number=0;i<objects.length;i++) {
+					var ol:int = objects.length
+					for(var i:int=0;i<ol;i++) {
 						
 							var obj:DisplayObject = objects[i]
 							

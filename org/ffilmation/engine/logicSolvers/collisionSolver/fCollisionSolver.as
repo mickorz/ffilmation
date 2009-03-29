@@ -382,7 +382,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				if(!floor.shapePolygon.isPointInside(x-floor.x,y-floor.y)) return false
 				
 				// Loop through holes and see if point is inside one
-				for(var h:int=0;h<floor.holes.length;h++) {
+				var hl:int = floor.holes.length
+				for(var h:int=0;h<hl;h++) {
 				
 					 	if(floor.holes[h].open) {
 						 	var hole:fPlaneBounds = floor.holes[h].bounds
@@ -410,7 +411,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(!wall.shapePolygon.isPointInside(y-wall.y0,z-wall.z)) return false
 
 					// Loop through holes and see if point is inside one	
-					for(var h:int=0;h<wall.holes.length;h++) {
+					var wl:int = wall.holes.length
+					for(var h:int=0;h<wl;h++) {
 					
 						 	if(wall.holes[h].open) {
 							 	var hole:fPlaneBounds = wall.holes[h].bounds
@@ -425,7 +427,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 					if(!wall.shapePolygon.isPointInside(x-wall.x0,z-wall.z)) return false
 
 					// Loop through holes and see if point is inside one
-					for(h=0;h<wall.holes.length;h++) {
+					wl = wall.holes.length
+					for(h=0;h<wl;h++) {
 					
 						 	if(wall.holes[h].open) {
 							 	hole = wall.holes[h].bounds
@@ -526,7 +529,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 				y = obj.y
 
 				// Loop through holes and see if point is inside one
-				for(var h:int=0;h<floor.holes.length;h++) {
+				var fl:int = floor.holes.length
+				for(var h:int=0;h<fl;h++) {
 				
 					 	if(floor.holes[h].open) {
 						 	var hole:fPlaneBounds = floor.holes[h].bounds
@@ -567,7 +571,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 					// Loop through holes and see if bottom point is inside one
 					any = false
-					for(var h:int=0;!any && h<wall.holes.length;h++) {
+					var wl:int = wall.holes.length
+					for(var h:int=0;!any && h<wl;h++) {
 					
 						 	if(wall.holes[h].open) {
 						 		var hole:fPlaneBounds = wall.holes[h].bounds
@@ -609,7 +614,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 					// Loop through holes and see if bottom point is inside one
 					any = false
-					for(h=0;!any && h<wall.holes.length;h++) {
+					wl = wall.holes.length
+					for(h=0;!any && h<wl;h++) {
 					
 						 	if(wall.holes[h].open) {
 						 		hole = wall.holes[h].bounds
@@ -690,7 +696,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 							// Find out collision point.
 							var points:Array = other.collisionModel.getTopPolygon()
 							var intersect:Point = null
-							for(var i:Number=0;intersect==null && i<points.length;i++) {
+							var pl:int = points.length
+							for(var i:int=0;intersect==null && i<pl;i++) {
 								
 								if(i==0) intersect = mathUtils.segmentsIntersect(nx2,ny2,oppositex,oppositey,points[0].x,points[0].y,points[points.length-1].x,points[points.length-1].y)
 								else intersect = mathUtils.segmentsIntersect(nx2,ny2,oppositex,oppositey,points[i].x,points[i].y,points[i-1].x,points[i-1].y)
@@ -755,7 +762,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 					// Loop through holes find which one are we inside of
 					any = false
-					for(var h:int=0;!any && h<wall.holes.length;h++) {
+					var wl:int = wall.holes.length
+					for(var h:int=0;!any && h<wl;h++) {
 					
 						 	if(wall.holes[h].open) {
 							 	var hole:fPlaneBounds = wall.holes[h].bounds
@@ -802,7 +810,8 @@ package org.ffilmation.engine.logicSolvers.collisionSolver {
 
 					// Loop through holes and find which one are we inside of
 					any = false
-					for(h=0;!any && h<wall.holes.length;h++) {
+					wl = wall.holes.length
+					for(h=0;!any && h<wl;h++) {
 					
 						 	if(wall.holes[h].open) {
 							 	hole = wall.holes[h].bounds

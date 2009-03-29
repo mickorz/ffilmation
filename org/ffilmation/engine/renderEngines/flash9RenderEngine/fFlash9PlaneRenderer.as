@@ -83,10 +83,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Process shape vertexes
 				 if(element is fFloor) {
 				 		
-				 		for(var k:int=0;k<contours.length;k++) {
+				 		var cl:int = contours.length
+				 		for(var k:int=0;k<cl;k++) {
 				 			var c:Array = contours[k]
 				 			var projectedShape:Array = new Array
-				 			for(var k2:int=0;k2<c.length;k2++) 	projectedShape[k2] = fScene.translateCoords(-0.5+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.5+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2,0)
+				 			var cl2:int = c.length
+				 			for(var k2:int=0;k2<cl2;k2++) 	projectedShape[k2] = fScene.translateCoords(-0.0+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.0+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2,0)
 				 			this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 		}
 				 		
@@ -94,17 +96,21 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
  				 		var w:fWall = element as fWall
 				 	  if(w.vertical) {
-				 			for(k=0;k<contours.length;k++) {
+				 	  	cl = contours.length
+				 			for(k=0;k<cl;k++) {
 				 				c = contours[k]
 				 				projectedShape = new Array
-				 				for(k2=0;k2<c.length;k2++) projectedShape[k2] = fScene.translateCoords(0,-0.5+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.5+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
+				 				cl2 = c.length
+				 				for(k2=0;k2<cl2;k2++) projectedShape[k2] = fScene.translateCoords(0,-0.0+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.0+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
 				 				this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 			}
 				 	  } else {
-				 			for(k=0;k<contours.length;k++) {
+				 	  	cl = contours.length
+				 			for(k=0;k<cl;k++) {
 				 				c = contours[k]
 				 				projectedShape = new Array
-				 				for(k2=0;k2<c.length;k2++) projectedShape[k2] = fScene.translateCoords(-0.5+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,0,-0.5+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
+				 				cl2 = c.length
+				 				for(k2=0;k2<cl2;k2++) projectedShape[k2] = fScene.translateCoords(-0.0+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,0,-0.0+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
 				 				this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 			}
 				 	  }
@@ -226,7 +232,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Soft shadows on
 				 if(fEngine.softShadows>0 && this.canBeSmoothed) {
 				 		var blur:BlurFilter = new BlurFilter(fEngine.softShadows,fEngine.softShadows)
-				 		for(var i:int=0;i<this.lightShadowsPl.length;i++) {
+				 		var sl:int = this.lightShadowsPl.length
+				 		for(var i:int=0;i<sl;i++) {
 								if(this.lightShadowsPl[i]) this.lightShadowsPl[i].filters = [blur]
 				 		}
 				 }
@@ -259,7 +266,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		   	 if(!this.diffuse) return
 
 				 // Soft shadows off
-				 for(var i:int=0;i<this.lightShadowsPl.length;i++) {
+				 var sl:int = this.lightShadowsPl.length
+				 for(var i:int=0;i<sl;i++) {
 						if(this.lightShadowsPl[i]) this.lightShadowsPl[i].filters = []
 				 }
 
@@ -302,7 +310,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			// This redraws shadows when the plane shows/hides
 			private function redrawShadowsOnShowHide(e:Event=null):void {
-				 for(var j:int=0;j<this.scene.lights.length;j++) {
+				 var ll:int = this.scene.lights.length
+				 for(var j:int=0;j<ll;j++) {
 					var light:fLight = this.scene.lights[j]
 					if(light && !light.removed && this.element.distanceTo(light.x,light.y,light.z)<light.size) light.render()
 				 }
@@ -428,7 +437,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	   		 } catch(e:Error) {}
 
 			   this.anyClosedHole = false
-			   for(var i:Number=0;i<element.holes.length;i++) {
+			   var hl:int = element.holes.length
+			   for(var i:int=0;i<hl;i++) {
 			   		 var hole:fHole = element.holes[i]
    					 hole.addEventListener(fHole.OPEN,this.openHole,false,0,true)
 				 		 hole.addEventListener(fHole.CLOSE,this.closeHole,false,0,true)
@@ -478,7 +488,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 						this.behind.removeChild(hole.block)
 				 		this.anyClosedHole = false
 					  var p:fPlane = this.element as fPlane
-			   		for(var i:Number=0;i<p.holes.length;i++) {
+					  var pl:int = p.holes.length
+			   		for(var i:int=0;i<pl;i++) {
 				 				 if(!p.holes[i].open && p.holes[i].block) {
 			   						this.anyClosedHole = true
 				 				 }
@@ -501,7 +512,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 					if(hole.block) {
 						this.behind.addChild(hole.block)
 					  var p:fPlane = this.element as fPlane
-			   		for(var i:Number=0;i<p.holes.length;i++) {
+					  var pl:int = p.holes.length
+			   		for(var i:int=0;i<pl;i++) {
 				 				 if(!p.holes[i].open && p.holes[i].block) {
 			   						this.anyClosedHole = true
 				 				 }
@@ -533,7 +545,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Update holes in clipping polygon
 				 this.clipPolygon.holes = new Array
 				 
- 				 for(var h:int=0;h<holes.length;h++) {
+ 				 var hl:int = holes.length
+ 				 for(var h:int=0;h<hl;h++) {
 
 					 	if(holes[h].open) {
 					 		var hole:fPlaneBounds = holes[h].bounds
@@ -584,7 +597,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 				 // Erases holes from simple shadows layers
 				 this.simpleHolesC.graphics.clear()
- 				 for(h=0;h<holes.length;h++) {
+				 hl = holes.length
+ 				 for(h=0;h<hl;h++) {
 
 					 	if(holes[h].open) {
 						 	hole = holes[h].bounds
@@ -747,9 +761,11 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			  		var polygonToDraw:fPolygon = new fPolygon()
 				 		var contours:Array = this.clipPolygon.contours
-				 		for(var k:int=0;k<contours.length;k++) polygonToDraw.contours[k] = polygonUtils.clipPolygon(contours[k],minimumArea)
+				 		var cl:int = contours.length
+				 		for(var k:int=0;k<cl;k++) polygonToDraw.contours[k] = polygonUtils.clipPolygon(contours[k],minimumArea)
 				 		var holes:Array = this.clipPolygon.holes
-				 		for(k=0;k<holes.length;k++) polygonToDraw.holes[k] = polygonUtils.clipPolygon(holes[k],minimumArea)
+				 		var hl:int = holes.length 
+				 		for(k=0;k<hl;k++) polygonToDraw.holes[k] = polygonUtils.clipPolygon(holes[k],minimumArea)
 
 			   } else {
 
@@ -1045,7 +1061,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			  
 			  // Holes
 			  var element:fPlane = this.element as fPlane
-			  for(var i:Number=0;i<element.holes.length;i++) {
+			  var hl:int = element.holes.length
+			  for(var i:int=0;i<hl;i++) {
    					element.holes[i].removeEventListener(fHole.OPEN,this.openHole)
 				 		element.holes[i].removeEventListener(fHole.CLOSE,this.closeHole)
 				 		if(!element.holes[i].open && element.holes[i].block) this.behind.removeChild(element.holes[i].block)				 		 	
@@ -1062,31 +1079,36 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.tMatrixB = null
 
 				// Lights
-				for(i=0;i<this.lightMasks.length;i++) {
+				var il:int = this.lightMasks.length 
+				for(i=0;i<il;i++) {
 					if(this.lightMasks[i]) this.lightMasks[i].graphics.clear()
 					objectPool.returnInstance(this.lightMasks[i])
 					delete this.lightMasks[i]
 				}
 				this.lightMasks = null
-				for(i=0;i<this.lightShadowsObj.length;i++) {
+				il = this.lightShadowsObj.length
+				for(i=0;i<il;i++) {
 					fFlash9RenderEngine.recursiveDelete(this.lightShadowsObj[i])
 					objectPool.returnInstance(this.lightShadowsObj[i])
 					delete this.lightShadowsObj[i]
 				}
 				this.lightShadowsObj = null
-				for(i=0;i<this.lightShadowsPl.length;i++) {
+				il = this.lightShadowsPl.length
+				for(i=0;i<il;i++) {
 					fFlash9RenderEngine.recursiveDelete(this.lightShadowsPl[i])
 					objectPool.returnInstance(this.lightShadowsPl[i])
 					delete this.lightShadowsPl[i]
 				}
 				this.lightShadowsPl = null
-				for(i=0;i<this.lightBumps.length;i++) {
+				il = this.lightBumps.length
+				for(i=0;i<il;i++) {
 					fFlash9RenderEngine.recursiveDelete(this.lightBumps[i])
 					objectPool.returnInstance(this.lightBumps[i])
 					delete this.lightBumps[i]
 				}
 				this.lightBumps = null
-				for(i=0;i<this.lightClips.length;i++) {
+				il = this.lightClips.length
+				for(i=0;i<il;i++) {
 					objectPool.returnInstance(this.lightClips[i])
 					fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
 					delete this.lightClips[i]

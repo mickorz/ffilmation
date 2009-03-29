@@ -186,7 +186,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 	   		}
 
 			  // Prepare characters
-			  for(var j:Number=0;j<this.scene.characters.length;j++) {
+			  var cl:int = this.scene.characters.length
+			  for(var j:Number=0;j<cl;j++) {
 			  	  this.scene.characters[j].cell = this.scene.translateToCell(this.scene.characters[j].x,this.scene.characters[j].y,this.scene.characters[j].z)
 						this.scene.characters[j].addEventListener(fElement.NEWCELL,this.scene.processNewCell,false,0,true)			   
 						this.scene.characters[j].addEventListener(fElement.MOVE,this.scene.renderElement,false,0,true)			   

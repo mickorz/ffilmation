@@ -118,7 +118,8 @@ package org.ffilmation.engine.core {
 
 				this.material.dispose()
 				this.material = null
-				for(var i:Number=0;i<this.holes.length;i++) delete this.holes[i]
+				var hl:int = this.holes.length
+				for(var i:Number=0;i<hl;i++) delete this.holes[i]
 				this.holes = null
 				this.disposeRenderable()
 				

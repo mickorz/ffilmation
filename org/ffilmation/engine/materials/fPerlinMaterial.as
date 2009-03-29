@@ -75,7 +75,8 @@
 				temp.addChild(this.baseMaterial.getDiffuse(element,width,height))
 				
 				// Draw layers, if any
-				for(var i:Number=0;i<this.materialLayers.length;i++) {
+				var ml:int = this.materialLayers.length
+				for(var i:int=0;i<ml;i++) {
 					
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
 					var diffuse:DisplayObject = this.materialLayers[i].getDiffuse(element,width,height)
@@ -97,7 +98,8 @@
 				// Merge layers
 			  msk = new BitmapData(width,height)
 				msk.draw(temp)
-				for(i=0;i<tDatas.length;i++) {
+				var dl:int = tDatas.length 
+				for(i=0;i<dl;i++) {
 					tDatas[i].dispose()
 					tDatas[i] = null
 				}
@@ -124,7 +126,8 @@
 				temp.addChild(this.baseMaterial.getBump(element,width,height))
 				
 				// Draw layers, if any
-				for(var i:Number=0;i<this.materialLayers.length;i++) {
+				var ml:int = this.materialLayers.length
+				for(var i:Number=0;i<ml;i++) {
 					
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
 					var diffuse:DisplayObject = this.materialLayers[i].getBump(element,width,height)

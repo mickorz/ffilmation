@@ -245,13 +245,15 @@ package org.ffilmation.engine.elements {
 			/** @private */
 			public function disposeCharacter():void {
 
-				for(var j:int=0;j<this.scene.lights.length;j++) {
+				var ll:int = this.scene.lights.length
+				for(var j:int=0;j<ll;j++) {
 					var light:fLight = this.scene.lights[j]
 					if(light) light.vCharacters[this.counter] = null
 				}
 				
 				for(var i in this.vLights) delete this.vLights[i]
-				for(i=0;i<this.currentOccluding.length;i++) delete this.currentOccluding[i]
+				ll = this.currentOccluding.length
+				for(i=0;i<ll;i++) delete this.currentOccluding[i]
 				this.currentOccluding = null
 				this.vLights = null
 

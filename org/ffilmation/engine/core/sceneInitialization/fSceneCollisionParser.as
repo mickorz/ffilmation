@@ -22,7 +22,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			public static function calculate(scene:fScene):void {
 
 		  	 // Update grid with object collision information
-			   for(var j:Number=0;j<scene.objects.length;j++) {
+		  	 var ol:int = scene.objects.length
+			   for(var j:Number=0;j<ol;j++) {
 			   		var ob:fObject = scene.objects[j]
 			   		var rz:int = ob.z/scene.levelSize
 			   		var obi:int = ob.x/scene.gridSize
@@ -46,7 +47,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   }
 
 				 // Update grid with floor collision information
-			   for(j=0;j<scene.floors.length;j++) {
+				 var fll:int = scene.floors.length 
+			   for(j=0;j<fll;j++) {
 			   		var fl:fFloor = scene.floors[j]
 			   		rz = fl.z/scene.levelSize
 			   		for(i=fl.i;i<(fl.i+fl.gWidth);i++) {
@@ -62,7 +64,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   }
 			   
 				 // Update grid with wall collision information
-			   for(j=0;j<scene.walls.length;j++) {
+				 var wll:int = scene.walls.length 
+			   for(j=0;j<wll;j++) {
 			   		var wl:fWall = scene.walls[j]
 			   		height = wl.height/scene.levelSize
 			   		rz = wl.z/scene.levelSize

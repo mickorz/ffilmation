@@ -1,12 +1,16 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+Fixed object occlusion not working
+A bit of loop optimization
+Destroying an scene is about 5 times faster
+
 1.3.3:
 
 This is also a performance and bugfixing release.
 
 Tested with Flash CS4.
-Scenes use less memory.
+Scenes use less memory. Hidden scenes still consume memory. If you want to free all resources allocated by scenes that will no longer be used, use the fEngine.destroy() method. Also, clear references from your code into any usused FFilmation element to allow it to be garbage-collected.
 I have tried to optimize the render process as much as possible, reducing the amount of layers, blendmodes and transformation matrixes. Given the amount of hours invested the result is quite dissappointing: In my tests I see an improvement of nothing to 10%, but I'm unsure about the real impact in other people's applications.
 The container property for fRenderableElements is no longer a generic MovieClip. Instead, a new fElementContainer class is used. Properties are the same.
 Lots of collision tweaks. I hope it works better for everybody now.

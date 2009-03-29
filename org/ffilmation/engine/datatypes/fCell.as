@@ -129,27 +129,33 @@ package org.ffilmation.engine.datatypes {
 				public function dispose():void {
 					this.walls.dispose()
 					if(this.lightAffectedElements) {
-						for(var i:Number=0;i<this.lightAffectedElements.length;i++) delete this.lightAffectedElements[i]
+						var il:int = this.lightAffectedElements.length
+						for(var i:int=0;i<il;i++) delete this.lightAffectedElements[i]
 						this.lightAffectedElements = null
 					}
 					if(this.visibleElements) {
-						for(i=0;i<this.visibleElements.length;i++) delete this.visibleElements[i]
+						il = this.visibleElements.length
+						for(i=0;i<il;i++) delete this.visibleElements[i]
 						this.visibleElements = null
 					}
 					if(this.characterShadowCache) {
-						for(i=0;i<this.characterShadowCache.length;i++) delete this.characterShadowCache[i]
+						il = this.characterShadowCache.length
+						for(i=0;i<il;i++) delete this.characterShadowCache[i]
 						this.characterShadowCache = null
 					}
 					if(this.elementsInFront) {
-						for(i=0;i<this.elementsInFront.length;i++) delete this.elementsInFront[i]
+						il = this.elementsInFront.length
+						for(i=0;i<il;i++) delete this.elementsInFront[i]
 						this.elementsInFront = null
 					}
 					if(this.charactersOccupying) {
-						for(i=0;i<this.charactersOccupying.length;i++) delete this.charactersOccupying[i]
+						il = this.charactersOccupying.length
+						for(i=0;i<il;i++) delete this.charactersOccupying[i]
 						this.charactersOccupying = null
 					}
 					if(this.events) {
-						for(i=0;i<this.events.length;i++) delete this.events[i]
+						il = this.events.length
+						for(i=0;i<il;i++) delete this.events[i]
 						this.events = null
 					}
 					

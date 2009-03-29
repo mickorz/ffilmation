@@ -205,7 +205,8 @@ package org.ffilmation.engine.core.sceneLogic {
 			   			scene.renderEngine.renderLight(character,light)
 			   			scene.renderEngine.renderFinish(character,light)
 			   		
-			   			for(i2=0;i2<elements.length;i2++) {
+			   			var ell:int = elements.length
+			   			for(i2=0;i2<ell;i2++) {
 					    	try {
 			   					if(character._visible) scene.renderEngine.renderShadow(elements[i2],light,character)
 			   				} catch(e:Error) {

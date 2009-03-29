@@ -21,7 +21,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			public static function calculate(scene:fScene):void {
 
 		  	 // Update grid with object occlusion information
-			   for(var n:Number=0;n<scene.objects.length;n++) {
+		  	 var ol:int = scene.objects.length
+			   for(var n:Number=0;n<ol;n++) {
 			   		var ob:fObject = scene.objects[n]
 			   		var obz:int = ob.z/scene.levelSize
 			   		var obi:int = ob.x/scene.gridSize
@@ -52,7 +53,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 										} catch(e:Error) {
 											cell = null
 										}
-
+										
 										if(cell) {
 											var candidate:Point = fScene.translateCoords(cell.x,cell.y,cell.z)
 											if(bounds.contains(candidate.x,candidate.y)) {
@@ -74,7 +75,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   }
 
 				 // Wall occlusion
-			   for(n=0;n<scene.walls.length;n++) {
+				 var wl:int = scene.walls.length 
+			   for(n=0;n<wl;n++) {
 			   		var wa:fWall = scene.walls[n]
 			   		obz = wa.z/scene.levelSize
 			   		obi = ((wa.vertical)?(wa.x):(wa.x0))/scene.gridSize
@@ -108,7 +110,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 
 				 // Floor
-			   for(n=0;n<scene.floors.length;n++) {
+				 var fl:int = scene.floors.length 
+			   for(n=0;n<fl;n++) {
 			   		var flo:fFloor = scene.floors[n]
 			   		obz = flo.z/scene.levelSize
 			   		obi = flo.i

@@ -36,13 +36,15 @@ package org.ffilmation.utils.polygons {
 			   var i:int, j:int
 			   var any:Boolean = false
 			   
-			   for(var c:int=0;!any && c<this.contours.length;c++) {
+			   var cl:int = this.contours.length
+			   for(var c:int=0;!any && c<cl;c++) {
 			   	
 			   		var contour:Array = this.contours[c]
 			  		var ret:Boolean = false
 			  		
 			   		// Test every contour
-			   		for (i = 0, j = contour.length-1; i < contour.length; j = i++) {
+			   		var cnl:int = contour.length
+			   		for (i = 0, j = cnl-1; i < cnl; j = i++) {
 			   			var p1:Point = contour[i]
 			   			var p2:Point = contour[j]
 			   		  if ((((p1.y <= y) && (y < p2.y)) || ((p2.y <= y) && (y < p1.y))) && (x < (p2.x - p1.x) * (y - p2.y) / (p2.y - p1.y) + p1.x))  ret = !ret
@@ -54,13 +56,15 @@ package org.ffilmation.utils.polygons {
 			   if(!any) return false
 			   
 			   // If we are here, point is inside one of the contours, now we must see if any of the holes matches too
-			   for(c=0;c<this.holes.length;c++) {
+			   var hl:int = this.holes.length 
+			   for(c=0;c<hl;c++) {
 			   	
 			   		var hole:Array = this.holes[c]
 			  		ret = false
 			  		
 			   		// Test every hole
-			   		for (i = 0, j = hole.length-1; i < hole.length; j = i++) {
+			   		var hnl:int = hole.length
+			   		for (i = 0, j = hnl-1; i < hnl; j = i++) {
 			   			p1 = hole[i]
 			   			p2 = hole[j]
 			   		  if ((((p1.y <= y) && (y < p2.y)) || ((p2.y <= y) && (y < p1.y))) && (x < (p2.x - p1.x) * (y - p2.y) / (p2.y - p1.y) + p1.x))  ret = !ret
@@ -83,7 +87,8 @@ package org.ffilmation.utils.polygons {
 			*/
 			public function draw(canvas:Graphics):void {
 			
-				for(var i:int=0;i<this.contours.length;i++) {
+				var cl:int = this.contours.length
+				for(var i:int=0;i<cl;i++) {
 					var points:Array = this.contours[i]
 					var np:int = points.length
 					if(np>=3) {
@@ -91,7 +96,8 @@ package org.ffilmation.utils.polygons {
 						for(var j:int=1;j<np;j++) canvas.lineTo(points[j].x,points[j].y)
 					}
 				}
-				for(i=0;i<this.holes.length;i++) {
+				var hl:int = this.holes.length 
+				for(i=0;i<hl;i++) {
 					points = this.holes[i]
 					np = points.length-1
 					if(np>=2) {

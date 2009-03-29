@@ -74,7 +74,8 @@ package org.ffilmation.engine.helpers {
 					this.top = null
 					this.bottom = null
 					if(this.objects) {
-						for(var i:Number=0;i<this.objects.length;i++) delete this.objects[i]
+						var ol:int = this.objects.length
+						for(var i:int=0;i<ol;i++) delete this.objects[i]
 						this.objects = null
 					}					
 				}

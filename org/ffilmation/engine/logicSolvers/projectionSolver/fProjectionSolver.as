@@ -44,7 +44,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 // Project all points in all contours in Polygon
 				 var ret:Array = []
 				 var contours:Array = floor.shapePolygon.contours
-				 for(var i:int=0;i<contours.length;i++) {
+				 var cl:int = contours.length
+				 for(var i:int=0;i<cl;i++) {
 						var contour:Array = contours[i]
 						ret[ret.length] = fProjectionSolver.projectFloorPointsIntoFloor(contour,x,y,z,destinyZ,floor.x,floor.y,floor.z)
 				 }
@@ -52,7 +53,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 // Project all holes
 				 var retHoles:Array = []
 				 var holes:Array = floor.holes
-				 for(i=0;i<holes.length;i++) {
+				 var hl:int = holes.length
+				 for(i=0;i<hl;i++) {
 				 	  //if(holes[i].open) {
 							var bounds:fPlaneBounds = holes[i].bounds
 							contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
@@ -74,7 +76,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
  			   var dz:Number = 1+(offz-destinyZ)/(z-offz)
 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx+points[j].x
@@ -112,14 +115,16 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(wall.x==x) return new fPolygon()
 						
 						// Project all points in all contours in Polygon
-						for(var i:int=0;i<contours.length;i++) {
+					  var cl:int = contours.length
+						for(var i:int=0;i<cl;i++) {
 							var contour:Array = contours[i]
 							ret[ret.length] = fProjectionSolver.projectVerticalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x,wall.y0,wall.z,scene)
 						}
 						
 						// Project all holes in Polygon
 						var holes:Array = wall.holes
-				 		for(i=0;i<holes.length;i++) {
+					  var hl:int = holes.length
+				    for(i=0;i<hl;i++) {
 				 	  	//if(holes[i].open) {
 								var bounds:fPlaneBounds = holes[i].bounds
 								contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
@@ -132,14 +137,16 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(wall.y==y) return new fPolygon()
 			
 						// Project all points in all contours in Polygon
-						for(i=0;i<contours.length;i++) {
+					  cl = contours.length
+				    for(i=0;i<cl;i++) {
 							contour = contours[i]
 							ret[ret.length] = fProjectionSolver.projectHorizontalPointsIntoFloor(contour,x,y,z,destinyZ,wall.x0,wall.y,wall.z,scene)
 						}
 
 						// Project all holes in Polygon
 						holes = wall.holes
-				 		for(i=0;i<holes.length;i++) {
+				    hl = holes.length
+				    for(i=0;i<hl;i++) {
 					 	  //if(holes[i].open) {
 								bounds = holes[i].bounds
 								contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
@@ -160,8 +167,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			private static function projectVerticalPointsIntoFloor(points:Array,x:Number,y:Number,z:Number,destinyZ:Number,offx:Number,offy:Number,offz:Number,scene:fScene):Array {
 
 					var retContour:Array = []
-					
-					for(var j:int=0;j<points.length;j++) {
+				  var pol:int = points.length
+				  for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx
@@ -191,8 +198,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			private static function projectHorizontalPointsIntoFloor(points:Array,x:Number,y:Number,z:Number,destinyZ:Number,offx:Number,offy:Number,offz:Number,scene:fScene):Array {
 
 					var retContour:Array = []
-					
-					for(var j:int=0;j<points.length;j++) {
+				  var pol:int = points.length
+				  for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx+points[j].x
@@ -294,7 +301,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 // Project all points in all contours in Polygon
 				 var ret:Array = []
 				 var contours:Array = floor.shapePolygon.contours
-				 for(var i:int=0;i<contours.length;i++) {
+				 var cl:int = contours.length
+				 for(var i:int=0;i<cl;i++) {
 						var contour:Array = contours[i]
 						ret[ret.length] = fProjectionSolver.projectFloorPointsIntoHorizontalWall(contour,x,y,z,target.y,floor.x,floor.y,floor.z)
 				 }
@@ -302,7 +310,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 // Project all holes
 				 var retHoles:Array = []
 				 var holes:Array = floor.holes
-				 for(i=0;i<holes.length;i++) {
+				 var hl:int = holes.length
+				 for(i=0;i<hl;i++) {
 				 	  //if(holes[i].open) {
 							var bounds:fPlaneBounds = holes[i].bounds
 							contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
@@ -321,7 +330,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			private static function projectFloorPointsIntoHorizontalWall(points:Array,x:Number,y:Number,z:Number,destinyY:Number,offx:Number,offy:Number,offz:Number):Array {
 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx+points[j].x
@@ -350,7 +360,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 // Project all points in all contours in Polygon
 				 var ret:Array = []
 				 var contours:Array = floor.shapePolygon.contours
-				 for(var i:int=0;i<contours.length;i++) {
+				 var cl:int = contours.length
+				 for(var i:int=0;i<cl;i++) {
 						var contour:Array = contours[i]
 						ret[ret.length] = fProjectionSolver.projectFloorPointsIntoVerticalWall(contour,x,y,z,target.x,floor.x,floor.y,floor.z)
 				 }
@@ -358,7 +369,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 				 // Project all holes
 				 var retHoles:Array = []
 				 var holes:Array = floor.holes
-				 for(i=0;i<holes.length;i++) {
+				 var hl:int = holes.length
+				 for(i=0;i<hl;i++) {
 				 	  //if(holes[i].open) {
 							var bounds:fPlaneBounds = holes[i].bounds
 							contour = [new Point(bounds.x0,bounds.y0),new Point(bounds.x0,bounds.y1),new Point(bounds.x1,bounds.y1),new Point(bounds.x1,bounds.y0)]
@@ -376,9 +388,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 
 			private static function projectFloorPointsIntoVerticalWall(points:Array,x:Number,y:Number,z:Number,destinyX:Number,offx:Number,offy:Number,offz:Number):Array {
 
-				 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx+points[j].x
@@ -415,14 +427,16 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(wall.x==x) return new fPolygon()
 						
 						// Project all points in all contours in Polygon
-						for(var i:int=0;i<contours.length;i++) {
+				    var cl:int = contours.length
+				    for(var i:int=0;i<cl;i++) {
 							var contour:Array = contours[i]
 							ret[ret.length] = fProjectionSolver.projectVerticalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x,wall.y0,wall.z)
 						}
 						
 						// Project all holes in Polygon
 						var holes:Array = wall.holes
-				 		for(i=0;i<holes.length;i++) {
+				    var hl:int = holes.length
+				    for(i=0;i<hl;i++) {
 					 	  //if(holes[i].open) {
 								var bounds:fPlaneBounds = holes[i].bounds
 								contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
@@ -435,14 +449,16 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(wall.y==y) return new fPolygon()
 			
 						// Project all points in all contours in Polygon
-						for(i=0;i<contours.length;i++) {
+				    cl = contours.length
+				    for(i=0;i<cl;i++) {
 							contour = contours[i]
 							ret[ret.length] = fProjectionSolver.projectHorizontalWallPointsIntoHorizontalWall(contour,x,y,z,target.y,wall.x0,wall.y,wall.z)
 						}
 
 						// Project all holes in Polygon
 						holes = wall.holes
-				 		for(i=0;i<holes.length;i++) {
+				    hl = holes.length
+				    for(i=0;i<hl;i++) {
 					 	  //if(holes[i].open) {
 								bounds = holes[i].bounds
 								contour = [new Point(bounds.x0,bounds.top),new Point(bounds.x1,bounds.top),new Point(bounds.x1,bounds.z),new Point(bounds.x0,bounds.z)]
@@ -463,7 +479,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			private static function projectHorizontalWallPointsIntoHorizontalWall(points:Array,x:Number,y:Number,z:Number,destinyY:Number,offx:Number,offy:Number,offz:Number):Array {
 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx+points[j].x
@@ -486,7 +503,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			private static function projectVerticalWallPointsIntoHorizontalWall(points:Array,x:Number,y:Number,z:Number,destinyY:Number,offx:Number,offy:Number,offz:Number):Array {
 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx
@@ -522,14 +540,16 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(wall.x==x) return new fPolygon()
 						
 						// Project all points in all contours in Polygon
-						for(var i:int=0;i<contours.length;i++) {
+				    var cl:int = contours.length
+				    for(var i:int=0;i<cl;i++) {
 							var contour:Array = contours[i]
 							ret[ret.length] = fProjectionSolver.projectVerticalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x,wall.y0,wall.z)
 						}
 						
 						// Project all holes in Polygon
 						var holes:Array = wall.holes
-				 		for(i=0;i<holes.length;i++) {
+				    var hl:int = holes.length
+				    for(i=0;i<hl;i++) {
 					 	  //if(holes[i].open) {
 			 					var bounds:fPlaneBounds = holes[i].bounds
 								contour = [new Point(bounds.y0,bounds.z),new Point(bounds.y1,bounds.z),new Point(bounds.y1,bounds.top),new Point(bounds.y0,bounds.top)]
@@ -542,14 +562,16 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(wall.y==y) return new fPolygon()
 			
 						// Project all points in all contours in Polygon
-						for(i=0;i<contours.length;i++) {
+				    cl = contours.length
+				    for(i=0;i<cl;i++) {
 							contour = contours[i]
 							ret[ret.length] = fProjectionSolver.projectHorizontalWallPointsIntoVerticalWall(contour,x,y,z,target.x,wall.x0,wall.y,wall.z)
 						}
 
 						// Project all holes in Polygon
 						holes = wall.holes
-				 		for(i=0;i<holes.length;i++) {
+				    hl = holes.length
+				    for(i=0;i<hl;i++) {
 					 	  //if(holes[i].open) {
 								bounds = holes[i].bounds
 								if(bounds.x0<target.x) {
@@ -571,9 +593,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 
 			private static function projectHorizontalWallPointsIntoVerticalWall(points:Array,x:Number,y:Number,z:Number,destinyX:Number,offx:Number,offy:Number,offz:Number):Array {
 
-				 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx+points[j].x
@@ -596,9 +618,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 
 			private static function projectVerticalWallPointsIntoVerticalWall(points:Array,x:Number,y:Number,z:Number,destinyX:Number,offx:Number,offy:Number,offz:Number):Array {
 
-				 
 				 var retContour:Array = []
-				 for(var j:int=0;j<points.length;j++) {
+				 var pol:int = points.length
+				 for(var j:int=0;j<pol;j++) {
 						
 						// Point in space
 						var px:Number = offx

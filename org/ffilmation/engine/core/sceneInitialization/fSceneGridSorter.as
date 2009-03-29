@@ -58,6 +58,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			public function createGrid():void {
 
 			   this.scene.grid = new Array
+			   this.scene.allUsedCells = new Array
 			   var fl:int = this.scene.floors.length
 				 for(var fi=0;fi<fl;fi++) {
 	      	 var f:fFloor = this.scene.floors[fi]

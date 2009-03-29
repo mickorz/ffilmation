@@ -139,9 +139,11 @@ package org.ffilmation.engine.core {
 				// Adjust wall coordinates
 				if(element is fWall) {
 					var el:fWall = element as fWall
-					for(var i:int=0;i<t.length;i++) {
+					var tl:int = t.length
+					for(var i:int=0;i<tl;i++) {
 						var c:Array = t[i]
-						for(var j:int=0;j<c.length;j++) {
+						var cl:int = c.length
+						for(var j:int=0;j<cl;j++) {
 							c[j].y = el.pixelHeight-c[j].y
 						}
 					}	
@@ -161,8 +163,8 @@ package org.ffilmation.engine.core {
 				if(element is fWall) {
 
 						var el:fWall = element as fWall
-
-						for(c=0;c<t.length;c++) {
+						var tl:int = t.length 
+						for(c=0;c<tl;c++) {
 						  mcontainer = t[c]
 			        nobj = new fPlaneBounds()
 							nobj.z = el.z+height-(mcontainer.y+mcontainer.height)
@@ -200,7 +202,8 @@ package org.ffilmation.engine.core {
 
 				// Convert holes to floor coordinates
 
-						for(var c:Number=0;c<t.length;c++) {
+						tl = t.length
+						for(var c:Number=0;c<tl;c++) {
 						  var mcontainer:Rectangle = t[c]
 							var nobj:fPlaneBounds = new fPlaneBounds()
 							nobj.z = element.z

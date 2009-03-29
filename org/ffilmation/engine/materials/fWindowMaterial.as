@@ -111,7 +111,8 @@ package org.ffilmation.engine.materials {
 				temp.graphics.lineTo(0,height)
 				temp.graphics.lineTo(0,0)
 				
-				for(var j:Number=0;j<this.windows.length;j++) {
+				var wl:int = this.windows.length
+				for(var j:int=0;j<wl;j++) {
 					
 					var window:Rectangle = this.windows[j]
 					
@@ -134,7 +135,8 @@ package org.ffilmation.engine.materials {
 					base2.draw(tile.getDiffuse(element,width,height))
 					
 					var temp2:Sprite = new Sprite
-					for(j=0;j<this.windows.length;j++) {
+					wl = this.windows.length 
+					for(j=0;j<wl;j++) {
 						
 						window = this.windows[j]
 					
@@ -230,7 +232,8 @@ package org.ffilmation.engine.materials {
 				this.calcWindows(width,height)
 
 				var holes:Array = new Array
-				for(var j:Number=0;j<this.windows.length;j++) {
+				var wl:int = this.windows.length
+				for(var j:int=0;j<wl;j++) {
 					
 					var window:Rectangle = this.windows[j]
 				
