@@ -186,12 +186,22 @@ package org.ffilmation.engine.core {
 					this.current = null
 					
 					// Arrg dirty trick !! So I have access to onenterframe events from anywhere in the engine
-					if(!fEngine.stage) fEngine.stage = container.stage
+					if(!fEngine.stage) {
+						if(container.stage)	fEngine.stage = container.stage
+						else container.addEventListener(Event.ADDED_TO_STAGE,this.getStage)
+					}
 					
 					
 					// Add engine to list of all engines
 					fEngine.engines[fEngine.engines.length] = this
 					
+			 }
+			 
+			 // Retrieves stage
+			 private function getStage(e:Event):void {
+			 		var s:Sprite = e.target as Sprite
+			 		fEngine.stage = s.stage
+			 		s.removeEventListener(Event.ADDED_TO_STAGE,this.getStage)
 			 }
 			
 			 /**
