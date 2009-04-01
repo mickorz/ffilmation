@@ -6,6 +6,7 @@ package org.ffilmation.engine.helpers {
 		import flash.display.*
 		import flash.geom.*
 		import flash.filters.*
+		import flash.utils.*
 
 		/**
 		* This object stores a perlin noise definition that was loaded from a definition file. Noise definitions are
@@ -92,15 +93,17 @@ package org.ffilmation.engine.helpers {
 			
 			* @param offy Vertical offset that will be applied to the noise
 			*
+			* @param scale Scale to apply to thwe noise's size
+			*
 			*/
-			public function drawNoise(bmap:BitmapData,channels:uint,offx:Number,offy:Number):void {			
+			public function drawNoise(bmap:BitmapData,channels:uint,offx:Number,offy:Number,scale:Number=1):void {			
 			
 				// Generate offfset array
 				var offsets = new Array
 				for(var i:Number=0;i<this.octaves;i++) offsets[offsets.length] = new Point(offx,offy)
 				
 				// Draw
-				bmap.perlinNoise(this.baseX, this.baseY, this.octaves, this.seed, false, this.fractal, channels, false, offsets)
+				bmap.perlinNoise(this.baseX*scale, this.baseY*scale, this.octaves, this.seed, false, this.fractal, channels, false, offsets)
 
 				// Sharpen noise
 				var sharpen = [11,0,0,0,-1295,0,11,0,0,-1295,0,0,11,0,-1295,0,0,0,1,0]

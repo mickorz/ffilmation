@@ -18,6 +18,12 @@
 		*/
 		public class fPerlinMaterial implements fEngineMaterial {
 			
+			// Setup
+			
+			/** Precision of the noise. The bigger the number the less accurate the noise. 1 means pixel precision but makes the noise way
+			slower to calculate and it's not worth it */
+			public static const NOISE_PRECISION:int = 10
+			
 			// Private vars
 			private var definition:fMaterialDefinition	// Definition data
 			private var element:fRenderableElement			// The element where this material is applied. In perlin materials you need to know
@@ -70,6 +76,8 @@
 				
 				var temp:Sprite = new Sprite
 				var tDatas:Array = new Array
+				
+				var precision:int = fPerlinMaterial.NOISE_PRECISION
 
 				// Draw base
 				temp.addChild(this.baseMaterial.getDiffuse(element,width,height))
@@ -81,15 +89,20 @@
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
 					var diffuse:DisplayObject = this.materialLayers[i].getDiffuse(element,width,height)
 					layer.draw(diffuse)
-					var msk:BitmapData = new BitmapData(width,height,false,0x000000)
+					var msk2:BitmapData = new BitmapData(width,height,false,0x000000)
 					try {
+						var msk:BitmapData = new BitmapData(width/precision,height/precision,false,0x000000)
 						var n:fNoiseDefinition = this.materialNoises[i]
-						n.drawNoise(msk,BitmapDataChannel.RED,element.x,element.y)
+						n.drawNoise(msk,BitmapDataChannel.RED,element.x/precision,element.y/precision,1/precision)
+						var mat:Matrix = new Matrix()
+						mat.scale(precision,precision)
+						msk2.draw(msk,mat)
+						msk.dispose()
 					} catch(e:Error) {
 						throw new Error("Filmation Engine Exception: Attempt to use a nonexistent noise definition ")
 					}
-					layer.copyChannel(msk,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
-					msk.dispose()
+					layer.copyChannel(msk2,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
+					msk2.dispose()
 					tDatas[tDatas.length] = layer
 					temp.addChild(new Bitmap(layer))
 					
@@ -119,39 +132,50 @@
 			*/
 			public function getBump(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
-				var ret:Sprite = new Sprite
 				var temp:Sprite = new Sprite
+				var tDatas:Array = new Array
+				
+				var precision:int = fPerlinMaterial.NOISE_PRECISION
 
 				// Draw base
 				temp.addChild(this.baseMaterial.getBump(element,width,height))
 				
 				// Draw layers, if any
 				var ml:int = this.materialLayers.length
-				for(var i:Number=0;i<ml;i++) {
+				for(var i:int=0;i<ml;i++) {
 					
 					var layer:BitmapData = new BitmapData(width,height,true,0x00000000)
 					var diffuse:DisplayObject = this.materialLayers[i].getBump(element,width,height)
 					layer.draw(diffuse)
-					var msk:BitmapData = new BitmapData(width,height,false,0x000000)
+					var msk2:BitmapData = new BitmapData(width,height,false,0x000000)
 					try {
+						var msk:BitmapData = new BitmapData(width/precision,height/precision,false,0x000000)
 						var n:fNoiseDefinition = this.materialNoises[i]
-						n.drawNoise(msk,BitmapDataChannel.RED,element.x,element.y)
+						n.drawNoise(msk,BitmapDataChannel.RED,element.x/precision,element.y/precision,1/precision)
+						var mat:Matrix = new Matrix()
+						mat.scale(precision,precision)
+						msk2.draw(msk,mat)
+						msk.dispose()
 					} catch(e:Error) {
 						throw new Error("Filmation Engine Exception: Attempt to use a nonexistent noise definition ")
 					}
-					layer.copyChannel(msk,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
-					msk.dispose()
-					
+					layer.copyChannel(msk2,new Rectangle(0, 0, width,height),new Point(0,0),BitmapDataChannel.RED, BitmapDataChannel.ALPHA)
+					msk2.dispose()
+					tDatas[tDatas.length] = layer
 					temp.addChild(new Bitmap(layer))
 					
 				}
 				
 				// Merge layers
 			  msk = new BitmapData(width,height)
-				msk.draw(temp)				
-				ret.addChild(new Bitmap(msk))
+				msk.draw(temp)
+				var dl:int = tDatas.length 
+				for(i=0;i<dl;i++) {
+					tDatas[i].dispose()
+					tDatas[i] = null
+				}
+				return new Bitmap(msk)
 				
-				return ret
 			}
 
 			/** 

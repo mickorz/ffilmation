@@ -2,6 +2,7 @@ package org.ffilmation.engine.core {
 	
 		// Imports
 		import org.ffilmation.utils.*
+		import org.ffilmation.engine.elements.*
 
 		import flash.geom.*
 		import flash.events.*
@@ -263,7 +264,12 @@ package org.ffilmation.engine.core {
 				var bounds:Rectangle = this.bounds2d
 				var pos2D:Point = new Point(x,y)
 				var dist:Number = Infinity
-				var origin:Point = fScene.translateCoords(this.x,this.y,this.z)
+				if(this is fWall) {
+					var w:fWall = this as fWall
+					var origin:Point = fScene.translateCoords(w.x0,w.y0,w.z)
+				} else {
+					origin = fScene.translateCoords(this.x,this.y,this.z)
+				}
 				
 				if(bounds.contains(pos2D.x-origin.x,pos2D.y-origin.y)) return 0
 				

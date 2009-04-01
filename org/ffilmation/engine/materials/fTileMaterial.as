@@ -20,10 +20,13 @@ package org.ffilmation.engine.materials {
 			
 			// Private vars
 			private var definition:fMaterialDefinition	// Definition data
+			private var image:BitmapData								// The etxture itself
 			
 			// Constructor
 			public function fTileMaterial(definition:fMaterialDefinition):void {
 				this.definition = definition
+				var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
+				this.image = new clase(0,0) as BitmapData
 			}
 			
 			/**
@@ -31,7 +34,8 @@ package org.ffilmation.engine.materials {
 			*/
 			public function dispose():void {
 				this.definition = null
-				
+				if(this.image) this.image.dispose()
+				this.image = null
 			}
 
 			/** 
@@ -48,10 +52,6 @@ package org.ffilmation.engine.materials {
 			public function getDiffuse(element:fRenderableElement,width:Number,height:Number):DisplayObject {
 				
 				var temp:Shape = new Shape
-				
-				var clase:Class = getDefinitionByName(this.definition.xmlData.diffuse) as Class
-				var image:BitmapData = new clase(0,0) as BitmapData
-				
 				var matrix:Matrix = new Matrix()
 				if(element is fFloor) matrix.translate(-element.x,-element.y)
 				if(element is fWall) {
@@ -60,7 +60,7 @@ package org.ffilmation.engine.materials {
 					else matrix.translate(-element.x,-element.z)
 				}
 
-				temp.graphics.beginBitmapFill(image,matrix,true,true)
+				temp.graphics.beginBitmapFill(this.image,matrix,true,true)
 				temp.graphics.drawRect(0,0,width,height)
 				temp.graphics.endFill()
 

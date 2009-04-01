@@ -34,6 +34,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			/** Storing this allows us to show/hide the element */
 			public var containerParent:DisplayObjectContainer
+			
+			/** Are the assets for this plane already created ? */
+			public var assetsCreated:Boolean = false
+			
+			/** This stores render messages that reached the element before it was created, so when it is created it can be synched to the current state */
+			public var renderMessages:fRenderMessageQueue
+			
+			/** Is the element visible ( not logically but in terms of render visibility */
+			public var screenVisible:Boolean = false
 
 			// Constructor
 			/** @private */
@@ -56,7 +65,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 // Move asset to appropiate position
 				 this.place()
 				 
+				 // Create message queue
+				 this.renderMessages = new fRenderMessageQueue()
+				 
 			}
+
+			/**
+			* This method creates the assets for this plane. It is only called the first time the element in shown
+			*/
+			public function createAssets():void {}
 
 			/**
 			* Place asset its proper position
@@ -222,6 +239,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.scene = null
 				this.rEngine = null
 				this.flashClip = null
+				this.renderMessages.dispose()
+				this.renderMessages = null
 				
 			}
 

@@ -58,6 +58,7 @@
 			  var c1:org.ffilmation.demos.mynameisponcho.controllers.forest
 
 				// Create engine
+				fEngine.shadowQuality = fShadowQuality.GOOD
 				this.engine = new fEngine(this.container)
 				
 				// Goto first scene

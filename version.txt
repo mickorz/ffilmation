@@ -1,6 +1,7 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+Rendering big scenes no longer freezes. Things are rendered as they enter the viewable area, therefore rendering cost is proportional to window size, not scene size.
 Fixed object occlusion not working
 A bit of loop optimization
 Destroying an scene is about 5 times faster

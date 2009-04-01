@@ -101,11 +101,9 @@ package org.ffilmation.engine.elements {
 			   		this.bounds2d = new Rectangle(0,c1.y,c1.x,-c1.y)
 			   }
 
-
 			}
 			
 			// Methods
-		
 
 
 			// Is this wall in front of other plane ? Note that a false return value doesn not imply the opposite: None of the planes

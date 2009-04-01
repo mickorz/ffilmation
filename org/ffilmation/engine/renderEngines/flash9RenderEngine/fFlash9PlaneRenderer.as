@@ -1,4 +1,4 @@
-package org.ffilmation.engine.renderEngines.flash9RenderEngine {
+﻿package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 	
 		// Imports
 	  import flash.display.*
@@ -76,8 +76,27 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			// Constructor
 			function fFlash9PlaneRenderer(rEngine:fFlash9RenderEngine,element:fPlane,width:Number,height:Number,spriteToDraw:Sprite,spriteToShowHide:fElementContainer):void {
 				
+				 // Previous
+				 super(rEngine,element,null,spriteToShowHide)
+
+				 // Properties
+			   this.origWidth = width
+			   this.origHeight = height
+			   this.spriteToDraw = spriteToDraw
+
+         // Listen to changes in material
+         element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial,false,0,true)
+
+			}
+			
+			/**
+			* This method creates the assets for this plane. It is only called the first time the element scrolls into view
+			*/
+			public override function createAssets():void {
+				
  			   // This is the polygon that is drawn to represent this plane, with perspective applied
 				 this.clipPolygon = new fPolygon()
+				 var element:fPlane = this.element as fPlane
 				 var contours:Array = element.shapePolygon.contours
 
 				 // Process shape vertexes
@@ -88,7 +107,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 			var c:Array = contours[k]
 				 			var projectedShape:Array = new Array
 				 			var cl2:int = c.length
-				 			for(var k2:int=0;k2<cl2;k2++) 	projectedShape[k2] = fScene.translateCoords(-0.0+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.0+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2,0)
+				 			for(var k2:int=0;k2<cl2;k2++) projectedShape[k2] = fScene.translateCoords(fEngine.RENDER_FINETUNE_3+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,fEngine.RENDER_FINETUNE_3+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2,0)
 				 			this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 		}
 				 		
@@ -101,7 +120,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 				c = contours[k]
 				 				projectedShape = new Array
 				 				cl2 = c.length
-				 				for(k2=0;k2<cl2;k2++) projectedShape[k2] = fScene.translateCoords(0,-0.0+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,-0.0+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
+				 				for(k2=0;k2<cl2;k2++) projectedShape[k2] = fScene.translateCoords(0,fEngine.RENDER_FINETUNE_3+c[k2].x*fEngine.RENDER_FINETUNE_1+c[k2].y*fEngine.RENDER_FINETUNE_2,fEngine.RENDER_FINETUNE_3+c[k2].y*fEngine.RENDER_FINETUNE_1+c[k2].x*fEngine.RENDER_FINETUNE_2)
 				 				this.clipPolygon.contours[this.clipPolygon.contours.length] = projectedShape
 				 			}
 				 	  } else {
@@ -117,7 +136,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 }
 
  			   // Retrieve diffuse map
- 			   var d:DisplayObject = element.material.getDiffuse(element,width,height,true)
+ 			   var d:DisplayObject = element.material.getDiffuse(element,this.origWidth,this.origHeight,true)
  			   if(d) {
  			   	 this.diffuseData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
 				 	 var oMatrix:Matrix = this.planeDeform.clone()
@@ -125,20 +144,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 	 this.diffuseData.draw(d,oMatrix,null,null,null,true)
  			   	 this.diffuse = new Bitmap(this.diffuseData,"never",true)
  			   	 this.diffuse.y = Math.round(element.bounds2d.y)
- 			   	 spriteToShowHide.visible = true
+ 			   	 this.container.visible = true
  			   } else {
 				 	 this.diffuseData = null
  			   	 this.diffuse = new Bitmap()
- 			   	 spriteToShowHide.visible = false
+ 			   	 this.container.visible = false
  			   }
-
-				 // Previous
-				 super(rEngine,element,null,spriteToShowHide)
-
-				 // Properties
-			   this.origWidth = width
-			   this.origHeight = height
-			   this.spriteToDraw = spriteToDraw
 
 				 // This is the Sprite where all light layers are generated.
 				 // This Sprite is attached to the sprite that is visible onscreen
@@ -212,11 +223,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.cacheTimer = new Timer(100,1)
          this.cacheTimer.addEventListener(TimerEvent.TIMER, this.cacheTimerListener,false,0,true)
          this.cacheTimer.start()
-         
-         // Listen to changes in material
-         element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial,false,0,true)
 
-			}
+				
+			}		
+			
 			
 			// PLANE CACHE
 			//////////////
@@ -296,7 +306,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* Renders element visible
 			*/
 			public override function show():void {
- 				 this.doCache()
 			   this.containerParent.addChild(this.container)
 			}
 			
@@ -304,7 +313,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			* Renders element invisible
 			*/
 			public override function hide():void {
-				 this.undoCache()
 			   try { this.containerParent.removeChild(this.container) } catch(e:Error) {}
 			}
 
@@ -419,11 +427,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			   this.lightC.removeChild(lClip)
 			
 			}
-			
 
 			// HOLE MANAGEMENT
 			//////////////////
-
 
 			/**
 			* This processes new hole definitions for this plane
@@ -1048,14 +1054,15 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			public function disposePlaneRenderer():void {
 
-
 				this.element.removeEventListener(fRenderableElement.SHOW,this.redrawShadowsOnShowHide)
 				this.element.removeEventListener(fRenderableElement.HIDE,this.redrawShadowsOnShowHide)
 
 				this.undoCache()
-        this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
-       	this.cacheTimer.stop()
-       	this.cacheTimer = null
+        if(this.cacheTimer) {
+        	this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
+       		this.cacheTimer.stop()
+       		this.cacheTimer = null
+       	}
        	this.planeDeform = null
        	this.clipPolygon = null
 			  
@@ -1065,7 +1072,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			  for(var i:int=0;i<hl;i++) {
    					element.holes[i].removeEventListener(fHole.OPEN,this.openHole)
 				 		element.holes[i].removeEventListener(fHole.CLOSE,this.closeHole)
-				 		if(!element.holes[i].open && element.holes[i].block) this.behind.removeChild(element.holes[i].block)				 		 	
+				 		if(!element.holes[i].open && element.holes[i].block && this.behind) this.behind.removeChild(element.holes[i].block)				 		 	
 			  }
 
 				// Maps
@@ -1079,41 +1086,56 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				this.tMatrixB = null
 
 				// Lights
-				var il:int = this.lightMasks.length 
-				for(i=0;i<il;i++) {
-					if(this.lightMasks[i]) this.lightMasks[i].graphics.clear()
-					objectPool.returnInstance(this.lightMasks[i])
-					delete this.lightMasks[i]
+				if(this.lightMasks) {
+					var il:int = this.lightMasks.length 
+					for(i=0;i<il;i++) {
+						if(this.lightMasks[i]) this.lightMasks[i].graphics.clear()
+						objectPool.returnInstance(this.lightMasks[i])
+						delete this.lightMasks[i]
+					}
+					this.lightMasks = null
+			  }
+
+				if(this.lightShadowsObj) {
+					il = this.lightShadowsObj.length
+					for(i=0;i<il;i++) {
+						fFlash9RenderEngine.recursiveDelete(this.lightShadowsObj[i])
+						objectPool.returnInstance(this.lightShadowsObj[i])
+						delete this.lightShadowsObj[i]
+					}
+					this.lightShadowsObj = null
 				}
-				this.lightMasks = null
-				il = this.lightShadowsObj.length
-				for(i=0;i<il;i++) {
-					fFlash9RenderEngine.recursiveDelete(this.lightShadowsObj[i])
-					objectPool.returnInstance(this.lightShadowsObj[i])
-					delete this.lightShadowsObj[i]
+				
+				if(this.lightShadowsPl) {
+					il = this.lightShadowsPl.length
+					for(i=0;i<il;i++) {
+						fFlash9RenderEngine.recursiveDelete(this.lightShadowsPl[i])
+						objectPool.returnInstance(this.lightShadowsPl[i])
+						delete this.lightShadowsPl[i]
+					}
+					this.lightShadowsPl = null
 				}
-				this.lightShadowsObj = null
-				il = this.lightShadowsPl.length
-				for(i=0;i<il;i++) {
-					fFlash9RenderEngine.recursiveDelete(this.lightShadowsPl[i])
-					objectPool.returnInstance(this.lightShadowsPl[i])
-					delete this.lightShadowsPl[i]
+				
+				if(this.lightBumps) {
+					il = this.lightBumps.length
+					for(i=0;i<il;i++) {
+						fFlash9RenderEngine.recursiveDelete(this.lightBumps[i])
+						objectPool.returnInstance(this.lightBumps[i])
+						delete this.lightBumps[i]
+					}
+					this.lightBumps = null
 				}
-				this.lightShadowsPl = null
-				il = this.lightBumps.length
-				for(i=0;i<il;i++) {
-					fFlash9RenderEngine.recursiveDelete(this.lightBumps[i])
-					objectPool.returnInstance(this.lightBumps[i])
-					delete this.lightBumps[i]
+				
+				if(this.lightClips) {
+					il = this.lightClips.length
+					for(i=0;i<il;i++) {
+						objectPool.returnInstance(this.lightClips[i])
+						fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
+						delete this.lightClips[i]
+					}
+					this.lightClips = null
 				}
-				this.lightBumps = null
-				il = this.lightClips.length
-				for(i=0;i<il;i++) {
-					objectPool.returnInstance(this.lightClips[i])
-					fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
-					delete this.lightClips[i]
-				}
-				this.lightClips = null
+				
 				for(var j in this.lightStatuses) {
 					var light:fLight =this.lightStatuses[j].light
 					if(light) {

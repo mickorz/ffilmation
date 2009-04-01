@@ -1,7 +1,6 @@
 // RENDER AND ZSORT LOGIC
 package org.ffilmation.engine.core.sceneLogic {
 
-
 		// Imports
 		import flash.events.*
 		import flash.display.*
@@ -15,7 +14,6 @@ package org.ffilmation.engine.core.sceneLogic {
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.logicSolvers.visibilitySolver.*
 		import org.ffilmation.engine.logicSolvers.coverageSolver.*
-		
 
 		/**
 		* This class manages which elements are visible inside the viewport, zSorts them, and calls
@@ -41,7 +39,8 @@ package org.ffilmation.engine.core.sceneLogic {
 			
 			// Receives the viewport size for this scene
 			public function setViewportSize(width:Number,height:Number):void {
-				this.range = Math.sqrt(width*width+height*height)//(2*fEngine.DEFORMATION)
+				this.range = Math.sqrt(width*width+height*height)*0.5//(2*fEngine.DEFORMATION)
+				this.range += 2*this.scene.gridSize
 			}
 			
 			// This method is called when the scene is to be rendered and its render engine is ready

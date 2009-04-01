@@ -43,13 +43,12 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			function fFlash9ObjectRenderer(rEngine:fFlash9RenderEngine,container:fElementContainer,element:fObject):void {
 				
-				 // Attach base clip
-				 this.baseObj = objectPool.getInstanceOf(Sprite) as Sprite
-				 container.addChild(this.baseObj)
-				 this.baseObj.mouseEnabled = false
-		     
 				 // Previous
-				 super(rEngine,element,this.baseObj,container)
+				 super(rEngine,element,null,container)
+
+				 // Angle
+				 var correctedAngle:Number = element._orientation/360
+				 this.currentSpriteIndex = int(correctedAngle*element.sprites.length)
 
 				 // Shadows
 				 this.allShadows = new Array
@@ -60,8 +59,21 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 
 			 	 // Projection cache
 			 	 this.projectionCache = new fObjectProjectionCache
+				 
+			}
+
+			/**
+			* This method creates the assets for this plane. It is only called the first time the element scrolls into view
+			*/
+			public override function createAssets():void {
+
+				 // Attach base clip
+				 this.baseObj = objectPool.getInstanceOf(Sprite) as Sprite
+				 container.addChild(this.baseObj)
+				 this.baseObj.mouseEnabled = false
 			 	 
 			 	 // Cache as bitmap non-animated objects
+			 	 var element:fObject = this.element as fObject
 			 	 this.container.cacheAsBitmap = element.animated!=true
 			 	 
 			 	 // Show and hide listeners, to redraw shadows
@@ -77,6 +89,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 this.occlusionCount = 0
 				 
 			 	 // Draw initial sprite
+			 	 this.currentSpriteIndex = -1
 				 this.rotationListener(new Event("Dummy"))
 				 
 			}
@@ -236,7 +249,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 		
 				 		var clase:Class = el.sprites[this.currentSpriteIndex].shadow as Class
 				 		clip = objectPool.getInstanceOf(clase) as MovieClip
-				 		clip.gotoAndPlay(this.currentSprite.currentFrame)
+				 		if(this.currentSprite) clip.gotoAndPlay(this.currentSprite.currentFrame)
 				 		
 				 } else {
 				 	  clip = objectPool.getInstanceOf(MovieClip) as MovieClip

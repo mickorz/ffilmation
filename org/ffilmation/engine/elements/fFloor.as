@@ -72,7 +72,7 @@ package org.ffilmation.engine.elements {
 			   var c2:Point = fScene.translateCoords(this.width,this.depth,0)
 			   var c3:Point = fScene.translateCoords(0,this.depth,0)
 			   this.bounds2d = new Rectangle(0,c1.y,c2.x,c3.y-c1.y)
-			   
+
 			}
 
 			// Is this floor in front of other plane ? Note that a false return value does not imply the opposite: None of the planes

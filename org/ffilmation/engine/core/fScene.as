@@ -743,7 +743,7 @@ package org.ffilmation.engine.core {
 			   	this.addElementToRenderEngine(this.bullets[j])
 			   	this.bullets[j].customData.bulletRenderer.init()
 			   }
-		   	 
+
 			   // Set flag
 			   this.IAmBeingRendered = true
 
@@ -790,7 +790,7 @@ package org.ffilmation.engine.core {
 				 element.disableMouseEvents()
 				 
 			}
-
+			
 			/**
 			* This method removes an element from the renderEngine pool
 			*/

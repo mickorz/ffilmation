@@ -127,7 +127,8 @@ package org.ffilmation.utils {
 					for(var i in objectPool.classInstances) objectPool.classInstances[i] = null
 				}
 				
-				objectPool.garbageCollect()
+				// This is really not needed and causes a very annoying player freeze.
+				//objectPool.garbageCollect()
 
 			}
 

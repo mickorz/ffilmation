@@ -4,6 +4,7 @@
 		import flash.events.*
 		import flash.geom.*
 		import flash.display.*
+		import flash.utils.*
 
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.*
@@ -66,7 +67,6 @@
 				public function initRenderFor(element:fRenderableElement):fElementContainer {
 					
 					var renderer:fFlash9ElementRenderer = this.createRendererFor(element)
-					element.customData.flash9Renderer.renderGlobalLight(this.scene.environmentLight)
 					return element.customData.flash9Renderer.container
 		  	 	 
 				}
@@ -113,14 +113,54 @@
 			  * This method renders an element visible
 			  **/
 			  public function showElement(element:fRenderableElement):void {
-					element.customData.flash9Renderer.show()
+			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(!r.assetsCreated) {
+			  		r.createAssets()
+			  		r.renderGlobalLight(this.scene.environmentLight)
+			  		r.assetsCreated = true
+			  	}
+			  	r.screenVisible = true
+			  	this.applyPendingRenderMessages(element)
+					r.show()
 			  }
-
-			  /**
+			  
+			  // This method applies pending render messages
+			  private function applyPendingRenderMessages(element:fRenderableElement):void {
+			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	var messages:Array = r.renderMessages.getMessages()
+			  	var l:int = messages.length
+			  	for(var i:int=0;i<l;i++) {
+			  		var messageObj:fRenderMessage = messages[i]
+			  		var messageType:int = messageObj.message
+			  		switch(messageType) {
+							case fAllRenderMessages.LIGHT_IN: r.lightIn(messageObj.target as fLight); break;
+							case fAllRenderMessages.LIGHT_OUT: r.lightOut(messageObj.target as fLight); break;
+							case fAllRenderMessages.LIGHT_RESET: r.lightReset(messageObj.target as fLight); break;
+							case fAllRenderMessages.RENDER_START: r.renderStart(messageObj.target as fLight); break;
+							case fAllRenderMessages.RENDER_LIGHT: r.renderLight(messageObj.target as fLight); break;
+							case fAllRenderMessages.RENDER_SHADOW: r.renderShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
+							case fAllRenderMessages.RENDER_FINISH: r.renderFinish(messageObj.target as fLight); break;
+							case fAllRenderMessages.UPDATE_SHADOW: r.updateShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
+							case fAllRenderMessages.REMOVE_SHADOW: r.removeShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
+							case fAllRenderMessages.GLOBAL_INTESITY_CHANGE: r.processGlobalIntensityChange(messageObj.target as fGlobalLight); break;
+							case fAllRenderMessages.GLOBAL_COLOR_CHANGE: r.processGlobalColorChange(messageObj.target as fGlobalLight); break;
+							case fAllRenderMessages.START_OCCLUSION: r.startOcclusion(messageObj.target as fCharacter); break;
+							case fAllRenderMessages.UPDATE_OCCLUSION: r.updateOcclusion(messageObj.target as fCharacter); break;
+							case fAllRenderMessages.STOP_OCCLUSION: r.stopOcclusion(messageObj.target as fCharacter); break;
+			  		}      
+			  	}        
+                   
+			  	// Clear pending
+			  	r.renderMessages.reset()
+				}          
+                   
+			  /**        
 			  * This method renders an element invisible
-			  **/
+			  **/        
 			  public function hideElement(element:fRenderableElement):void {
-					element.customData.flash9Renderer.hide()
+			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	r.screenVisible = false
+					r.hide()
 			  }
 
 			  /**
@@ -141,63 +181,82 @@
 				* When a moving light reaches an element, this method is executed
 				*/
 				public function lightIn(element:fRenderableElement,light:fOmniLight):void {
-					element.customData.flash9Renderer.lightIn(light)
+			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.lightIn(light)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.LIGHT_IN,light)
 				}
 
 				/**
 				* When a moving light moves out of an element, this method is executed
 				*/
 				public function lightOut(element:fRenderableElement,light:fOmniLight):void {
-					element.customData.flash9Renderer.lightOut(light)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.lightOut(light)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.LIGHT_OUT,light,null,true)
+
 				}
 
 				/**
 				* When a light is to be reset ( new size )
 				*/
 				public function lightReset(element:fRenderableElement,light:fOmniLight):void {
-					element.customData.flash9Renderer.lightReset(light)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.lightReset(light)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.LIGHT_RESET,light)
 				}
 
 				/**
 				* This is the renderStart call.
 				*/
 				public function renderStart(element:fRenderableElement,light:fOmniLight):void {
-					element.customData.flash9Renderer.renderStart(light)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.renderStart(light)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_START,light)
 				}
 				
 				/**
 				* This is the renderLight call.
 				*/
 				public function renderLight(element:fRenderableElement,light:fOmniLight):void {
-					element.customData.flash9Renderer.renderLight(light)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.renderLight(light)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_LIGHT,light)
 				}
 
 				/**
 				* This is the renderShadow call.
 				*/
 				public function renderShadow(element:fRenderableElement,light:fOmniLight,shadow:fRenderableElement):void {
-					element.customData.flash9Renderer.renderShadow(light,shadow)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.renderShadow(light,shadow)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_SHADOW,light,shadow)
 				}
 
 				/**
 				* This is the renderFinish call.
 				*/
 				public function renderFinish(element:fRenderableElement,light:fOmniLight):void {
-					element.customData.flash9Renderer.renderFinish(light)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.renderFinish(light)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_FINISH,light)
 				}
 		
 				/**
 				* This is the updateShadow call.
 				*/
 				public function updateShadow(element:fRenderableElement,light:fOmniLight,shadow:fRenderableElement):void {
-					element.customData.flash9Renderer.updateShadow(light,shadow)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.updateShadow(light,shadow)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.UPDATE_SHADOW,light,shadow)
 				}
 
 				/**
 				* When an element is removed or hidden, or moves out of another element's range, its shadows need to be removed too
 				*/
 				public function removeShadow(element:fRenderableElement,light:fOmniLight,shadow:fRenderableElement):void {
-					element.customData.flash9Renderer.removeShadow(light,shadow)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.removeShadow(light,shadow)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.REMOVE_SHADOW,light,shadow,true)
 				}
 
 				/**
@@ -206,7 +265,7 @@
 				* this has been executed.
 				*/
 				public function resetShadows():void {
-					for(var i in this.renderers) this.renderers[i].resetShadows()
+					for(var i in this.renderers) if(this.renderers[i].assetsCreated) this.renderers[i].resetShadows()
 				}
 
 				/**
@@ -218,8 +277,8 @@
 					var rect:Rectangle = new Rectangle()
 					rect.width = this.viewWidth
 					rect.height = this.viewHeight
-					rect.x = -this.viewWidth/2+p.x
-					rect.y = -this.viewHeight/2+p.y
+					rect.x = Math.round(-this.viewWidth/2+p.x)
+					rect.y = Math.round(-this.viewHeight/2+p.y)
 					this.container.scrollRect = rect
 
 				}
@@ -240,7 +299,9 @@
 				* @param character Character causing the occlusion
 				*/
 				public function startOcclusion(element:fRenderableElement,character:fCharacter):void {
-					element.customData.flash9Renderer.startOcclusion(character)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.startOcclusion(character)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.START_OCCLUSION,character)
 				}
 				
 				/**
@@ -249,7 +310,9 @@
 				* @param character Character causing the occlusion
 				*/
 				public function updateOcclusion(element:fRenderableElement,character:fCharacter):void {
-					element.customData.flash9Renderer.updateOcclusion(character)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.updateOcclusion(character)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.UPDATE_OCCLUSION,character)
 				}
       	
 				/**
@@ -258,7 +321,9 @@
 				* @param character Character causing the occlusion
 				*/
 				public function stopOcclusion(element:fRenderableElement,character:fCharacter):void {
-					element.customData.flash9Renderer.stopOcclusion(character)
+					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
+			  	if(r.screenVisible) r.stopOcclusion(character)
+			  	else r.renderMessages.addMessage(fAllRenderMessages.STOP_OCCLUSION,character,null,true)
 				}
 
 				/**
@@ -386,14 +451,20 @@
 				* This event listener is executed when the global light changes its intensity
 				*/
 				private function processGlobalIntensityChange(evt:Event):void {
-					for(var i in this.renderers) this.renderers[i].processGlobalIntensityChange(evt.target as fGlobalLight)
+					for(var i in this.renderers) {
+						if(this.renderers[i].screenVisible) this.renderers[i].processGlobalIntensityChange(evt.target as fGlobalLight)
+						else this.renderers[i].renderMessages.addMessage(fAllRenderMessages.GLOBAL_INTESITY_CHANGE,evt.target as fGlobalLight)
+					}
 				}
 		
 				/**
 				* This event listener is executed when the global light changes its color
 				*/
 				private function processGlobalColorChange(evt:Event):void {
-					for(var i in this.renderers) this.renderers[i].processGlobalColorChange(evt.target as fGlobalLight)
+					for(var i in this.renderers) {
+						if(this.renderers[i].screenVisible) this.renderers[i].processGlobalColorChange(evt.target as fGlobalLight)
+						else this.renderers[i].renderMessages.addMessage(fAllRenderMessages.GLOBAL_COLOR_CHANGE,evt.target as fGlobalLight)
+					}
 				}
 
 				/**
