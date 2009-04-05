@@ -103,6 +103,13 @@
 				}
 
 				/**
+				* This method updates the position of an epmty Sprite's sprite
+				*/
+				public function updateEmptySpritePosition(spr:fEmptySprite):void {
+					spr.customData.flash9Renderer.place()
+				}
+
+				/**
 				* This method updates the position of a bullet's sprite
 				*/
 				public function updateBulletPosition(bullet:fBullet):void {
@@ -491,9 +498,10 @@
 		   	 		this.container.addChild(spr)			   
 
 						if(element is fFloor) element.customData.flash9Renderer = new fFlash9FloorRenderer(this,spr,element as fFloor)
-						if(element is fWall) element.customData.flash9Renderer = new fFlash9WallRenderer(this,spr,element as fWall)
-						if(element is fObject) element.customData.flash9Renderer = new fFlash9ObjectRenderer(this,spr,element as fObject)
-						if(element is fBullet) element.customData.flash9Renderer = new fFlash9BulletRenderer(this,spr,element as fBullet)
+						else if(element is fWall) element.customData.flash9Renderer = new fFlash9WallRenderer(this,spr,element as fWall)
+						else if(element is fObject) element.customData.flash9Renderer = new fFlash9ObjectRenderer(this,spr,element as fObject)
+						else if(element is fBullet) element.customData.flash9Renderer = new fFlash9BulletRenderer(this,spr,element as fBullet)
+						else element.customData.flash9Renderer = new fFlash9ElementRenderer(this,element,element.flashClip,spr)
 						
 						this.renderers[element.uniqueId] = element.customData.flash9Renderer
 						

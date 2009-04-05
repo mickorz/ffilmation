@@ -1,4 +1,4 @@
-       // Character class
+// Character class
 package org.ffilmation.engine.elements {
 	
 		// Imports

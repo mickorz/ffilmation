@@ -1,5 +1,4 @@
-// Basic renderable element class
-
+// Object class
 package org.ffilmation.engine.elements {
 	
 		// Imports

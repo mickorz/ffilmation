@@ -161,6 +161,11 @@ package org.ffilmation.engine.core {
 		  public var characters:Array                					
 
 		  /**
+		  * An array of all empty sprites for fast loop access. For "id" access use the .all array
+		  */
+		  public var emptySprites:Array                					
+
+		  /**
 		  * An array of all lights for fast loop access. For "id" access use the .all array
 		  */
 		  public var lights:Array                 						
@@ -244,6 +249,7 @@ package org.ffilmation.engine.core {
 			   this.walls = new Array           
 			   this.objects = new Array         
 			   this.characters = new Array         
+			   this.emptySprites = new Array         
 			   this.lights = new Array         
 			   this.everything = new Array          
 			   this.all = new Array 
@@ -527,6 +533,73 @@ package org.ffilmation.engine.core {
 
 			}
 
+			/** 
+			*	Creates a new empty sprite an adds it to the scene
+			*
+			* @param idchar: The unique id that will identify the character
+			*
+			* @param x: Initial x coordinate for the character
+			*
+			* @param y: Initial x coordinate for the character
+			*
+			* @param z: Initial x coordinate for the character
+			*
+			* @returns The newly created empty Sprite
+			*
+			**/
+			public function createEmptySprite(idspr:String,x:Number,y:Number,z:Number):fEmptySprite {
+				
+					// Create
+					var definitionObject:XML = <emptySprite id={idspr} x={x} y={y} z={z} />
+			   	var nEmptySprite:fEmptySprite = new fEmptySprite(definitionObject,this)
+			   	nEmptySprite.cell = this.translateToCell(x,y,z)
+			   	nEmptySprite.updateDepth()
+			   	
+			   	// Events
+				 	nEmptySprite.addEventListener(fElement.NEWCELL,this.processNewCell,false,0,true)			   
+				 	nEmptySprite.addEventListener(fElement.MOVE,this.renderElement,false,0,true)			   
+         	
+			   	// Add to lists
+			   	this.emptySprites.push(nEmptySprite)
+			   	this.everything.push(nEmptySprite)
+			   	this.all[nEmptySprite.id] = nEmptySprite
+					if(this.IAmBeingRendered) {
+						this.addElementToRenderEngine(nEmptySprite)
+						this.renderManager.processNewCellEmptySprite(nEmptySprite)
+					}
+
+					//Return
+					return nEmptySprite
+			}
+
+			/**
+			* Removes an empty sprite from the scene. This is not the same as hiding it, this removes the element completely from the scene
+			*
+			* @param spr The emptySprite to be removed
+			*/
+			public function removeEmptySprite(spr:fEmptySprite):void {
+
+					// Remove from arraya
+					this.emptySprites.splice(this.characters.indexOf(spr),1)
+					this.everything.splice(this.everything.indexOf(spr),1)
+		      this.all[spr.id] = null
+		      
+		      // Hide
+		      spr.hide()
+			   	
+			   	// Events
+				 	spr.removeEventListener(fElement.NEWCELL,this.processNewCell)			   
+				 	spr.removeEventListener(fElement.MOVE,this.renderElement)			   
+
+		      // Remove from render engine
+		      this.removeElementFromRenderEngine(spr)
+		      spr.dispose()
+
+			}
+
+
+
+
 			/**
 			* Creates a new bullet and adds it to the scene. Note that bullets use their own render system. The bulletRenderer interface allows
 			* you to have complex things such as trails. If it was integrated with the standard renderer, your bullets would have to be standard
@@ -738,6 +811,8 @@ package org.ffilmation.engine.core {
 			   for(j=0;j<jl;j++) this.addElementToRenderEngine(this.objects[j])
 			   jl = this.characters.length
 			   for(j=0;j<jl;j++) this.addElementToRenderEngine(this.characters[j])
+			   jl = this.emptySprites.length
+			   for(j=0;j<jl;j++) this.addElementToRenderEngine(this.emptySprites[j])
 			   jl = this.bullets.length
 			   for(j=0;j<jl;j++) {
 			   	this.addElementToRenderEngine(this.bullets[j])
@@ -838,6 +913,8 @@ package org.ffilmation.engine.core {
 			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.objects[j],true)
 			   jl = this.characters.length
 			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.characters[j],true)
+			   jl = this.emptySprites.length
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.emptySprites[j],true)
 			   jl = this.bullets.length
 			   for(j=0;j<jl;j++) {
 			   	this.bullets[j].customData.bulletRenderer.clear()
@@ -896,6 +973,11 @@ package org.ffilmation.engine.core {
 						this.renderManager.processNewCellCharacter(c)
 						fCharacterSceneLogic.processNewCellCharacter(this,c)
 					}
+					if(evt.target is fEmptySprite) {
+						var e:fEmptySprite = evt.target as fEmptySprite
+						this.renderManager.processNewCellEmptySprite(e)
+						fEmptySpriteSceneLogic.processNewCellEmptySprite(this,e)
+					}
 					if(evt.target is fBullet) {
 						var b:fBullet = evt.target as fBullet
 						this.renderManager.processNewCellBullet(b)
@@ -914,6 +996,7 @@ package org.ffilmation.engine.core {
 			   if(this.IAmBeingRendered) {
 			   	if(evt.target is fOmniLight) fLightSceneLogic.renderOmniLight(this,evt.target as fOmniLight)
 				 	if(evt.target is fCharacter) fCharacterSceneLogic.renderCharacter(this,evt.target as fCharacter)
+				 	if(evt.target is fEmptySprite) fEmptySpriteSceneLogic.renderEmptySprite(this,evt.target as fEmptySprite)
 				 	if(evt.target is fBullet) fBulletSceneLogic.renderBullet(this,evt.target as fBullet)
 				 }
 				
@@ -1151,6 +1234,11 @@ package org.ffilmation.engine.core {
 		  	for(i=0;i<il;i++) {
 		  		this.characters[i].dispose()
 		  		delete this.characters[i]
+		  	}
+		  	il = this.emptySprites.length
+		  	for(i=0;i<il;i++) {
+		  		this.emptySprites[i].dispose()
+		  		delete this.emptySprites[i]
 		  	}
 		  	il = this.lights.length
 		  	for(i=0;i<il;i++) {

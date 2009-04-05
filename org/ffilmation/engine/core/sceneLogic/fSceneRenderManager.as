@@ -28,6 +28,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			private var depthSortArr:Array									// Array of elements for depth sorting
 			private var elementsV:Array											// An array of the elements currently visible
 			private var charactersV:Array										// An array of the characters currently visible
+			private var emptySpritesV:Array									// An array of emptySprites currently visible
 			private var cell:fCell													// The cell where the camera is
 			private var renderEngine:fEngineRenderEngine		// A reference to the render engine
 			
@@ -50,6 +51,7 @@ package org.ffilmation.engine.core.sceneLogic {
 		    this.depthSortArr = new Array
 		    this.elementsV = new Array          
 		    this.charactersV = new Array
+		    this.emptySpritesV = new Array
 			}
 
 			// Process new cell for cameras. It is only called when the scene is being rendered, so it can assume that
@@ -127,6 +129,9 @@ package org.ffilmation.engine.core.sceneLogic {
 
 			   // Update list
 			   this.elementsV = newElementsV
+			   
+			   ////////////////////
+			   
 				 
 				 // Step 2: Characters			   
 				 
@@ -177,6 +182,63 @@ package org.ffilmation.engine.core.sceneLogic {
 			   // Update list
 			   this.charactersV = newV
 			   
+			   
+			   /////////////
+			   
+
+				 // Step 3: Empty Sprites
+				 
+			   var esLength:int = scene.emptySprites.length
+			   var spr:fEmptySprite
+			   
+			   newV = []
+			   for(i2=0;i2<esLength;i2++) {
+			   		// Is sprite within range ?
+			   		spr = scene.emptySprites[i2]
+			   		if(spr.distance2d(x,y,z)<this.range) {
+			   			newV[newV.length] = spr
+			   			spr.willBeVisible = true
+			   		}
+			   }
+			   
+		     // Hide sprites no longer within range (if they where visible) 
+		     nEl = this.emptySpritesV.length
+		     for(i2=0;i2<nEl;i2++) {
+		     	spr = this.emptySpritesV[i2]
+		     	if(!spr.willBeVisible && spr._visible) {
+		     		
+		     		// Remove asset
+		     		this.renderEngine.hideElement(spr)
+		     		this.removeFromDepthSort(spr)
+		     		anyChanges = true
+		     		spr.isVisibleNow = false
+		     		
+		     	}
+		     }
+			   
+		     // Show sprites that are now within camera range and are visible
+		     nElements = newV.length
+		     for(i2=0;i2<nElements;i2++) {
+		     	spr = newV[i2]
+		     	spr.willBeVisible = false
+		     	if(!spr.isVisibleNow && spr._visible) {
+
+		     		// Add asset
+		     		this.renderEngine.showElement(spr)
+		     		this.addToDepthSort(spr)
+		     		spr.isVisibleNow = true
+		     		anyChanges = true
+		     		
+		     	}
+		     }
+
+			   // Update list
+			   this.emptySpritesV = newV
+			   
+			   
+			   ////////////
+
+
 			   // Redo depth sort if needed
 				 if(anyChanges) this.depthSort()
 			   
@@ -227,6 +289,61 @@ package org.ffilmation.engine.core.sceneLogic {
 		 		 if(character.cell!=null) character.setDepth(character.cell.zIndex)
 
 			}		
+
+			// Process new cells for empty sprites
+			public function processNewCellEmptySprite(spr:fEmptySprite):void {
+				
+		 		 // If visible, we place it
+		 		 if(spr._visible) {
+
+		   	 	 var x:Number, y:Number,z:Number
+		   	 	 if(this.cell) {
+		     	 	x = this.cell.x
+			   	 	y = this.cell.y
+			   	 	z = this.cell.z
+			   	 } else {
+			   	 	x = spr.x
+			   	 	y = spr.y
+			   	 	z = spr.z
+			   	 }
+		 		 	 
+		 		 	 // Inside range ?
+		 		 	 if(spr.distance2d(x,y,z)<this.range) {
+		 		 	 	
+		 		 	 		// Create if it enters the screen
+		 		 	 		if(!spr.isVisibleNow) {
+		 		 	 			
+			   	 			this.emptySpritesV[this.emptySpritesV.length] = spr
+			   	 			this.renderEngine.showElement(spr)
+			   	 			this.addToDepthSort(spr)
+			   	 			spr.isVisibleNow = true
+			   	 			
+		 		 	 		}
+		 		 	 	
+		 		 	 } else {
+		 		 	 	
+		 		 	 		// Destroy if it leaves the screen
+				 	 		if(spr.isVisibleNow) {
+         	 
+				 	 			var pos:int = this.emptySpritesV.indexOf(spr)
+				 	 			this.emptySpritesV.splice(pos,1)
+					 			this.renderEngine.hideElement(spr)
+					 			this.removeFromDepthSort(spr)          
+				 	   		spr.isVisibleNow = false
+         	 
+		 		 	    }
+		 		 	 }
+
+		 		 }
+		 		 	
+		 		 // Change depth of object
+		 		 spr.updateDepth()
+
+			}		
+
+
+
+
 
 			// Process New cell for Bullets
 			public function processNewCellBullet(bullet:fBullet):void {
@@ -409,6 +526,11 @@ package org.ffilmation.engine.core.sceneLogic {
 					for(i=0;i<il;i++) delete this.charactersV[i]
 				}
 				this.charactersV = null
+				if(this.emptySpritesV) {
+					il = this.emptySpritesV.length
+					for(i=0;i<il;i++) delete this.emptySpritesV[i]
+				}
+				this.emptySpritesV = null
 				this.cell = null
 			}
 

@@ -63,6 +63,14 @@ package org.ffilmation.engine.interfaces {
 				function updateCharacterPosition(char:fCharacter):void;
 
 				/**
+				* This method updates the position of an epmty Sprite's sprite
+				*
+				* @param spr The emptySprite that needs to be moved
+				*/
+				function updateEmptySpritePosition(spr:fEmptySprite):void;
+
+
+				/**
 				* This method updates the position of a bullet's sprite
 				* @param bullet The bullet that needs to be moved
 				*/
