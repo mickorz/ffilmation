@@ -30,7 +30,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 var url:URLRequest = new URLRequest(this.src)
 				 var loadUrl:URLLoader = new URLLoader(url)
 				 loadUrl.load(url)
-				 loadUrl.addEventListener(Event.COMPLETE, this.loadListener,false,0,true)
+				 loadUrl.addEventListener(Event.COMPLETE, this.loadListener)
 				 return loadUrl
 
 		  }

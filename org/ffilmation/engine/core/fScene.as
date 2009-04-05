@@ -794,9 +794,9 @@ package org.ffilmation.engine.core {
 			/**
 			* This method removes an element from the renderEngine pool
 			*/
-			private function removeElementFromRenderEngine(element:fRenderableElement) {
+			private function removeElementFromRenderEngine(element:fRenderableElement,destroyingScene:Boolean = false) {
 			
-				 this.renderManager.removedItem(element)
+				 this.renderManager.removedItem(element,destroyingScene)
 				 this.renderEngine.stopRenderFor(element)
 				 if(element.container) {
 				 	element.container.fElementId = null
@@ -831,17 +831,17 @@ package org.ffilmation.engine.core {
 		   	 
 			   // Stop render for all elements
 			   var jl:int = jl
-			   for(var j:int=0;j<jl;j++) this.removeElementFromRenderEngine(this.floors[j])
+			   for(var j:int=0;j<jl;j++) this.removeElementFromRenderEngine(this.floors[j],true)
 			   jl = this.walls.length
-			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.walls[j])
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.walls[j],true)
 			   jl = this.objects.length
-			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.objects[j])
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.objects[j],true)
 			   jl = this.characters.length
-			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.characters[j])
+			   for(j=0;j<jl;j++) this.removeElementFromRenderEngine(this.characters[j],true)
 			   jl = this.bullets.length
 			   for(j=0;j<jl;j++) {
 			   	this.bullets[j].customData.bulletRenderer.clear()
-			   	this.removeElementFromRenderEngine(this.bullets[j])
+			   	this.removeElementFromRenderEngine(this.bullets[j],true)
 			   }
 			   
 		  	 // Free bullet pool as the assets are no longer valid

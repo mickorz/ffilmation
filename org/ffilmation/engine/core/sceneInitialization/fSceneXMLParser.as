@@ -194,11 +194,11 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   var nfLight:fOmniLight = new fOmniLight(xmlObj,scene)
 			   	
 			   // Events
-				 nfLight.addEventListener(fElement.NEWCELL,scene.processNewCell,false,0,true)			   
-				 nfLight.addEventListener(fElement.MOVE,scene.renderElement,false,0,true)			   
-				 nfLight.addEventListener(fLight.RENDER,scene.processNewCell,false,0,true)			   
-				 nfLight.addEventListener(fLight.RENDER,scene.renderElement,false,0,true)			   
-				 nfLight.addEventListener(fLight.SIZECHANGE,scene.processNewLightDimensions,false,0,true)			   
+				 nfLight.addEventListener(fElement.NEWCELL,scene.processNewCell)			   
+				 nfLight.addEventListener(fElement.MOVE,scene.renderElement)			   
+				 nfLight.addEventListener(fLight.RENDER,scene.processNewCell)			   
+				 nfLight.addEventListener(fLight.RENDER,scene.renderElement)			   
+				 nfLight.addEventListener(fLight.SIZECHANGE,scene.processNewLightDimensions)			   
 			   	
 			   // Add to lists
 			   scene.lights.push(nfLight)

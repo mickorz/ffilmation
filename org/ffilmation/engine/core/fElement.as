@@ -153,7 +153,7 @@ package org.ffilmation.engine.core {
 				
 				if(this._controller!=null) this._controller.disable()
 				this._controller = controller
-				this._controller.assignElement(this)
+				if(this._controller) this._controller.assignElement(this)
 				
 			}
 			

@@ -32,6 +32,7 @@
 			public var clipPolygon:fPolygon						 // This is the shape polygon with perspective applied
 
 			// Cache for this plane, to bake a bitmap of it when it doesn't change
+			public var finalBitmapMask:Shape
 			public var finalBitmap:Bitmap
 			private var finalBitmapData:BitmapData
 
@@ -164,6 +165,13 @@
 			   this.baseContainer.addChild(this.infront)
 			   
 			   this.finalBitmap = new Bitmap(null,"never",true)
+			   this.finalBitmapMask = new Shape()
+				 this.finalBitmapMask.graphics.clear()
+				 this.finalBitmapMask.graphics.beginFill(0xFF0000,1)
+				 this.clipPolygon.draw(this.finalBitmapMask.graphics)
+				 this.spriteToDraw.addChild(this.finalBitmapMask)
+				 this.finalBitmapMask.graphics.endFill()
+				 this.finalBitmap.mask = this.finalBitmapMask
 
 			   // LIGHT
 			   this.lightClips = new Array  
@@ -1177,6 +1185,10 @@
 				// Base lights
 				this.behind = null
 				this.infront = null
+			  if(this.finalBitmap) this.finalBitmap.mask = null
+			  this.finalBitmapMask.graphics.clear()
+			  this.finalBitmapMask = null
+			  
 			  this.finalBitmap = null
 				if(this.finalBitmapData) this.finalBitmapData.dispose()
 				this.finalBitmapData = null

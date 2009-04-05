@@ -50,7 +50,11 @@ package org.ffilmation.engine.core {
 
 			/**
 			* A reference to the library movieclip that was attached to create the element, so you
-			* can acces methods inside, nested clips or whatever
+			* can acces methods inside, nested clips or whatever.
+			*
+			* This property is null until the element's graphics have been created. This happens the first time the element scrolls into the viewport.
+			* Listen to the <b>fRenderableElement.ASSETS_CREATED</b> event to know when this property exist.
+			*
 			*/
 			public var flashClip:MovieClip
 
@@ -85,6 +89,8 @@ package org.ffilmation.engine.core {
 			public var y1:Number
 			/** @private */
 			public var top:Number
+			
+			private var pendingDestiny:* = null
 						
 			// These properties are used by the renderManager
 			/////////////////////////////////////////////////
@@ -147,6 +153,17 @@ package org.ffilmation.engine.core {
  			*/
 		  public static const DISABLE:String = "renderableElementDisable"
 
+			/**
+ 			* The fRenderableElement.ASSETS_CREATED constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>renderableElementAssetsCreated</code> event.
+ 			* The event is dispatched when the element scrolls into view for the first time and its graphic assets are created.
+ 			* It is used to know when the flashClip property exists.
+ 			* 
+ 			* @eventType renderableElementAssetsCreated
+ 			*/
+		  public static const ASSETS_CREATED:String = "renderableElementAssetsCreated"
+
+
 			// Constructor
 			/** @private */
 			function fRenderableElement(defObj:XML,scene:fScene,noDepthSort:Boolean=false):void {
@@ -206,14 +223,23 @@ package org.ffilmation.engine.core {
 				 }
 			}
 
-
 			/**
-			* Passes the stardard gotoAndPLay command to the base clip of this element
+			* Passes the stardard gotoAndPlay command to the base clip of this element
 			*
 			* @param where A frame number or frame label
 			*/
 			public function gotoAndPlay(where:*):void {
 				 if(this.flashClip)	this.flashClip.gotoAndPlay(where)
+				 else {
+				 		this.pendingDestiny = where
+				 		this.removeEventListener(fRenderableElement.ASSETS_CREATED,this.delayedGotoAndStop)
+				 		this.addEventListener(fRenderableElement.ASSETS_CREATED,this.delayedGotoAndPlay)
+				 }
+			}
+			
+			private function delayedGotoAndPlay(e:Event):void {
+				 this.removeEventListener(fRenderableElement.ASSETS_CREATED,this.delayedGotoAndPlay)
+				 if(this.flashClip && this.pendingDestiny) this.flashClip.gotoAndPlay(this.pendingDestiny)
 			}
 
 			/**
@@ -222,8 +248,19 @@ package org.ffilmation.engine.core {
 			* @param where A frame number or frame label
 			*/
 			public function gotoAndStop(where:*):void {
-					if(this.flashClip) this.flashClip.gotoAndStop(where)
+				 if(this.flashClip) this.flashClip.gotoAndStop(where)
+				 else {
+				 		this.pendingDestiny = where
+				 		this.removeEventListener(fRenderableElement.ASSETS_CREATED,this.delayedGotoAndPlay)
+				 		this.addEventListener(fRenderableElement.ASSETS_CREATED,this.delayedGotoAndStop)
+				 }
 			}
+
+			private function delayedGotoAndStop(e:Event):void {
+				 this.removeEventListener(fRenderableElement.ASSETS_CREATED,this.delayedGotoAndStop)
+				 if(this.flashClip && this.pendingDestiny) this.flashClip.gotoAndStop(this.pendingDestiny)
+			}
+
 
 			/**
 			* Calls a function of the base clip

@@ -40,7 +40,9 @@ package org.ffilmation.engine.core.sceneLogic {
 			// Receives the viewport size for this scene
 			public function setViewportSize(width:Number,height:Number):void {
 				this.range = Math.sqrt(width*width+height*height)*0.5//(2*fEngine.DEFORMATION)
-				this.range += 2*this.scene.gridSize
+				if(this.range<=0) this.range = Infinity
+				else this.range += 2*this.scene.gridSize
+				
 			}
 			
 			// This method is called when the scene is to be rendered and its render engine is ready
@@ -185,7 +187,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			public function processNewCellCharacter(character:fCharacter):void {
 				
 		 		 // If visible, we place it
-		 		 if(!character._visible) {
+		 		 if(character._visible) {
 
 		   	 	 var x:Number, y:Number,z:Number
 		     	 x = this.cell.x
@@ -236,7 +238,7 @@ package org.ffilmation.engine.core.sceneLogic {
 		 		 }
 		 		 
 		 		 // If visible, we place it
-		 		 if(!bullet._visible) {
+		 		 if(bullet._visible) {
 
 		   	 	 var x:Number, y:Number,z:Number
 		     	 x = this.cell.x
@@ -313,7 +315,7 @@ package org.ffilmation.engine.core.sceneLogic {
 			}
 
 			// Removes an element from the render logic
-			public function removedItem(ele:fRenderableElement):void {
+			public function removedItem(ele:fRenderableElement,destroyingScene:Boolean = false):void {
 				
 	   		 if(ele.isVisibleNow) {
 
@@ -336,7 +338,7 @@ package org.ffilmation.engine.core.sceneLogic {
 				 		}
          		
 	   		 		// Redo depth sort
-	   		 		this.depthSort() 
+	   		 		if(!destroyingScene) this.depthSort() 
 	   		 
 	   		 }
 

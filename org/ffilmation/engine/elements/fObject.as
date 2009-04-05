@@ -94,7 +94,6 @@ package org.ffilmation.engine.elements {
  			* The event is dispatched when the object changes its orientation
  			* 
  			* @eventType objectNewOrientation
- 			* @private
  			*/
 		  public static const NEWORIENTATION:String = "objectNewOrientation"
 
@@ -104,7 +103,6 @@ package org.ffilmation.engine.elements {
  			* The event is dispatched when you execute a gotoAndPlay call in the object
  			* 
  			* @eventType objectGotoAndPlay
- 			* @private
  			*/
 		  public static const GOTOANDPLAY:String = "objectGotoAndPlay"
 
@@ -115,7 +113,6 @@ package org.ffilmation.engine.elements {
  			* The event is dispatched when you execute a gotoAndPlay call in the object
  			* 
  			* @eventType objectGotoAndStop
- 			* @private
  			*/
 		  public static const GOTOANDSTOP:String = "objectGotoAndStop"
 
@@ -269,7 +266,7 @@ package org.ffilmation.engine.elements {
 			*/
 			public override function gotoAndPlay(where:*):void {
 					
-				this.flashClip.gotoAndPlay(where)
+				if(this.flashClip) this.flashClip.gotoAndPlay(where)
 			    
 				// Dispatch event so the render engine updates the screen
 				this.dispatchEvent(new Event(fObject.GOTOANDPLAY))
@@ -283,7 +280,7 @@ package org.ffilmation.engine.elements {
 			*/
 			public override function gotoAndStop(where:*):void {
 				
-				this.flashClip.gotoAndStop(where)
+				if(this.flashClip) this.flashClip.gotoAndStop(where)
 
 				// Dispatch event so the render engine updates the screen
 				this.dispatchEvent(new Event(fObject.GOTOANDSTOP))
@@ -299,7 +296,7 @@ package org.ffilmation.engine.elements {
 			*/
 			public override function call(what:String,param:*=null):void {
 					
-					this.flashClip[what](param)
+					if(this.flashClip) this.flashClip[what](param)
 
 			}
 

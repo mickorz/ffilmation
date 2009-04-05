@@ -99,19 +99,18 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   this.verticals.sort(fSceneGridSorter.sortVerticals)
 	       this.scene.floors.sort(fSceneGridSorter.sortFloors)
 
-
 		     this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneGridSorter.SORTDESCRIPTION,0,fSceneGridSorter.SORTDESCRIPTION))
 
 				 // Next step
-				 var myTimer:Timer = new Timer(20, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSort,false,0,true)
+				 var myTimer:Timer = new Timer(100, 1)
+         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSort)
          myTimer.start()
 				 
 			}
 			
 			// zSort Start
 			private function zSort(event:TimerEvent):void {
-
+				
         event.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.zSort)
 
 	      // Start zSorting planes
@@ -143,11 +142,11 @@ package org.ffilmation.engine.core.sceneInitialization {
 				// z Sort loop
 				if(this.sortArray.length>0) {
 					var myTimer:Timer = new Timer(20, this.sortArray.length)
-        	myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop,false,0,true)
+        	myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop)
         } else {
 					myTimer = new Timer(20, 1)
         }
-       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete,false,0,true)
+       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
         myTimer.start()
         	
       }

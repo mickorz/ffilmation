@@ -122,6 +122,10 @@
 			  	r.screenVisible = true
 			  	this.applyPendingRenderMessages(element)
 					r.show()
+					
+					// Dispatch creation event
+					element.dispatchEvent(new Event(fRenderableElement.ASSETS_CREATED))
+										
 			  }
 			  
 			  // This method applies pending render messages
@@ -132,22 +136,26 @@
 			  	for(var i:int=0;i<l;i++) {
 			  		var messageObj:fRenderMessage = messages[i]
 			  		var messageType:int = messageObj.message
-			  		switch(messageType) {
-							case fAllRenderMessages.LIGHT_IN: r.lightIn(messageObj.target as fLight); break;
-							case fAllRenderMessages.LIGHT_OUT: r.lightOut(messageObj.target as fLight); break;
-							case fAllRenderMessages.LIGHT_RESET: r.lightReset(messageObj.target as fLight); break;
-							case fAllRenderMessages.RENDER_START: r.renderStart(messageObj.target as fLight); break;
-							case fAllRenderMessages.RENDER_LIGHT: r.renderLight(messageObj.target as fLight); break;
-							case fAllRenderMessages.RENDER_SHADOW: r.renderShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
-							case fAllRenderMessages.RENDER_FINISH: r.renderFinish(messageObj.target as fLight); break;
-							case fAllRenderMessages.UPDATE_SHADOW: r.updateShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
-							case fAllRenderMessages.REMOVE_SHADOW: r.removeShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
-							case fAllRenderMessages.GLOBAL_INTESITY_CHANGE: r.processGlobalIntensityChange(messageObj.target as fGlobalLight); break;
-							case fAllRenderMessages.GLOBAL_COLOR_CHANGE: r.processGlobalColorChange(messageObj.target as fGlobalLight); break;
-							case fAllRenderMessages.START_OCCLUSION: r.startOcclusion(messageObj.target as fCharacter); break;
-							case fAllRenderMessages.UPDATE_OCCLUSION: r.updateOcclusion(messageObj.target as fCharacter); break;
-							case fAllRenderMessages.STOP_OCCLUSION: r.stopOcclusion(messageObj.target as fCharacter); break;
-			  		}      
+			  		try {
+			  			switch(messageType) {
+								case fAllRenderMessages.LIGHT_IN: r.lightIn(messageObj.target as fLight); break;
+								case fAllRenderMessages.LIGHT_OUT: r.lightOut(messageObj.target as fLight); break;
+								case fAllRenderMessages.LIGHT_RESET: r.lightReset(messageObj.target as fLight); break;
+								case fAllRenderMessages.RENDER_START: r.renderStart(messageObj.target as fLight); break;
+								case fAllRenderMessages.RENDER_LIGHT: r.renderLight(messageObj.target as fLight); break;
+								case fAllRenderMessages.RENDER_SHADOW: r.renderShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
+								case fAllRenderMessages.RENDER_FINISH: r.renderFinish(messageObj.target as fLight); break;
+								case fAllRenderMessages.UPDATE_SHADOW: r.updateShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
+								case fAllRenderMessages.REMOVE_SHADOW: r.removeShadow(messageObj.target as fLight,messageObj.target2 as fRenderableElement); break;
+								case fAllRenderMessages.GLOBAL_INTESITY_CHANGE: r.processGlobalIntensityChange(messageObj.target as fGlobalLight); break;
+								case fAllRenderMessages.GLOBAL_COLOR_CHANGE: r.processGlobalColorChange(messageObj.target as fGlobalLight); break;
+								case fAllRenderMessages.START_OCCLUSION: r.startOcclusion(messageObj.target as fCharacter); break;
+								case fAllRenderMessages.UPDATE_OCCLUSION: r.updateOcclusion(messageObj.target as fCharacter); break;
+								case fAllRenderMessages.STOP_OCCLUSION: r.stopOcclusion(messageObj.target as fCharacter); break;
+			  			}
+			  	  } catch(e:Error) {
+			  	  	
+			  	  } 
 			  	}        
                    
 			  	// Clear pending
@@ -273,13 +281,17 @@
 				*/
 				public function setCameraPosition(camera:fCamera):void {
 
-					var p:Point = fScene.translateCoords(camera.x,camera.y,camera.z)
-					var rect:Rectangle = new Rectangle()
-					rect.width = this.viewWidth
-					rect.height = this.viewHeight
-					rect.x = Math.round(-this.viewWidth/2+p.x)
-					rect.y = Math.round(-this.viewHeight/2+p.y)
-					this.container.scrollRect = rect
+					if(this.viewWidth>0 && this.viewHeight>0) {
+						var p:Point = fScene.translateCoords(camera.x,camera.y,camera.z)
+						var rect:Rectangle = new Rectangle()
+						rect.width = this.viewWidth
+						rect.height = this.viewHeight
+						rect.x = Math.round(-this.viewWidth/2+p.x)
+						rect.y = Math.round(-this.viewHeight/2+p.y)
+						this.container.scrollRect = rect
+					} else {
+						this.container.scrollRect = null
+					}
 
 				}
 				
