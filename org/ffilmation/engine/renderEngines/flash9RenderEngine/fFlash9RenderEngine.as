@@ -350,29 +350,15 @@
 				*/
 				public function translateStageCoordsToElements(x:Number,y:Number):Array {
 					
-					var objects:Array = this.container.getObjectsUnderPoint(new Point(x,y))
-					if(objects.length==0) return null
-					
-					var ret:Array = new Array
-					var found:Array = new Array
-					
-					var ol:int = objects.length
-					for(var i:int=0;i<ol;i++) {
+					var found:Array = []
+					var ret:Array = []
+					for(var i in this.renderers) {
 						
-							var obj:DisplayObject = objects[i]
-							
-							// Search for element containing this DisplayObject
 							var el:fRenderableElement = null
-							while(el==null && obj!=this.container && obj!=null) {
-								if(obj is fElementContainer) {
-									 var m:fElementContainer = obj as fElementContainer
-									 if(m.fElement) el = m.fElement
-								}
-								obj = obj.parent
-							}
+							if(this.renderers[i].container) el = this.renderers[i].container.fElement
 							
-							if(el!=null && found.indexOf(el)<0 /*&& this.currentOccluding.indexOf(el)<0*/) {
-							
+							if(el!=null && found.indexOf(el)<0 && el.container.hitTestPoint(x,y,true)/*&& this.currentOccluding.indexOf(el)<0*/) {
+								
 									// Avoid repeated results
 									found[found.length] = el
         	
@@ -406,9 +392,15 @@
 							
 					}
 					
-					// Elements in front go first in the Array
-					ret.reverse()
+					// Sort elements by depth, closest to camera first
+					var sortOnDepth:Function = function(a:fCoordinateOccupant, b:fCoordinateOccupant):Number {
+					    if(a.element._depth > b.element._depth) return 1
+					    else if(a.element._depth < b.element._depth) return -1
+					    else return 0
+					}
+					ret.sort(sortOnDepth)
 					
+					// Return
 					if(ret.length==0) return null
 					else return ret
 

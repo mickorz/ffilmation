@@ -1186,7 +1186,7 @@
 				this.behind = null
 				this.infront = null
 			  if(this.finalBitmap) this.finalBitmap.mask = null
-			  this.finalBitmapMask.graphics.clear()
+			  if(this.finalBitmapMask) this.finalBitmapMask.graphics.clear()
 			  this.finalBitmapMask = null
 			  
 			  this.finalBitmap = null
