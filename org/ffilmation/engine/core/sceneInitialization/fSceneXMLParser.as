@@ -103,19 +103,19 @@ package org.ffilmation.engine.core.sceneInitialization {
 				 var tempObj:XMLList = xmlObj.body.child("event")
 			    for(var i:Number=0;i<tempObj.length();i++) {
 			   	  var evt:XML = tempObj[i]
-			   	  var tEvt:fCellEventInfo = new fCellEventInfo(evt)
+			   	  var tEvt:fCellEventInfo = new fCellEventInfo(evt,scene)
 			   	  
-						var rz:int = int((new Number(evt.@z[0]))/scene.levelSize)
-			   		var obi:int = int((new Number(evt.@x[0]))/scene.gridSize)
-			   		var obj:int = int((new Number(evt.@y[0]))/scene.gridSize)
+			   		var obi:int = tEvt.i
+			   		var obj:int = tEvt.j
+						var obk:int = tEvt.k
 			   		
-			   		var height:int = int((new Number(evt.@height[0]))/scene.levelSize)
-			   		var width:int = int((new Number(evt.@width[0]))/(2*scene.gridSize))
-			   		var depth:int = int((new Number(evt.@depth[0]))/(2*scene.gridSize))
+			   		var height:int = tEvt.height/scene.levelSize
+			   		var width:int = tEvt.width/scene.gridSize
+			   		var depth:int = tEvt.depth/scene.gridSize
 			   		
-			   		for(var n:Number=obj-depth;n<=(obj+depth);n++) {
-			   			for(var l:Number=obi-width;l<=(obi+width);l++) {
-			   				for(var k:Number=rz;k<=(rz+height);k++) {
+			   		for(var n:int=obj;n<(obj+depth);n++) {
+			   			for(var l:int=obi;l<(obi+width);l++) {
+			   				for(var k:int=obk;k<(obk+height);k++) {
 			   					try {
 			   						var cell:fCell = scene.getCellAt(l,n,k)
 			   						cell.events.push(tEvt)   	  
@@ -123,6 +123,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   	  		}
 			   	  	}
 			   	  }
+			   	  
+			   	  scene.events[scene.events.length] = tEvt
+			   	  
 			   }
 
 			}

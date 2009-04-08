@@ -196,7 +196,11 @@ package org.ffilmation.engine.core {
 		  public var bullets:Array
 
 			// Bullets go here instead of being deleted, so they can be reused
-			private var bulletPool:Array												
+			private var bulletPool:Array
+			
+			// Al events
+			/** @private */
+			public var events:Array
 
 
 		  // Events
@@ -250,6 +254,7 @@ package org.ffilmation.engine.core {
 			   this.objects = new Array         
 			   this.characters = new Array         
 			   this.emptySprites = new Array         
+			   this.events = new Array         
 			   this.lights = new Array         
 			   this.everything = new Array          
 			   this.all = new Array 
@@ -515,10 +520,12 @@ package org.ffilmation.engine.core {
 			*/
 			public function removeCharacter(char:fCharacter):void {
 
-					// Remove from arraya
-					this.characters.splice(this.characters.indexOf(char),1)
-					this.everything.splice(this.everything.indexOf(char),1)
-		      this.all[char.id] = null
+					// Remove from array
+					if(this.characters.indexOf(char)>=0) {
+						this.characters.splice(this.characters.indexOf(char),1)
+						this.everything.splice(this.everything.indexOf(char),1)
+		      	this.all[char.id] = null
+		      }
 		      
 		      // Hide
 		      char.hide()
@@ -580,9 +587,11 @@ package org.ffilmation.engine.core {
 			public function removeEmptySprite(spr:fEmptySprite):void {
 
 					// Remove from arraya
-					this.emptySprites.splice(this.characters.indexOf(spr),1)
-					this.everything.splice(this.everything.indexOf(spr),1)
-		      this.all[spr.id] = null
+					if(this.emptySprites.indexOf(spr)>=0) {
+						this.emptySprites.splice(this.emptySprites.indexOf(spr),1)
+						this.everything.splice(this.everything.indexOf(spr),1)
+		      	this.all[spr.id] = null
+		      }
 		      
 		      // Hide
 		      spr.hide()
@@ -1251,7 +1260,19 @@ package org.ffilmation.engine.core {
 		  		delete this.bullets[i]
 		  	}
 				for(var n in this.all) delete this.all[n]
-
+				
+			  this.floors = null       
+			  this.walls = null      
+			  this.objects = null      
+			  this.characters = null     
+			  this.emptySprites = null    
+			  this.events = null  
+			  this.lights = null  
+			  this.everything = null       
+			  this.all = null  
+			  this.bullets = null   
+			  this.bulletPool = null  
+				
 				// Free grid
 				this.freeGrid()
 				

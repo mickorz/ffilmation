@@ -1,6 +1,7 @@
 FFilmation: AS3 isometric engine. Version history:
 -------------------------------------------------
 
+Coordinates of the events in XMLs are now consistent with those of the rest of the elements. Sorry about the inconvenience.
 Added the fEmptySprite element type. This is an empty container that you can use to add user-controlled graphic elements to the scene. Sprites can be moved and are depthsorted, but don't collide, are not affected by lights, etc. The fEmptySprite class is useful to handle captions, rollovers and other interface elements that need to be placed in the proper depth and position, but are not part of the environment itself.
 Rendering big scenes no longer freezes. See http://www.ffilmation.org/website/2009/04/01/and-yet-another-very-important-optimization/ for a detailed explanation.
 Added fRenderableElement.ASSETS_CREATED event to know when the flashClip property is available.
