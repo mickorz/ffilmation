@@ -440,8 +440,10 @@ package org.ffilmation.engine.core {
 			public function removeOmniLight(light:fOmniLight):void {
 				
 					// Remove from array
-					this.lights.splice(this.lights.indexOf(light),1)
-					this.everything.splice(this.everything.indexOf(light),1)
+					if(this.lights && this.lights.indexOf(light)>=0) {
+						this.lights.splice(this.lights.indexOf(light),1)
+						this.everything.splice(this.everything.indexOf(light),1)
+					}
 					
 					// Hide light from elements
 			    var cell:fCell = light.cell
@@ -521,7 +523,7 @@ package org.ffilmation.engine.core {
 			public function removeCharacter(char:fCharacter):void {
 
 					// Remove from array
-					if(this.characters.indexOf(char)>=0) {
+					if(this.characters && this.characters.indexOf(char)>=0) {
 						this.characters.splice(this.characters.indexOf(char),1)
 						this.everything.splice(this.everything.indexOf(char),1)
 		      	this.all[char.id] = null
@@ -587,7 +589,7 @@ package org.ffilmation.engine.core {
 			public function removeEmptySprite(spr:fEmptySprite):void {
 
 					// Remove from arraya
-					if(this.emptySprites.indexOf(spr)>=0) {
+					if(this.emptySprites && this.emptySprites.indexOf(spr)>=0) {
 						this.emptySprites.splice(this.emptySprites.indexOf(spr),1)
 						this.everything.splice(this.everything.indexOf(spr),1)
 		      	this.all[spr.id] = null
