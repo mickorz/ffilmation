@@ -23,8 +23,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 		public class fFlash9FloorRenderer extends fFlash9PlaneRenderer {
 		
 			// Static properties and Render cache
-			private static var floorProjectionCache:fFloorProjectionCache = new fFloorProjectionCache()
-			private static var wallProjectionCache:Dictionary = new Dictionary(true)
+			public static var floorProjectionCache:fFloorProjectionCache = new fFloorProjectionCache()
+			public static var wallProjectionCache:Dictionary = new Dictionary(true)
 			private static var objectProjectionCache:Dictionary = new Dictionary(true)
 			//public static var matrix:Matrix = new Matrix(0.7071075439453125,-0.35355377197265625,0.7071075439453125,0.35355377197265625,0,0)
 			public static var matrix:Matrix = new Matrix(0.5253219888177297,-0.4254517622670592,0.8509035245341184,0.26266099440886487,0,0)

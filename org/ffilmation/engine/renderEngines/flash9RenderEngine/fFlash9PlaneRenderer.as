@@ -220,7 +220,6 @@
 
 				 // Holes
 			   this.processHoles(element)
-				 this.canBeSmoothed = (element.shapePolygon.contours.length==1 && element.holes.length==0)
 				 this.element.addEventListener(fRenderableElement.SHOW,this.redrawShadowsOnShowHide,false,0,true)
 				 this.element.addEventListener(fRenderableElement.HIDE,this.redrawShadowsOnShowHide,false,0,true)
 			   
@@ -387,8 +386,15 @@
 			*/
 			private function newMaterial(evt:fNewMaterialEvent):void {
 			
-			 	 // Diffuse
 			 	 var p:fPlane = evt.target as fPlane
+
+			 	 // Clear projection caches if needed
+				 if(fFlash9FloorRenderer.floorProjectionCache.fl==p) fFlash9FloorRenderer.floorProjectionCache.fl = null
+				 for(var i in fFlash9FloorRenderer.wallProjectionCache) {
+				 	if(int(i.substring(i.indexOf("_")+1))==p.uniqueId) fFlash9FloorRenderer.wallProjectionCache=null
+				 }
+
+			 	 // Diffuse
 			 	 var d:DisplayObject = p.material.getDiffuse(element,evt.width,evt.height,true)
 			 	 if(d) {
  			   	 var nDiffuseData:BitmapData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
@@ -406,8 +412,11 @@
 				 }
  			   
  			   // Holes
+ 			   while(this.behind.numChildren>0) this.behind.removeChild(this.behind.getChildAt(0))
 	   		 this.processHoles(p)
-	   		 
+	   		 if(this.canBeSmoothed) for(var n in this.lightShadowsPl) this.lightShadowsPl[n].blendMode = BlendMode.NORMAL
+				 else for(n in this.lightShadowsPl) this.lightShadowsPl[n].blendMode = BlendMode.ERASE
+				 
 	   		 // Redraw lights
 	   		 if(this.scene.IAmBeingRendered) {
 	   		 	this.redrawLights()
@@ -423,6 +432,7 @@
 			
 			   var lClip:Sprite = this.lightClips[light.uniqueId]
 			   this.lightC.addChild(lClip)
+			 	 this.lightStatuses[light.uniqueId].hidden = false
 				
 			}
 			
@@ -433,6 +443,7 @@
 			
 			   var lClip:Sprite = this.lightClips[light.uniqueId]
 			   this.lightC.removeChild(lClip)
+			 	 this.lightStatuses[light.uniqueId].hidden = true
 			
 			}
 
@@ -488,6 +499,7 @@
 				 		
 				 } 
 
+				 this.canBeSmoothed = (element.shapePolygon.contours.length==1 && element.holes.length==0)
 
 			}
 
@@ -547,6 +559,13 @@
 					this.redrawHoles()
 					this.renderGlobalLight(this.element.scene.environmentLight)
 					this.redrawShadowsOnShowHide()
+				  for(var j in this.lightStatuses) {
+						if(!this.lightStatuses[j].hidden) {
+							var light:fLight = this.lightStatuses[j].light
+							if(light && !light.removed) this.redrawLight(light)
+						}
+					}
+
 			}
 
 			/**
@@ -727,7 +746,9 @@
 			* Redraws a light
 			*/
 			public function redrawLight(light:fLight):void {
-
+				
+	       if(!this.lightStatuses[light.uniqueId]) return
+	       
 	       var lClip:Shape = this.lightMasks[light.uniqueId]
 	       lClip.graphics.clear()
 

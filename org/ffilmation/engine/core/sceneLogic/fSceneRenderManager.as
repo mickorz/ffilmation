@@ -252,9 +252,15 @@ package org.ffilmation.engine.core.sceneLogic {
 		 		 if(character._visible) {
 
 		   	 	 var x:Number, y:Number,z:Number
-		     	 x = this.cell.x
-			   	 y = this.cell.y
-			   	 z = this.cell.z
+				 	 try {
+			   	  x = this.cell.x
+			   	  y = this.cell.y
+			   	  z = this.cell.z
+			   	 } catch (e:Error) {
+			   	  x = 0
+			   	  y = 0
+			   	  z = 0
+			   	 }
 		 		 	 
 		 		 	 // Inside range ?
 		 		 	 if(character.distance2d(x,y,z)<this.range) {
@@ -302,9 +308,9 @@ package org.ffilmation.engine.core.sceneLogic {
 			   	 	y = this.cell.y
 			   	 	z = this.cell.z
 			   	 } else {
-			   	 	x = spr.x
-			   	 	y = spr.y
-			   	 	z = spr.z
+			   	 	x = 0
+			   	 	y = 0
+			   	 	z = 0
 			   	 }
 		 		 	 
 		 		 	 // Inside range ?
@@ -358,9 +364,15 @@ package org.ffilmation.engine.core.sceneLogic {
 		 		 if(bullet._visible) {
 
 		   	 	 var x:Number, y:Number,z:Number
-		     	 x = this.cell.x
-			   	 y = this.cell.y
-			   	 z = this.cell.z
+				 	 try {
+			   	  x = this.cell.x
+			   	  y = this.cell.y
+			   	  z = this.cell.z
+			   	 } catch (e:Error) {
+			   	  x = 0
+			   	  y = 0
+			   	  z = 0
+			   	 }
 		 		 	 
 		 		 	 // Inside range ?
 		 		 	 if(bullet.distance2d(x,y,z)<this.range) {

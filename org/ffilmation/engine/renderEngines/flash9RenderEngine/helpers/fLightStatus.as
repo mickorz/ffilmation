@@ -19,7 +19,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine.helpers {
 			public var created:Boolean
 			public var lightZ:Number
 			public var localPos:Point = new Point()
-			public var localScale:Number
+			public var localScale:Number = 0
+			public var hidden:Boolean = false
 			
 			// Constructor
 			function fLightStatus(element:fPlane,light:fLight):void {
