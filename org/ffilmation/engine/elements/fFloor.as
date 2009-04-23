@@ -75,6 +75,7 @@ package org.ffilmation.engine.elements {
 
 			}
 
+
 			// Is this floor in front of other plane ? Note that a false return value does not imply the opposite: None of the planes
 			// may be in front of each other
 			/** @private */

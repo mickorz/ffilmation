@@ -105,7 +105,6 @@ package org.ffilmation.engine.elements {
 			
 			// Methods
 
-
 			// Is this wall in front of other plane ? Note that a false return value doesn not imply the opposite: None of the planes
 			// may be in front of each other
 			/** @private */

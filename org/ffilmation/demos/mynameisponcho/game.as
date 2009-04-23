@@ -34,7 +34,7 @@
 		public var scene:fScene
 		public var hero:fEngineElementController
 		public var camera:fCamera
-		public var controllerType = game.MOUSE
+		public var controllerType = game.KEYBOARD
 		public var path:String
 		public var destination:XML
 		public var money:Number = 0
@@ -62,7 +62,7 @@
 				this.engine = new fEngine(this.container)
 				
 				// Goto first scene
-				this.gotoScene("scenes/crossroads.xml")
+				this.gotoScene("scenes/test.xml")
 				
 		}
 	
@@ -127,7 +127,7 @@
 				if(controllerType == game.MOUSE) this.hero = new ponchoMouseController()
 				else this.hero = new ponchoKeyboardController()
 				if(this.scene.all["Poncho"]) var poncho:fCharacter =  this.scene.all["Poncho"]
-			  else poncho = this.scene.createCharacter("Poncho","FFCharacters_poncho",200,200,0)
+			  else poncho = this.scene.createCharacter("Poncho","FFCharacters_poncho",this.scene.width/2,this.scene.depth/2,this.scene.height-200)
 			  poncho.occlusion = 60
 				poncho.addEventListener(fCharacter.EVENT_IN, this.INlistener,false,0,true)
 				poncho.addEventListener(fCharacter.WALKOVER, this.walkOverListener,false,0,true)

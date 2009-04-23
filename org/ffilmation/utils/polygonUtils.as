@@ -198,7 +198,10 @@
 									Cp_t_start = polygonUtils.Cp_start
 									Cp_t_end = polygonUtils.Cp_end
 			    	
-									while (j) {
+									var maxLoops:int = 10
+									while (j && maxLoops>0) {
+										
+										maxLoops--
 			    	
 										Cp_A_point.x = (Cp_t_start.x + Cp_t_end.x) / 2
 										Cp_A_point.y = (Cp_t_start.y + Cp_t_end.y) / 2

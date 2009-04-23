@@ -103,11 +103,26 @@ package org.ffilmation.engine.core {
 				 return mat
 				 
 			}
+			
+			// Frees all materials for one scene
+			public static function disposeMaterials(scene:fScene):void {
+				
+				var mats:Object = fMaterial.usedMaterialsPerScene[scene.id]
+				if(mats) {
+					for(var i in mats) {
+						var mat:fMaterial = mats[i]
+						mat.dispose()
+						delete mats[i]
+					}
+				}
+				fMaterial.usedMaterialsPerScene[scene.id] = null
+				
+			}
 
 
 			// Constructor
 			/** @private */
-			function fMaterial(id:String):void {
+			public function fMaterial(id:String):void {
 				 this.id = id
 			}
 

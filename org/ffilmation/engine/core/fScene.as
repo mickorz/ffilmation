@@ -81,6 +81,8 @@ package org.ffilmation.engine.core {
 		  public var gridSize:int		           								// Grid size ( in pixels )
 			/** @private */
 		  public var levelSize:int	          								// Vertical grid size ( along Z axis, in pixels )
+		  /** @private */
+		  public var sortCubeSize:int	=	fEngine.SORTCUBESIZE	// Sorting cube size
 
 			// 3. zSort
 
@@ -1277,6 +1279,9 @@ package org.ffilmation.engine.core {
 				
 				// Free grid
 				this.freeGrid()
+				
+				// Free materials
+				fMaterial.disposeMaterials(this)
 				
 			}
 

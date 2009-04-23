@@ -26,6 +26,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			*/
 			public static const SORTDESCRIPTION:String = "Z Sorting scene"
 			
+			
 			// Simple sort functions
 			public static function sortHorizontals(one:fWall,two:fWall):Number {
          if(one.j>two.j || (one.j==two.j && one.i>two.i)) return -1
@@ -44,17 +45,18 @@ package org.ffilmation.engine.core.sceneInitialization {
 			
 			// Private properties
 			private var scene:fScene
-			private var verticals:Array
-			private var horizontals:Array
-			private var sortArray:Array
-			private var duplicateSortArray:Array
+			private var sortCubes:Array
+			private var allVerticals:Array
+			private var allHorizontals:Array
+			private var serializedSortCubes:Array
+			private var cubeBeingProcessed:int
 			
 			// Constructor
 			public function fSceneGridSorter(s:fScene):void {
 				 this.scene = s				
 			}
 
-	    // Create grid for this scene ( only where the are floors )
+	    // Create grid for this scene ( only where there are floors )
 			public function createGrid():void {
 
 			   this.scene.grid = new Array
@@ -79,156 +81,188 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			// Start zSorting algorythm.
 			public function start():void {
-			
-				 // Init
-				 this.verticals = new Array
-				 this.horizontals = new Array
-				 this.sortArray = new Array
-				 this.duplicateSortArray = new Array
-				 
-				 // Populate wall arrays
-				 var wl:int = this.scene.walls.length
-				 for(var i:int=0;i<wl;i++) {
-				 		var w:fWall = this.scene.walls[i]
-				 		if(w.vertical) this.verticals[this.verticals.length] = w
-				 		else this.horizontals[this.horizontals.length] = w
-				 }
-			
-			   // Sort arrays
-			   this.horizontals.sort(fSceneGridSorter.sortHorizontals)
-			   this.verticals.sort(fSceneGridSorter.sortVerticals)
-	       this.scene.floors.sort(fSceneGridSorter.sortFloors)
-
-		     this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneGridSorter.SORTDESCRIPTION,0,fSceneGridSorter.SORTDESCRIPTION))
-
-				 // Next step
-				 var myTimer:Timer = new Timer(100, 1)
-         myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSort)
-         myTimer.start()
-				 
+				
+				// Create cubes
+				this.sortCubes = new Array
+				this.serializedSortCubes = new Array
+				this.allVerticals = new Array
+				this.allHorizontals = new Array
+				
+				var cwidth:int = Math.ceil(this.scene.width/this.scene.sortCubeSize)
+				var cdepth:int = Math.ceil(this.scene.depth/this.scene.sortCubeSize)
+				var cheight:int = Math.ceil(this.scene.height/this.scene.sortCubeSize)
+				
+				for(var i:int=0;i<cwidth;i++) {
+					this.sortCubes[i] = new Array
+					for(var j:int=0;j<cdepth;j++) {
+						this.sortCubes[i][j] = new Array
+						for(var k:int=0;k<cheight;k++) {
+							var n:fSortCube = new fSortCube()
+							n.i = i
+							n.j = j
+							n.k = k
+							n.zIndex = ((((((cwidth-i+1)+(j*cwidth+2)))*cheight)+k))/(cwidth*cdepth*cheight)
+							n.walls = []
+							n.floors = []
+							this.sortCubes[i][j][k] = n
+							this.serializedSortCubes.push(n)
+						}
+					}
+				}
+				
+				// Assign walls and floors to their cubes
+				for(i=0;i<this.scene.walls.length;i++) {
+					var w:fWall = this.scene.walls[i]
+					this.sortCubes[Math.floor((w.x+2)/this.scene.sortCubeSize)][Math.floor((w.y+2)/this.scene.sortCubeSize)][Math.floor((w.z+2)/this.scene.sortCubeSize)].walls.push(w)
+					if(w.vertical) this.allVerticals[this.allVerticals.length] = w
+					else this.allHorizontals[this.allHorizontals.length] = w
+				}
+				
+				for(i=0;i<this.scene.floors.length;i++) {
+					var f:fFloor = this.scene.floors[i]
+					this.sortCubes[Math.floor((f.x+2)/this.scene.sortCubeSize)][Math.floor((f.y+2)/this.scene.sortCubeSize)][Math.floor((f.z+2)/this.scene.sortCubeSize)].floors.push(f)
+				}
+				
+				// Process first cube
+				this.cubeBeingProcessed = 0
+				this.zSortCube()
+				
 			}
 			
-			// zSort Start
-			private function zSort(event:TimerEvent):void {
+			// zSort all planes in current cube cube (see http://ericlin2.tripod.com/walls/wallt.html)
+			// Ok so after 3 different crappy homebrewed algorythms I google isometric plane sort and found a simple loop that
+			// beats all my previous attempts in both speed and consistency...
+			private function zSortCube():void {
 				
-        event.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.zSort)
+				 // Init
+				 var cube:fSortCube = this.serializedSortCubes[this.cubeBeingProcessed]
+	       var sortArray:Array = new Array
 
-	      // Start zSorting planes
-	      this.sortArray = new Array
-	      var vl:int = this.verticals.length
-	      for(var i:int=0;i<vl;i++) {
-	      	var w:fWall = this.verticals[i]
-	      	w.setZ(this.scene.computeZIndex(w.i-1,w.j+w.size-1,w.k))
-	      	this.sortArray[this.sortArray.length] = w
-	      }
-	      var hl:int = this.horizontals.length 
-	      for(i=0;i<hl;i++) {
-	      	w = this.horizontals[i]
-	      	w.setZ(this.scene.computeZIndex(w.i,w.j,w.k))
-	      	this.sortArray[this.sortArray.length] = w
-	      }
-	      var fl:int = this.scene.floors.length 
-	      for(i=0;i<fl;i++) {
-	      	var f:fFloor = this.scene.floors[i]
-	      	if(f.k!=0) {
-	      		f.setZ(this.scene.computeZIndex(f.i,f.j+f.gDepth-1,f.k))
-      			this.sortArray[this.sortArray.length] = f
-      		} else {
-      			f.setZ(-this.scene.floors.length+this.scene.computeZIndex(f.i,f.j+f.gDepth-1,f.k))
-      		}
-	      }
-	      this.sortArray.sortOn("zIndex",Array.NUMERIC | Array.DESCENDING)
+	       // Add walls to list
+	       var vl:int = cube.walls.length
+	       for(var i:int=0;i<vl;i++) {
+	       	sortArray[sortArray.length] = cube.walls[i]
+	       }
+	       
+	       // Add floors to list. Floors at z=0 are skipped ( will be behind everything )
+	       var fl:int = cube.floors.length 
+	       for(i=0;i<fl;i++) {
+	       	var f:fFloor = cube.floors[i]
+	       	if(f.k!=0) {
+      	 		sortArray[sortArray.length] = f
+      	 	} else {
+      	 		f.setZ(-this.scene.floors.length+this.scene.computeZIndex(f.i,f.j+f.gDepth-1,f.k))
+      	 	}
+	       }
+         
+				 // z Sort loop
+				 var buffer = []
+				 var sl:int = sortArray.length
+				 for (i=0;i<sl;i++) {
 
-				// z Sort loop
-				if(this.sortArray.length>0) {
-					var myTimer:Timer = new Timer(20, this.sortArray.length)
-        	myTimer.addEventListener(TimerEvent.TIMER, this.zSortLoop)
-        } else {
-					myTimer = new Timer(20, 1)
-        }
-       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
+					var plane:fPlane = sortArray[i]
+					var insertPos:int = 0
+					var inserted:Boolean = false
+					
+					// We start placing it at the back of the stack and we move it forward until we find one that is effectively in front of the new one
+					var bl:int = buffer.length
+					for(var j:int=0;j<bl;j++) {
+						var elt:fPlane = buffer[j]
+						if (!inserted) {
+							
+							// Search for some plane in front, otherwise insert it in the last position of the array
+							if(elt.inFrontOf(plane)) {
+								insertPos = j
+								inserted = true
+								buffer.splice(j, 0, plane)
+								j++
+								// Increase j index, because we inserted the plane					
+							}
+						} else {
+						
+							// After insertion, the new plane should be in behind the rest of planes in the buffer
+							// We need to enforce this and move the remaining planes to the back of the queue if necessary
+							if(!elt.inFrontOf(plane)) {
+								for(var k:int=j-1;k>=insertPos;k--) {
+									var elt2:fPlane = buffer[k]
+									if(elt.inFrontOf(elt2)) {
+										break
+									}
+								}
+								buffer.splice(j, 1)
+								buffer.splice(k+1, 0, elt)
+							}
+						}
+					}
+					
+					// Insert as topmost plane
+					if(!inserted) buffer.push(plane)
+				}
+				
+				// End sort
+				sl = buffer.length
+	      for(i=0;i<sl;i++) (buffer[i] as fPlane).setZ((i+1)/(sl+2))
+				
+				// Next step
+				var myTimer:Timer = new Timer(20, 1)
+       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortCubeComplete)
         myTimer.start()
         	
       }
 
-			// This determines which plane is in front of which plane. Took me months of work with incredibly slow, complex
-			// and overall unclever algorythms to reach this. I don't know If I should feel incredibly smart or incredibly stupid.
-			private function setD(p:fPlane,value:Number,initial:Boolean=false):void {
+	      
+			// When a cube has been sorted
+			private function zSortCubeComplete(event:TimerEvent):void {
 				
-				  if(initial) p.setZ(value)
-				  else p.setZ(p.zIndex+value)
-				  
-	      	var sl:int = this.sortArray.length
-	      	for(var k:int=0;k<sl;k++) {
-	      		 	var temp:fPlane = this.sortArray[k]
-	      		  if(temp.zIndex<p.zIndex && temp.inFrontOf(p)) {
-	      		  	this.duplicateSortArray[this.duplicateSortArray.length] =  { plane:temp,zValue: p.zIndex} 
-	      		  }
-	      	}
-				
+       	event.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.zSortCubeComplete)
+       	
+       	// Is there another cube to process ?
+				this.cubeBeingProcessed++
+				if(this.cubeBeingProcessed<this.serializedSortCubes.length) this.zSortCube()
+       	else this.zSortComplete()
+       	
 			}
-	      
-			// Sorts walls, assigns zIndexes to all cells
-      public function zSortLoop(event:TimerEvent):void {
-                        
-         // Explore this plane
-         var count:int = event.target.currentCount-1
-         this.duplicateSortArray = new Array
-				 this.setD(this.sortArray[count],this.sortArray[count].zIndex,true)
-	       
-				 // Sort again previous planes that may need to be resorted due to this plane changing zIndex
-         do {
-         	
-             var tempP:Array = new Array
-             var dl:int = this.duplicateSortArray.length
-             for(var i:int=0;i<dl;i++) {
-             	  var found:Boolean=false
-             	  var tl:int = tempP.length
-             	  for(var k:int=0;k<tl;k++) {
-             	  	if(tempP[k].plane==this.duplicateSortArray[i].plane) {
-             	  		 found = true
-             	  		 if(tempP[k].zValue<this.duplicateSortArray[i].zValue) tempP[k].zValue=this.duplicateSortArray[i].zValue
-             	  	}
-                }
-                if(!found) tempP[tempP.length] = this.duplicateSortArray[i]
-             }
-             this.duplicateSortArray = new Array
-             
-             tl = tempP.length
-             for(i=0;i<tl;i++) this.setD(tempP[i].plane,tempP[i].zValue)
-                 
-         } while(tempP.length!=0)
-	       
-				 // Progress event
-				 var current:Number = 100*((count)/this.sortArray.length)
-         this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,current,fSceneGridSorter.SORTDESCRIPTION,current,fSceneGridSorter.SORTDESCRIPTION))
-	       
-	    }
-	      
-			// zSort End
-			private function zSortComplete(event:TimerEvent):void {
+			
+			
+			// End zort (all cubes have been sorted)
+			private function zSortComplete():void {
 	     
-				event.target.removeEventListener(TimerEvent.TIMER, this.zSortLoop)
-       	event.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.zSortComplete)
-
-	      // Finish zSort and normalize zIndexes
-	      this.sortArray.sortOn("zIndex",Array.NUMERIC)
-	      var sl:int = this.sortArray.length
-	      for(var i:int=0;i<sl;i++) (this.sortArray[i] as fPlane).setZ(i+1)
+	      // Create one single array with everything, applying sortCube depth offsets
+	      var sortArray:Array = new Array
+	      for(i=0;i<this.serializedSortCubes.length;i++) {
+	      	var cube:fSortCube = this.serializedSortCubes[i]
+	      	for(j=0;j<cube.walls.length;j++) {
+	      		w = cube.walls[j]
+	      		w.setZ((10*cube.zIndex)+w.zIndex)
+	      		sortArray[sortArray.length] = w
+	      	}
+	      	for(j=0;j<cube.floors.length;j++) {
+	      		f = cube.floors[j]
+	      		if(f.k!=0) {
+	      			f.setZ((10*cube.zIndex)+f.zIndex)
+	      			sortArray[sortArray.length] = f
+	      		}
+	      	}
+	      }
+	      
+	      // Normalize zIndexes
+	      sortArray.sortOn("zIndex",Array.NUMERIC)
+	      var sl:int = sortArray.length
+	      for(var i:int=0;i<sl;i++) (sortArray[i] as fPlane).setZ(i+1)
 
 	      // Generate sort areas for the scene
 	      var sortAreas:Array = new Array
 	      sortAreas[sortAreas.length] = (new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0))
 	      
-	      var vl:int = this.verticals.length 
+	      var vl:int = this.allVerticals.length 
 	      for(i=0;i<vl;i++) {
-	      	var w:fWall = this.verticals[i]
+	      	var w:fWall = this.allVerticals[i]
 	      	sortAreas[sortAreas.length] = (new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
 	      }
 	      
-	      var hl:int = this.horizontals.length
+	      var hl:int = this.allHorizontals.length
 	      for(i=0;i<hl;i++) {
-	      	w = this.horizontals[i]
+	      	w = this.allHorizontals[i]
 	      	sortAreas[sortAreas.length] = (new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
 	      }
 	      
@@ -266,10 +300,10 @@ package org.ffilmation.engine.core.sceneInitialization {
 				
 				// Dispose resources
 				this.scene = null
-				this.verticals = null
-				this.horizontals = null
-				this.sortArray = null
-				this.duplicateSortArray = null
+				this.allVerticals = null
+				this.allHorizontals = null
+				this.sortCubes = null
+				this.serializedSortCubes = null
 
 				// Events
         this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,100,fSceneGridSorter.SORTDESCRIPTION,100,fSceneGridSorter.SORTDESCRIPTION))

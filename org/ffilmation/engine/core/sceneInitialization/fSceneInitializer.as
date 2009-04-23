@@ -119,7 +119,7 @@ package org.ffilmation.engine.core.sceneInitialization {
         
 			}
 
-			// Part 3 of scene initialization grid is zSorting
+			// Part 3 of scene initialization is zSorting
 			private function initialization_Part3(e:Event) {
 				
 				this.myTimer.removeEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part3)

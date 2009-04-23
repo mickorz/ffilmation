@@ -101,12 +101,12 @@ package org.ffilmation.engine.core {
 			  throw new Error("Filmation Engine Exception: You can't move a fPlane. ("+this.id+")"); 
 		  }
 
-			/** @private */
 			// Is this plane in front of other plane ?
+			/** @private */
 			public function inFrontOf(p:fPlane):Boolean {
 				return false
 			}
-
+			
 			/** @private */
 			public function setZ(zIndex:Number):void {
 			   this.zIndex = zIndex
@@ -116,7 +116,6 @@ package org.ffilmation.engine.core {
 			/** @private */
 			public function disposePlane():void {
 
-				this.material.dispose()
 				this.material = null
 				var hl:int = this.holes.length
 				for(var i:Number=0;i<hl;i++) delete this.holes[i]

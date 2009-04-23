@@ -68,6 +68,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
          		this.vp.y_min = element.z
          		this.vp.y_max = element.top
          }
+         
 			
 			}
 
@@ -409,8 +410,19 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 for(var k:int=0;k<cl;k++) {
 				 	
 				 		// Clip against this wall
-				 		var cont:Array = polygonUtils.clipPolygon(contours[k],this.vp)
-				 		var rcont:Array = new Array
+				 		try {
+				 			var cont:Array = polygonUtils.clipPolygon(contours[k],this.vp)
+				 			var rcont:Array = new Array
+				 		} catch(e:Error) {
+				 		
+			         trace(contours[k].length)
+			         for(var m:int=0;m<contours[k].length;m++) trace(contours[k][m])
+			         trace(this.element.id)
+      			   trace(this.vp.x_max-this.vp.x_min)
+         			 trace(this.vp.y_max-this.vp.y_min)
+         			 trace(" ")
+				 		
+				 		}
 
 				 		// Project to 2d renderer coordinates
 				 		var cntl:int = cont.length

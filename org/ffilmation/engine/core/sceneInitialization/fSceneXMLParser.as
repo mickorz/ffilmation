@@ -27,6 +27,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   // Grid initialization
 			   if(xmlObj.@gridsize.length()>0) scene.gridSize = new Number(xmlObj.@gridsize)
 			   if(xmlObj.@levelsize.length()>0) scene.levelSize = new Number(xmlObj.@levelsize)
+			   if(xmlObj.@cubeSize.length()>0) scene.sortCubeSize = new Number(xmlObj.@cubeSize)
 				
 				 // Search for BOX tags and decompile into walls and floors
 				 var tempObj:XMLList = xmlObj.body.child("box")
@@ -134,11 +135,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			public static function parseFloorFromXML(scene:fScene,xmlObj:XML):void {
 			
 				 if(xmlObj.@src.length()==0) xmlObj.@src="default"
-
 				 var nFloor:fFloor = new fFloor(xmlObj,scene)
-         scene.floors.push(nFloor)
-         scene.everything.push(nFloor)
-			   scene.all[nFloor.id] = nFloor
 			   		   	    
 			   // Update scene bounds
 			   if(scene.gridWidth<(nFloor.i+nFloor.gWidth)) scene.gridWidth = nFloor.i+nFloor.gWidth
@@ -147,20 +144,40 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   scene.depth = scene.gridDepth*scene.gridSize
 			   if(nFloor.z>scene.top) scene.top = nFloor.z
 
+			   // Test if this floor should be tesselated. Tesselation returns the original floor if no tesselation
+			   // is performed
+			   var tesselated:Array = fPlaneTesselation.tesselateFloor(nFloor,scene.sortCubeSize)
+			   if(tesselated && tesselated.length) {
+			   	 for(var i:int=0;i<tesselated.length;i++) {
+					   nFloor = tesselated[i]
+         		 scene.floors.push(nFloor)
+         		 scene.everything.push(nFloor)
+			       if(!scene.all[nFloor.id]) scene.all[nFloor.id] = nFloor
+			     }
+			   }
+
 			}
 			
 			/** Inserts a new wall into an scene from an XML node */
 			public static function parseWallFromXML(scene:fScene,xmlObj:XML):void {
 			
 				 if(xmlObj.@src.length()==0) xmlObj.@src="default"
-
 	       var nWall:fWall = new fWall(xmlObj,scene)
-			   scene.walls.push(nWall)
-			   scene.everything.push(nWall)
-			   scene.all[nWall.id] = nWall
-			   
+
 			   // Update scene bounds
 			   if(nWall.top>scene.top) scene.top = nWall.top
+			   
+			   // Test if this wall should be tesselated. Tesselation returns the original wall if no tesselation
+			   // is performed
+			   var tesselated:Array = fPlaneTesselation.tesselateWall(nWall,scene.sortCubeSize)
+			   if(tesselated && tesselated.length) {
+			   	 for(var i:int=0;i<tesselated.length;i++) {
+					   nWall = tesselated[i]
+			   		 scene.walls.push(nWall)
+			   		 scene.everything.push(nWall)
+			   		 if(!scene.all[nWall.id]) scene.all[nWall.id] = nWall
+			   	 }
+			   }
 
 			}
 
