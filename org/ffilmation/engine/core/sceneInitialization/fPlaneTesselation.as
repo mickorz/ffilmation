@@ -33,13 +33,13 @@ package org.ffilmation.engine.core.sceneInitialization {
 					var xml1:XML = f.xmlObj.copy()
 					xml1.@height = splitY-f.y
 					xml1.@id+="_upSplit"
-					toBeXTested[toBeXTested.length] = new fFloor(xml1,f.scene)
+					if(xml1.@height>=(f.scene.gridSize/2)) toBeXTested[toBeXTested.length] = new fFloor(xml1,f.scene)
 
 					var xml2:XML = f.xmlObj.copy()
 					xml2.@y = splitY
 					xml2.@id+="_downSplit"
 					xml2.@height = f.y+f.depth-splitY
-					toBeXTested[toBeXTested.length] = new fFloor(xml2,f.scene)
+					if(xml2.@height>=(f.scene.gridSize/2)) toBeXTested[toBeXTested.length] = new fFloor(xml2,f.scene)
 					
 					f.dispose()
 					
@@ -60,13 +60,13 @@ package org.ffilmation.engine.core.sceneInitialization {
 						xml1 = f.xmlObj.copy()
 						xml1.@width = splitX-f.x
 						xml1.@id+="_leftSplit"
-						toBeReturned[toBeReturned.length] = new fFloor(xml1,f.scene)
+						if(xml1.@width>=(f.scene.gridSize/2)) toBeReturned[toBeReturned.length] = new fFloor(xml1,f.scene)
         	
 						xml2 = f.xmlObj.copy()
 						xml2.@x = splitX
 						xml2.@id+="_rightSplit"
 						xml2.@width = f.x+f.width-splitX
-						toBeReturned[toBeReturned.length] = new fFloor(xml2,f.scene)
+						if(xml2.@width>=(f.scene.gridSize/2)) toBeReturned[toBeReturned.length] = new fFloor(xml2,f.scene)
 						
 						f.dispose()
 						
@@ -105,13 +105,13 @@ package org.ffilmation.engine.core.sceneInitialization {
 						var xml1:XML = w.xmlObj.copy()
 						xml1.@size = splitY-w.y0
 						xml1.@id+="_upSplit"
-						toBeZTested[toBeZTested.length] = new fWall(xml1,w.scene)
-
+						if(xml1.@size>=(w.scene.gridSize/2)) toBeZTested[toBeZTested.length] = new fWall(xml1,w.scene)
+						
 						var xml2:XML = w.xmlObj.copy()
 						xml2.@y = splitY
 						xml2.@id+="_downSplit"
 						xml2.@size = w.y1-splitY
-						toBeZTested[toBeZTested.length] = new fWall(xml2,w.scene)
+						if(xml2.@size>=(w.scene.gridSize/2)) toBeZTested[toBeZTested.length] = new fWall(xml2,w.scene)
 						
 						w.dispose()
 						
@@ -130,13 +130,13 @@ package org.ffilmation.engine.core.sceneInitialization {
 						xml1 = w.xmlObj.copy()
 						xml1.@size = splitX-w.x0
 						xml1.@id+="_leftSplit"
-						toBeZTested[toBeZTested.length] = new fWall(xml1,w.scene)
+						if(xml1.@size>=(w.scene.gridSize/2)) toBeZTested[toBeZTested.length] = new fWall(xml1,w.scene)
 
 						xml2 = w.xmlObj.copy()
 						xml2.@x = splitX
 						xml2.@id+="_rightSplit"
 						xml2.@size = w.x1-splitX
-						toBeZTested[toBeZTested.length] = new fWall(xml2,w.scene)
+						if(xml2.@size>=(w.scene.gridSize/2)) toBeZTested[toBeZTested.length] = new fWall(xml2,w.scene)
 						
 						w.dispose()
 						
@@ -160,13 +160,13 @@ package org.ffilmation.engine.core.sceneInitialization {
 						xml1 = w.xmlObj.copy()
 						xml1.@height = splitZ-w.z
 						xml1.@id+="_lowerSplit"
-						toBeReturned[toBeReturned.length] = new fWall(xml1,w.scene)
+						if(xml1.@height>=(w.scene.levelSize/2)) toBeReturned[toBeReturned.length] = new fWall(xml1,w.scene)
         	
 						xml2 = w.xmlObj.copy()
 						xml2.@z = splitZ
 						xml2.@id+="_upperSplit"
 						xml2.@height = w.top-splitZ
-						toBeReturned[toBeReturned.length] = new fWall(xml2,w.scene)
+						if(xml2.@height>=(w.scene.levelSize/2)) toBeReturned[toBeReturned.length] = new fWall(xml2,w.scene)
 						
 						w.dispose()
 						

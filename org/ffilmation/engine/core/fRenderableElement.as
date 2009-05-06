@@ -1,12 +1,13 @@
 package org.ffilmation.engine.core {
 	
 		// Imports
-		import org.ffilmation.utils.*
-		import org.ffilmation.engine.elements.*
-
 		import flash.geom.*
 		import flash.events.*
 		import flash.display.*
+
+		import org.ffilmation.utils.*
+		import org.ffilmation.engine.elements.*
+		import org.ffilmation.engine.interfaces.*
 
 		/**
 		* <p>The fRenderableElement class defines the basic interface for visible elements in your scene.</p>
@@ -108,8 +109,10 @@ package org.ffilmation.engine.core {
 			public var willBeVisible:Boolean = false
 			
 			/** @private */
-			public var bounds2d:Rectangle = new Rectangle()
+			public var bounds2d:Rectangle = new Rectangle(0,0,1,1)
 			
+			/** @private */
+			public var screenArea:Rectangle = new Rectangle()
 
 			// Events
 			/** @private */
@@ -163,6 +166,16 @@ package org.ffilmation.engine.core {
  			*/
 		  public static const ASSETS_CREATED:String = "renderableElementAssetsCreated"
 
+			/**
+ 			* The fRenderableElement.ASSETS_DESTROYED constant defines the value of the 
+ 			* <code>type</code> property of the event object for a <code>renderableElementAssetsDestroyed</code> event.
+ 			* The event is dispatched when the element scrolls out of view and fEngine.conserveMemory is set to true. When this shappens all assets are
+ 			* destroyed and the flashClip property is nullified.
+ 			* 
+ 			* @eventType renderableElementAssetsCreated
+ 			*/
+		  public static const ASSETS_DESTROYED:String = "renderableElementAssetsDestroyed"
+
 
 			// Constructor
 			/** @private */
@@ -186,6 +199,10 @@ package org.ffilmation.engine.core {
 				 // Solid ?
 				 temp = defObj.@solid
 			   if(temp.length()==1) this.solid = (temp.toString()=="true")
+			   
+				 // Screen area
+			   this.screenArea = this.bounds2d.clone()
+				 this.screenArea.offsetPoint(fScene.translateCoords(this.x,this.y,this.z))			   
 			   
 			}
 
@@ -298,22 +315,22 @@ package org.ffilmation.engine.core {
 			*/
 			public function distance2dScreen(x:Number,y:Number):Number {
 
-				var bounds:Rectangle = this.bounds2d
-				var pos2D:Point = new Point(x,y)
-				var dist:Number = Infinity
-				if(this is fWall) {
-					var w:fWall = this as fWall
-					var origin:Point = fScene.translateCoords(w.x0,w.y0,w.z)
-				} else {
-					origin = fScene.translateCoords(this.x,this.y,this.z)
+				// Characters move. Update their screen Area
+				if(this is fMovingElement) {
+			   this.screenArea = this.bounds2d.clone()
+				 this.screenArea.offsetPoint(fScene.translateCoords(this.x,this.y,this.z))
 				}
 				
-				if(bounds.contains(pos2D.x-origin.x,pos2D.y-origin.y)) return 0
+				// Test bounds
+				var bounds:Rectangle = this.screenArea
+				var pos2D:Point = new Point(x,y)
+				var dist:Number = Infinity
+				if(bounds.contains(pos2D.x,pos2D.y)) return 0
 				
-				var corner1:Point = new Point(origin.x+bounds.x,origin.y+bounds.y)
-				var corner2:Point = new Point(origin.x+bounds.x,origin.y+bounds.y+bounds.height)
-				var corner3:Point = new Point(origin.x+bounds.x+bounds.width,origin.y+bounds.y+bounds.height)
-				var corner4:Point = new Point(origin.x+bounds.x+bounds.width,origin.y+bounds.y)
+				var corner1:Point = new Point(bounds.left,bounds.top)
+				var corner2:Point = new Point(bounds.left,bounds.bottom)
+				var corner3:Point = new Point(bounds.right,bounds.bottom)
+				var corner4:Point = new Point(bounds.right,bounds.top)
 				
 				var d:Number = mathUtils.distancePointToSegment(corner1,corner2,pos2D)
 				if(d<dist) dist = d

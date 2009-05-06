@@ -122,7 +122,9 @@
 			  public function showElement(element:fRenderableElement):void {
 			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(!r.assetsCreated) {
+			  		var e=getTimer()
 			  		r.createAssets()
+			  		trace("Create "+((getTimer()-e)/1000))
 			  		r.renderGlobalLight(this.scene.environmentLight)
 			  		r.assetsCreated = true
 			  	}
@@ -166,7 +168,7 @@
 			  	}        
                    
 			  	// Clear pending
-			  	r.renderMessages.reset()
+			  	if(!fEngine.conserveMemory) r.renderMessages.reset()
 				}          
                    
 			  /**        
@@ -176,6 +178,12 @@
 			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	r.screenVisible = false
 					r.hide()
+					if(fEngine.conserveMemory && r.assetsCreated) {
+						r.destroyAssets()
+						r.assetsCreated = false
+						// Dispatch destruction event
+						element.dispatchEvent(new Event(fRenderableElement.ASSETS_DESTROYED))
+					}
 			  }
 
 			  /**
@@ -198,7 +206,7 @@
 				public function lightIn(element:fRenderableElement,light:fOmniLight):void {
 			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.lightIn(light)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.LIGHT_IN,light)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.LIGHT_IN,light)
 				}
 
 				/**
@@ -207,7 +215,7 @@
 				public function lightOut(element:fRenderableElement,light:fOmniLight):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.lightOut(light)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.LIGHT_OUT,light,null,true)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.LIGHT_OUT,light,null,true)
 
 				}
 
@@ -217,7 +225,7 @@
 				public function lightReset(element:fRenderableElement,light:fOmniLight):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.lightReset(light)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.LIGHT_RESET,light)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.LIGHT_RESET,light)
 				}
 
 				/**
@@ -226,7 +234,7 @@
 				public function renderStart(element:fRenderableElement,light:fOmniLight):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.renderStart(light)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_START,light)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.RENDER_START,light)
 				}
 				
 				/**
@@ -235,7 +243,7 @@
 				public function renderLight(element:fRenderableElement,light:fOmniLight):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.renderLight(light)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_LIGHT,light)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.RENDER_LIGHT,light)
 				}
 
 				/**
@@ -244,7 +252,7 @@
 				public function renderShadow(element:fRenderableElement,light:fOmniLight,shadow:fRenderableElement):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.renderShadow(light,shadow)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_SHADOW,light,shadow)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.RENDER_SHADOW,light,shadow)
 				}
 
 				/**
@@ -253,7 +261,7 @@
 				public function renderFinish(element:fRenderableElement,light:fOmniLight):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.renderFinish(light)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.RENDER_FINISH,light)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.RENDER_FINISH,light)
 				}
 		
 				/**
@@ -262,7 +270,7 @@
 				public function updateShadow(element:fRenderableElement,light:fOmniLight,shadow:fRenderableElement):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.updateShadow(light,shadow)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.UPDATE_SHADOW,light,shadow)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.UPDATE_SHADOW,light,shadow)
 				}
 
 				/**
@@ -271,7 +279,7 @@
 				public function removeShadow(element:fRenderableElement,light:fOmniLight,shadow:fRenderableElement):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.removeShadow(light,shadow)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.REMOVE_SHADOW,light,shadow,true)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.REMOVE_SHADOW,light,shadow,true)
 				}
 
 				/**
@@ -320,7 +328,7 @@
 				public function startOcclusion(element:fRenderableElement,character:fCharacter):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.startOcclusion(character)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.START_OCCLUSION,character)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.START_OCCLUSION,character)
 				}
 				
 				/**
@@ -331,7 +339,7 @@
 				public function updateOcclusion(element:fRenderableElement,character:fCharacter):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.updateOcclusion(character)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.UPDATE_OCCLUSION,character)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.UPDATE_OCCLUSION,character)
 				}
       	
 				/**
@@ -342,7 +350,7 @@
 				public function stopOcclusion(element:fRenderableElement,character:fCharacter):void {
 					var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(r.screenVisible) r.stopOcclusion(character)
-			  	else r.renderMessages.addMessage(fAllRenderMessages.STOP_OCCLUSION,character,null,true)
+			  	if(!r.screenVisible || fEngine.conserveMemory) r.renderMessages.addMessage(fAllRenderMessages.STOP_OCCLUSION,character,null,true)
 				}
 
 				/**
@@ -464,7 +472,7 @@
 				private function processGlobalIntensityChange(evt:Event):void {
 					for(var i in this.renderers) {
 						if(this.renderers[i].screenVisible) this.renderers[i].processGlobalIntensityChange(evt.target as fGlobalLight)
-						else this.renderers[i].renderMessages.addMessage(fAllRenderMessages.GLOBAL_INTESITY_CHANGE,evt.target as fGlobalLight)
+						if(!this.renderers[i].screenVisible || fEngine.conserveMemory) this.renderers[i].renderMessages.addMessage(fAllRenderMessages.GLOBAL_INTESITY_CHANGE,evt.target as fGlobalLight)
 					}
 				}
 		
@@ -474,7 +482,7 @@
 				private function processGlobalColorChange(evt:Event):void {
 					for(var i in this.renderers) {
 						if(this.renderers[i].screenVisible) this.renderers[i].processGlobalColorChange(evt.target as fGlobalLight)
-						else this.renderers[i].renderMessages.addMessage(fAllRenderMessages.GLOBAL_COLOR_CHANGE,evt.target as fGlobalLight)
+						if(!this.renderers[i].screenVisible || fEngine.conserveMemory) this.renderers[i].renderMessages.addMessage(fAllRenderMessages.GLOBAL_COLOR_CHANGE,evt.target as fGlobalLight)
 					}
 				}
 

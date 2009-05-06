@@ -178,6 +178,10 @@ package org.ffilmation.engine.elements {
 				 var h:Number = tempSprite.height
 			   this.bounds2d = new Rectangle(-w/2,-h,w,h)
 				 objectPool.returnInstance(tempSprite)
+
+			   // Screen area
+			   this.screenArea = this.bounds2d.clone()
+				 this.screenArea.offsetPoint(fScene.translateCoords(this.x,this.y,this.z))
 				
 			 	 // Initial orientation
 			 	 if(defObj.@orientation.length()>0) this.orientation = new Number(defObj.@orientation[0])

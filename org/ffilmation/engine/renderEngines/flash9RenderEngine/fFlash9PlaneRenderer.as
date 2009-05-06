@@ -87,17 +87,9 @@
 
          // Listen to changes in material
          element.addEventListener(fPlane.NEWMATERIAL,this.newMaterial,false,0,true)
-
-			}
-			
-			/**
-			* This method creates the assets for this plane. It is only called the first time the element scrolls into view
-			*/
-			public override function createAssets():void {
-				
+         
  			   // This is the polygon that is drawn to represent this plane, with perspective applied
 				 this.clipPolygon = new fPolygon()
-				 var element:fPlane = this.element as fPlane
 				 var contours:Array = element.shapePolygon.contours
 
 				 // Process shape vertexes
@@ -135,8 +127,18 @@
 				 			}
 				 	  }
 				 }
+         
 
+			}
+			
+			/**
+			* This method creates the assets for this plane. It is only called the first time the element scrolls into view
+			*/
+			public override function createAssets():void {
+				
  			   // Retrieve diffuse map
+ 			   var element:fPlane = this.element as fPlane
+ 			   
  			   var d:DisplayObject = element.material.getDiffuse(element,this.origWidth,this.origHeight,true)
  			   if(d) {
  			   	 this.diffuseData = new BitmapData(element.bounds2d.width,element.bounds2d.height,true,0)
@@ -184,8 +186,6 @@
 			   this.simpleHolesC = objectPool.getInstanceOf(Sprite) as Sprite
 				 this.black = new Shape()
 			   this.environmentC = new Shape()
- 			   this.lightC.mouseEnabled = false
- 			   this.lightC.mouseChildren = false
 
 			   this.baseContainer.addChild(this.lightC)
 			   this.lightC.addChild(this.black)
@@ -213,7 +213,7 @@
 				 this.occlusionLayer.scrollRect = this.scrollR
 				 this.occlusionSpots = new Object
 				 if(element is fWall) {
-				 		w = element as fWall
+				 		var w:fWall = element as fWall
 				 		this.simpleShadowsLayer.y-=w.pixelHeight
 				 		this.occlusionLayer.y-=w.pixelHeight*fEngine.DEFORMATION
 				 }
@@ -234,6 +234,144 @@
 				
 			}		
 			
+			/**
+			* This method destroys the assets for this element. It is only called when the element in hidden and fEngine.conserveMemory is set to true
+			*/
+			public override function destroyAssets():void {
+
+				// Cache
+				this.undoCache()
+        if(this.cacheTimer) {
+        	this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
+       		this.cacheTimer.stop()
+       		this.cacheTimer = null
+       	}
+			  
+			  // Holes
+				this.element.removeEventListener(fRenderableElement.SHOW,this.redrawShadowsOnShowHide)
+				this.element.removeEventListener(fRenderableElement.HIDE,this.redrawShadowsOnShowHide)
+			  var element:fPlane = this.element as fPlane
+			  var hl:int = element.holes.length
+			  for(var i:int=0;i<hl;i++) {
+   					element.holes[i].removeEventListener(fHole.OPEN,this.openHole)
+				 		element.holes[i].removeEventListener(fHole.CLOSE,this.closeHole)
+				 		if(!element.holes[i].open && element.holes[i].block && this.behind) this.behind.removeChild(element.holes[i].block)				 		 	
+			  }
+
+				// Maps
+				this.bumpMap = null
+				this.diffuse = null
+				if(this.diffuseData) this.diffuseData.dispose()
+				this.diffuseData = null
+				if(this.bumpMapData) this.bumpMapData.dispose()
+				this.displacer = null
+				this.tMatrix = null
+				this.tMatrixB = null
+
+				// Lights
+				if(this.lightMasks) {
+					var il:int = this.lightMasks.length 
+					for(i=0;i<il;i++) {
+						if(this.lightMasks[i]) this.lightMasks[i].graphics.clear()
+						objectPool.returnInstance(this.lightMasks[i])
+						delete this.lightMasks[i]
+					}
+					this.lightMasks = null
+			  }
+
+				if(this.lightShadowsObj) {
+					il = this.lightShadowsObj.length
+					for(i=0;i<il;i++) {
+						fFlash9RenderEngine.recursiveDelete(this.lightShadowsObj[i])
+						objectPool.returnInstance(this.lightShadowsObj[i])
+						delete this.lightShadowsObj[i]
+					}
+					this.lightShadowsObj = null
+				}
+				
+				if(this.lightShadowsPl) {
+					il = this.lightShadowsPl.length
+					for(i=0;i<il;i++) {
+						fFlash9RenderEngine.recursiveDelete(this.lightShadowsPl[i])
+						objectPool.returnInstance(this.lightShadowsPl[i])
+						delete this.lightShadowsPl[i]
+					}
+					this.lightShadowsPl = null
+				}
+				
+				if(this.lightBumps) {
+					il = this.lightBumps.length
+					for(i=0;i<il;i++) {
+						fFlash9RenderEngine.recursiveDelete(this.lightBumps[i])
+						objectPool.returnInstance(this.lightBumps[i])
+						delete this.lightBumps[i]
+					}
+					this.lightBumps = null
+				}
+				
+				if(this.lightClips) {
+					il = this.lightClips.length
+					for(i=0;i<il;i++) {
+						objectPool.returnInstance(this.lightClips[i])
+						fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
+						delete this.lightClips[i]
+					}
+					this.lightClips = null
+				}
+				
+				for(var j in this.lightStatuses) {
+					var light:fLight =this.lightStatuses[j].light
+					if(light) {
+		 		  	light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
+		 		  	light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
+		 		  	light.removeEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange)
+						delete this.lightStatuses[j]
+					}
+				}
+				this.lightStatuses = null
+
+				// Occlusion
+				for(j in this.occlusionSpots) {
+					fFlash9RenderEngine.recursiveDelete(this.occlusionSpots[j])
+					delete this.occlusionSpots[j]
+				}
+				this.occlusionSpots = null
+
+				fFlash9RenderEngine.recursiveDelete(this.deformedSimpleShadowsLayer)
+				fFlash9RenderEngine.recursiveDelete(this.simpleShadowsLayer)
+				fFlash9RenderEngine.recursiveDelete(this.occlusionLayer)
+				this.deformedSimpleShadowsLayer = null
+				this.simpleShadowsLayer = null
+				this.occlusionLayer = null
+
+				// Return to object pool
+				fFlash9RenderEngine.recursiveDelete(this.baseContainer)
+				objectPool.returnInstance(this.baseContainer)
+				objectPool.returnInstance(this.behind)
+				objectPool.returnInstance(this.infront)
+			  objectPool.returnInstance(this.lightC)
+			  objectPool.returnInstance(this.simpleHolesC)
+				objectPool.returnInstance(this.deformedSimpleShadowsLayer)
+				objectPool.returnInstance(this.simpleShadowsLayer)
+				objectPool.returnInstance(this.occlusionLayer)
+
+				// References
+				this.behind = null
+				this.infront = null
+			  if(this.finalBitmap) this.finalBitmap.mask = null
+			  if(this.finalBitmapMask) this.finalBitmapMask.graphics.clear()
+			  this.finalBitmapMask = null
+			  
+			  this.finalBitmap = null
+				if(this.finalBitmapData) this.finalBitmapData.dispose()
+				this.finalBitmapData = null
+			  this.lightC = null
+			  this.simpleHolesC = null
+				this.black = null
+			  this.environmentC = null
+				this.baseContainer = null
+
+			}
 			
 			// PLANE CACHE
 			//////////////
@@ -496,6 +634,7 @@
 			   		//this.deformedSimpleShadowsLayer.blendMode = BlendMode.LAYER
 			   		this.simpleHolesC.blendMode = BlendMode.ERASE
 				 		this.simpleHolesC.mouseEnabled = false
+				 		this.simpleHolesC.mouseChildren = false
 				 		
 				 } 
 
@@ -747,7 +886,7 @@
 			*/
 			public function redrawLight(light:fLight):void {
 				
-	       if(!this.lightStatuses[light.uniqueId]) return
+	       if(!this.lightStatuses || !this.lightStatuses[light.uniqueId]) return
 	       
 	       var lClip:Shape = this.lightMasks[light.uniqueId]
 	       lClip.graphics.clear()
@@ -1083,143 +1222,12 @@
 			/** @private */
 			public function disposePlaneRenderer():void {
 
-				this.element.removeEventListener(fRenderableElement.SHOW,this.redrawShadowsOnShowHide)
-				this.element.removeEventListener(fRenderableElement.HIDE,this.redrawShadowsOnShowHide)
+				// Assets
+				this.destroyAssets()
 
-				this.undoCache()
-        if(this.cacheTimer) {
-        	this.cacheTimer.removeEventListener(TimerEvent.TIMER, this.cacheTimerListener)
-       		this.cacheTimer.stop()
-       		this.cacheTimer = null
-       	}
-       	this.planeDeform = null
        	this.clipPolygon = null
-			  
-			  // Holes
-			  var element:fPlane = this.element as fPlane
-			  var hl:int = element.holes.length
-			  for(var i:int=0;i<hl;i++) {
-   					element.holes[i].removeEventListener(fHole.OPEN,this.openHole)
-				 		element.holes[i].removeEventListener(fHole.CLOSE,this.closeHole)
-				 		if(!element.holes[i].open && element.holes[i].block && this.behind) this.behind.removeChild(element.holes[i].block)				 		 	
-			  }
-
-				// Maps
-				this.bumpMap = null
-				this.diffuse = null
-				if(this.diffuseData) this.diffuseData.dispose()
-				this.diffuseData = null
-				if(this.bumpMapData) this.bumpMapData.dispose()
-				this.displacer = null
-				this.tMatrix = null
-				this.tMatrixB = null
-
-				// Lights
-				if(this.lightMasks) {
-					var il:int = this.lightMasks.length 
-					for(i=0;i<il;i++) {
-						if(this.lightMasks[i]) this.lightMasks[i].graphics.clear()
-						objectPool.returnInstance(this.lightMasks[i])
-						delete this.lightMasks[i]
-					}
-					this.lightMasks = null
-			  }
-
-				if(this.lightShadowsObj) {
-					il = this.lightShadowsObj.length
-					for(i=0;i<il;i++) {
-						fFlash9RenderEngine.recursiveDelete(this.lightShadowsObj[i])
-						objectPool.returnInstance(this.lightShadowsObj[i])
-						delete this.lightShadowsObj[i]
-					}
-					this.lightShadowsObj = null
-				}
-				
-				if(this.lightShadowsPl) {
-					il = this.lightShadowsPl.length
-					for(i=0;i<il;i++) {
-						fFlash9RenderEngine.recursiveDelete(this.lightShadowsPl[i])
-						objectPool.returnInstance(this.lightShadowsPl[i])
-						delete this.lightShadowsPl[i]
-					}
-					this.lightShadowsPl = null
-				}
-				
-				if(this.lightBumps) {
-					il = this.lightBumps.length
-					for(i=0;i<il;i++) {
-						fFlash9RenderEngine.recursiveDelete(this.lightBumps[i])
-						objectPool.returnInstance(this.lightBumps[i])
-						delete this.lightBumps[i]
-					}
-					this.lightBumps = null
-				}
-				
-				if(this.lightClips) {
-					il = this.lightClips.length
-					for(i=0;i<il;i++) {
-						objectPool.returnInstance(this.lightClips[i])
-						fFlash9RenderEngine.recursiveDelete(this.lightClips[i])
-						delete this.lightClips[i]
-					}
-					this.lightClips = null
-				}
-				
-				for(var j in this.lightStatuses) {
-					var light:fLight =this.lightStatuses[j].light
-					if(light) {
-		 		  	light.removeEventListener(fLight.INTENSITYCHANGE,this.processLightIntensityChange)
-		 		  	light.removeEventListener(fLight.COLORCHANGE,this.processLightIntensityChange)
-		 		  	light.removeEventListener(fLight.DECAYCHANGE,this.processLightIntensityChange)
-						delete this.lightStatuses[j]
-					}
-				}
-				this.lightStatuses = null
-
-
-				// Occlusion
-				for(j in this.occlusionSpots) {
-					fFlash9RenderEngine.recursiveDelete(this.occlusionSpots[j])
-					delete this.occlusionSpots[j]
-				}
-				this.occlusionSpots = null
-
-				fFlash9RenderEngine.recursiveDelete(this.deformedSimpleShadowsLayer)
-				fFlash9RenderEngine.recursiveDelete(this.simpleShadowsLayer)
-				fFlash9RenderEngine.recursiveDelete(this.occlusionLayer)
-				this.deformedSimpleShadowsLayer = null
-				this.simpleShadowsLayer = null
-				this.occlusionLayer = null
-
-
-				// Return to object pool
-				fFlash9RenderEngine.recursiveDelete(this.baseContainer)
-				objectPool.returnInstance(this.baseContainer)
-				objectPool.returnInstance(this.behind)
-				objectPool.returnInstance(this.infront)
-			  objectPool.returnInstance(this.lightC)
-			  objectPool.returnInstance(this.simpleHolesC)
-				objectPool.returnInstance(this.deformedSimpleShadowsLayer)
-				objectPool.returnInstance(this.simpleShadowsLayer)
-				objectPool.returnInstance(this.occlusionLayer)
-
-				// Base lights
-				this.behind = null
-				this.infront = null
-			  if(this.finalBitmap) this.finalBitmap.mask = null
-			  if(this.finalBitmapMask) this.finalBitmapMask.graphics.clear()
-			  this.finalBitmapMask = null
-			  
-			  this.finalBitmap = null
-				if(this.finalBitmapData) this.finalBitmapData.dispose()
-				this.finalBitmapData = null
-			  this.lightC = null
-			  this.simpleHolesC = null
-				this.black = null
-			  this.environmentC = null
-				this.baseContainer = null
 				this.spriteToDraw = null
-
+				
 				this.disposeRenderer()
 				
 			}

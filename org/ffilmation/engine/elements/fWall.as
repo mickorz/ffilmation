@@ -100,6 +100,10 @@ package org.ffilmation.engine.elements {
 			   		c1 = fScene.translateCoords(this.pixelSize,0,this.pixelHeight)
 			   		this.bounds2d = new Rectangle(0,c1.y,c1.x,-c1.y)
 			   }
+			   
+			   // Screen area
+			   this.screenArea = this.bounds2d.clone()
+				 this.screenArea.offsetPoint(fScene.translateCoords(this.x0,this.y0,this.z))
 
 			}
 			

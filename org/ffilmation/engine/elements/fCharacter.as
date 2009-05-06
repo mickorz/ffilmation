@@ -5,7 +5,9 @@ package org.ffilmation.engine.elements {
 	  import flash.display.*
 		import flash.events.*
 		import flash.geom.Point
+
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.datatypes.*
@@ -34,7 +36,7 @@ package org.ffilmation.engine.elements {
 		* @see org.ffilmation.engine.core.fScene#createCharacter()
 		*
 		*/
-		public class fCharacter extends fObject {
+		public class fCharacter extends fObject implements fMovingElement {
 			
 			// Constants
 

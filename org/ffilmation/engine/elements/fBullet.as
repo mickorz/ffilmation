@@ -6,6 +6,7 @@ package org.ffilmation.engine.elements {
 		import flash.utils.getDefinitionByName;
 		
 		import org.ffilmation.utils.*
+		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
@@ -30,7 +31,7 @@ package org.ffilmation.engine.elements {
 		*
 		* @see org.ffilmation.engine.core.fScene#createBullet()
 		*/
-		public class fBullet extends fRenderableElement {
+		public class fBullet extends fRenderableElement implements fMovingElement {
 			
 			// Constants
 

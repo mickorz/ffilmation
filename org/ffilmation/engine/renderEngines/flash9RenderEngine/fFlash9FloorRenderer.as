@@ -356,7 +356,9 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/** @private */
 			public function disposeFloorRenderer():void {
 
+
 				this.resetShadowsInt()
+       	this.planeDeform = null
 				this.disposePlaneRenderer()
 				
 			}

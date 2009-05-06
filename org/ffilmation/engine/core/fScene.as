@@ -12,6 +12,7 @@ package org.ffilmation.engine.core {
 		import flash.geom.Point
 		import flash.geom.Rectangle	
 
+		import org.ffilmation.utils.rtree.*
 		import org.ffilmation.utils.*
 		import org.ffilmation.engine.core.sceneInitialization.*
 		import org.ffilmation.engine.core.sceneLogic.*
@@ -50,7 +51,6 @@ package org.ffilmation.engine.core {
 		  // 1. References
 		  
 			private var _controller:fEngineSceneController = null
-			private var currentCamera:fCamera										// The camera currently in use
 		  /** @private */
 			public var prof:fProfiler = null										// Profiler
 			private var initializer:fSceneInitializer						// This scene's initializer
@@ -88,11 +88,27 @@ package org.ffilmation.engine.core {
 
 			/** @private */
 		  public var grid:Array                 						  // The grid
+			/** @private */
 		  public var allUsedCells:Array                 			
 			/** @private */
 			public var sortAreas:Array													// zSorting generates this. This array points to contiguous spaces sharing the same zIndex
 																													// It is used to find the proper zIndex for a cell
-																													
+			/** @private */
+			public var sortAreasRTree:fRTree										// This tree is used to search sortAreas efficiently
+			
+			/** @private */
+			public var allStatic2D:Array												// This provides fast 2D searches in the static elements
+			/** @private */
+			public var allStatic2DRTree:fRTree
+
+			/** @private */
+			public var allStatic3D:Array												// This provides fast 3D searches in the static elements
+			/** @private */
+			public var allStatic3DRTree:fRTree
+
+
+
+
 			// 4. Resources
 			
 		 	/** @private */
@@ -111,6 +127,11 @@ package org.ffilmation.engine.core {
 		  * Every Scene is automatically assigned and ID
 		  */
 		  public var id:String																
+
+			/**
+			* The camera currently in use, if any
+			*/
+			public var currentCamera:fCamera
 
 		  /** 
 		  * Were this scene is drawn
@@ -293,6 +314,22 @@ package org.ffilmation.engine.core {
 
 			// Public methods
 			
+			/**
+			* This method changes the viewport's size. It is useful, for example, to adapt your scene to liquid layouts
+			*
+			* @param width New width for the viewport
+			* @param height New height for the viewport
+			*/
+			public function setViewportSize(width:int,height:int):void {
+
+				this.renderManager.setViewportSize(width,height)
+				this.renderEngine.setViewportSize(width,height)
+				if(this.IAmBeingRendered && this.currentCamera) {
+					this.renderManager.processNewCellCamera(this.currentCamera)
+					this.renderEngine.setCameraPosition(this.currentCamera)
+				}
+			}
+
 			/**
 			* This Method is called to enable the scene. It will enable all controllers associated to the scene and its
 			* elements. The engine no longer calls this method when the scene is shown. Do it manually when needed.
@@ -609,9 +646,6 @@ package org.ffilmation.engine.core {
 		      spr.dispose()
 
 			}
-
-
-
 
 			/**
 			* Creates a new bullet and adds it to the scene. Note that bullets use their own render system. The bulletRenderer interface allows
@@ -1113,6 +1147,9 @@ package org.ffilmation.engine.core {
 			    cell.zIndex =  ((((((ow-i+1)+(j*ow+2)))*oh)+k))/(ow*od*oh)
 		    
 			    var s:Array = this.sortAreas[i]
+			    
+			    //var s:Array = this.sortAreasRTree.intersects(new fCube(i,j,k,i+1,j+1,k+1))
+			    
 			    var l:int = s.length
 			    
 			    var found:Boolean = false
@@ -1126,6 +1163,7 @@ package org.ffilmation.engine.core {
 			    	
 			    	/* Inline for a bit of speedup */
 			    	var sA:fSortArea = s[n]
+			    	//var sA:fSortArea = this.sortAreas[s[n]]
 					  if((i>=sA.i && i<=sA.i+sA.width) && (j>=sA.j && j<=sA.j+sA.depth) && (k>=sA.k && k<=sA.k+sA.height) ) {
 			    		found = true
 			    		cell.zIndex+=sA.zValue
@@ -1199,7 +1237,7 @@ package org.ffilmation.engine.core {
 
 			/**
 			* @private
-			* This method frees all resources allocated by this scene. Always clean unused scene objects:
+			* This method frees all resources allocated by this scene. Always dispose unused scene objects:
 			* scenes generate lots of internal Arrays and BitmapDatas that will eat your RAM fast if they are not properly deleted
 			*/
 			public function dispose():void {
@@ -1208,6 +1246,14 @@ package org.ffilmation.engine.core {
 		  	this.engine = null
 				for(var i:int=0;i<this.sortAreas.length;i++) delete this.sortAreas[i]
 				this.sortAreas = null
+				this.sortAreasRTree = null
+
+				this.allStatic2D = null
+				this.allStatic2DRTree = null
+				
+				this.allStatic3D = null
+				this.allStatic3DRTree = null
+
 				if(this.currentCamera) this.currentCamera.dispose()
 				this.currentCamera = null
 				this._controller = null

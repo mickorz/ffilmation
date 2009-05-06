@@ -4,6 +4,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 		// Imports
 		import flash.geom.*
 		
+		import org.ffilmation.utils.rtree.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.logicSolvers.coverageSolver.*
@@ -32,6 +33,18 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			   var rcell:Array = new Array, candidates:Array = new Array, floorc:fFloor, dist:Number, w:int, len:int, wallc:fWall, objc:fObject
 			   var p2d:Point = fScene.translateCoords(x,y,z)
 			   
+			   // Use rTree to search for all eleemnts within range
+			   var t:Array = scene.allStatic2DRTree.intersects(new fCube(p2d.x-range,p2d.y-range,0,p2d.x+range,p2d.y+range,0))
+			   len = t.length
+			   for(w=0;w<len;w++) {
+			      var el:fRenderableElement = scene.allStatic2D[t[w]] 
+			      dist = el.distance2dScreen(p2d.x,p2d.y)
+			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(el,dist)
+			   }
+			   
+			   // This is the old method. I leave it here because the RTree has not yet been fully tested
+			   
+			   /*
 			   // Add floors
 			   len = scene.floors.length
 			   for(w=0;w<len;w++) {
@@ -55,6 +68,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      dist = objc.distance2dScreen(p2d.x,p2d.y)
 			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(objc,dist)
 			   }
+			   */
 
 			   // Sort results by distance to coords 
 	       candidates.sortOn("distance",Array.NUMERIC)	
@@ -79,7 +93,37 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			
 			   // Init
 			   var rcell:Array = new Array, candidates:Array = new Array, allElements:Array = new Array, floorc:fFloor, dist:Number, w:Number, len:Number, wallc:fWall, objc:fObject
+				 var withObjects:Boolean = fEngine.objectShadows
 
+			   // Use rTree to search for all elements within range
+			   var t:Array = scene.allStatic3DRTree.intersects(new fCube(x-range,y-range,z-range,x+range,y+range,z+range))
+			   len = t.length
+			   for(w=0;w<len;w++) {
+			      var el:fRenderableElement = scene.allStatic3D[t[w]] 
+			   	  dist = el.distanceTo(x,y,z)
+			   	  if(dist<range) {
+			   	  	if(el is fFloor) {
+			   	  		floorc = el as fFloor
+				      	if(floorc.receiveLights) if(floorc.z<z) candidates[candidates.length] = (new fShadowedVisibilityInfo(floorc,dist))
+				      	if(floorc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(floorc,dist))
+			   	  	} else if(el is fWall) {
+			   	  		wallc = el as fWall
+				      	if(wallc.receiveLights) if((wallc.vertical && wallc.x>x) || (!wallc.vertical && wallc.y<y)) candidates[candidates.length] = (new fShadowedVisibilityInfo(wallc,dist))
+						  	if(wallc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(wallc,dist))
+			   	  	} else if(el is fObject) {
+			   	  		objc = el as fObject
+				      	if(objc.receiveLights) candidates[candidates.length] = (new fShadowedVisibilityInfo(objc,dist))
+				      	if(withObjects) if(objc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(objc,dist))
+			   	  	}
+
+			   	  }
+
+				 }
+			   
+			   // This is the old method. I leave it here because the RTree has not yet been fully tested
+			   
+			   /*
+			   
 			   // Add possible floors
 			   len = scene.floors.length
 			   for(w=0;w<len;w++) {
@@ -103,7 +147,6 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			   }
 			
 				 // Add possible objects
-				 var withObjects:Boolean = fEngine.objectShadows
 				 len = scene.objects.length
 			   for(w=0;w<len;w++) {
 			      objc = scene.objects[w]
@@ -113,6 +156,9 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			      	if(withObjects) if(objc.castShadows) allElements[allElements.length] = (new fShadowedVisibilityInfo(objc,dist))
 			      }
 			   }
+			   
+			   */
+			   
 
 			   // For each candidate, calculate possible shadows
 			   var candidate:fShadowedVisibilityInfo, covered:Boolean, other:fShadowedVisibilityInfo, result:int, len2:Number

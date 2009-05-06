@@ -73,6 +73,10 @@ package org.ffilmation.engine.elements {
 			   var c3:Point = fScene.translateCoords(0,this.depth,0)
 			   this.bounds2d = new Rectangle(0,c1.y,c2.x,c3.y-c1.y)
 
+			   // Screen area
+			   this.screenArea = this.bounds2d.clone()
+				 this.screenArea.offsetPoint(fScene.translateCoords(this.x,this.y,this.z))
+
 			}
 
 

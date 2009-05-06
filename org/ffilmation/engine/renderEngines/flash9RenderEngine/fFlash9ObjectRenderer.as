@@ -63,7 +63,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/**
-			* This method creates the assets for this plane. It is only called the first time the element scrolls into view
+			* This method creates the assets for this plane. It is only called when the element in shown and the assets don't exists
 			*/
 			public override function createAssets():void {
 
@@ -74,7 +74,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	 
 			 	 // Cache as bitmap non-animated objects
 			 	 var element:fObject = this.element as fObject
-			 	 this.container.cacheAsBitmap = element.animated!=true
+			 	 this.container.cacheAsBitmap = !(element is fCharacter) && element.animated!=true
 			 	 
 			 	 // Show and hide listeners, to redraw shadows
 			 	 element.addEventListener(fRenderableElement.SHOW,this.showListener,false,0,true)
@@ -92,6 +92,31 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	 this.currentSpriteIndex = -1
 				 this.rotationListener(new Event("Dummy"))
 				 
+			}
+
+			/**
+			* This method destroys the assets for this element. It is only called when the element in hidden and fEngine.conserveMemory is set to true
+			*/
+			public override function destroyAssets():void {
+				
+				// References
+				this.flashClip = this.element.flashClip = this.currentSprite = null
+
+			 	// Events
+			 	this.element.removeEventListener(fRenderableElement.SHOW,this.showListener)
+			 	this.element.removeEventListener(fRenderableElement.HIDE,this.hideListener)
+			 	this.element.removeEventListener(fObject.NEWORIENTATION,this.rotationListener)
+			 	this.element.removeEventListener(fObject.GOTOANDPLAY,this.gotoAndPlayListener)
+			 	this.element.removeEventListener(fObject.GOTOANDSTOP,this.gotoAndStopListener)
+			 	if(this.element is fCharacter) this.element.removeEventListener(fElement.MOVE,this.moveListener)
+				
+    		// Gfx
+    		if(this.baseObj) {
+    			fFlash9RenderEngine.recursiveDelete(this.baseObj)
+			  	objectPool.returnInstance(this.baseObj)
+    			this.baseObj = null
+    		}
+				
 			}
 			
 			/**
@@ -129,7 +154,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 								
 							  var info:fObjectShadow = this.allShadows[i]
 								var n:MovieClip = objectPool.getInstanceOf(shadowClase) as MovieClip
-								info.shadow.removeChild(info.clip)
+								if(info.clip.parent) info.clip.parent.removeChild(info.clip)
 								objectPool.returnInstance(info.clip)
 								info.shadow.addChild(n)
 								info.clip = n
@@ -430,7 +455,6 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 			
 			private function processLightIntensityChange(e:Event) {
-				trace("1")
 				this.paintLights()
 			}
 			
@@ -498,32 +522,21 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				for(var i:Number=0;i<this.lights.length;i++) delete this.lights[i]
 				this.lights = null
 				this.glight = null
-				this.currentSprite = null
+
+				// Shadows
 				if(this.projectionCache) this.projectionCache.dispose()
 				this.projectionCache = null
 				this.shadowObj = null
-				this.flashClip = null
 			  if(this.allShadows) for(i=0;i<this.allShadows.length;i++) {
 				 	this.allShadows[i].dispose()
 				 	delete this.allShadows[i]
 				}
 				this.allShadows = null
 
-			 	// Events
-			 	this.element.removeEventListener(fRenderableElement.SHOW,this.showListener)
-			 	this.element.removeEventListener(fRenderableElement.HIDE,this.hideListener)
-			 	this.element.removeEventListener(fObject.NEWORIENTATION,this.rotationListener)
-			 	this.element.removeEventListener(fObject.GOTOANDPLAY,this.gotoAndPlayListener)
-			 	this.element.removeEventListener(fObject.GOTOANDSTOP,this.gotoAndStopListener)
-			 	if(this.element is fCharacter) this.element.removeEventListener(fElement.MOVE,this.moveListener)
+				// Gfx
+				this.destroyAssets()
 				
-    		// Gfx
-    		fFlash9RenderEngine.recursiveDelete(this.baseObj)
-			  objectPool.returnInstance(this.baseObj)
-    		this.baseObj = null
-
 				this.disposeRenderer()
-
 
 			}
 

@@ -142,6 +142,11 @@ package org.ffilmation.engine.core {
 			 */
 			 public static var softShadows:int = 2
 
+			 /**
+			 * When this flag in activated, the engine minimizes memory usage at the cost of some performance. You can
+			 * change it on the fly, for example if you are swithcing between small scenes and big ones.
+			 */
+			 public static var conserveMemory:Boolean = true
 
 			 /**
 			 * This property enables/disables shadow projection of objects
@@ -157,7 +162,7 @@ package org.ffilmation.engine.core {
 			 * This property defines the quality at which object and character shadows are rendered
 			 */
 			 private static var _shadowQuality:int = fShadowQuality.BEST
-
+			 
 
 			 /**
 			 * This property enables/disables bumpmapping globally. Please note that for the bumpMapping to work in a given surface and light, the surface

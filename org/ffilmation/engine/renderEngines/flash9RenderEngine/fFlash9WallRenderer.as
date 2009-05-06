@@ -486,6 +486,8 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 
 			/** @private */
 			public override function dispose():void {
+								
+				this.planeDeform = null
 				this.disposeWallRenderer()
 			}		
 

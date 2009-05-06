@@ -8,6 +8,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 		import flash.display.*
 		import flash.utils.*
 
+		import org.ffilmation.utils.rtree.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.elements.*
@@ -123,13 +124,16 @@ package org.ffilmation.engine.core.sceneInitialization {
 					this.sortCubes[Math.floor((f.x+2)/this.scene.sortCubeSize)][Math.floor((f.y+2)/this.scene.sortCubeSize)][Math.floor((f.z+2)/this.scene.sortCubeSize)].floors.push(f)
 				}
 				
+        this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,0,fSceneGridSorter.SORTDESCRIPTION,0,fSceneGridSorter.SORTDESCRIPTION))
+
+
 				// Process first cube
 				this.cubeBeingProcessed = 0
 				this.zSortCube()
 				
 			}
 			
-			// zSort all planes in current cube cube (see http://ericlin2.tripod.com/walls/wallt.html)
+			// zSort all planes in current sort cube (see http://ericlin2.tripod.com/walls/wallt.html)
 			// Ok so after 3 different crappy homebrewed algorythms I google isometric plane sort and found a simple loop that
 			// beats all my previous attempts in both speed and consistency...
 			private function zSortCube():void {
@@ -215,6 +219,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private function zSortCubeComplete(event:TimerEvent):void {
 				
        	event.target.removeEventListener(TimerEvent.TIMER_COMPLETE, this.zSortCubeComplete)
+
+        // Update status
+        this.dispatchEvent(new fProcessEvent(fScene.LOADPROGRESS,100*this.cubeBeingProcessed/this.serializedSortCubes.length,fSceneGridSorter.SORTDESCRIPTION,100*this.cubeBeingProcessed/this.serializedSortCubes.length,fSceneGridSorter.SORTDESCRIPTION))
        	
        	// Is there another cube to process ?
 				this.cubeBeingProcessed++
@@ -252,32 +259,49 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 	      // Generate sort areas for the scene
 	      var sortAreas:Array = new Array
-	      sortAreas[sortAreas.length] = (new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0))
+	      var tree:fRTree = new fRTree()
+	      
+	      var area:fSortArea = new fSortArea(0,0,0,this.scene.gridWidth,this.scene.gridDepth,this.scene.gridHeight,0)
+				//tree.addCube(area.getCube(),sortAreas.length)
+	      sortAreas[sortAreas.length] = area
 	      
 	      var vl:int = this.allVerticals.length 
 	      for(i=0;i<vl;i++) {
 	      	var w:fWall = this.allVerticals[i]
-	      	sortAreas[sortAreas.length] = (new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
+	      	area = new fSortArea(0,w.j,0,w.i-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex)
+					//tree.addCube(area.getCube(),sortAreas.length)
+		      sortAreas[sortAreas.length] = area
 	      }
 	      
 	      var hl:int = this.allHorizontals.length
 	      for(i=0;i<hl;i++) {
 	      	w = this.allHorizontals[i]
-	      	sortAreas[sortAreas.length] = (new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex))
+	      	area = new fSortArea(0,w.j,0,w.i+w.size-1,this.scene.gridDepth-w.j,this.scene.gridHeight,w.zIndex)
+					//tree.addCube(area.getCube(),sortAreas.length)
+		      sortAreas[sortAreas.length] = area
 	      }
 	      
 	      var fl:int = this.scene.floors.length 
 	      for(i=0;i<fl;i++) {
 	      	var f:fFloor = this.scene.floors[i]
 	      	if(f.k!=0) {
-	      		sortAreas[sortAreas.length] = (new fSortArea(f.i,f.j,f.k,f.gWidth-1,f.gDepth-1,this.scene.gridHeight-f.k,f.zIndex))
-	      		sortAreas[sortAreas.length] = (new fSortArea(0,f.j,0,f.i-1,this.scene.gridDepth-f.j,this.scene.gridHeight,f.zIndex))
-	      		sortAreas[sortAreas.length] = (new fSortArea(f.i,f.j+f.gDepth,0,f.gWidth-1,this.scene.gridDepth-f.j-f.gDepth,this.scene.gridHeight,f.zIndex))
+	      		area = new fSortArea(f.i,f.j,f.k,f.gWidth-1,f.gDepth-1,this.scene.gridHeight-f.k,f.zIndex)
+					  //tree.addCube(area.getCube(),sortAreas.length)
+		        sortAreas[sortAreas.length] = area
+	      		
+	      		area = new fSortArea(0,f.j,0,f.i-1,this.scene.gridDepth-f.j,this.scene.gridHeight,f.zIndex)
+					  //tree.addCube(area.getCube(),sortAreas.length)
+	      	  sortAreas[sortAreas.length] = area
+	      		
+	      		area = new fSortArea(f.i,f.j+f.gDepth,0,f.gWidth-1,this.scene.gridDepth-f.j-f.gDepth,this.scene.gridHeight,f.zIndex)
+				    //tree.addCube(area.getCube(),sortAreas.length)
+	          sortAreas[sortAreas.length] = area
 	      	}
 	      }
 
 	      // Split sortAreas per row, for faster lookups
 	      sortAreas.sortOn("zValue",Array.DESCENDING | Array.NUMERIC)
+	      
 	      this.scene.sortAreas = new Array
 	      
 	      var sw:int = this.scene.gridWidth 
@@ -290,6 +314,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 	      	}
 	      	this.scene.sortAreas[i] = temp
 	      }
+	      
+	      //this.scene.sortAreas = sortAreas
+				//this.scene.sortAreasRTree = tree
 
 	      // Set depth of objects and characters and finish zSort
 	      var ol:int = this.scene.objects.length

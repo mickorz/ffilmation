@@ -71,9 +71,14 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/**
-			* This method creates the assets for this plane. It is only called the first time the element in shown
+			* This method creates the assets for this element. It is only called when the element in shown and the assets don't exists
 			*/
 			public function createAssets():void {}
+
+			/**
+			* This method destroys the assets for this element. It is only called when the element in hidden and fEngine.conserveMemory is set to true
+			*/
+			public function destroyAssets():void {}
 
 			/**
 			* Place asset its proper position

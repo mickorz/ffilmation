@@ -2,7 +2,8 @@ package org.ffilmation.engine.helpers {
 	
 		// Imports
 		import flash.utils.*
-		
+		import org.ffilmation.utils.rtree.*
+
 		/**
 		* @private
 		* THIS IS A HELPER OBJECT. OBJECTS IN THE HELPERS PACKAGE ARE NOT SUPPOSED TO BE USED EXTERNALLY. DOCUMENTATION ON THIS OBJECTS IS 
@@ -44,6 +45,11 @@ package org.ffilmation.engine.helpers {
 				if(k<this.k || k>this.k+this.height) return false
 				return true
 			}
+			
+			public function getCube():fCube {
+				return new fCube(this.i+0.1,this.j+0.1,this.k+0.1,this.i+this.width-0.1,this.j+this.depth-0.1,this.k+this.height-0.1)
+			}
+			
 
 		}
 		

@@ -186,8 +186,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			    			if(px>x) pLeft = scene.width
 						}
 			      
-		     		var pUp:Number = mathUtils.linesIntersect(x,y,px,py,pLeft,1,pLeft,-1).y
-			    	retContour[retContour.length] = (new Point(pLeft, pUp))
+		     		var pt:Point = mathUtils.linesIntersect(x,y,px,py,pLeft,1,pLeft,-1)
+		     		if(pt) retContour[retContour.length] = (new Point(pLeft, pt.y))
 
 					}
 					
@@ -217,8 +217,8 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 			    			if(py>y) pUp = scene.depth
 						}
 			      
-		     		var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,pUp,-1,pUp).x
-			    	retContour[retContour.length] = (new Point(pLeft, pUp))
+			      var pt:Point = mathUtils.linesIntersect(x,y,px,py,1,pUp,-1,pUp)
+		     		if(pt) retContour[retContour.length] = (new Point(pt.x, pUp))
 
 					}
 												
@@ -340,10 +340,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(py>y) py=y-1
 						
 						// Project point
-			   	  var pUp:Number = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1).y
-			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY).x
-			   
-			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+						var pt1:Point = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1)
+			   	  var pt2:Point = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY)
+			   	  if(pt1 && pt2) retContour[retContour.length] = (new Point(pt2.x, pt1.y))
 
 				 }
 					
@@ -400,10 +399,10 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(px>destinyX) px = destinyX-1
 						
 						// Project point
-			   	  var pUp:Number = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1).y
-			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1).y
-			   
-			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+						var pt1:Point = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1)
+			   	  var pt2:Point = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1)
+			   	  if(pt1 && pt2) retContour[retContour.length] = (new Point(pt2.y, pt1.y))
+
 
 				 }
 					
@@ -489,10 +488,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(py>y) py=y-1
 						
 						// Project point
-			   	  var pUp:Number = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1).y
-			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY).x
-			   
-			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+						var pt1:Point = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1)
+			   	  var pt2:Point = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY)
+			   	  if(pt1 && pt2) retContour[retContour.length] = (new Point(pt2.x, pt1.y))
 
 				 }
 					
@@ -513,10 +511,10 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(py>y) py=y-1
 						
 						// Project point
-			   	  var pUp:Number = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1).y
-			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY).x
-			   
-			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+						var pt1:Point = mathUtils.linesIntersect(y,z,py,pz,destinyY,1,destinyY,-1)
+			   	  var pt2:Point = mathUtils.linesIntersect(x,y,px,py,1,destinyY,-1,destinyY)
+			   	  if(pt1 && pt2) retContour[retContour.length] = (new Point(pt2.x, pt1.y))
+
 
 				 }
 					
@@ -605,10 +603,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(px>destinyX) px = destinyX-1
 						
 						// Project point
-			   	  var pUp:Number = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1).y
-			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1).y
-			   
-			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+						var pt1:Point = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1)
+			   	  var pt2:Point = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1)
+			   	  if(pt1 && pt2) retContour[retContour.length] = (new Point(pt2.y, pt1.y))
 
 				 }
 					
@@ -630,10 +627,9 @@ package org.ffilmation.engine.logicSolvers.projectionSolver {
 						if(px>destinyX) px = destinyX-1
 						
 						// Project point
-			   	  var pUp:Number = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1).y
-			   	  var pLeft:Number = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1).y
-			   
-			   	  retContour[retContour.length] = (new Point(pLeft, pUp))
+						var pt1:Point = mathUtils.linesIntersect(x,z,px,pz,destinyX,1,destinyX,-1)
+			   	  var pt2:Point = mathUtils.linesIntersect(x,y,px,py,destinyX,-1,destinyX,1)
+			   	  if(pt1 && pt2) retContour[retContour.length] = (new Point(pt2.y, pt1.y))
 
 				 }
 					

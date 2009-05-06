@@ -7,6 +7,7 @@ package org.ffilmation.engine.elements {
 		import flash.geom.*
 		
 		import org.ffilmation.utils.*
+		import org.ffilmation.engine.interfaces.*
 		import org.ffilmation.engine.core.*
 		import org.ffilmation.engine.helpers.*
 		import org.ffilmation.engine.interfaces.*
@@ -27,7 +28,7 @@ package org.ffilmation.engine.elements {
 		*
 		* @see org.ffilmation.engine.core.fScene#createEmptySprite()
 		*/
-		public class fEmptySprite extends fRenderableElement {
+		public class fEmptySprite extends fRenderableElement implements fMovingElement {
 			
 			// Constructor
 			/** @private */

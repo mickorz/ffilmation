@@ -8,7 +8,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 		import flash.display.*
 		import flash.utils.*
 
+		import org.ffilmation.utils.rtree.*
 		import org.ffilmation.engine.core.*
+		import org.ffilmation.engine.elements.*
 		import org.ffilmation.engine.events.*
 		import org.ffilmation.engine.interfaces.*
 		
@@ -124,6 +126,10 @@ package org.ffilmation.engine.core.sceneInitialization {
 				
 				this.myTimer.removeEventListener(TimerEvent.TIMER_COMPLETE,this.initialization_Part3)
 
+				// Build RTrees
+				fSceneRTreeBuilder.buildTrees(this.scene)
+				
+				// Start zSort
 				this.sceneGridSorter = new fSceneGridSorter(this.scene)
 				this.sceneGridSorter.addEventListener(fScene.LOADPROGRESS,this.part3Progress)
 				this.sceneGridSorter.addEventListener(Event.COMPLETE,this.part3Complete)
