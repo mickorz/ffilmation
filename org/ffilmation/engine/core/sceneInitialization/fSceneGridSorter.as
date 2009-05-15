@@ -92,6 +92,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 				var cwidth:int = Math.ceil(this.scene.width/this.scene.sortCubeSize)
 				var cdepth:int = Math.ceil(this.scene.depth/this.scene.sortCubeSize)
 				var cheight:int = Math.ceil(this.scene.height/this.scene.sortCubeSize)
+				if(cwidth==0) cwidth=1
+				if(cdepth==0) cdepth=1
+				if(cheight==0) cheight=1
 				
 				for(var i:int=0;i<cwidth;i++) {
 					this.sortCubes[i] = new Array

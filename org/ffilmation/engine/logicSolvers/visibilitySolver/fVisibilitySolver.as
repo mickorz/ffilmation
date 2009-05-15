@@ -3,6 +3,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 	
 		// Imports
 		import flash.geom.*
+		import flash.utils.*
 		
 		import org.ffilmation.utils.rtree.*
 		import org.ffilmation.engine.core.*
@@ -23,7 +24,7 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			* @param x X coordinate from where we are "looking"
 			* @param y Y coordinate from where we are "looking"
 			* @param z Z coordinate from where we are "looking"
-			* @param range Elements further away than scene distance are not taken into account. This optimizes the process
+			* @param range Elements further away than this distance are not taken into account. This optimizes the process
 			*
 			* @return An Array of fVisibilityInfo objects
 			*/
@@ -34,18 +35,27 @@ package org.ffilmation.engine.logicSolvers.visibilitySolver {
 			   var p2d:Point = fScene.translateCoords(x,y,z)
 			   
 			   // Use rTree to search for all eleemnts within range
+	  		//var e=getTimer()
+			   
 			   var t:Array = scene.allStatic2DRTree.intersects(new fCube(p2d.x-range,p2d.y-range,0,p2d.x+range,p2d.y+range,0))
 			   len = t.length
+				//trace("Tree range:"+range+" "+len+" "+((getTimer()-e)/1000)+" de "+scene.allStatic2D.length)
+
+		  		//var e=getTimer()
+
 			   for(w=0;w<len;w++) {
 			      var el:fRenderableElement = scene.allStatic2D[t[w]] 
 			      dist = el.distance2dScreen(p2d.x,p2d.y)
 			      if(dist<range) candidates[candidates.length] = new fVisibilityInfo(el,dist)
 			   }
+
+				//trace("Distance "+((getTimer()-e)/1000))
 			   
 			   // This is the old method. I leave it here because the RTree has not yet been fully tested
 			   
-			   /*
+			   
 			   // Add floors
+			   /*
 			   len = scene.floors.length
 			   for(w=0;w<len;w++) {
 			      floorc = scene.floors[w] 

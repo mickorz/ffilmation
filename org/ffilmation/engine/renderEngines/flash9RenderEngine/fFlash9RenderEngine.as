@@ -122,12 +122,13 @@
 			  public function showElement(element:fRenderableElement):void {
 			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 			  	if(!r.assetsCreated) {
-			  		var e=getTimer()
 			  		r.createAssets()
-			  		trace("Create "+((getTimer()-e)/1000))
 			  		r.renderGlobalLight(this.scene.environmentLight)
 			  		r.assetsCreated = true
 			  	}
+			  	
+			  	trace("Show "+element.id)
+			  	
 			  	r.screenVisible = true
 			  	this.applyPendingRenderMessages(element)
 					r.show()
@@ -176,8 +177,8 @@
 			  **/        
 			  public function hideElement(element:fRenderableElement):void {
 			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
-			  	r.screenVisible = false
 					r.hide()
+			  	r.screenVisible = false
 					if(fEngine.conserveMemory && r.assetsCreated) {
 						r.destroyAssets()
 						r.assetsCreated = false

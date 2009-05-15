@@ -35,7 +35,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			public static var invalidations10:Array = [fAllRenderMessages.GLOBAL_COLOR_CHANGE]
 			public static var invalidations11:Array = [fAllRenderMessages.START_OCCLUSION,fAllRenderMessages.UPDATE_OCCLUSION,fAllRenderMessages.STOP_OCCLUSION]
 			public static var invalidations12:Array = [fAllRenderMessages.UPDATE_OCCLUSION]
-			public static var invalidations13:Array = [fAllRenderMessages.STOP_OCCLUSION]
+			public static var invalidations13:Array = [fAllRenderMessages.START_OCCLUSION,fAllRenderMessages.UPDATE_OCCLUSION,fAllRenderMessages.STOP_OCCLUSION]
 			
 			public static var invalidations:Array = [
 																							 fAllRenderMessages.invalidations0,

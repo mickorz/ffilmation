@@ -82,9 +82,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			 	 element.addEventListener(fObject.NEWORIENTATION,this.rotationListener,false,0,true)
 			 	 element.addEventListener(fObject.GOTOANDPLAY,this.gotoAndPlayListener,false,0,true)
 			 	 element.addEventListener(fObject.GOTOANDSTOP,this.gotoAndStopListener,false,0,true)
-			 	 if(element is fCharacter) {
-			 	 		element.addEventListener(fElement.MOVE,this.moveListener,false,0,true)
-			 	 }
+			 	 if(element is fCharacter) element.addEventListener(fElement.MOVE,this.moveListener,false,0,true)
 			 	 
 				 this.occlusionCount = 0
 				 
@@ -112,10 +110,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				
     		// Gfx
     		if(this.baseObj) {
+    			container.removeChild(this.baseObj)
     			fFlash9RenderEngine.recursiveDelete(this.baseObj)
 			  	objectPool.returnInstance(this.baseObj)
     			this.baseObj = null
     		}
+    		
+    		this.currentSpriteIndex = -1
 				
 			}
 			

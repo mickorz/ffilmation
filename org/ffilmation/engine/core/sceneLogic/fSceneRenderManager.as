@@ -73,8 +73,6 @@ package org.ffilmation.engine.core.sceneLogic {
 			    z = cam.z
 			   }
 			   
-		  		var e=getTimer()
-
 			   if(this.cell==null) {
 			      // Camera outside grid
 			      tempElements = fVisibilitySolver.calcVisibles(this.scene,x,y,z,this.range)
@@ -85,8 +83,6 @@ package org.ffilmation.engine.core.sceneLogic {
 			      tempElements = this.cell.visibleElements
 			   }
 
-			  	trace("Calc visibles "+((getTimer()-e)/1000))
-			   
 			   var anyChanges:Boolean = false
 			   
 			   // Step 1: static elements
