@@ -267,6 +267,9 @@
 				this.displacer = null
 				this.tMatrix = null
 				this.tMatrixB = null
+				
+				// Shadows
+				this.resetShadows()
 
 				// Lights
 				if(this.lightMasks) {

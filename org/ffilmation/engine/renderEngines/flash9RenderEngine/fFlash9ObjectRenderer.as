@@ -63,10 +63,10 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			}
 
 			/**
-			* This method creates the assets for this plane. It is only called when the element in shown and the assets don't exists
+			* This method creates the assets for this plane. It is only called when the element in shown and the assets don't exist
 			*/
 			public override function createAssets():void {
-
+				
 				 // Attach base clip
 				 this.baseObj = objectPool.getInstanceOf(Sprite) as Sprite
 				 container.addChild(this.baseObj)
@@ -88,7 +88,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				 
 			 	 // Draw initial sprite
 			 	 this.currentSpriteIndex = -1
-				 this.rotationListener(new Event("Dummy"))
+				 this.rotationListener()
 				 
 			}
 
@@ -97,8 +97,13 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			*/
 			public override function destroyAssets():void {
 				
+				// Current
+				objectPool.returnInstance(this.currentSprite)
+				this.baseObj.removeChild(this.currentSprite)
+				this.currentSprite = null
+
 				// References
-				this.flashClip = this.element.flashClip = this.currentSprite = null
+				this.flashClip = this.element.flashClip = null
 
 			 	// Events
 			 	this.element.removeEventListener(fRenderableElement.SHOW,this.showListener)
@@ -123,7 +128,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 			/**
 			* Listens to an object changing rotation and updates all sprites
 			*/
-			private function rotationListener(evt:Event):void {
+			private function rotationListener(evt:Event=null):void {
 				
 				var el:fObject = this.element as fObject
 				var correctedAngle:Number = el._orientation/360

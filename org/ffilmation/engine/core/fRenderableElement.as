@@ -173,6 +173,8 @@ package org.ffilmation.engine.core {
  			* destroyed and the flashClip property is nullified.
  			* 
  			* @eventType renderableElementAssetsCreated
+			* Still WIP. Don't use yet !!
+			* @private
  			*/
 		  public static const ASSETS_DESTROYED:String = "renderableElementAssetsDestroyed"
 

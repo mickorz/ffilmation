@@ -68,7 +68,7 @@ package org.ffilmation.utils {
 			* @param object The object you are returning to the pool
 			*/
 			public static function returnInstance(object:Object):void {
-
+				
 				if(!object) return
 				var c:Class = object.constructor
 				
@@ -76,6 +76,7 @@ package org.ffilmation.utils {
 				if(object is MovieClip) {
 					var m:MovieClip = object as MovieClip
 					m.gotoAndStop(1)
+					for(var i in m) trace(i +" "+m[i])
 				}
 
 				if(object is Sprite) {

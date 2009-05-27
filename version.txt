@@ -9,6 +9,8 @@ Fixed object occlusion not working.
 The Perlin material is about 5x-10x faster.
 A bit of loop optimization.
 Destroying an scene is about 5x faster.
+An RTree structure is added. RTrees are used to index spatial information and perform spatial searches such as elements close to Point X. This provides a bit of optimization in very large scenes with hundreds of elements. The Rtree API is exposed in the documentation so you can use it in your own code if you want to.
+Yet another zSort algorythm is implemented. This one if faster by several orders of magnitude and also more reliable in complex scenes.
 
 1.3.3:
 

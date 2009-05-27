@@ -127,8 +127,6 @@
 			  		r.assetsCreated = true
 			  	}
 			  	
-			  	trace("Show "+element.id)
-			  	
 			  	r.screenVisible = true
 			  	this.applyPendingRenderMessages(element)
 					r.show()
@@ -179,12 +177,12 @@
 			  	var r:fFlash9ElementRenderer = element.customData.flash9Renderer
 					r.hide()
 			  	r.screenVisible = false
-					if(fEngine.conserveMemory && r.assetsCreated) {
+					/*if(fEngine.conserveMemory && r.assetsCreated) {
 						r.destroyAssets()
 						r.assetsCreated = false
 						// Dispatch destruction event
 						element.dispatchEvent(new Event(fRenderableElement.ASSETS_DESTROYED))
-					}
+					}*/
 			  }
 
 			  /**

@@ -94,7 +94,7 @@ package org.ffilmation.engine.core {
 		   * Use these constants to fine Tune projections until you see no seams between textures. Unfortunately as these seams are a result
 		   * of pixel-rounding imperfections of the flash render engine, it will depend on your's scene's plane sizes and can't be solved generically.
 		   * So it will be a matter of tryind different values until it looks good for you
-		   * <p>Range from -0.1 to 0.1.Set as 0 for default settings</p>
+		   * <p>Range from -0.1 to 0.1. Set as 0 for default settings</p>
 			 */
 			 public static const RENDER_FINETUNE_2:Number = 0
 
@@ -145,6 +145,8 @@ package org.ffilmation.engine.core {
 			 /**
 			 * When this flag in activated, the engine minimizes memory usage at the cost of some performance. You can
 			 * change it on the fly, for example if you are swithcing between small scenes and big ones.
+			 * Still WIP. Don't use yet !!
+			 * @private
 			 */
 			 public static var conserveMemory:Boolean = true
 
@@ -243,7 +245,7 @@ package org.ffilmation.engine.core {
 				 		// This file is not loaded
 				 		fEngine.media[src] = true
 				 		
-						// Using loadBytes allows the adobe AIR editor to import loaed swfs into its security domain
+						// Using loadBytes allows the adobe AIR editor to import loaded swfs into its security domain
 						if(Capabilities.playerType=="Desktop") {
 							
 							var ByteLoader:URLLoader = new URLLoader()
