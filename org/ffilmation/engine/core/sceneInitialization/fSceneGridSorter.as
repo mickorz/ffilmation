@@ -51,7 +51,8 @@ package org.ffilmation.engine.core.sceneInitialization {
 			private var allHorizontals:Array
 			private var serializedSortCubes:Array
 			private var cubeBeingProcessed:int
-			
+			private var myTimer:Timer
+						
 			// Constructor
 			public function fSceneGridSorter(s:fScene):void {
 				 this.scene = s				
@@ -211,9 +212,9 @@ package org.ffilmation.engine.core.sceneInitialization {
 	      for(i=0;i<sl;i++) (buffer[i] as fPlane).setZ((i+1)/(sl+2))
 				
 				// Next step
-				var myTimer:Timer = new Timer(20, 1)
-       	myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortCubeComplete)
-        myTimer.start()
+				this.myTimer = new Timer(20, 1)
+       	this.myTimer.addEventListener(TimerEvent.TIMER_COMPLETE, this.zSortCubeComplete)
+        this.myTimer.start()
         	
       }
 

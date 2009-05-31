@@ -22,7 +22,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 
 			/** Updates an scene's properties from an XML */
-			public static function parseSceneGeometryFromXML(scene:fScene,xmlObj:XML):void {
+			public static function parseSceneGeometryFromXML(scene:fScene,xmlObj:XML,tesselation:Boolean=true):void {
 				
 			   // Grid initialization
 			   if(xmlObj.@gridsize.length()>0) scene.gridSize = new Number(xmlObj.@gridsize)
@@ -49,11 +49,11 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			   // Parse FLOOR Tags
 				 tempObj = xmlObj.body.child("floor")
-				 for(var i:Number=0;i<tempObj.length();i++) fSceneXMLParser.parseFloorFromXML(scene,tempObj[i])
+				 for(var i:Number=0;i<tempObj.length();i++) fSceneXMLParser.parseFloorFromXML(scene,tempObj[i],tesselation)
 				 
 			   // Parse WALL Tags
  				 tempObj = xmlObj.body.child("wall")
-			   for(i=0;i<tempObj.length();i++) fSceneXMLParser.parseWallFromXML(scene,tempObj[i])
+			   for(i=0;i<tempObj.length();i++) fSceneXMLParser.parseWallFromXML(scene,tempObj[i],tesselation)
 
 			   // Parse OBJECT Tags
 			   tempObj = xmlObj.body.child("object")
@@ -132,7 +132,7 @@ package org.ffilmation.engine.core.sceneInitialization {
 			}
 
 			/** Inserts a new floor into an scene from an XML node */
-			public static function parseFloorFromXML(scene:fScene,xmlObj:XML):void {
+			public static function parseFloorFromXML(scene:fScene,xmlObj:XML,tesselation:Boolean=true):void {
 			
 				 if(xmlObj.@src.length()==0) xmlObj.@src="default"
 				 var nFloor:fFloor = new fFloor(xmlObj,scene)
@@ -146,20 +146,26 @@ package org.ffilmation.engine.core.sceneInitialization {
 
 			   // Test if this floor should be tesselated. Tesselation returns the original floor if no tesselation
 			   // is performed
-			   var tesselated:Array = fPlaneTesselation.tesselateFloor(nFloor,scene.sortCubeSize)
-			   if(tesselated && tesselated.length) {
-			   	 for(var i:int=0;i<tesselated.length;i++) {
-					   nFloor = tesselated[i]
-         		 scene.floors.push(nFloor)
-         		 scene.everything.push(nFloor)
-			       if(!scene.all[nFloor.id]) scene.all[nFloor.id] = nFloor
-			     }
+			   if(tesselation) {
+			   	 var tesselated:Array = fPlaneTesselation.tesselateFloor(nFloor,scene.sortCubeSize)
+			   	 if(tesselated && tesselated.length) {
+			   	 	 for(var i:int=0;i<tesselated.length;i++) {
+					 	   nFloor = tesselated[i]
+         	 		 scene.floors.push(nFloor)
+         	 		 scene.everything.push(nFloor)
+			   	      if(!scene.all[nFloor.id]) scene.all[nFloor.id] = nFloor
+			   	   }
+			   	 }
+			   } else {
+     			 scene.floors.push(nFloor)
+     			 scene.everything.push(nFloor)
+	   	     if(!scene.all[nFloor.id]) scene.all[nFloor.id] = nFloor
 			   }
 
 			}
 			
 			/** Inserts a new wall into an scene from an XML node */
-			public static function parseWallFromXML(scene:fScene,xmlObj:XML):void {
+			public static function parseWallFromXML(scene:fScene,xmlObj:XML,tesselation:Boolean=true):void {
 			
 				 if(xmlObj.@src.length()==0) xmlObj.@src="default"
 	       var nWall:fWall = new fWall(xmlObj,scene)
@@ -169,14 +175,20 @@ package org.ffilmation.engine.core.sceneInitialization {
 			   
 			   // Test if this wall should be tesselated. Tesselation returns the original wall if no tesselation
 			   // is performed
+			   if(tesselation) {
 			   var tesselated:Array = fPlaneTesselation.tesselateWall(nWall,scene.sortCubeSize)
-			   if(tesselated && tesselated.length) {
-			   	 for(var i:int=0;i<tesselated.length;i++) {
-					   nWall = tesselated[i]
-			   		 scene.walls.push(nWall)
-			   		 scene.everything.push(nWall)
-			   		 if(!scene.all[nWall.id]) scene.all[nWall.id] = nWall
+			   	 if(tesselated && tesselated.length) {
+			   	 	 for(var i:int=0;i<tesselated.length;i++) {
+					 	   nWall = tesselated[i]
+			   	 		 scene.walls.push(nWall)
+			   	 		 scene.everything.push(nWall)
+			   	 		 if(!scene.all[nWall.id]) scene.all[nWall.id] = nWall
+			   	 	 }
 			   	 }
+			   } else {
+	   	 		 scene.walls.push(nWall)
+	   	 		 scene.everything.push(nWall)
+	   	 		 if(!scene.all[nWall.id]) scene.all[nWall.id] = nWall
 			   }
 
 			}
