@@ -99,7 +99,7 @@ package org.ffilmation.engine.renderEngines.flash9RenderEngine {
 				
 				// Current
 				objectPool.returnInstance(this.currentSprite)
-				this.baseObj.removeChild(this.currentSprite)
+				if(this.baseObj && this.currentSprite) this.baseObj.removeChild(this.currentSprite)
 				this.currentSprite = null
 
 				// References

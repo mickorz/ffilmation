@@ -1062,7 +1062,7 @@
 			* Resets shadows. This is called when the fEngine.shadowQuality value is changed
 			*/
 			public override function resetShadows():void {
-				 this.simpleShadowsLayer.graphics.clear()
+				 if(this.simpleShadowsLayer) this.simpleShadowsLayer.graphics.clear()
 				 this.resetShadowsInt()
 			}
 			

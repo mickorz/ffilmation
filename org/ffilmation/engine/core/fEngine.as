@@ -148,7 +148,7 @@ package org.ffilmation.engine.core {
 			 * Still WIP. Don't use yet !!
 			 * @private
 			 */
-			 public static var conserveMemory:Boolean = true
+			 public static var conserveMemory:Boolean = false
 
 			 /**
 			 * This property enables/disables shadow projection of objects
